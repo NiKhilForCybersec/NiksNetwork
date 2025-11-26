@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Load Balancing Complete Guide - L4/L7 algorithms, health checks, session persistence, HA patterns, AWS ALB/NLB, Azure, GCP">
-  <title>Load Balancing Guide | NetSec Guide</title>
+  <meta name="description" content="Load Balancing Guide - Understanding L4 vs L7, algorithm selection, health checks, and high availability patterns">
+  <title>Load Balancing | NetSec Guide</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,7 +18,7 @@
     <ul class="navbar-nav">
       <li><a href="index.html">Home</a></li>
       <li><a href="network-fundamentals.html">Fundamentals</a></li>
-      <li><a href="forward-proxy.html" class="active">Proxies</a></li>
+      <li><a href="forward-proxy.html">Proxies</a></li>
       <li><a href="firewall-concepts.html">Firewalls</a></li>
       <li><a href="troubleshooting.html">Troubleshooting</a></li>
     </ul>
@@ -35,23 +35,21 @@
     <div class="sidebar-section">
       <div class="sidebar-title">On This Page</div>
       <ul class="sidebar-nav">
-        <li><a href="#concepts">Load Balancing Concepts</a></li>
-        <li><a href="#l4-vs-l7">Layer 4 vs Layer 7</a></li>
-        <li><a href="#algorithms">Algorithms</a></li>
+        <li><a href="#concepts">Core Concepts</a></li>
+        <li><a href="#l4-vs-l7">L4 vs L7 Decision</a></li>
+        <li><a href="#algorithms">Algorithm Selection</a></li>
         <li><a href="#health-checks">Health Checks</a></li>
-        <li><a href="#session-persistence">Session Persistence</a></li>
-        <li><a href="#ha-patterns">HA Patterns</a></li>
-        <li><a href="#aws">AWS Load Balancers</a></li>
-        <li><a href="#azure">Azure Load Balancers</a></li>
-        <li><a href="#gcp">GCP Load Balancers</a></li>
+        <li><a href="#session">Session Persistence</a></li>
+        <li><a href="#ha">High Availability</a></li>
+        <li><a href="#cloud">Cloud Load Balancers</a></li>
       </ul>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-title">Related Pages</div>
       <ul class="sidebar-nav">
         <li><a href="reverse-proxy.html">Reverse Proxy</a></li>
-        <li><a href="forward-proxy.html">Forward Proxy</a></li>
         <li><a href="cloud-networking.html">Cloud Networking</a></li>
+        <li><a href="troubleshooting.html">Troubleshooting</a></li>
       </ul>
     </div>
   </aside>
@@ -64,178 +62,154 @@
         <span class="breadcrumb-item active">Load Balancing</span>
       </nav>
 
-      <h1>Load Balancing - Complete Guide</h1>
+      <h1>Load Balancing</h1>
       <p class="hero-subtitle">
-        Master load balancing concepts, algorithms, and implementations across on-premises 
-        and cloud environments for high availability and scalability.
+        Understanding load balancing concepts, choosing the right type and algorithm, 
+        and implementing high availability for your applications.
       </p>
 
-      <!-- Concepts -->
+      <!-- Core Concepts -->
       <section>
-        <h2 id="concepts">Load Balancing Concepts</h2>
+        <h2 id="concepts">Core Concepts</h2>
         <p>
-          Load balancing distributes incoming network traffic across multiple backend servers 
-          to ensure no single server becomes overwhelmed, improving reliability and performance.
+          A load balancer distributes incoming traffic across multiple backend servers, 
+          providing high availability, scalability, and improved performance.
         </p>
 
         <div class="ascii-diagram">
           <div class="ascii-diagram-title">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            Load Balancer Architecture
+            Load Balancer Fundamentals
           </div>
           <pre>
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                          LOAD BALANCER ARCHITECTURE                                 │
-├─────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                     │
-│                              CLIENTS                                                │
-│            ┌──────────┐   ┌──────────┐   ┌──────────┐                              │
-│            │ Client 1 │   │ Client 2 │   │ Client 3 │                              │
-│            └────┬─────┘   └────┬─────┘   └────┬─────┘                              │
-│                 │              │              │                                     │
-│                 └──────────────┼──────────────┘                                     │
-│                                │                                                    │
-│                                ▼                                                    │
-│                   ┌────────────────────────┐                                        │
-│                   │     LOAD BALANCER      │                                        │
-│                   │                        │                                        │
-│                   │  ┌──────────────────┐  │                                        │
-│                   │  │ • Health Checks  │  │                                        │
-│                   │  │ • Algorithm      │  │                                        │
-│                   │  │ • Session Stick  │  │                                        │
-│                   │  │ • SSL Termination│  │                                        │
-│                   │  └──────────────────┘  │                                        │
-│                   │                        │                                        │
-│                   │    VIP: 10.0.0.100     │                                        │
-│                   └───────────┬────────────┘                                        │
-│                               │                                                     │
-│           ┌───────────────────┼───────────────────┐                                 │
-│           │                   │                   │                                 │
-│           ▼                   ▼                   ▼                                 │
-│   ┌───────────────┐   ┌───────────────┐   ┌───────────────┐                        │
-│   │   Server 1    │   │   Server 2    │   │   Server 3    │                        │
-│   │  10.0.1.10    │   │  10.0.1.11    │   │  10.0.1.12    │                        │
-│   │   ● Active    │   │   ● Active    │   │   ○ Draining  │                        │
-│   │   Load: 45%   │   │   Load: 52%   │   │   Load: 78%   │                        │
-│   └───────────────┘   └───────────────┘   └───────────────┘                        │
-│                                                                                     │
-│   KEY BENEFITS:                                                                     │
-│   ─────────────                                                                     │
-│   • High Availability: If one server fails, others handle traffic                  │
-│   • Scalability: Add servers to handle more load                                   │
-│   • Performance: Distribute load evenly across servers                             │
-│   • Flexibility: Perform maintenance without downtime                              │
-│                                                                                     │
-└─────────────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    HOW LOAD BALANCING WORKS                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│                     ┌─────────────────┐                                    │
+│   Clients ─────────►│  LOAD BALANCER  │                                    │
+│   (many)            │                 │                                    │
+│                     │  • Single IP    │                                    │
+│                     │  • Distributes  │                                    │
+│                     │  • Health check │                                    │
+│                     └────────┬────────┘                                    │
+│                              │                                              │
+│              ┌───────────────┼───────────────┐                             │
+│              │               │               │                             │
+│              ▼               ▼               ▼                             │
+│        ┌──────────┐   ┌──────────┐   ┌──────────┐                         │
+│        │ Server 1 │   │ Server 2 │   │ Server 3 │                         │
+│        │  (25%)   │   │  (50%)   │   │  (25%)   │                         │
+│        └──────────┘   └──────────┘   └──────────┘                         │
+│                                                                             │
+│   KEY BENEFITS:                                                             │
+│   ─────────────                                                             │
+│   ✓ High Availability - If one server fails, others handle traffic        │
+│   ✓ Scalability - Add servers to handle more load                          │
+│   ✓ Performance - Distribute load to prevent bottlenecks                   │
+│   ✓ Maintenance - Take servers offline without downtime                    │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
           </pre>
         </div>
       </section>
 
       <!-- L4 vs L7 -->
       <section>
-        <h2 id="l4-vs-l7">Layer 4 vs Layer 7 Load Balancing</h2>
+        <h2 id="l4-vs-l7">Layer 4 vs Layer 7: Which Do You Need?</h2>
+        <p>
+          This is the most important decision. Get this right first, and everything else follows.
+        </p>
 
         <div class="ascii-diagram">
           <div class="ascii-diagram-title">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            L4 vs L7 Comparison
+            L4 vs L7 Decision Framework
           </div>
           <pre>
-LAYER 4 (Transport Layer) LOAD BALANCING
-═══════════════════════════════════════════════════════════════════════════════
-
-  Client                    Load Balancer                    Servers
-    │                            │                              │
-    │  TCP SYN ─────────────────►│                              │
-    │                            │ Decision based on:           │
-    │                            │ • Source IP                  │
-    │                            │ • Destination IP             │
-    │                            │ • Source Port                │
-    │                            │ • Destination Port           │
-    │                            │                              │
-    │                            │ TCP SYN ────────────────────►│ Server 1
-    │◄────────────────────────── │ ◄────────────────────────────│
-    │  (Connection established)  │  (Packets forwarded)         │
-    │                            │                              │
-
-  • Fast - operates at network level
-  • Protocol agnostic (works with any TCP/UDP)
-  • Cannot inspect application content
-  • Cannot route based on URL, headers, cookies
-
-
-LAYER 7 (Application Layer) LOAD BALANCING
-═══════════════════════════════════════════════════════════════════════════════
-
-  Client                    Load Balancer                    Servers
-    │                            │                              │
-    │  TCP SYN ─────────────────►│                              │
-    │◄──────────────────────────►│ (TCP handshake with LB)     │
-    │                            │                              │
-    │  HTTP GET /api/users ─────►│                              │
-    │                            │ Decision based on:           │
-    │                            │ • URL path (/api/*)          │
-    │                            │ • HTTP headers               │
-    │                            │ • Cookies                    │
-    │                            │ • Request content            │
-    │                            │                              │
-    │                            │ HTTP GET /api/users ────────►│ API Server
-    │                            │ ◄────────────────────────────│
-    │◄───────────────────────────│                              │
-    │  HTTP 200 OK               │                              │
-
-  • Content-aware routing
-  • Can terminate SSL
-  • URL-based routing (/api → API servers, /static → CDN)
-  • Header manipulation
-  • More CPU intensive
+┌─────────────────────────────────────────────────────────────────────────────┐
+│              WHICH LOAD BALANCER TYPE DO YOU NEED?                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   START HERE                                                                │
+│       │                                                                     │
+│       ▼                                                                     │
+│   ┌─────────────────────────────────┐                                      │
+│   │ Is it HTTP/HTTPS web traffic?   │                                      │
+│   └───────────────┬─────────────────┘                                      │
+│                   │                                                         │
+│          ┌───────┴───────┐                                                 │
+│          │               │                                                 │
+│         YES              NO                                                │
+│          │               │                                                 │
+│          ▼               ▼                                                 │
+│   ┌─────────────┐  ┌─────────────────────────────┐                         │
+│   │ Do you need │  │ Use LAYER 4 (TCP/UDP)       │                         │
+│   │ any of:     │  │                             │                         │
+│   │             │  │ Examples:                   │                         │
+│   │ • URL-based │  │ • Database connections      │                         │
+│   │   routing   │  │ • Gaming servers            │                         │
+│   │ • SSL term  │  │ • VoIP/SIP                  │                         │
+│   │ • Headers   │  │ • Email (SMTP/IMAP)         │                         │
+│   │ • Cookies   │  │ • Custom TCP protocols      │                         │
+│   │ • Caching   │  │                             │                         │
+│   └──────┬──────┘  │ AWS: NLB                    │                         │
+│          │         │ Azure: Load Balancer        │                         │
+│     ┌────┴────┐    │ GCP: TCP/UDP LB             │                         │
+│     │         │    └─────────────────────────────┘                         │
+│    YES        NO                                                           │
+│     │         │                                                            │
+│     ▼         ▼                                                            │
+│ ┌─────────┐ ┌─────────────────────────────┐                                │
+│ │ LAYER 7 │ │ LAYER 4 is simpler/faster   │                                │
+│ │ (HTTP)  │ │ Use it if you don't need    │                                │
+│ │         │ │ L7 features                 │                                │
+│ │ AWS:ALB │ └─────────────────────────────┘                                │
+│ │ Azure:  │                                                                │
+│ │ AppGW   │                                                                │
+│ │ GCP:    │                                                                │
+│ │ HTTP LB │                                                                │
+│ └─────────┘                                                                │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
           </pre>
         </div>
 
+        <h3>Quick Comparison</h3>
         <div class="table-wrapper">
-          <table class="comparison-table">
+          <table>
             <thead>
               <tr>
-                <th>Feature</th>
-                <th>Layer 4</th>
-                <th>Layer 7</th>
+                <th>Aspect</th>
+                <th>Layer 4 (TCP/UDP)</th>
+                <th>Layer 7 (HTTP/HTTPS)</th>
               </tr>
             </thead>
             <tbody>
               <tr>
+                <td><strong>Sees</strong></td>
+                <td>IP addresses and ports only</td>
+                <td>Full HTTP request (URL, headers, body)</td>
+              </tr>
+              <tr>
                 <td><strong>Speed</strong></td>
-                <td><span class="feature-yes">Faster</span></td>
-                <td>Slower (more processing)</td>
+                <td>Faster (less processing)</td>
+                <td>Slower (parses HTTP)</td>
               </tr>
               <tr>
-                <td><strong>SSL Termination</strong></td>
-                <td><span class="feature-no">No</span> (passthrough)</td>
-                <td><span class="feature-yes">Yes</span></td>
+                <td><strong>SSL</strong></td>
+                <td>Pass-through only</td>
+                <td>Can terminate and inspect</td>
               </tr>
               <tr>
-                <td><strong>Content Routing</strong></td>
-                <td><span class="feature-no">No</span></td>
-                <td><span class="feature-yes">Yes</span> (URL, headers)</td>
+                <td><strong>Routing</strong></td>
+                <td>By port only</td>
+                <td>By URL, header, cookie, hostname</td>
               </tr>
               <tr>
-                <td><strong>Protocol Support</strong></td>
-                <td>Any TCP/UDP</td>
-                <td>HTTP/HTTPS primarily</td>
-              </tr>
-              <tr>
-                <td><strong>Connection Handling</strong></td>
-                <td>Pass-through</td>
-                <td>Terminates connections</td>
-              </tr>
-              <tr>
-                <td><strong>Health Checks</strong></td>
-                <td>TCP/UDP only</td>
-                <td>HTTP status codes</td>
-              </tr>
-              <tr>
-                <td><strong>Use Cases</strong></td>
-                <td>Databases, gaming, VoIP</td>
-                <td>Web apps, APIs, microservices</td>
+                <td><strong>Use When</strong></td>
+                <td>Non-HTTP, need raw speed</td>
+                <td>Web apps, need smart routing</td>
               </tr>
             </tbody>
           </table>
@@ -244,851 +218,556 @@ LAYER 7 (Application Layer) LOAD BALANCING
 
       <!-- Algorithms -->
       <section>
-        <h2 id="algorithms">Load Balancing Algorithms</h2>
+        <h2 id="algorithms">Algorithm Selection</h2>
+        <p>
+          The algorithm determines how traffic is distributed. Choose based on your 
+          application's characteristics.
+        </p>
 
         <div class="ascii-diagram">
           <div class="ascii-diagram-title">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            Load Balancing Algorithms Visualized
+            Which Algorithm Should You Use?
           </div>
           <pre>
-ROUND ROBIN
-═══════════════════════════════════════════════════════════════════════════════
-  Request 1 → Server A
-  Request 2 → Server B
-  Request 3 → Server C
-  Request 4 → Server A  (cycle repeats)
-  Request 5 → Server B
-  ...
-
-  Simple, fair distribution. Doesn't consider server load.
-
-
-WEIGHTED ROUND ROBIN
-═══════════════════════════════════════════════════════════════════════════════
-  Server A (weight=3): ●●●
-  Server B (weight=2): ●●
-  Server C (weight=1): ●
-
-  Request sequence: A, A, A, B, B, C, A, A, A, B, B, C...
-
-  Use when servers have different capacities.
-
-
-LEAST CONNECTIONS
-═══════════════════════════════════════════════════════════════════════════════
-  Server A: 5 connections  ─┐
-  Server B: 3 connections  ─┼─► New request → Server C (fewest)
-  Server C: 2 connections  ─┘
-
-  Best for varying request durations (long-lived connections).
-
-
-IP HASH
-═══════════════════════════════════════════════════════════════════════════════
-  Client 192.168.1.10 → hash(IP) % 3 = 0 → Server A
-  Client 192.168.1.11 → hash(IP) % 3 = 1 → Server B
-  Client 192.168.1.12 → hash(IP) % 3 = 2 → Server C
-
-  Same client always goes to same server (basic session persistence).
-
-
-LEAST RESPONSE TIME
-═══════════════════════════════════════════════════════════════════════════════
-  Server A: 50ms avg response
-  Server B: 30ms avg response  ← New request goes here
-  Server C: 45ms avg response
-
-  Combines connection count with response time.
-
-
-RESOURCE BASED (Adaptive)
-═══════════════════════════════════════════════════════════════════════════════
-  Server A: CPU 80%, Memory 60%  → Score: 70
-  Server B: CPU 40%, Memory 50%  → Score: 45  ← Lowest, gets request
-  Server C: CPU 60%, Memory 70%  → Score: 65
-
-  Requires agent on servers reporting health metrics.
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                 LOAD BALANCING ALGORITHM SELECTION                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ROUND ROBIN (Default choice)                                             │
+│   ════════════════════════════                                              │
+│   Request 1 → Server A                                                     │
+│   Request 2 → Server B                                                     │
+│   Request 3 → Server C                                                     │
+│   Request 4 → Server A (repeat)                                            │
+│                                                                             │
+│   ✓ Use when: Servers are identical, requests are similar in cost          │
+│   ✗ Avoid when: Servers have different capacity, requests vary wildly      │
+│                                                                             │
+│   ───────────────────────────────────────────────────────────────────────  │
+│                                                                             │
+│   LEAST CONNECTIONS                                                        │
+│   ═════════════════                                                         │
+│   Server A: 10 connections ← New request goes here (least busy)            │
+│   Server B: 25 connections                                                 │
+│   Server C: 18 connections                                                 │
+│                                                                             │
+│   ✓ Use when: Long-lived connections (WebSockets, database pools)          │
+│   ✓ Use when: Request processing time varies significantly                 │
+│   ✗ Avoid when: Connections are very short (adds overhead)                 │
+│                                                                             │
+│   ───────────────────────────────────────────────────────────────────────  │
+│                                                                             │
+│   WEIGHTED                                                                  │
+│   ════════                                                                  │
+│   Server A (weight 3): Gets 50% of traffic  ← Powerful server              │
+│   Server B (weight 2): Gets 33% of traffic                                 │
+│   Server C (weight 1): Gets 17% of traffic  ← Less powerful                │
+│                                                                             │
+│   ✓ Use when: Servers have different capacities                            │
+│   ✓ Use when: Canary deployments (new version gets weight=1)               │
+│                                                                             │
+│   ───────────────────────────────────────────────────────────────────────  │
+│                                                                             │
+│   IP HASH                                                                   │
+│   ═══════                                                                   │
+│   Client IP 1.2.3.4 → Always Server A                                      │
+│   Client IP 5.6.7.8 → Always Server B                                      │
+│                                                                             │
+│   ✓ Use when: Need basic session persistence without cookies               │
+│   ✗ Avoid when: Many users behind same NAT (uneven distribution)           │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
           </pre>
         </div>
 
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Algorithm</th>
-                <th>Best For</th>
-                <th>Pros</th>
-                <th>Cons</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>Round Robin</strong></td>
-                <td>Similar servers, short requests</td>
-                <td>Simple, predictable</td>
-                <td>Ignores server load</td>
-              </tr>
-              <tr>
-                <td><strong>Weighted Round Robin</strong></td>
-                <td>Mixed server capacities</td>
-                <td>Capacity-aware</td>
-                <td>Static weights</td>
-              </tr>
-              <tr>
-                <td><strong>Least Connections</strong></td>
-                <td>Long-lived connections</td>
-                <td>Dynamic, adaptive</td>
-                <td>Doesn't consider response time</td>
-              </tr>
-              <tr>
-                <td><strong>IP Hash</strong></td>
-                <td>Session persistence needed</td>
-                <td>Consistent routing</td>
-                <td>Uneven with few clients</td>
-              </tr>
-              <tr>
-                <td><strong>Least Response Time</strong></td>
-                <td>Performance-critical apps</td>
-                <td>Optimal distribution</td>
-                <td>More overhead</td>
-              </tr>
-              <tr>
-                <td><strong>Random</strong></td>
-                <td>Stateless, uniform requests</td>
-                <td>Simple, no state</td>
-                <td>Not optimal</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="callout callout-info">
+          <strong>Start Simple</strong><br>
+          Begin with Round Robin. Only switch to other algorithms if you observe 
+          specific problems like uneven load or session issues.
         </div>
       </section>
 
       <!-- Health Checks -->
       <section>
         <h2 id="health-checks">Health Checks</h2>
+        <p>
+          Health checks determine if a backend server can receive traffic. 
+          A bad health check configuration is a common cause of outages.
+        </p>
 
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Health Check Types
+          </div>
+          <pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    HEALTH CHECK PROGRESSION                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   BASIC → TCP (Port Open)                                                  │
+│   ═══════════════════════                                                   │
+│   LB: "Can I connect to port 8080?"                                        │
+│   Server: [Connection accepted]                                            │
+│   Result: HEALTHY                                                          │
+│                                                                             │
+│   ⚠️  Problem: Server might accept connections but app is broken           │
+│                                                                             │
+│   ───────────────────────────────────────────────────────────────────────  │
+│                                                                             │
+│   BETTER → HTTP (Status Code)                                              │
+│   ═══════════════════════════                                               │
+│   LB: "GET /health → Status 200?"                                          │
+│   Server: HTTP 200 OK                                                      │
+│   Result: HEALTHY                                                          │
+│                                                                             │
+│   ⚠️  Problem: App might return 200 but database is down                   │
+│                                                                             │
+│   ───────────────────────────────────────────────────────────────────────  │
+│                                                                             │
+│   BEST → Application Health (Deep Check)                                   │
+│   ═══════════════════════════════════════                                   │
+│   LB: "GET /health"                                                        │
+│   App checks:                                                              │
+│     ✓ Database connection                                                  │
+│     ✓ Cache connection                                                     │
+│     ✓ Disk space                                                           │
+│     ✓ Memory available                                                     │
+│   Server: HTTP 200 + {"status": "healthy", "db": "ok", "cache": "ok"}     │
+│   Result: HEALTHY                                                          │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+          </pre>
+        </div>
+
+        <h3>Health Check Configuration</h3>
         <div class="code-block">
           <div class="code-header">
-            <span class="code-lang">Config</span>
-            <span class="code-filename">Health Check Types</span>
+            <span class="code-lang">Concept</span>
+            <span class="code-filename">Health Check Parameters</span>
             <button class="copy-btn">Copy</button>
           </div>
-          <pre><code># =============================================================================
-# HEALTH CHECK TYPES
-# =============================================================================
+          <pre><code># HEALTH CHECK PARAMETERS EXPLAINED
 
-# TCP Health Check (Layer 4)
-# Simply checks if port is accepting connections
-# Fast, low overhead, but doesn't verify application health
-health_check {
-    type        = "tcp"
-    port        = 8080
-    interval    = 10s
-    timeout     = 5s
-    healthy_threshold   = 2    # 2 successes to mark healthy
-    unhealthy_threshold = 3    # 3 failures to mark unhealthy
-}
+Interval: 30s       # How often to check
+                    # Too frequent = unnecessary load
+                    # Too slow = slow failure detection
+                    # Recommended: 10-30 seconds
 
-# HTTP Health Check (Layer 7)
-# Verifies application responds correctly
-health_check {
-    type        = "http"
-    port        = 8080
-    path        = "/health"
-    interval    = 30s
-    timeout     = 10s
-    expected_codes = [200, 201]
-    # Can also check response body
-    match {
-        body = "OK"
-    }
-}
+Timeout: 5s         # How long to wait for response
+                    # Should be less than interval
+                    # Recommended: 5-10 seconds
 
-# HTTPS Health Check
-health_check {
-    type        = "https"
-    port        = 443
-    path        = "/api/health"
-    interval    = 30s
-    timeout     = 10s
-}
+Healthy threshold: 2    # Consecutive successes to mark healthy
+                        # Prevents flapping
+                        # Recommended: 2-3
 
-# gRPC Health Check
-health_check {
-    type        = "grpc"
-    port        = 50051
-    grpc_service_name = "my.service.Health"
-}
+Unhealthy threshold: 3  # Consecutive failures to mark unhealthy
+                        # Higher = more tolerant of blips
+                        # Recommended: 2-3
 
-# =============================================================================
-# HEALTH CHECK BEST PRACTICES
-# =============================================================================
+# EXAMPLE HEALTHY CONFIGURATION:
+interval       = 30 seconds
+timeout        = 10 seconds
+healthy_after  = 2 consecutive successes
+unhealthy_after = 3 consecutive failures
+path           = /health
+expected       = HTTP 200</code></pre>
+        </div>
 
-# 1. Dedicated health endpoint
-# Don't use "/" - use dedicated endpoint that checks dependencies
-GET /health
-{
-    "status": "healthy",
-    "database": "connected",
-    "cache": "connected",
-    "timestamp": "2024-01-15T10:30:00Z"
-}
-
-# 2. Appropriate intervals
-# - Too frequent: unnecessary load
-# - Too infrequent: slow failover
-# Typical: 10-30 seconds
-
-# 3. Reasonable thresholds
-# - Avoid single failure marking unhealthy (transient issues)
-# - Don't require too many failures (slow detection)
-# Typical: 2-3 failures to mark unhealthy
-
-# 4. Separate liveness vs readiness
-# Liveness: Is the process running?
-# Readiness: Is it ready to serve traffic?</code></pre>
+        <div class="callout callout-warning">
+          <strong>Health Check Endpoint Best Practices</strong><br>
+          • Create a dedicated <code>/health</code> endpoint (don't use <code>/</code>)<br>
+          • Check actual dependencies (database, cache) not just "app is running"<br>
+          • Keep it fast (&lt;1 second) to avoid timeout issues<br>
+          • Return JSON with details for debugging
         </div>
       </section>
 
       <!-- Session Persistence -->
       <section>
-        <h2 id="session-persistence">Session Persistence (Sticky Sessions)</h2>
+        <h2 id="session">Session Persistence (Sticky Sessions)</h2>
+        <p>
+          Session persistence ensures a user's requests always go to the same server. 
+          <strong>Use sparingly</strong> — it can cause uneven load distribution.
+        </p>
 
         <div class="ascii-diagram">
           <div class="ascii-diagram-title">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            Session Persistence Methods
+            When to Use Session Persistence
           </div>
           <pre>
-SOURCE IP PERSISTENCE
-═══════════════════════════════════════════════════════════════════════════════
-
-  Client 192.168.1.10                    Load Balancer
-         │                                    │
-         │  Request 1 ──────────────────────► │ ──► Server A
-         │                                    │     (records: 192.168.1.10 → A)
-         │  Request 2 ──────────────────────► │ ──► Server A (same client IP)
-         │  Request 3 ──────────────────────► │ ──► Server A
-         │                                    │
-
-  ⚠️ Problem: Multiple users behind NAT share same IP
-
-
-COOKIE-BASED PERSISTENCE
-═══════════════════════════════════════════════════════════════════════════════
-
-  Client                                  Load Balancer
-    │                                          │
-    │  Request 1 (no cookie) ─────────────────►│ ──► Server B
-    │                                          │
-    │◄──── Response + Set-Cookie: SERVERID=B ──│
-    │                                          │
-    │  Request 2 (Cookie: SERVERID=B) ────────►│ ──► Server B (follows cookie)
-    │                                          │
-
-  Types:
-  • LB-generated cookie (SERVERID, JSESSIONID)
-  • Application cookie (session ID)
-
-
-SSL SESSION ID PERSISTENCE
-═══════════════════════════════════════════════════════════════════════════════
-
-  Uses SSL/TLS session ID to maintain persistence
-  Only works with SSL passthrough (not termination)
-
-
-CUSTOM HEADER PERSISTENCE
-═══════════════════════════════════════════════════════════════════════════════
-
-  Client                                  Load Balancer
-    │                                          │
-    │  X-User-ID: user123 ────────────────────►│ ──► Server C
-    │                                          │     (hash user123 → Server C)
-    │  X-User-ID: user123 ────────────────────►│ ──► Server C (same user)
-    │                                          │
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                  DO YOU NEED SESSION PERSISTENCE?                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   START HERE                                                                │
+│       │                                                                     │
+│       ▼                                                                     │
+│   ┌─────────────────────────────────────┐                                  │
+│   │ Does your app store session state   │                                  │
+│   │ locally on the server?              │                                  │
+│   │ (files, memory, local cache)        │                                  │
+│   └───────────────────┬─────────────────┘                                  │
+│                       │                                                     │
+│              ┌───────┴───────┐                                             │
+│              │               │                                             │
+│             YES              NO                                            │
+│              │               │                                             │
+│              ▼               ▼                                             │
+│   ┌─────────────────┐  ┌─────────────────────────────────┐                 │
+│   │ Can you move    │  │ You DON'T need sticky sessions! │                 │
+│   │ state to shared │  │                                 │                 │
+│   │ storage?        │  │ Stateless apps scale better     │                 │
+│   │ (Redis, DB)     │  │ and are more resilient.         │                 │
+│   └────────┬────────┘  └─────────────────────────────────┘                 │
+│            │                                                                │
+│       ┌────┴────┐                                                          │
+│       │         │                                                          │
+│      YES        NO (legacy/constraints)                                    │
+│       │         │                                                          │
+│       ▼         ▼                                                          │
+│   ┌─────────┐  ┌─────────────────────────────────┐                         │
+│   │ Do it!  │  │ Use sticky sessions as a        │                         │
+│   │ No      │  │ WORKAROUND, not a solution.     │                         │
+│   │ sticky  │  │                                 │                         │
+│   │ needed  │  │ Methods:                        │                         │
+│   └─────────┘  │ • Cookie-based (most reliable)  │                         │
+│                │ • IP-based (breaks with NAT)    │                         │
+│                └─────────────────────────────────┘                         │
+│                                                                             │
+│   ⚠️ WARNING: Sticky sessions cause:                                       │
+│   • Uneven load when some users are "heavier"                              │
+│   • Cascading failures when sticky server dies                             │
+│   • Difficulty scaling and doing deployments                               │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
           </pre>
-        </div>
-
-        <div class="alert alert-warning">
-          <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <div class="alert-content">
-            <div class="alert-title">Sticky Sessions Trade-offs</div>
-            <p>Sticky sessions can cause uneven load distribution. If possible, design stateless applications that store session data in shared storage (Redis, database) rather than relying on sticky sessions.</p>
-          </div>
         </div>
       </section>
 
-      <!-- HA Patterns -->
+      <!-- High Availability -->
       <section>
-        <h2 id="ha-patterns">High Availability Patterns</h2>
+        <h2 id="ha">High Availability Patterns</h2>
 
         <div class="ascii-diagram">
           <div class="ascii-diagram-title">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            Load Balancer HA Configurations
+            Load Balancer HA Patterns
           </div>
           <pre>
-ACTIVE-PASSIVE (Failover)
-═══════════════════════════════════════════════════════════════════════════════
-
-                    ┌─────────────────────────────────┐
-                    │         Virtual IP (VIP)         │
-                    │         203.0.113.100            │
-                    └───────────────┬─────────────────┘
-                                    │
-                    ┌───────────────┴───────────────┐
-                    │                               │
-                    ▼                               ▼
-            ┌───────────────┐               ┌───────────────┐
-            │     LB 1      │  ◄──────────► │     LB 2      │
-            │   (ACTIVE)    │   Heartbeat   │   (PASSIVE)   │
-            │   Owns VIP    │   VRRP/CARP   │   Standby     │
-            └───────────────┘               └───────────────┘
-
-  • Only active LB processes traffic
-  • Passive takes over if active fails (seconds)
-  • State synchronization between nodes
-  • Protocols: VRRP, CARP, Keepalived
-
-
-ACTIVE-ACTIVE (Load Sharing)
-═══════════════════════════════════════════════════════════════════════════════
-
-                              DNS/Anycast
-                    ┌─────────────────────────────────┐
-                    │    app.example.com resolves to  │
-                    │    203.0.113.100 AND            │
-                    │    203.0.113.101                │
-                    └───────────────┬─────────────────┘
-                                    │
-                    ┌───────────────┴───────────────┐
-                    │                               │
-                    ▼                               ▼
-            ┌───────────────┐               ┌───────────────┐
-            │     LB 1      │  ◄──────────► │     LB 2      │
-            │   (ACTIVE)    │  Session Sync │   (ACTIVE)    │
-            │ 203.0.113.100 │               │ 203.0.113.101 │
-            └───────┬───────┘               └───────┬───────┘
-                    │                               │
-                    └───────────────┬───────────────┘
-                                    │
-                                    ▼
-                            Backend Servers
-
-  • Both LBs process traffic simultaneously
-  • Better resource utilization
-  • More complex session synchronization
-  • DNS round robin or BGP anycast for distribution
-
-
-GLOBAL LOAD BALANCING (GSLB)
-═══════════════════════════════════════════════════════════════════════════════
-
-                              DNS Query
-                                  │
-                                  ▼
-                    ┌─────────────────────────────────┐
-                    │        GSLB / DNS LB            │
-                    │   (Intelligent DNS response)    │
-                    │                                 │
-                    │   User in US → US datacenter   │
-                    │   User in EU → EU datacenter   │
-                    │   Unhealthy DC → Redirect      │
-                    └─────────────────────────────────┘
-                                  │
-              ┌───────────────────┼───────────────────┐
-              │                   │                   │
-              ▼                   ▼                   ▼
-      ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-      │  US-EAST    │     │  US-WEST    │     │  EU-WEST    │
-      │   DC + LB   │     │   DC + LB   │     │   DC + LB   │
-      └─────────────┘     └─────────────┘     └─────────────┘
-
-  Methods:
-  • GeoDNS: Route based on client location
-  • Latency-based: Route to fastest datacenter
-  • Health-based: Route away from unhealthy DCs
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                 LOAD BALANCER HIGH AVAILABILITY                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   PATTERN 1: ACTIVE-PASSIVE (Simpler)                                      │
+│   ════════════════════════════════════                                      │
+│                                                                             │
+│   ┌──────────────┐     Heartbeat      ┌──────────────┐                     │
+│   │   ACTIVE     │◄──────────────────►│   PASSIVE    │                     │
+│   │  LB (VIP)    │                    │   LB (idle)  │                     │
+│   └──────┬───────┘                    └──────────────┘                     │
+│          │                                    │                             │
+│          │ ← All traffic                      │ (takes over if             │
+│          ▼                                    │  active fails)             │
+│   ┌──────────────┐                                                         │
+│   │   Servers    │                                                         │
+│   └──────────────┘                                                         │
+│                                                                             │
+│   ✓ Simple to understand and troubleshoot                                  │
+│   ✗ Passive LB is wasted capacity                                          │
+│                                                                             │
+│   ───────────────────────────────────────────────────────────────────────  │
+│                                                                             │
+│   PATTERN 2: ACTIVE-ACTIVE (Better utilization)                            │
+│   ══════════════════════════════════════════════                            │
+│                                                                             │
+│          DNS Round Robin or BGP Anycast                                    │
+│                     │                                                       │
+│          ┌─────────┴─────────┐                                             │
+│          ▼                   ▼                                             │
+│   ┌──────────────┐    ┌──────────────┐                                     │
+│   │    LB 1      │    │    LB 2      │                                     │
+│   │  (50% traffic)│   │  (50% traffic)│                                    │
+│   └──────┬───────┘    └──────┬───────┘                                     │
+│          │                   │                                              │
+│          └─────────┬─────────┘                                             │
+│                    ▼                                                        │
+│            ┌──────────────┐                                                │
+│            │   Servers    │                                                │
+│            └──────────────┘                                                │
+│                                                                             │
+│   ✓ Both LBs actively serving traffic                                      │
+│   ✓ Better resource utilization                                            │
+│   ✗ More complex (need session sync or stateless design)                   │
+│                                                                             │
+│   ───────────────────────────────────────────────────────────────────────  │
+│                                                                             │
+│   CLOUD PROVIDER APPROACH: Managed & Multi-AZ                              │
+│   ═════════════════════════════════════════════                             │
+│                                                                             │
+│   Just use AWS ALB/NLB, Azure LB, or GCP LB.                               │
+│   They handle HA automatically across availability zones.                   │
+│   You don't manage the LB nodes at all.                                    │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
           </pre>
         </div>
       </section>
 
-      <!-- AWS -->
+      <!-- Cloud Load Balancers -->
       <section>
-        <h2 id="aws">AWS Load Balancers</h2>
+        <h2 id="cloud">Cloud Load Balancers</h2>
+        <p>
+          Each cloud provider has multiple load balancer types. Here's how to choose.
+        </p>
 
+        <h3>Quick Reference</h3>
         <div class="table-wrapper">
           <table>
             <thead>
               <tr>
-                <th>Type</th>
-                <th>Layer</th>
-                <th>Protocols</th>
-                <th>Use Cases</th>
+                <th>Use Case</th>
+                <th>AWS</th>
+                <th>Azure</th>
+                <th>GCP</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>ALB</strong> (Application)</td>
-                <td>L7</td>
-                <td>HTTP, HTTPS, gRPC</td>
-                <td>Web apps, microservices, containers</td>
+                <td><strong>HTTP/HTTPS apps</strong></td>
+                <td>ALB (Application LB)</td>
+                <td>Application Gateway</td>
+                <td>HTTP(S) Load Balancer</td>
               </tr>
               <tr>
-                <td><strong>NLB</strong> (Network)</td>
-                <td>L4</td>
-                <td>TCP, UDP, TLS</td>
-                <td>High performance, gaming, IoT</td>
+                <td><strong>TCP/UDP (non-HTTP)</strong></td>
+                <td>NLB (Network LB)</td>
+                <td>Azure Load Balancer</td>
+                <td>TCP/UDP Load Balancer</td>
               </tr>
               <tr>
-                <td><strong>GLB</strong> (Gateway)</td>
-                <td>L3</td>
-                <td>IP</td>
-                <td>Third-party appliances (firewalls)</td>
+                <td><strong>Global (multi-region)</strong></td>
+                <td>Global Accelerator</td>
+                <td>Front Door</td>
+                <td>Global HTTP(S) LB</td>
               </tr>
               <tr>
-                <td><strong>CLB</strong> (Classic)</td>
-                <td>L4/L7</td>
-                <td>HTTP, HTTPS, TCP</td>
-                <td>Legacy (not recommended)</td>
+                <td><strong>Internal only</strong></td>
+                <td>Internal ALB/NLB</td>
+                <td>Internal LB</td>
+                <td>Internal HTTP(S)/TCP LB</td>
               </tr>
             </tbody>
           </table>
         </div>
 
+        <h3>Minimal Configuration Pattern</h3>
+        <p>All cloud load balancers follow the same basic structure:</p>
+
         <div class="code-block">
           <div class="code-header">
-            <span class="code-lang">Terraform</span>
-            <span class="code-filename">AWS Application Load Balancer</span>
+            <span class="code-lang">Concept</span>
+            <span class="code-filename">Universal LB Structure</span>
             <button class="copy-btn">Copy</button>
           </div>
-          <pre><code># =============================================================================
-# AWS APPLICATION LOAD BALANCER (ALB)
-# =============================================================================
+          <pre><code># EVERY LOAD BALANCER HAS THESE COMPONENTS:
 
-# ALB
+1. LISTENER
+   - What port/protocol to accept traffic on
+   - Example: HTTPS on port 443
+
+2. TARGET GROUP / BACKEND POOL
+   - Where to send traffic
+   - Contains your servers (by IP or instance ID)
+   - Example: web-servers-prod
+
+3. HEALTH CHECK
+   - How to verify targets are healthy
+   - Example: HTTP GET /health expecting 200
+
+4. RULES (L7 only)
+   - How to route different requests
+   - Example: /api/* → api-servers, /* → web-servers</code></pre>
+        </div>
+
+        <div class="tabs">
+          <div class="tab-list">
+            <button class="tab-btn active" data-tab="aws-lb">AWS ALB</button>
+            <button class="tab-btn" data-tab="azure-lb">Azure</button>
+            <button class="tab-btn" data-tab="gcp-lb">GCP</button>
+          </div>
+
+          <div class="tab-content active" id="aws-lb">
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-lang">Terraform</span>
+                <span class="code-filename">AWS ALB - Essential Components</span>
+                <button class="copy-btn">Copy</button>
+              </div>
+              <pre><code># AWS ALB - Minimal viable configuration
+# Full docs: docs.aws.amazon.com/elasticloadbalancing/
+
+# 1. The Load Balancer itself
 resource "aws_lb" "main" {
   name               = "my-app-alb"
-  internal           = false
-  load_balancer_type = "application"
+  load_balancer_type = "application"    # Use "network" for NLB
+  subnets            = var.public_subnet_ids
   security_groups    = [aws_security_group.alb.id]
-  subnets            = [aws_subnet.public_a.id, aws_subnet.public_b.id]
-
-  enable_deletion_protection = true
-
-  tags = {
-    Environment = "production"
-  }
 }
 
-# Target Group
-resource "aws_lb_target_group" "app" {
-  name     = "my-app-tg"
+# 2. Target Group (where traffic goes)
+resource "aws_lb_target_group" "main" {
+  name     = "my-app-targets"
   port     = 8080
   protocol = "HTTP"
-  vpc_id   = aws_vpc.main.id
+  vpc_id   = var.vpc_id
 
   health_check {
-    enabled             = true
+    path                = "/health"
     healthy_threshold   = 2
     unhealthy_threshold = 3
-    timeout             = 5
     interval            = 30
-    path                = "/health"
-    matcher             = "200"
-  }
-
-  stickiness {
-    type            = "lb_cookie"
-    cookie_duration = 86400
-    enabled         = true
   }
 }
 
-# HTTPS Listener
+# 3. Listener (what traffic to accept)
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.main.arn
-  port              = "443"
+  port              = 443
   protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = aws_acm_certificate.main.arn
+  certificate_arn   = var.certificate_arn
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.app.arn
+    target_group_arn = aws_lb_target_group.main.arn
   }
 }
 
-# HTTP to HTTPS Redirect
-resource "aws_lb_listener" "http_redirect" {
-  load_balancer_arn = aws_lb.main.arn
-  port              = "80"
-  protocol          = "HTTP"
-
-  default_action {
-    type = "redirect"
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-}
-
-# Path-based Routing
-resource "aws_lb_listener_rule" "api" {
-  listener_arn = aws_lb_listener.https.arn
-  priority     = 100
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.api.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["/api/*"]
-    }
-  }
-}
-
-# Host-based Routing
-resource "aws_lb_listener_rule" "admin" {
-  listener_arn = aws_lb_listener.https.arn
-  priority     = 200
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.admin.arn
-  }
-
-  condition {
-    host_header {
-      values = ["admin.example.com"]
-    }
-  }
-}</code></pre>
-        </div>
-
-        <div class="code-block">
-          <div class="code-header">
-            <span class="code-lang">Terraform</span>
-            <span class="code-filename">AWS Network Load Balancer</span>
-            <button class="copy-btn">Copy</button>
+# Add servers to target group via:
+# - aws_lb_target_group_attachment (for EC2)
+# - Auto Scaling Group target_group_arns</code></pre>
+            </div>
           </div>
-          <pre><code># =============================================================================
-# AWS NETWORK LOAD BALANCER (NLB)
-# =============================================================================
 
-resource "aws_lb" "network" {
-  name               = "my-app-nlb"
-  internal           = false
-  load_balancer_type = "network"
-  subnets            = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+          <div class="tab-content" id="azure-lb">
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-lang">Concept</span>
+                <span class="code-filename">Azure Application Gateway - Key Settings</span>
+                <button class="copy-btn">Copy</button>
+              </div>
+              <pre><code># Azure Application Gateway - What to configure
+# Full docs: docs.microsoft.com/azure/application-gateway/
 
-  enable_cross_zone_load_balancing = true
-}
+REQUIRED COMPONENTS:
 
-# TCP Target Group
-resource "aws_lb_target_group" "tcp" {
-  name     = "my-tcp-tg"
-  port     = 6379
-  protocol = "TCP"
-  vpc_id   = aws_vpc.main.id
+1. Application Gateway resource
+   - SKU: Standard_v2 or WAF_v2
+   - Subnet: Dedicated subnet for AppGW
 
-  health_check {
-    enabled             = true
-    protocol            = "TCP"
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-    interval            = 10
-  }
-}
+2. Frontend IP Configuration
+   - Public IP for internet-facing
+   - Private IP for internal
 
-# TCP Listener
-resource "aws_lb_listener" "tcp" {
-  load_balancer_arn = aws_lb.network.arn
-  port              = "6379"
-  protocol          = "TCP"
+3. Backend Pool
+   - Your VMs, VMSS, or App Services
+   - Can mix different target types
 
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.tcp.arn
-  }
-}
+4. HTTP Settings
+   - Backend port and protocol
+   - Cookie affinity (sticky sessions)
+   - Connection draining
 
-# TLS Listener (with certificate)
-resource "aws_lb_listener" "tls" {
-  load_balancer_arn = aws_lb.network.arn
-  port              = "443"
-  protocol          = "TLS"
-  certificate_arn   = aws_acm_certificate.main.arn
-  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+5. Health Probe
+   - Path: /health
+   - Interval: 30 seconds
+   - Unhealthy threshold: 3
 
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.tcp.arn
-  }
-}</code></pre>
+6. Listener
+   - Frontend IP + Port
+   - HTTP or HTTPS (with cert)
+
+7. Request Routing Rule
+   - Links: Listener → Backend Pool
+   - Optional path-based routing</code></pre>
+            </div>
+          </div>
+
+          <div class="tab-content" id="gcp-lb">
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-lang">Concept</span>
+                <span class="code-filename">GCP HTTP(S) LB - Key Components</span>
+                <button class="copy-btn">Copy</button>
+              </div>
+              <pre><code># GCP HTTP(S) Load Balancer - What to configure
+# Full docs: cloud.google.com/load-balancing/docs
+
+REQUIRED COMPONENTS:
+
+1. Backend Service
+   - Points to instance groups or NEGs
+   - Health check attached
+   - Session affinity (optional)
+
+2. Health Check
+   - Protocol: HTTP/HTTPS/TCP
+   - Port and path
+   - Check interval and thresholds
+
+3. URL Map
+   - Default backend service
+   - Path rules (optional)
+   - Host rules (optional)
+
+4. Target Proxy
+   - HTTP: Target HTTP Proxy
+   - HTTPS: Target HTTPS Proxy + SSL cert
+
+5. Forwarding Rule
+   - External IP (or internal)
+   - Port: 80, 443
+   - Links to target proxy
+
+GCP DIFFERENCE: Components are more granular.
+External IP → Forwarding Rule → Proxy → URL Map → Backend Service → Instances</code></pre>
+            </div>
+          </div>
         </div>
       </section>
 
-      <!-- Azure -->
+      <!-- Quick Reference -->
       <section>
-        <h2 id="azure">Azure Load Balancers</h2>
+        <h2>Common Gotchas</h2>
 
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Type</th>
-                <th>Layer</th>
-                <th>Scope</th>
-                <th>Use Cases</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>Azure Load Balancer</strong></td>
-                <td>L4</td>
-                <td>Regional</td>
-                <td>High-perf TCP/UDP, internal LB</td>
-              </tr>
-              <tr>
-                <td><strong>Application Gateway</strong></td>
-                <td>L7</td>
-                <td>Regional</td>
-                <td>Web apps, WAF, SSL termination</td>
-              </tr>
-              <tr>
-                <td><strong>Front Door</strong></td>
-                <td>L7</td>
-                <td>Global</td>
-                <td>Global HTTP LB, CDN, WAF</td>
-              </tr>
-              <tr>
-                <td><strong>Traffic Manager</strong></td>
-                <td>DNS</td>
-                <td>Global</td>
-                <td>DNS-based traffic routing</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="code-block">
-          <div class="code-header">
-            <span class="code-lang">Terraform</span>
-            <span class="code-filename">Azure Application Gateway</span>
-            <button class="copy-btn">Copy</button>
+        <div class="card-grid">
+          <div class="card">
+            <h4>🚫 Health Check on "/"</h4>
+            <p>Your homepage might be slow or have dependencies. Use a dedicated <code>/health</code> endpoint.</p>
           </div>
-          <pre><code># =============================================================================
-# AZURE APPLICATION GATEWAY
-# =============================================================================
-
-resource "azurerm_application_gateway" "main" {
-  name                = "myAppGateway"
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-
-  sku {
-    name     = "Standard_v2"
-    tier     = "Standard_v2"
-    capacity = 2
-  }
-
-  gateway_ip_configuration {
-    name      = "gateway-ip-config"
-    subnet_id = azurerm_subnet.gateway.id
-  }
-
-  frontend_port {
-    name = "https-port"
-    port = 443
-  }
-
-  frontend_ip_configuration {
-    name                 = "frontend-ip"
-    public_ip_address_id = azurerm_public_ip.gateway.id
-  }
-
-  backend_address_pool {
-    name = "backend-pool"
-  }
-
-  backend_http_settings {
-    name                  = "http-settings"
-    cookie_based_affinity = "Enabled"
-    port                  = 80
-    protocol              = "Http"
-    request_timeout       = 30
-
-    probe_name = "health-probe"
-  }
-
-  probe {
-    name                = "health-probe"
-    protocol            = "Http"
-    path                = "/health"
-    host                = "127.0.0.1"
-    interval            = 30
-    timeout             = 30
-    unhealthy_threshold = 3
-  }
-
-  http_listener {
-    name                           = "https-listener"
-    frontend_ip_configuration_name = "frontend-ip"
-    frontend_port_name             = "https-port"
-    protocol                       = "Https"
-    ssl_certificate_name           = "ssl-cert"
-  }
-
-  ssl_certificate {
-    name     = "ssl-cert"
-    data     = filebase64("certificate.pfx")
-    password = var.ssl_password
-  }
-
-  request_routing_rule {
-    name                       = "routing-rule"
-    rule_type                  = "Basic"
-    http_listener_name         = "https-listener"
-    backend_address_pool_name  = "backend-pool"
-    backend_http_settings_name = "http-settings"
-    priority                   = 100
-  }
-}</code></pre>
-        </div>
-      </section>
-
-      <!-- GCP -->
-      <section>
-        <h2 id="gcp">GCP Load Balancers</h2>
-
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Type</th>
-                <th>Layer</th>
-                <th>Scope</th>
-                <th>Use Cases</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>HTTP(S) LB</strong></td>
-                <td>L7</td>
-                <td>Global</td>
-                <td>Web apps, global anycast</td>
-              </tr>
-              <tr>
-                <td><strong>TCP Proxy</strong></td>
-                <td>L4</td>
-                <td>Global</td>
-                <td>Non-HTTP TCP with SSL</td>
-              </tr>
-              <tr>
-                <td><strong>SSL Proxy</strong></td>
-                <td>L4</td>
-                <td>Global</td>
-                <td>SSL termination for TCP</td>
-              </tr>
-              <tr>
-                <td><strong>Network LB</strong></td>
-                <td>L4</td>
-                <td>Regional</td>
-                <td>UDP, TCP passthrough</td>
-              </tr>
-              <tr>
-                <td><strong>Internal TCP/UDP</strong></td>
-                <td>L4</td>
-                <td>Regional</td>
-                <td>Internal services</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="code-block">
-          <div class="code-header">
-            <span class="code-lang">Terraform</span>
-            <span class="code-filename">GCP HTTP(S) Load Balancer</span>
-            <button class="copy-btn">Copy</button>
+          <div class="card">
+            <h4>🚫 Timeout Mismatches</h4>
+            <p>LB timeout must be longer than app timeout. If app takes 30s, LB needs 35s+.</p>
           </div>
-          <pre><code># =============================================================================
-# GCP GLOBAL HTTP(S) LOAD BALANCER
-# =============================================================================
-
-# Backend Service
-resource "google_compute_backend_service" "default" {
-  name                  = "my-backend-service"
-  protocol              = "HTTP"
-  port_name             = "http"
-  timeout_sec           = 30
-  health_checks         = [google_compute_health_check.default.id]
-  load_balancing_scheme = "EXTERNAL"
-
-  backend {
-    group           = google_compute_instance_group_manager.default.instance_group
-    balancing_mode  = "UTILIZATION"
-    capacity_scaler = 1.0
-  }
-
-  cdn_policy {
-    cache_mode = "CACHE_ALL_STATIC"
-  }
-}
-
-# Health Check
-resource "google_compute_health_check" "default" {
-  name               = "my-health-check"
-  check_interval_sec = 10
-  timeout_sec        = 5
-
-  http_health_check {
-    port         = 80
-    request_path = "/health"
-  }
-}
-
-# URL Map
-resource "google_compute_url_map" "default" {
-  name            = "my-url-map"
-  default_service = google_compute_backend_service.default.id
-
-  host_rule {
-    hosts        = ["api.example.com"]
-    path_matcher = "api"
-  }
-
-  path_matcher {
-    name            = "api"
-    default_service = google_compute_backend_service.api.id
-
-    path_rule {
-      paths   = ["/v1/*"]
-      service = google_compute_backend_service.api_v1.id
-    }
-  }
-}
-
-# HTTPS Proxy
-resource "google_compute_target_https_proxy" "default" {
-  name             = "my-https-proxy"
-  url_map          = google_compute_url_map.default.id
-  ssl_certificates = [google_compute_managed_ssl_certificate.default.id]
-}
-
-# Global Forwarding Rule
-resource "google_compute_global_forwarding_rule" "default" {
-  name       = "my-forwarding-rule"
-  target     = google_compute_target_https_proxy.default.id
-  port_range = "443"
-  ip_address = google_compute_global_address.default.address
-}</code></pre>
+          <div class="card">
+            <h4>🚫 Security Group Gaps</h4>
+            <p>Backend servers must allow traffic FROM the load balancer, not just from users.</p>
+          </div>
+          <div class="card">
+            <h4>🚫 Wrong LB Type</h4>
+            <p>Using L7 for database connections or L4 when you need URL routing. Match to your protocol.</p>
+          </div>
+          <div class="card">
+            <h4>🚫 Sticky + AutoScale</h4>
+            <p>Sticky sessions + auto-scaling = new servers get no traffic. Design stateless instead.</p>
+          </div>
+          <div class="card">
+            <h4>🚫 No Connection Draining</h4>
+            <p>Enable draining before removing servers. Gives in-flight requests time to complete.</p>
+          </div>
         </div>
       </section>
 
@@ -1097,15 +776,15 @@ resource "google_compute_global_forwarding_rule" "default" {
         <div class="card-grid">
           <a href="reverse-proxy.html" class="nav-card card">
             <h4>Reverse Proxy →</h4>
-            <p>Nginx, HAProxy, Traefik configurations.</p>
+            <p>Nginx, HAProxy configuration.</p>
           </a>
           <a href="cloud-networking.html" class="nav-card card">
             <h4>Cloud Networking →</h4>
-            <p>AWS VPC, Azure VNet, GCP networking.</p>
+            <p>VPC, subnets, security groups.</p>
           </a>
           <a href="troubleshooting.html" class="nav-card card">
             <h4>Troubleshooting →</h4>
-            <p>Diagnose load balancer issues.</p>
+            <p>Diagnosing LB issues.</p>
           </a>
         </div>
       </section>
