@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Network Fundamentals - OSI Model, TCP/IP, Subnetting, Routing, Switching, VLANs, and Essential Protocols">
+  <title>Network Fundamentals | NetSec Guide</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      NetSec Guide
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="network-fundamentals.html" class="active">Fundamentals</a></li>
+      <li><a href="forward-proxy.html">Proxies</a></li>
+      <li><a href="firewall-concepts.html">Firewalls</a></li>
+      <li><a href="troubleshooting.html">Troubleshooting</a></li>
+    </ul>
+    <button class="menu-toggle" aria-label="Toggle menu">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">On This Page</div>
+      <ul class="sidebar-nav">
+        <li><a href="#osi-model">OSI Model</a></li>
+        <li><a href="#tcpip-model">TCP/IP Model</a></li>
+        <li><a href="#ip-addressing">IP Addressing</a></li>
+        <li><a href="#subnetting">Subnetting</a></li>
+        <li><a href="#tcp-udp">TCP vs UDP</a></li>
+        <li><a href="#ports-protocols">Ports & Protocols</a></li>
+        <li><a href="#three-way-handshake">Three-Way Handshake</a></li>
+        <li><a href="#routing">Routing Fundamentals</a></li>
+        <li><a href="#switching">Switching & VLANs</a></li>
+        <li><a href="#nat">NAT/PAT</a></li>
+        <li><a href="#essential-protocols">Essential Protocols</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Related Pages</div>
+      <ul class="sidebar-nav">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="forward-proxy.html">Forward Proxy</a></li>
+        <li><a href="firewall-concepts.html">Firewall Concepts</a></li>
+        <li><a href="troubleshooting.html">Troubleshooting</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="content-wrapper">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb">
+        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item active">Network Fundamentals</span>
+      </nav>
+
+      <h1>Network Fundamentals</h1>
+      <p class="hero-subtitle">
+        Master the essential networking concepts that form the foundation of all network security. 
+        From the OSI model to routing protocols, this comprehensive guide covers everything you need.
+      </p>
+
+      <!-- OSI Model -->
+      <section>
+        <h2 id="osi-model">OSI Model (Open Systems Interconnection)</h2>
+        <p>
+          The OSI model is a conceptual framework that standardizes network communication into seven 
+          distinct layers. Each layer has specific functions and communicates with adjacent layers.
+        </p>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            OSI Model - Seven Layers
+          </div>
+          <pre>
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                              OSI MODEL LAYERS                                       │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                     │
+│  Layer 7  ┌─────────────────────────────────────────────────────────────────────┐  │
+│           │  APPLICATION       HTTP, HTTPS, FTP, SMTP, DNS, SSH, Telnet        │  │
+│           │                    End-user services, data representation          │  │
+│           └─────────────────────────────────────────────────────────────────────┘  │
+│                                          ▲                                         │
+│                                          │ Data                                    │
+│                                          ▼                                         │
+│  Layer 6  ┌─────────────────────────────────────────────────────────────────────┐  │
+│           │  PRESENTATION      SSL/TLS, JPEG, MPEG, ASCII, Encryption          │  │
+│           │                    Data translation, encryption, compression        │  │
+│           └─────────────────────────────────────────────────────────────────────┘  │
+│                                          ▲                                         │
+│                                          │ Data                                    │
+│                                          ▼                                         │
+│  Layer 5  ┌─────────────────────────────────────────────────────────────────────┐  │
+│           │  SESSION            NetBIOS, RPC, SQL, NFS                          │  │
+│           │                     Session establishment, maintenance, termination │  │
+│           └─────────────────────────────────────────────────────────────────────┘  │
+│                                          ▲                                         │
+│                                          │ Data                                    │
+│                                          ▼                                         │
+│  Layer 4  ┌─────────────────────────────────────────────────────────────────────┐  │
+│           │  TRANSPORT          TCP, UDP, SCTP                                  │  │
+│           │                     End-to-end connections, reliability, flow ctrl │  │
+│           │                     [PDU: Segment]                                  │  │
+│           └─────────────────────────────────────────────────────────────────────┘  │
+│                                          ▲                                         │
+│                                          │ Segment                                 │
+│                                          ▼                                         │
+│  Layer 3  ┌─────────────────────────────────────────────────────────────────────┐  │
+│           │  NETWORK            IP, ICMP, IGMP, IPSec, Routing Protocols        │  │
+│           │                     Logical addressing, routing, path determination │  │
+│           │                     [PDU: Packet]                                   │  │
+│           └─────────────────────────────────────────────────────────────────────┘  │
+│                                          ▲                                         │
+│                                          │ Packet                                  │
+│                                          ▼                                         │
+│  Layer 2  ┌─────────────────────────────────────────────────────────────────────┐  │
+│           │  DATA LINK          Ethernet, PPP, 802.11, Switches, MAC addresses │  │
+│           │                     Physical addressing, error detection, framing   │  │
+│           │                     [PDU: Frame]                                    │  │
+│           └─────────────────────────────────────────────────────────────────────┘  │
+│                                          ▲                                         │
+│                                          │ Frame                                   │
+│                                          ▼                                         │
+│  Layer 1  ┌─────────────────────────────────────────────────────────────────────┐  │
+│           │  PHYSICAL           Cables, Hubs, Repeaters, NICs, Electrical       │  │
+│           │                     Bit transmission, physical topology, connectors │  │
+│           │                     [PDU: Bits]                                     │  │
+│           └─────────────────────────────────────────────────────────────────────┘  │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+Memory Aid: "Please Do Not Throw Sausage Pizza Away" (Physical → Application)
+            "All People Seem To Need Data Processing" (Application → Physical)
+          </pre>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Layer</th>
+                <th>Name</th>
+                <th>Function</th>
+                <th>Protocols/Technologies</th>
+                <th>Devices</th>
+                <th>PDU</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>7</td>
+                <td>Application</td>
+                <td>User interface, application services</td>
+                <td>HTTP, HTTPS, FTP, SMTP, DNS, SSH, SNMP</td>
+                <td>Firewalls (L7), Proxies</td>
+                <td>Data</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>Presentation</td>
+                <td>Data translation, encryption, compression</td>
+                <td>SSL/TLS, JPEG, MPEG, ASCII</td>
+                <td>-</td>
+                <td>Data</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Session</td>
+                <td>Session management, authentication</td>
+                <td>NetBIOS, RPC, SQL, NFS</td>
+                <td>-</td>
+                <td>Data</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Transport</td>
+                <td>End-to-end delivery, reliability</td>
+                <td>TCP, UDP, SCTP</td>
+                <td>Firewalls (L4), Load Balancers</td>
+                <td>Segment</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Network</td>
+                <td>Logical addressing, routing</td>
+                <td>IP, ICMP, IGMP, IPSec, OSPF, BGP</td>
+                <td>Routers, L3 Switches</td>
+                <td>Packet</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Data Link</td>
+                <td>Physical addressing, framing</td>
+                <td>Ethernet, 802.11, PPP, ARP</td>
+                <td>Switches, Bridges, NICs</td>
+                <td>Frame</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>Physical</td>
+                <td>Bit transmission</td>
+                <td>Electrical signals, fiber optics</td>
+                <td>Hubs, Cables, Repeaters</td>
+                <td>Bits</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TCP/IP Model -->
+      <section>
+        <h2 id="tcpip-model">TCP/IP Model</h2>
+        <p>
+          The TCP/IP model is a more practical, implementation-focused model with four layers. 
+          It's the foundation of the modern internet.
+        </p>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            OSI vs TCP/IP Model Comparison
+          </div>
+          <pre>
+        OSI MODEL                              TCP/IP MODEL
+    ┌─────────────────┐                    ┌─────────────────┐
+    │   Application   │ ─────────┐         │                 │
+    ├─────────────────┤          │         │                 │
+    │  Presentation   │ ─────────┼────────►│   Application   │  HTTP, FTP, DNS
+    ├─────────────────┤          │         │                 │  SMTP, SSH, SNMP
+    │     Session     │ ─────────┘         │                 │
+    ├─────────────────┤                    ├─────────────────┤
+    │    Transport    │ ──────────────────►│    Transport    │  TCP, UDP
+    ├─────────────────┤                    ├─────────────────┤
+    │     Network     │ ──────────────────►│    Internet     │  IP, ICMP, ARP
+    ├─────────────────┤                    ├─────────────────┤
+    │    Data Link    │ ─────────┐         │                 │
+    ├─────────────────┤          ├────────►│  Network Access │  Ethernet, Wi-Fi
+    │    Physical     │ ─────────┘         │                 │
+    └─────────────────┘                    └─────────────────┘
+
+      7 Layers                                 4 Layers
+          </pre>
+        </div>
+      </section>
+
+      <!-- IP Addressing -->
+      <section>
+        <h2 id="ip-addressing">IP Addressing</h2>
+        
+        <h3>IPv4 Address Structure</h3>
+        <p>
+          IPv4 addresses are 32-bit numbers typically displayed in dotted-decimal notation 
+          (e.g., 192.168.1.1). Each octet represents 8 bits.
+        </p>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            IPv4 Address Structure
+          </div>
+          <pre>
+IPv4 Address: 192.168.1.100
+
+┌─────────────┬─────────────┬─────────────┬─────────────┐
+│   Octet 1   │   Octet 2   │   Octet 3   │   Octet 4   │
+│     192     │     168     │      1      │     100     │
+├─────────────┼─────────────┼─────────────┼─────────────┤
+│  11000000   │  10101000   │  00000001   │  01100100   │
+│   8 bits    │   8 bits    │   8 bits    │   8 bits    │
+└─────────────┴─────────────┴─────────────┴─────────────┘
+              Total: 32 bits = 4,294,967,296 addresses
+
+Network Portion          │         Host Portion
+(Determined by subnet)   │    (Identifies device)
+          </pre>
+        </div>
+
+        <h3>IP Address Classes (Classful - Historical)</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Class</th>
+                <th>First Octet Range</th>
+                <th>Default Mask</th>
+                <th>Network/Host Bits</th>
+                <th>Networks</th>
+                <th>Hosts/Network</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>A</strong></td>
+                <td>1-126</td>
+                <td>255.0.0.0 (/8)</td>
+                <td>8/24</td>
+                <td>126</td>
+                <td>16,777,214</td>
+              </tr>
+              <tr>
+                <td><strong>B</strong></td>
+                <td>128-191</td>
+                <td>255.255.0.0 (/16)</td>
+                <td>16/16</td>
+                <td>16,384</td>
+                <td>65,534</td>
+              </tr>
+              <tr>
+                <td><strong>C</strong></td>
+                <td>192-223</td>
+                <td>255.255.255.0 (/24)</td>
+                <td>24/8</td>
+                <td>2,097,152</td>
+                <td>254</td>
+              </tr>
+              <tr>
+                <td><strong>D</strong></td>
+                <td>224-239</td>
+                <td>Multicast</td>
+                <td>N/A</td>
+                <td>N/A</td>
+                <td>N/A</td>
+              </tr>
+              <tr>
+                <td><strong>E</strong></td>
+                <td>240-255</td>
+                <td>Reserved</td>
+                <td>N/A</td>
+                <td>N/A</td>
+                <td>N/A</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Private IP Ranges (RFC 1918)</h3>
+        <div class="alert alert-info">
+          <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <div class="alert-content">
+            <div class="alert-title">Private IP Addresses</div>
+            <p>These ranges are not routable on the public internet and are used for internal networks.</p>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Class</th>
+                <th>Range</th>
+                <th>CIDR</th>
+                <th>Addresses</th>
+                <th>Common Use</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>A</td>
+                <td>10.0.0.0 - 10.255.255.255</td>
+                <td>10.0.0.0/8</td>
+                <td>16,777,216</td>
+                <td>Large enterprises, cloud VPCs</td>
+              </tr>
+              <tr>
+                <td>B</td>
+                <td>172.16.0.0 - 172.31.255.255</td>
+                <td>172.16.0.0/12</td>
+                <td>1,048,576</td>
+                <td>Medium enterprises</td>
+              </tr>
+              <tr>
+                <td>C</td>
+                <td>192.168.0.0 - 192.168.255.255</td>
+                <td>192.168.0.0/16</td>
+                <td>65,536</td>
+                <td>Home networks, small offices</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Special IP Addresses</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Address/Range</th>
+                <th>Purpose</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>127.0.0.0/8</code></td>
+                <td>Loopback</td>
+                <td>Local host (127.0.0.1 = localhost)</td>
+              </tr>
+              <tr>
+                <td><code>0.0.0.0</code></td>
+                <td>Default/Any</td>
+                <td>All interfaces, default route</td>
+              </tr>
+              <tr>
+                <td><code>255.255.255.255</code></td>
+                <td>Broadcast</td>
+                <td>Limited broadcast (local network)</td>
+              </tr>
+              <tr>
+                <td><code>169.254.0.0/16</code></td>
+                <td>APIPA</td>
+                <td>Auto-assigned when no DHCP</td>
+              </tr>
+              <tr>
+                <td><code>224.0.0.0/4</code></td>
+                <td>Multicast</td>
+                <td>One-to-many communication</td>
+              </tr>
+              <tr>
+                <td><code>100.64.0.0/10</code></td>
+                <td>CGN (Carrier-Grade NAT)</td>
+                <td>ISP shared address space</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Subnetting -->
+      <section>
+        <h2 id="subnetting">Subnetting & CIDR</h2>
+        <p>
+          Subnetting divides a network into smaller segments for better organization, security, 
+          and efficient IP address utilization.
+        </p>
+
+        <h3>CIDR Notation Quick Reference</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>CIDR</th>
+                <th>Subnet Mask</th>
+                <th>Wildcard</th>
+                <th>Hosts</th>
+                <th>Binary</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>/8</td><td>255.0.0.0</td><td>0.255.255.255</td><td>16,777,214</td><td>11111111.00000000.00000000.00000000</td></tr>
+              <tr><td>/16</td><td>255.255.0.0</td><td>0.0.255.255</td><td>65,534</td><td>11111111.11111111.00000000.00000000</td></tr>
+              <tr><td>/20</td><td>255.255.240.0</td><td>0.0.15.255</td><td>4,094</td><td>11111111.11111111.11110000.00000000</td></tr>
+              <tr><td>/21</td><td>255.255.248.0</td><td>0.0.7.255</td><td>2,046</td><td>11111111.11111111.11111000.00000000</td></tr>
+              <tr><td>/22</td><td>255.255.252.0</td><td>0.0.3.255</td><td>1,022</td><td>11111111.11111111.11111100.00000000</td></tr>
+              <tr><td>/23</td><td>255.255.254.0</td><td>0.0.1.255</td><td>510</td><td>11111111.11111111.11111110.00000000</td></tr>
+              <tr><td>/24</td><td>255.255.255.0</td><td>0.0.0.255</td><td>254</td><td>11111111.11111111.11111111.00000000</td></tr>
+              <tr><td>/25</td><td>255.255.255.128</td><td>0.0.0.127</td><td>126</td><td>11111111.11111111.11111111.10000000</td></tr>
+              <tr><td>/26</td><td>255.255.255.192</td><td>0.0.0.63</td><td>62</td><td>11111111.11111111.11111111.11000000</td></tr>
+              <tr><td>/27</td><td>255.255.255.224</td><td>0.0.0.31</td><td>30</td><td>11111111.11111111.11111111.11100000</td></tr>
+              <tr><td>/28</td><td>255.255.255.240</td><td>0.0.0.15</td><td>14</td><td>11111111.11111111.11111111.11110000</td></tr>
+              <tr><td>/29</td><td>255.255.255.248</td><td>0.0.0.7</td><td>6</td><td>11111111.11111111.11111111.11111000</td></tr>
+              <tr><td>/30</td><td>255.255.255.252</td><td>0.0.0.3</td><td>2</td><td>11111111.11111111.11111111.11111100</td></tr>
+              <tr><td>/31</td><td>255.255.255.254</td><td>0.0.0.1</td><td>2*</td><td>11111111.11111111.11111111.11111110</td></tr>
+              <tr><td>/32</td><td>255.255.255.255</td><td>0.0.0.0</td><td>1</td><td>11111111.11111111.11111111.11111111</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Subnetting Example</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Example</span>
+            <span class="code-filename">Subnet Calculation: 192.168.10.0/26</span>
+          </div>
+          <pre><code>Network: 192.168.10.0/26
+Subnet Mask: 255.255.255.192
+
+Calculation:
+- /26 means 26 network bits, 6 host bits
+- 2^6 = 64 addresses per subnet
+- 64 - 2 = 62 usable hosts (minus network and broadcast)
+
+Subnet Breakdown:
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Subnet │    Network     │   First Host   │   Last Host    │   Broadcast   │
+├────────┼────────────────┼────────────────┼────────────────┼───────────────┤
+│   1    │ 192.168.10.0   │ 192.168.10.1   │ 192.168.10.62  │ 192.168.10.63 │
+│   2    │ 192.168.10.64  │ 192.168.10.65  │ 192.168.10.126 │ 192.168.10.127│
+│   3    │ 192.168.10.128 │ 192.168.10.129 │ 192.168.10.190 │ 192.168.10.191│
+│   4    │ 192.168.10.192 │ 192.168.10.193 │ 192.168.10.254 │ 192.168.10.255│
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Quick Formula:
+- Number of subnets = 2^(borrowed bits)
+- Hosts per subnet = 2^(host bits) - 2
+- Block size = 256 - subnet mask octet value</code></pre>
+        </div>
+      </section>
+
+      <!-- TCP vs UDP -->
+      <section>
+        <h2 id="tcp-udp">TCP vs UDP</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            TCP vs UDP Comparison
+          </div>
+          <pre>
+TCP (Transmission Control Protocol)            UDP (User Datagram Protocol)
+═══════════════════════════════════            ═══════════════════════════════
+
+  ┌────────────┐       ┌────────────┐            ┌────────────┐       ┌────────────┐
+  │   Client   │       │   Server   │            │   Client   │       │   Server   │
+  └─────┬──────┘       └─────┬──────┘            └─────┬──────┘       └─────┬──────┘
+        │                    │                         │                    │
+        │──── SYN ──────────►│                         │──── Data ─────────►│
+        │                    │                         │                    │
+        │◄─── SYN-ACK ───────│                         │◄─── Data ──────────│
+        │                    │                         │                    │
+        │──── ACK ──────────►│                         │──── Data ─────────►│
+        │                    │                         │                    │
+        │◄──── Data ────────►│                         └────────────────────┘
+        │    (Reliable)      │
+        │                    │                   • No handshake
+        │──── FIN ──────────►│                   • No acknowledgments
+        │◄─── ACK ───────────│                   • No ordering guarantee
+        │◄─── FIN ───────────│                   • Faster, lower overhead
+        │──── ACK ──────────►│                   • "Fire and forget"
+        └────────────────────┘
+
+  • Connection-oriented                        • Connectionless
+  • Reliable delivery                          • Best-effort delivery
+  • Flow control                               • No flow control
+  • Ordered delivery                           • No ordering
+  • Error checking + recovery                  • Error checking only
+          </pre>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>TCP</th>
+                <th>UDP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Connection</td>
+                <td>Connection-oriented (3-way handshake)</td>
+                <td>Connectionless</td>
+              </tr>
+              <tr>
+                <td>Reliability</td>
+                <td>Guaranteed delivery, retransmission</td>
+                <td>No guarantee, no retransmission</td>
+              </tr>
+              <tr>
+                <td>Ordering</td>
+                <td>Packets delivered in order</td>
+                <td>No ordering guarantee</td>
+              </tr>
+              <tr>
+                <td>Speed</td>
+                <td>Slower (overhead)</td>
+                <td>Faster (minimal overhead)</td>
+              </tr>
+              <tr>
+                <td>Header Size</td>
+                <td>20-60 bytes</td>
+                <td>8 bytes</td>
+              </tr>
+              <tr>
+                <td>Flow Control</td>
+                <td>Yes (sliding window)</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>Use Cases</td>
+                <td>HTTP, HTTPS, FTP, SSH, SMTP, Database</td>
+                <td>DNS, DHCP, VoIP, Video streaming, Gaming</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Ports and Protocols -->
+      <section>
+        <h2 id="ports-protocols">Common Ports and Protocols</h2>
+        
+        <div class="alert alert-info">
+          <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <div class="alert-content">
+            <div class="alert-title">Port Ranges</div>
+            <p><strong>Well-Known Ports:</strong> 0-1023 (system/privileged)<br>
+            <strong>Registered Ports:</strong> 1024-49151 (user/application)<br>
+            <strong>Dynamic/Private Ports:</strong> 49152-65535 (ephemeral)</p>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Port</th>
+                <th>Protocol</th>
+                <th>Service</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="port-ref">20/21</td><td><span class="protocol-badge tcp">TCP</span></td><td>FTP</td><td>File Transfer Protocol (data/control)</td></tr>
+              <tr><td class="port-ref">22</td><td><span class="protocol-badge tcp">TCP</span></td><td>SSH</td><td>Secure Shell, SFTP, SCP</td></tr>
+              <tr><td class="port-ref">23</td><td><span class="protocol-badge tcp">TCP</span></td><td>Telnet</td><td>Unsecured remote access (deprecated)</td></tr>
+              <tr><td class="port-ref">25</td><td><span class="protocol-badge tcp">TCP</span></td><td>SMTP</td><td>Simple Mail Transfer Protocol</td></tr>
+              <tr><td class="port-ref">53</td><td><span class="protocol-badge tcp">TCP</span>/<span class="protocol-badge udp">UDP</span></td><td>DNS</td><td>Domain Name System</td></tr>
+              <tr><td class="port-ref">67/68</td><td><span class="protocol-badge udp">UDP</span></td><td>DHCP</td><td>Dynamic Host Configuration Protocol</td></tr>
+              <tr><td class="port-ref">69</td><td><span class="protocol-badge udp">UDP</span></td><td>TFTP</td><td>Trivial File Transfer Protocol</td></tr>
+              <tr><td class="port-ref">80</td><td><span class="protocol-badge tcp">TCP</span></td><td>HTTP</td><td>Hypertext Transfer Protocol</td></tr>
+              <tr><td class="port-ref">110</td><td><span class="protocol-badge tcp">TCP</span></td><td>POP3</td><td>Post Office Protocol v3</td></tr>
+              <tr><td class="port-ref">123</td><td><span class="protocol-badge udp">UDP</span></td><td>NTP</td><td>Network Time Protocol</td></tr>
+              <tr><td class="port-ref">137-139</td><td><span class="protocol-badge tcp">TCP</span>/<span class="protocol-badge udp">UDP</span></td><td>NetBIOS</td><td>Windows network services</td></tr>
+              <tr><td class="port-ref">143</td><td><span class="protocol-badge tcp">TCP</span></td><td>IMAP</td><td>Internet Message Access Protocol</td></tr>
+              <tr><td class="port-ref">161/162</td><td><span class="protocol-badge udp">UDP</span></td><td>SNMP</td><td>Simple Network Management Protocol</td></tr>
+              <tr><td class="port-ref">389</td><td><span class="protocol-badge tcp">TCP</span>/<span class="protocol-badge udp">UDP</span></td><td>LDAP</td><td>Lightweight Directory Access Protocol</td></tr>
+              <tr><td class="port-ref">443</td><td><span class="protocol-badge tcp">TCP</span></td><td>HTTPS</td><td>HTTP Secure (TLS/SSL)</td></tr>
+              <tr><td class="port-ref">445</td><td><span class="protocol-badge tcp">TCP</span></td><td>SMB</td><td>Server Message Block (file sharing)</td></tr>
+              <tr><td class="port-ref">465/587</td><td><span class="protocol-badge tcp">TCP</span></td><td>SMTPS</td><td>SMTP over TLS/STARTTLS</td></tr>
+              <tr><td class="port-ref">514</td><td><span class="protocol-badge udp">UDP</span></td><td>Syslog</td><td>System logging</td></tr>
+              <tr><td class="port-ref">636</td><td><span class="protocol-badge tcp">TCP</span></td><td>LDAPS</td><td>LDAP over SSL</td></tr>
+              <tr><td class="port-ref">993</td><td><span class="protocol-badge tcp">TCP</span></td><td>IMAPS</td><td>IMAP over SSL</td></tr>
+              <tr><td class="port-ref">995</td><td><span class="protocol-badge tcp">TCP</span></td><td>POP3S</td><td>POP3 over SSL</td></tr>
+              <tr><td class="port-ref">1433</td><td><span class="protocol-badge tcp">TCP</span></td><td>MSSQL</td><td>Microsoft SQL Server</td></tr>
+              <tr><td class="port-ref">1521</td><td><span class="protocol-badge tcp">TCP</span></td><td>Oracle</td><td>Oracle Database</td></tr>
+              <tr><td class="port-ref">3306</td><td><span class="protocol-badge tcp">TCP</span></td><td>MySQL</td><td>MySQL/MariaDB Database</td></tr>
+              <tr><td class="port-ref">3389</td><td><span class="protocol-badge tcp">TCP</span></td><td>RDP</td><td>Remote Desktop Protocol</td></tr>
+              <tr><td class="port-ref">5432</td><td><span class="protocol-badge tcp">TCP</span></td><td>PostgreSQL</td><td>PostgreSQL Database</td></tr>
+              <tr><td class="port-ref">5900</td><td><span class="protocol-badge tcp">TCP</span></td><td>VNC</td><td>Virtual Network Computing</td></tr>
+              <tr><td class="port-ref">8080</td><td><span class="protocol-badge tcp">TCP</span></td><td>HTTP-Alt</td><td>HTTP Alternate/Proxy</td></tr>
+              <tr><td class="port-ref">8443</td><td><span class="protocol-badge tcp">TCP</span></td><td>HTTPS-Alt</td><td>HTTPS Alternate</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Three-Way Handshake -->
+      <section>
+        <h2 id="three-way-handshake">TCP Three-Way Handshake</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            TCP Connection Establishment and Termination
+          </div>
+          <pre>
+CONNECTION ESTABLISHMENT (3-Way Handshake)
+═══════════════════════════════════════════════════════════════════════════════
+
+    Client                                              Server
+  (CLOSED)                                            (LISTEN)
+      │                                                   │
+      │──────────── SYN (seq=100) ───────────────────────►│
+      │                                                   │
+   (SYN_SENT)                                        (SYN_RCVD)
+      │                                                   │
+      │◄─────────── SYN-ACK (seq=300, ack=101) ───────────│
+      │                                                   │
+      │──────────── ACK (seq=101, ack=301) ──────────────►│
+      │                                                   │
+ (ESTABLISHED)                                      (ESTABLISHED)
+      │                                                   │
+      │◄═══════════ Data Transfer ═══════════════════════►│
+
+
+CONNECTION TERMINATION (4-Way Handshake)
+═══════════════════════════════════════════════════════════════════════════════
+
+    Client                                              Server
+ (ESTABLISHED)                                      (ESTABLISHED)
+      │                                                   │
+      │──────────── FIN (seq=500) ───────────────────────►│
+      │                                                   │
+  (FIN_WAIT_1)                                       (CLOSE_WAIT)
+      │                                                   │
+      │◄─────────── ACK (seq=800, ack=501) ───────────────│
+      │                                                   │
+  (FIN_WAIT_2)                                       (CLOSE_WAIT)
+      │                                                   │
+      │◄─────────── FIN (seq=800) ────────────────────────│
+      │                                                   │
+  (TIME_WAIT)                                        (LAST_ACK)
+      │                                                   │
+      │──────────── ACK (seq=501, ack=801) ──────────────►│
+      │                                                   │
+  (TIME_WAIT)                                         (CLOSED)
+      │                                                   │
+   2MSL wait                                              │
+      │                                                   │
+   (CLOSED)                                               │
+
+
+TCP FLAGS:
+  SYN = Synchronize sequence numbers (connection request)
+  ACK = Acknowledgment
+  FIN = Finish (terminate connection)
+  RST = Reset (abort connection)
+  PSH = Push (send data immediately)
+  URG = Urgent (priority data)
+          </pre>
+        </div>
+      </section>
+
+      <!-- Routing -->
+      <section>
+        <h2 id="routing">Routing Fundamentals</h2>
+
+        <h3>Static vs Dynamic Routing</h3>
+        <div class="table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Aspect</th>
+                <th>Static Routing</th>
+                <th>Dynamic Routing</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Configuration</td>
+                <td>Manually configured</td>
+                <td>Automatically learned</td>
+              </tr>
+              <tr>
+                <td>Scalability</td>
+                <td>Not scalable</td>
+                <td>Highly scalable</td>
+              </tr>
+              <tr>
+                <td>Convergence</td>
+                <td>Manual intervention required</td>
+                <td>Automatic adaptation</td>
+              </tr>
+              <tr>
+                <td>CPU/Memory</td>
+                <td>Minimal overhead</td>
+                <td>Requires resources</td>
+              </tr>
+              <tr>
+                <td>Use Cases</td>
+                <td>Stub networks, default routes</td>
+                <td>Large, complex networks</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Routing Protocols Overview</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Protocol</th>
+                <th>Type</th>
+                <th>Algorithm</th>
+                <th>Metric</th>
+                <th>Use Case</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>RIP v2</strong></td>
+                <td>Distance Vector</td>
+                <td>Bellman-Ford</td>
+                <td>Hop count (max 15)</td>
+                <td>Small networks, legacy</td>
+              </tr>
+              <tr>
+                <td><strong>OSPF</strong></td>
+                <td>Link State</td>
+                <td>Dijkstra (SPF)</td>
+                <td>Cost (bandwidth)</td>
+                <td>Enterprise internal</td>
+              </tr>
+              <tr>
+                <td><strong>EIGRP</strong></td>
+                <td>Advanced Distance Vector</td>
+                <td>DUAL</td>
+                <td>Composite (BW, delay)</td>
+                <td>Cisco environments</td>
+              </tr>
+              <tr>
+                <td><strong>BGP</strong></td>
+                <td>Path Vector</td>
+                <td>Best Path</td>
+                <td>AS Path, policies</td>
+                <td>Internet, inter-AS</td>
+              </tr>
+              <tr>
+                <td><strong>IS-IS</strong></td>
+                <td>Link State</td>
+                <td>Dijkstra (SPF)</td>
+                <td>Cost</td>
+                <td>Large ISPs</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Route Table Example</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <button class="copy-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+          <pre><code># Linux routing table
+$ ip route show
+default via 192.168.1.1 dev eth0 proto static metric 100
+10.0.0.0/8 via 192.168.1.254 dev eth0 proto static metric 50
+172.16.0.0/12 via 192.168.1.253 dev eth0 proto static metric 50
+192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.100
+
+# Add static route
+$ sudo ip route add 10.10.0.0/16 via 192.168.1.254 dev eth0
+
+# Delete route
+$ sudo ip route del 10.10.0.0/16
+
+# Windows routing table
+C:\> route print
+C:\> route add 10.10.0.0 mask 255.255.0.0 192.168.1.254 -p</code></pre>
+        </div>
+      </section>
+
+      <!-- Switching and VLANs -->
+      <section>
+        <h2 id="switching">Switching & VLANs</h2>
+
+        <h3>VLAN Concepts</h3>
+        <p>
+          VLANs (Virtual LANs) logically segment networks at Layer 2, enabling separation of 
+          broadcast domains without physical network changes.
+        </p>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            VLAN Network Segmentation
+          </div>
+          <pre>
+                                    ┌─────────────────────────┐
+                                    │     Core Switch/Router  │
+                                    │    (Inter-VLAN Routing) │
+                                    └───────────┬─────────────┘
+                                                │
+                             Trunk Port (802.1Q - All VLANs)
+                                                │
+                    ┌───────────────────────────┼───────────────────────────┐
+                    │                           │                           │
+           ┌────────┴────────┐         ┌────────┴────────┐         ┌────────┴────────┐
+           │   Switch A      │         │   Switch B      │         │   Switch C      │
+           └────────┬────────┘         └────────┬────────┘         └────────┬────────┘
+                    │                           │                           │
+        ┌───────────┼───────────┐   ┌───────────┼───────────┐   ┌───────────┼───────────┐
+        │           │           │   │           │           │   │           │           │
+   ┌────┴────┐ ┌────┴────┐ ┌────┴────┐ ┌────┴────┐ ┌────┴────┐ ┌────┴────┐ ┌────┴────┐ ┌────┴────┐
+   │ VLAN 10 │ │ VLAN 20 │ │ VLAN 30 │ │ VLAN 10 │ │ VLAN 20 │ │ VLAN 10 │ │ VLAN 20 │ │ VLAN 30 │
+   │  Sales  │ │   IT    │ │  Mgmt   │ │  Sales  │ │   IT    │ │  Sales  │ │   IT    │ │  Mgmt   │
+   └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘
+
+   VLAN 10: 192.168.10.0/24 (Sales)
+   VLAN 20: 192.168.20.0/24 (IT)
+   VLAN 30: 192.168.30.0/24 (Management)
+   VLAN 99: 192.168.99.0/24 (Native VLAN - Untagged)
+          </pre>
+        </div>
+
+        <h3>802.1Q Frame Tagging</h3>
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            802.1Q VLAN Tag Structure
+          </div>
+          <pre>
+Standard Ethernet Frame:
+┌──────────────┬──────────────┬───────────┬─────────────┬─────────┐
+│   Dest MAC   │  Source MAC  │  EtherType │    Data     │   FCS   │
+│   6 bytes    │   6 bytes    │  2 bytes  │  46-1500    │ 4 bytes │
+└──────────────┴──────────────┴───────────┴─────────────┴─────────┘
+
+802.1Q Tagged Frame:
+┌──────────────┬──────────────┬───────────────────┬───────────┬─────────────┬─────────┐
+│   Dest MAC   │  Source MAC  │    802.1Q Tag     │  EtherType │    Data     │   FCS   │
+│   6 bytes    │   6 bytes    │     4 bytes       │  2 bytes  │  46-1500    │ 4 bytes │
+└──────────────┴──────────────┴───────────────────┴───────────┴─────────────┴─────────┘
+                                       │
+                    ┌──────────────────┴──────────────────┐
+                    │                                     │
+               ┌────┴────┬────────────┬──────────────────┐│
+               │  TPID   │    TCI     │                  ││
+               │ 0x8100  │  (2 bytes) │                  ││
+               │(2 bytes)│            │                  ││
+               └─────────┴────────────┴──────────────────┘│
+                              │                           │
+                    ┌─────────┴─────────────────┐         │
+                    │                           │         │
+               ┌────┴────┬──────────┬──────────┐│         │
+               │ Priority│   CFI    │  VLAN ID ││         │
+               │ (3 bits)│ (1 bit)  │ (12 bits)││         │
+               │  0-7    │  0 or 1  │ 0-4095   ││         │
+               └─────────┴──────────┴──────────┘│         │
+                                                │         │
+                         Supports 4,096 VLANs ──┘         │
+          </pre>
+        </div>
+
+        <h3>VLAN Configuration Example</h3>
+        <div class="tabs">
+          <div class="tab-list">
+            <button class="tab-btn active" data-tab="cisco-vlan">Cisco IOS</button>
+            <button class="tab-btn" data-tab="hp-vlan">HP/Aruba</button>
+          </div>
+          <div id="cisco-vlan" class="tab-content active">
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-lang">Cisco</span>
+                <button class="copy-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  Copy
+                </button>
+              </div>
+              <pre><code># Create VLANs
+Switch(config)# vlan 10
+Switch(config-vlan)# name Sales
+Switch(config)# vlan 20
+Switch(config-vlan)# name IT
+Switch(config)# vlan 30
+Switch(config-vlan)# name Management
+
+# Configure Access Port
+Switch(config)# interface GigabitEthernet0/1
+Switch(config-if)# switchport mode access
+Switch(config-if)# switchport access vlan 10
+
+# Configure Trunk Port
+Switch(config)# interface GigabitEthernet0/24
+Switch(config-if)# switchport trunk encapsulation dot1q
+Switch(config-if)# switchport mode trunk
+Switch(config-if)# switchport trunk native vlan 99
+Switch(config-if)# switchport trunk allowed vlan 10,20,30
+
+# Verify
+Switch# show vlan brief
+Switch# show interfaces trunk</code></pre>
+            </div>
+          </div>
+          <div id="hp-vlan" class="tab-content">
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-lang">HP/Aruba</span>
+                <button class="copy-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  Copy
+                </button>
+              </div>
+              <pre><code># Create VLANs
+Switch(config)# vlan 10 name "Sales"
+Switch(config)# vlan 20 name "IT"
+Switch(config)# vlan 30 name "Management"
+
+# Configure Access Port
+Switch(config)# vlan 10 untagged 1-12
+Switch(config)# vlan 20 untagged 13-24
+
+# Configure Trunk Port
+Switch(config)# vlan 10,20,30 tagged 25-26
+
+# Verify
+Switch# show vlans
+Switch# show vlans ports</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- NAT -->
+      <section>
+        <h2 id="nat">Network Address Translation (NAT/PAT)</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            NAT Types and Operation
+          </div>
+          <pre>
+STATIC NAT (1:1 Mapping)
+═══════════════════════════════════════════════════════════════════════════════
+
+  Internal Network                  NAT Device                    Internet
+  ┌──────────────┐              ┌──────────────┐              ┌──────────────┐
+  │ 192.168.1.10 │ ───────────► │ 203.0.113.10 │ ───────────► │              │
+  │  Web Server  │              │   (Public)    │              │   Internet   │
+  └──────────────┘              └──────────────┘              └──────────────┘
+
+  One private IP always maps to one public IP (bidirectional)
+
+
+DYNAMIC NAT (Pool)
+═══════════════════════════════════════════════════════════════════════════════
+
+  Internal Network                  NAT Device                    Internet
+  ┌──────────────┐              ┌──────────────┐
+  │ 192.168.1.10 │ ───────────► │ 203.0.113.10 │ ───────────►
+  ├──────────────┤              ├──────────────┤               ┌──────────────┐
+  │ 192.168.1.11 │ ───────────► │ 203.0.113.11 │ ───────────►  │   Internet   │
+  ├──────────────┤              ├──────────────┤               └──────────────┘
+  │ 192.168.1.12 │ ───────────► │ 203.0.113.12 │ ───────────►
+  └──────────────┘              └──────────────┘
+
+  Pool of public IPs assigned dynamically (temporary)
+
+
+PAT / NAT OVERLOAD (Many:1)
+═══════════════════════════════════════════════════════════════════════════════
+
+  Internal Network                  NAT Device                    Internet
+  ┌──────────────┐
+  │ 192.168.1.10 │ ─── :50001 ─►│
+  ├──────────────┤              │              ┌──────────────┐
+  │ 192.168.1.11 │ ─── :50002 ─►├ 203.0.113.1 ─┤   Internet   │
+  ├──────────────┤              │              └──────────────┘
+  │ 192.168.1.12 │ ─── :50003 ─►│
+  └──────────────┘
+
+  Many private IPs share one public IP using different port numbers
+
+NAT Translation Table (PAT Example):
+┌───────────────────────────┬──────────────────────────┬─────────────────────┐
+│      Inside Local         │      Inside Global       │   Outside Global    │
+├───────────────────────────┼──────────────────────────┼─────────────────────┤
+│ 192.168.1.10:50001        │ 203.0.113.1:50001        │ 8.8.8.8:53          │
+│ 192.168.1.11:50002        │ 203.0.113.1:50002        │ 1.1.1.1:443         │
+│ 192.168.1.12:50003        │ 203.0.113.1:50003        │ 142.250.80.14:80    │
+└───────────────────────────┴──────────────────────────┴─────────────────────┘
+          </pre>
+        </div>
+
+        <h3>NAT Configuration Examples</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Cisco</span>
+            <button class="copy-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+          <pre><code># Static NAT
+Router(config)# ip nat inside source static 192.168.1.10 203.0.113.10
+
+# PAT (Overload) - Most common for internet access
+Router(config)# access-list 1 permit 192.168.1.0 0.0.0.255
+Router(config)# ip nat inside source list 1 interface GigabitEthernet0/1 overload
+
+# Define inside and outside interfaces
+Router(config)# interface GigabitEthernet0/0
+Router(config-if)# ip nat inside
+Router(config)# interface GigabitEthernet0/1
+Router(config-if)# ip nat outside
+
+# Verify NAT
+Router# show ip nat translations
+Router# show ip nat statistics
+Router# clear ip nat translation *</code></pre>
+        </div>
+      </section>
+
+      <!-- Essential Protocols -->
+      <section>
+        <h2 id="essential-protocols">Essential Protocols</h2>
+
+        <h3>ARP (Address Resolution Protocol)</h3>
+        <p>
+          ARP maps IP addresses (Layer 3) to MAC addresses (Layer 2) within a local network.
+        </p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <button class="copy-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+          <pre><code># View ARP table
+$ arp -a
+$ ip neigh show
+
+# Add static ARP entry
+$ sudo arp -s 192.168.1.100 aa:bb:cc:dd:ee:ff
+
+# Clear ARP cache
+$ sudo ip neigh flush all
+
+# Windows
+C:\> arp -a
+C:\> arp -d *  (clear cache)</code></pre>
+        </div>
+
+        <h3>ICMP (Internet Control Message Protocol)</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Code</th>
+                <th>Description</th>
+                <th>Use Case</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>0</td><td>0</td><td>Echo Reply</td><td>Ping response</td></tr>
+              <tr><td>3</td><td>0</td><td>Network Unreachable</td><td>Routing failure</td></tr>
+              <tr><td>3</td><td>1</td><td>Host Unreachable</td><td>No ARP response</td></tr>
+              <tr><td>3</td><td>3</td><td>Port Unreachable</td><td>UDP port closed</td></tr>
+              <tr><td>3</td><td>4</td><td>Fragmentation Needed</td><td>MTU issues</td></tr>
+              <tr><td>5</td><td>0-3</td><td>Redirect</td><td>Better route available</td></tr>
+              <tr><td>8</td><td>0</td><td>Echo Request</td><td>Ping request</td></tr>
+              <tr><td>11</td><td>0</td><td>TTL Exceeded</td><td>Traceroute</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>DHCP Process (DORA)</h3>
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            DHCP DORA Process
+          </div>
+          <pre>
+    DHCP Client                                         DHCP Server
+         │                                                   │
+         │──────── DISCOVER (Broadcast) ────────────────────►│
+         │         "I need an IP address"                    │
+         │                                                   │
+         │◄─────── OFFER (Unicast/Broadcast) ────────────────│
+         │         "Here's 192.168.1.100 for you"            │
+         │                                                   │
+         │──────── REQUEST (Broadcast) ─────────────────────►│
+         │         "I'll take 192.168.1.100"                 │
+         │                                                   │
+         │◄─────── ACK (Unicast/Broadcast) ──────────────────│
+         │         "Confirmed, it's yours for 8 hours"       │
+         │                                                   │
+
+  DHCP Provides:
+  • IP Address
+  • Subnet Mask
+  • Default Gateway
+  • DNS Servers
+  • Lease Duration
+  • Domain Name
+          </pre>
+        </div>
+      </section>
+
+      <!-- Next Steps -->
+      <section>
+        <div class="section-divider"><span>Next Steps</span></div>
+        
+        <div class="card-grid">
+          <a href="forward-proxy.html" class="nav-card card">
+            <h4>Forward Proxy →</h4>
+            <p>Learn about forward proxies for web filtering and security inspection.</p>
+          </a>
+          <a href="firewall-concepts.html" class="nav-card card">
+            <h4>Firewall Concepts →</h4>
+            <p>Understand firewall fundamentals, types, and architectures.</p>
+          </a>
+          <a href="troubleshooting.html" class="nav-card card">
+            <h4>Troubleshooting →</h4>
+            <p>Master network troubleshooting methodology and tools.</p>
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>Documentation</h4>
+        <ul>
+          <li><a href="network-fundamentals.html">Network Fundamentals</a></li>
+          <li><a href="forward-proxy.html">Forward Proxy</a></li>
+          <li><a href="reverse-proxy.html">Reverse Proxy</a></li>
+          <li><a href="firewall-concepts.html">Firewall Concepts</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Security</h4>
+        <ul>
+          <li><a href="waf.html">WAF</a></li>
+          <li><a href="ids-ips.html">IDS/IPS</a></li>
+          <li><a href="vpn.html">VPN</a></li>
+          <li><a href="dns-security.html">DNS Security</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>Network Security & Infrastructure Guide</p>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

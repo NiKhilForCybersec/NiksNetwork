@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Network Security Best Practices - Hardening, Compliance Frameworks, Change Management, and Disaster Recovery">
+  <title>Best Practices | NetSec Guide</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      NetSec Guide
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="network-fundamentals.html">Fundamentals</a></li>
+      <li><a href="forward-proxy.html">Proxies</a></li>
+      <li><a href="firewall-concepts.html">Firewalls</a></li>
+      <li><a href="troubleshooting.html">Troubleshooting</a></li>
+    </ul>
+    <button class="menu-toggle" aria-label="Toggle menu">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+  </nav>
+
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">On This Page</div>
+      <ul class="sidebar-nav">
+        <li><a href="#hardening">Device Hardening</a></li>
+        <li><a href="#compliance">Compliance Frameworks</a></li>
+        <li><a href="#change-mgmt">Change Management</a></li>
+        <li><a href="#backup">Backup & Recovery</a></li>
+        <li><a href="#monitoring">Monitoring & Alerting</a></li>
+        <li><a href="#incident">Incident Response</a></li>
+        <li><a href="#checklist">Security Checklist</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Related Pages</div>
+      <ul class="sidebar-nav">
+        <li><a href="firewall-concepts.html">Firewall Concepts</a></li>
+        <li><a href="network-segmentation.html">Network Segmentation</a></li>
+        <li><a href="ids-ips.html">IDS/IPS</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="content-wrapper">
+      <nav class="breadcrumb">
+        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item active">Best Practices</span>
+      </nav>
+
+      <h1>Network Security Best Practices</h1>
+      <p class="hero-subtitle">
+        Comprehensive guide to security hardening, compliance frameworks, change management, 
+        and disaster recovery for network infrastructure.
+      </p>
+
+      <!-- Hardening -->
+      <section>
+        <h2 id="hardening">Device Hardening</h2>
+
+        <h3>Firewall Hardening Checklist</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Config</span>
+            <span class="code-filename">Universal Firewall Hardening</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# FIREWALL HARDENING CHECKLIST
+# =============================================================================
+
+## AUTHENTICATION & ACCESS
+─────────────────────────
+□ Change default credentials immediately
+□ Implement strong password policy (14+ chars, complexity)
+□ Enable multi-factor authentication (MFA)
+□ Use RBAC with least privilege
+□ Disable unused management protocols (Telnet, HTTP)
+□ Restrict management access to specific IPs
+□ Configure session timeouts (15 minutes recommended)
+□ Enable login attempt lockout (3-5 attempts)
+□ Use SSH key authentication where possible
+□ Disable password recovery over network
+
+## NETWORK SERVICES
+───────────────────
+□ Disable all unused services
+□ Change default ports where possible
+□ Use SNMPv3 with authentication and encryption
+□ Disable ICMP redirects and unreachables (where appropriate)
+□ Disable source routing
+□ Enable unicast RPF (reverse path forwarding)
+□ Disable proxy ARP
+□ Disable directed broadcasts
+
+## LOGGING & MONITORING
+───────────────────────
+□ Enable comprehensive logging
+□ Send logs to remote syslog/SIEM
+□ Enable NTP synchronization (authenticated if possible)
+□ Log configuration changes
+□ Log authentication events
+□ Log denied connections
+□ Configure log retention (90 days minimum)
+□ Enable real-time alerting for critical events
+
+## ENCRYPTION
+─────────────
+□ Use TLS 1.2+ for management interfaces
+□ Disable weak ciphers (DES, 3DES, RC4, MD5)
+□ Use AES-256 for VPN tunnels
+□ Enable Perfect Forward Secrecy (PFS)
+□ Use SHA-256 or stronger for hashing
+□ DH Group 14 (2048-bit) or higher
+□ Regular key rotation
+
+## FIRMWARE & PATCHES
+─────────────────────
+□ Run latest stable firmware
+□ Subscribe to vendor security advisories
+□ Test patches in lab before production
+□ Document current firmware versions
+□ Schedule regular patch windows
+□ Maintain rollback capability</code></pre>
+        </div>
+
+        <h3>Cisco Device Hardening</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Cisco IOS</span>
+            <span class="code-filename">Cisco Hardening Configuration</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code>! =============================================================================
+! CISCO IOS/ASA HARDENING
+! =============================================================================
+
+! Password and Authentication
+service password-encryption
+enable secret 5 $1$encrypted$hash
+username admin privilege 15 secret 5 $1$encrypted$hash
+
+! SSH Configuration
+ip ssh version 2
+ip ssh time-out 60
+ip ssh authentication-retries 3
+crypto key generate rsa modulus 4096
+
+! Disable insecure services
+no ip http server
+no ip http secure-server  ! Re-enable with ACL
+no service tcp-small-servers
+no service udp-small-servers
+no ip finger
+no ip bootp server
+no ip source-route
+no ip domain-lookup
+no cdp run  ! Disable on untrusted interfaces
+
+! Console and VTY Security
+line console 0
+ exec-timeout 15 0
+ login local
+ transport output none
+
+line vty 0 15
+ exec-timeout 15 0
+ login local
+ transport input ssh
+ transport output ssh
+ access-class MGMT-ACL in
+
+! Management ACL
+ip access-list standard MGMT-ACL
+ permit 192.168.1.0 0.0.0.255
+ deny any log
+
+! Logging
+logging buffered 64000 informational
+logging console critical
+logging trap informational
+logging source-interface Loopback0
+logging host 192.168.1.50
+
+! NTP with Authentication
+ntp authenticate
+ntp authentication-key 1 md5 NTPsecretKey
+ntp trusted-key 1
+ntp server 192.168.1.10 key 1
+
+! Banner
+banner motd ^C
+*******************************************************************
+*  UNAUTHORIZED ACCESS TO THIS DEVICE IS PROHIBITED              *
+*  All connections are logged and monitored                      *
+*  Disconnect IMMEDIATELY if you are not authorized              *
+*******************************************************************
+^C
+
+! Control Plane Protection
+control-plane
+ service-policy input COPP-POLICY
+
+! AAA Configuration (TACACS+/RADIUS)
+aaa new-model
+aaa authentication login default group tacacs+ local
+aaa authorization exec default group tacacs+ local
+aaa accounting commands 15 default start-stop group tacacs+
+tacacs server TACACS-SERVER
+ address ipv4 192.168.1.100
+ key 7 encrypted_key</code></pre>
+        </div>
+
+        <h3>Linux/Firewall Host Hardening</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <span class="code-filename">Linux Security Hardening</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# LINUX HOST HARDENING (Firewall/Proxy Servers)
+# =============================================================================
+
+# SSH Hardening (/etc/ssh/sshd_config)
+Protocol 2
+PermitRootLogin no
+PasswordAuthentication no
+PubkeyAuthentication yes
+MaxAuthTries 3
+LoginGraceTime 60
+ClientAliveInterval 300
+ClientAliveCountMax 2
+X11Forwarding no
+AllowTcpForwarding no
+PermitEmptyPasswords no
+AllowUsers admin securityadmin
+
+# Apply SSH changes
+sudo systemctl restart sshd
+
+# Kernel Hardening (/etc/sysctl.conf)
+# Network security
+net.ipv4.conf.all.accept_redirects = 0
+net.ipv4.conf.default.accept_redirects = 0
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.conf.default.send_redirects = 0
+net.ipv4.conf.all.accept_source_route = 0
+net.ipv4.conf.default.accept_source_route = 0
+net.ipv4.conf.all.log_martians = 1
+net.ipv4.conf.default.log_martians = 1
+net.ipv4.icmp_echo_ignore_broadcasts = 1
+net.ipv4.icmp_ignore_bogus_error_responses = 1
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.conf.default.rp_filter = 1
+net.ipv4.tcp_syncookies = 1
+
+# Apply sysctl
+sudo sysctl -p
+
+# Disable unused services
+sudo systemctl disable avahi-daemon
+sudo systemctl disable cups
+sudo systemctl disable bluetooth
+sudo systemctl disable telnet.socket
+
+# File permissions
+chmod 600 /etc/shadow
+chmod 600 /etc/gshadow
+chmod 644 /etc/passwd
+chmod 644 /etc/group
+chmod 700 /root
+chmod 700 /home/*
+
+# Remove unnecessary packages
+sudo apt remove telnet rsh-client rsh-server
+
+# Configure automatic security updates
+sudo apt install unattended-upgrades
+sudo dpkg-reconfigure -plow unattended-upgrades
+
+# Audit logging (auditd)
+sudo apt install auditd audispd-plugins
+
+# /etc/audit/rules.d/audit.rules
+-w /etc/passwd -p wa -k identity
+-w /etc/group -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/sudoers -p wa -k sudoers
+-w /var/log/faillog -p wa -k logins
+-w /var/log/lastlog -p wa -k logins
+-a always,exit -F arch=b64 -S execve -k exec
+-a always,exit -F arch=b32 -S execve -k exec
+
+sudo systemctl restart auditd</code></pre>
+        </div>
+      </section>
+
+      <!-- Compliance -->
+      <section>
+        <h2 id="compliance">Compliance Frameworks</h2>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Framework</th>
+                <th>Scope</th>
+                <th>Key Network Requirements</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>PCI DSS 4.0</strong></td>
+                <td>Payment card data</td>
+                <td>Segmentation, encryption, firewall rules documentation, logging</td>
+              </tr>
+              <tr>
+                <td><strong>HIPAA</strong></td>
+                <td>Healthcare data (PHI)</td>
+                <td>Access controls, encryption, audit logging, risk assessment</td>
+              </tr>
+              <tr>
+                <td><strong>SOC 2</strong></td>
+                <td>Service organizations</td>
+                <td>Access management, change management, monitoring, availability</td>
+              </tr>
+              <tr>
+                <td><strong>ISO 27001</strong></td>
+                <td>Information security</td>
+                <td>Risk-based controls, documented policies, continuous improvement</td>
+              </tr>
+              <tr>
+                <td><strong>NIST CSF</strong></td>
+                <td>Critical infrastructure</td>
+                <td>Identify, Protect, Detect, Respond, Recover framework</td>
+              </tr>
+              <tr>
+                <td><strong>CIS Controls</strong></td>
+                <td>General security</td>
+                <td>Prioritized, actionable security controls</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>PCI DSS Network Requirements</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Markdown</span>
+            <span class="code-filename">PCI DSS 4.0 Network Compliance</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# PCI DSS 4.0 NETWORK SECURITY REQUIREMENTS
+# =============================================================================
+
+## Requirement 1: Network Security Controls
+─────────────────────────────────────────────
+
+### 1.2 - Network Security Controls (NSC)
+□ Install and maintain NSCs between trusted and untrusted networks
+□ Document network diagram showing all connections to CDE
+□ Document data flows of cardholder data
+□ Review NSC configurations at least every 6 months
+
+### 1.3 - Restrict Access to CDE
+□ Deny all traffic by default
+□ Only allow necessary, documented traffic
+□ Implement stateful inspection
+□ Place system components storing cardholder data in internal network
+
+### 1.4 - NSC Between Wireless and CDE
+□ Deny by default, allow by exception
+□ Change all wireless vendor defaults
+□ Implement strong encryption for wireless
+
+
+## Requirement 2: Secure Configurations
+───────────────────────────────────────
+
+### 2.2 - System Components Configured Securely
+□ Change vendor default passwords
+□ Remove unnecessary accounts
+□ Disable insecure services and protocols
+□ Document security parameters
+□ Address all known vulnerabilities
+
+
+## Requirement 10: Logging and Monitoring
+─────────────────────────────────────────
+
+### 10.2 - Audit Logs
+□ All individual user access to cardholder data
+□ All actions by any individual with root/admin privileges
+□ Access to all audit trails
+□ Invalid logical access attempts
+□ Use of identification and authentication mechanisms
+□ Initialization, stopping, or pausing of audit logs
+□ Creation and deletion of system-level objects
+
+### 10.3 - Audit Trail Records
+□ User identification
+□ Type of event
+□ Date and time
+□ Success or failure indication
+□ Origination of event
+□ Identity or name of affected data/resource
+
+### 10.4 - Synchronize Clocks
+□ NTP or equivalent time-synchronization technology
+□ Only designated central time servers receive external time
+□ Protected time data
+
+
+## Requirement 11: Security Testing
+───────────────────────────────────
+
+### 11.3 - Vulnerability Scanning
+□ Internal vulnerability scans at least quarterly
+□ External vulnerability scans at least quarterly by ASV
+□ Rescan after any significant change
+
+### 11.4 - Penetration Testing
+□ Annual penetration testing
+□ Test from inside and outside network
+□ Test network segmentation controls</code></pre>
+        </div>
+      </section>
+
+      <!-- Change Management -->
+      <section>
+        <h2 id="change-mgmt">Change Management</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Change Management Process
+          </div>
+          <pre>
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                        CHANGE MANAGEMENT WORKFLOW                                   │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                     │
+│   ┌───────────────┐                                                                │
+│   │    REQUEST    │ ← Change request submitted                                     │
+│   │               │   • Description of change                                      │
+│   │               │   • Business justification                                     │
+│   │               │   • Affected systems                                           │
+│   └───────┬───────┘                                                                │
+│           │                                                                         │
+│           ▼                                                                         │
+│   ┌───────────────┐                                                                │
+│   │    REVIEW     │ ← Technical review                                             │
+│   │               │   • Security impact assessment                                 │
+│   │               │   • Risk analysis                                              │
+│   │               │   • Resource requirements                                      │
+│   └───────┬───────┘                                                                │
+│           │                                                                         │
+│           ▼                                                                         │
+│   ┌───────────────┐                                                                │
+│   │   APPROVAL    │ ← CAB (Change Advisory Board)                                  │
+│   │               │   • Security team approval                                     │
+│   │               │   • Management approval                                        │
+│   │               │   • Scheduled window assigned                                  │
+│   └───────┬───────┘                                                                │
+│           │                                                                         │
+│           ▼                                                                         │
+│   ┌───────────────┐                                                                │
+│   │     TEST      │ ← Lab/Staging environment                                      │
+│   │               │   • Validate change works                                      │
+│   │               │   • Test rollback procedure                                    │
+│   │               │   • Document results                                           │
+│   └───────┬───────┘                                                                │
+│           │                                                                         │
+│           ▼                                                                         │
+│   ┌───────────────┐                                                                │
+│   │  IMPLEMENT    │ ← During approved window                                       │
+│   │               │   • Backup current config                                      │
+│   │               │   • Execute change                                             │
+│   │               │   • Verify functionality                                       │
+│   └───────┬───────┘                                                                │
+│           │                                                                         │
+│           ▼                                                                         │
+│   ┌───────────────┐                                                                │
+│   │    VERIFY     │ ← Post-implementation                                          │
+│   │               │   • Confirm change successful                                  │
+│   │               │   • Monitor for issues                                         │
+│   │               │   • Close change ticket                                        │
+│   └───────────────┘                                                                │
+│                                                                                     │
+│   ROLLBACK: At any point if issues arise, execute documented rollback plan         │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+          </pre>
+        </div>
+
+        <h3>Firewall Change Request Template</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Markdown</span>
+            <span class="code-filename">Firewall Change Request</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# FIREWALL CHANGE REQUEST TEMPLATE
+# =============================================================================
+
+## Change Information
+─────────────────────
+Change ID:          CHG-2024-001234
+Requestor:          John Smith
+Department:         Application Development
+Request Date:       2024-01-15
+Requested By Date:  2024-01-22
+
+## Change Description
+─────────────────────
+Brief Description:
+Allow application server (10.10.10.50) to reach new payment gateway API.
+
+Detailed Description:
+The application team is integrating with PaymentCo's new API endpoint.
+Traffic needs to be allowed from our application server to their
+API endpoint on HTTPS (TCP/443).
+
+## Technical Details
+────────────────────
+Source:             10.10.10.50/32 (app-server-01)
+Destination:        203.0.113.100/32 (PaymentCo API)
+Protocol/Port:      TCP/443 (HTTPS)
+Direction:          Outbound
+
+Firewall(s) Affected:
+- FW-PROD-01 (Palo Alto)
+- FW-PROD-02 (Palo Alto) [HA Pair]
+
+Proposed Rule:
+  Name: "App-to-PaymentCo-API"
+  Source Zone: Trust
+  Destination Zone: Untrust
+  Source: 10.10.10.50
+  Destination: 203.0.113.100
+  Application: ssl
+  Service: application-default
+  Action: Allow
+  Logging: Enabled
+
+## Business Justification
+─────────────────────────
+This change is required to support the new payment processing
+integration scheduled for release in Sprint 24. Without this
+connectivity, payment processing will fail.
+
+Ticket Reference: JIRA-12345
+
+## Risk Assessment
+──────────────────
+Risk Level: LOW
+
+Impact if change fails: Application cannot process payments
+Impact if change causes issues: Limited - single destination
+
+## Testing Plan
+───────────────
+Pre-Implementation:
+- Verify current connectivity (expected: fail)
+- Backup firewall configuration
+
+Post-Implementation:
+- Test HTTPS connectivity: curl -v https://203.0.113.100/health
+- Verify application can authenticate to API
+- Confirm logs showing allowed traffic
+
+## Rollback Plan
+────────────────
+If issues occur:
+1. Disable the new firewall rule (do not delete)
+2. Verify connectivity returns to previous state
+3. Escalate to change requestor
+
+Estimated Rollback Time: 5 minutes
+
+## Approvals
+────────────
+[ ] Security Team:     _____________ Date: _______
+[ ] Network Team:      _____________ Date: _______
+[ ] Change Manager:    _____________ Date: _______
+
+## Implementation Notes
+───────────────────────
+Implemented By:     _____________
+Date/Time:          _____________
+Duration:           _____________
+Result:             [ ] Success  [ ] Rollback  [ ] Partial</code></pre>
+        </div>
+      </section>
+
+      <!-- Backup & Recovery -->
+      <section>
+        <h2 id="backup">Backup & Recovery</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <span class="code-filename">Network Device Backup Script</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code>#!/bin/bash
+# =============================================================================
+# NETWORK DEVICE BACKUP SCRIPT
+# =============================================================================
+
+BACKUP_DIR="/backup/network/$(date +%Y%m%d)"
+DEVICES_FILE="/etc/backup/devices.conf"
+LOG_FILE="/var/log/network-backup.log"
+
+mkdir -p "$BACKUP_DIR"
+
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
+}
+
+# Backup Cisco devices
+backup_cisco() {
+    local host=$1
+    local name=$2
+    log "Backing up Cisco device: $name ($host)"
+    
+    sshpass -p "$CISCO_PASS" ssh -o StrictHostKeyChecking=no \
+        "$CISCO_USER@$host" "show running-config" \
+        > "$BACKUP_DIR/${name}_running.cfg" 2>/dev/null
+    
+    if [ $? -eq 0 ]; then
+        log "SUCCESS: $name backed up"
+    else
+        log "FAILED: $name backup failed"
+    fi
+}
+
+# Backup Palo Alto
+backup_paloalto() {
+    local host=$1
+    local name=$2
+    log "Backing up Palo Alto: $name ($host)"
+    
+    # Export configuration via API
+    curl -sk "https://$host/api/?type=export&category=configuration&key=$PA_API_KEY" \
+        -o "$BACKUP_DIR/${name}_config.xml" 2>/dev/null
+    
+    if [ $? -eq 0 ]; then
+        log "SUCCESS: $name backed up"
+    else
+        log "FAILED: $name backup failed"
+    fi
+}
+
+# Backup FortiGate
+backup_fortigate() {
+    local host=$1
+    local name=$2
+    log "Backing up FortiGate: $name ($host)"
+    
+    sshpass -p "$FORTI_PASS" ssh -o StrictHostKeyChecking=no \
+        "$FORTI_USER@$host" "execute backup config flash" 2>/dev/null
+    
+    # SCP the backup file
+    sshpass -p "$FORTI_PASS" scp -o StrictHostKeyChecking=no \
+        "$FORTI_USER@$host:/flash/config_backup" \
+        "$BACKUP_DIR/${name}_config.conf" 2>/dev/null
+}
+
+# Read devices and backup
+while IFS=, read -r type name host; do
+    case $type in
+        cisco)      backup_cisco "$host" "$name" ;;
+        paloalto)   backup_paloalto "$host" "$name" ;;
+        fortigate)  backup_fortigate "$host" "$name" ;;
+    esac
+done < "$DEVICES_FILE"
+
+# Compress backups
+cd "$BACKUP_DIR/.."
+tar -czf "backup_$(date +%Y%m%d).tar.gz" "$(date +%Y%m%d)"
+
+# Upload to remote storage (S3/Azure Blob)
+aws s3 cp "backup_$(date +%Y%m%d).tar.gz" s3://network-backups/
+
+# Cleanup old backups (keep 30 days)
+find /backup/network -type d -mtime +30 -exec rm -rf {} \;
+
+log "Backup completed"</code></pre>
+        </div>
+
+        <h3>Disaster Recovery Plan</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Markdown</span>
+            <span class="code-filename">Network DR Plan</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# NETWORK DISASTER RECOVERY PLAN
+# =============================================================================
+
+## Recovery Time Objectives (RTO)
+─────────────────────────────────
+Critical (Tier 1):     < 1 hour   - Core firewalls, internet connectivity
+Important (Tier 2):    < 4 hours  - VPN concentrators, internal routing
+Standard (Tier 3):     < 24 hours - Secondary links, non-critical segments
+
+## Recovery Point Objectives (RPO)
+──────────────────────────────────
+Configuration data:    < 24 hours (daily backups)
+Log data:              < 1 hour (real-time to SIEM)
+Performance data:      < 15 minutes (NMS polling)
+
+## Backup Locations
+───────────────────
+Primary:    On-premise backup server (192.168.1.50)
+Secondary:  AWS S3 (s3://company-network-backups)
+Tertiary:   Offline media (monthly, stored offsite)
+
+## Recovery Procedures
+──────────────────────
+
+### Scenario 1: Single Firewall Failure (HA Environment)
+1. Verify standby unit has taken over (automatic)
+2. Investigate failed unit
+3. If hardware failure:
+   - RMA replacement unit
+   - Restore configuration from backup
+   - Resync HA pair
+   
+Estimated Recovery: Automatic (< 30 seconds failover)
+
+### Scenario 2: Complete Site Failure
+1. Activate DR site network
+2. Update DNS to point to DR site
+3. Verify VPN tunnels to DR site
+4. Restore firewall configs at DR site
+5. Test connectivity
+
+Estimated Recovery: 2-4 hours
+
+### Scenario 3: Configuration Corruption
+1. Identify scope of corruption
+2. Retrieve last known good backup
+3. Schedule emergency change window
+4. Restore configuration
+5. Verify all services operational
+
+Estimated Recovery: 30 minutes - 2 hours
+
+## Emergency Contacts
+─────────────────────
+Network Team Lead:     John Smith      +1-555-0100
+Security Team Lead:    Jane Doe        +1-555-0101
+Vendor Support:
+  - Palo Alto TAC:     1-866-898-9087 (Case: XXXXXXX)
+  - Cisco TAC:         1-800-553-2447
+  - Fortinet:          1-408-235-7700
+
+## DR Test Schedule
+───────────────────
+Quarterly:  Configuration restore test
+Semi-Annual: Failover test (controlled)
+Annual:     Full DR site activation test</code></pre>
+        </div>
+      </section>
+
+      <!-- Monitoring -->
+      <section>
+        <h2 id="monitoring">Monitoring & Alerting</h2>
+
+        <div class="card-grid">
+          <div class="card">
+            <h4>Availability Monitoring</h4>
+            <p>ICMP/SNMP polling every 60 seconds. Alert on 3+ consecutive failures.</p>
+          </div>
+          <div class="card">
+            <h4>Performance Monitoring</h4>
+            <p>CPU, memory, session count, throughput. Alert at 80% utilization.</p>
+          </div>
+          <div class="card">
+            <h4>Security Monitoring</h4>
+            <p>Failed logins, config changes, denied connections. Real-time SIEM alerts.</p>
+          </div>
+          <div class="card">
+            <h4>Configuration Monitoring</h4>
+            <p>Daily config diff, unauthorized change detection, compliance drift.</p>
+          </div>
+        </div>
+
+        <h3>Critical Alert Thresholds</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Warning</th>
+                <th>Critical</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>CPU Utilization</strong></td>
+                <td>70%</td>
+                <td>85%</td>
+                <td>Investigate load, consider upgrade</td>
+              </tr>
+              <tr>
+                <td><strong>Memory Utilization</strong></td>
+                <td>75%</td>
+                <td>90%</td>
+                <td>Check session table, memory leaks</td>
+              </tr>
+              <tr>
+                <td><strong>Session Count</strong></td>
+                <td>80% of max</td>
+                <td>95% of max</td>
+                <td>Review timeout settings, capacity</td>
+              </tr>
+              <tr>
+                <td><strong>Interface Utilization</strong></td>
+                <td>70%</td>
+                <td>90%</td>
+                <td>Traffic analysis, capacity planning</td>
+              </tr>
+              <tr>
+                <td><strong>Failed Logins</strong></td>
+                <td>5/hour</td>
+                <td>20/hour</td>
+                <td>Investigate source, potential attack</td>
+              </tr>
+              <tr>
+                <td><strong>HA State Change</strong></td>
+                <td>N/A</td>
+                <td>Any</td>
+                <td>Immediate investigation</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Incident Response -->
+      <section>
+        <h2 id="incident">Incident Response</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Markdown</span>
+            <span class="code-filename">Network Security Incident Playbook</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# NETWORK SECURITY INCIDENT RESPONSE
+# =============================================================================
+
+## PHASE 1: DETECTION & ANALYSIS
+─────────────────────────────────
+
+### Initial Triage (First 15 minutes)
+□ Acknowledge alert
+□ Determine incident type:
+  - Unauthorized access attempt
+  - DDoS/DoS attack
+  - Malware/C2 communication
+  - Configuration change
+  - Device compromise
+□ Assess severity (P1-P4)
+□ Notify incident commander if P1/P2
+
+### Evidence Collection
+□ Preserve firewall logs (do not clear)
+□ Capture current connections: show conn all
+□ Capture NAT translations: show xlate
+□ Export packet captures if available
+□ Screenshot relevant dashboards
+□ Document timeline of events
+
+## PHASE 2: CONTAINMENT
+───────────────────────
+
+### Immediate Actions (Based on Incident Type)
+
+#### Unauthorized Access:
+□ Block source IP immediately
+□ Disable compromised credentials
+□ Review other sessions from same source
+□ Check for lateral movement
+
+#### DDoS Attack:
+□ Enable rate limiting
+□ Activate DDoS mitigation (upstream/cloud)
+□ Block attacking IPs/ranges
+□ Enable geo-blocking if appropriate
+
+#### Malware/C2:
+□ Block destination IPs/domains
+□ Isolate infected hosts (network quarantine)
+□ Enable SSL inspection for suspicious traffic
+□ Capture samples for analysis
+
+#### Device Compromise:
+□ Isolate device from network
+□ Disable remote management
+□ Do NOT reboot (preserve evidence)
+□ Deploy replacement device
+
+## PHASE 3: ERADICATION
+───────────────────────
+□ Identify root cause
+□ Remove malicious configurations
+□ Patch vulnerabilities exploited
+□ Reset all potentially compromised credentials
+□ Verify no persistence mechanisms remain
+
+## PHASE 4: RECOVERY
+────────────────────
+□ Restore from known-good backup if needed
+□ Implement additional security controls
+□ Gradually restore services
+□ Monitor closely for recurrence
+□ Verify all services operational
+
+## PHASE 5: LESSONS LEARNED
+───────────────────────────
+□ Conduct post-incident review (within 5 days)
+□ Document timeline and actions
+□ Identify gaps in detection/response
+□ Update playbooks and procedures
+□ Implement preventive measures
+□ Brief stakeholders</code></pre>
+        </div>
+      </section>
+
+      <!-- Checklist -->
+      <section>
+        <h2 id="checklist">Security Checklist</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Markdown</span>
+            <span class="code-filename">Network Security Audit Checklist</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# NETWORK SECURITY AUDIT CHECKLIST
+# =============================================================================
+
+## ACCESS CONTROL
+─────────────────
+□ Default credentials changed on all devices
+□ MFA enabled for administrative access
+□ Role-based access control implemented
+□ Service accounts audited and documented
+□ Privileged access monitored and logged
+□ VPN access requires MFA
+□ Guest network isolated
+
+## NETWORK SEGMENTATION
+───────────────────────
+□ Network diagram current and accurate
+□ Data flow diagrams documented
+□ VLANs properly configured
+□ Inter-VLAN routing controlled by firewall
+□ Sensitive data isolated (PCI, PII, PHI)
+□ IoT/OT devices on separate network
+□ DMZ properly implemented
+
+## FIREWALL CONFIGURATION
+─────────────────────────
+□ Default deny rule in place
+□ Rules documented with business justification
+□ Unused rules disabled/removed
+□ Any/Any rules eliminated or justified
+□ Rule base reviewed quarterly
+□ Logging enabled for all rules
+□ IPS/IDS signatures updated
+
+## ENCRYPTION
+─────────────
+□ VPN using strong encryption (AES-256)
+□ Management interfaces use TLS 1.2+
+□ Weak ciphers disabled
+□ Certificates valid and not expiring soon
+□ Key rotation scheduled
+
+## LOGGING & MONITORING
+───────────────────────
+□ All devices sending logs to SIEM
+□ Log retention meets compliance requirements
+□ Critical alerts configured
+□ NTP synchronized across all devices
+□ Log integrity protected
+□ Regular log reviews conducted
+
+## VULNERABILITY MANAGEMENT
+───────────────────────────
+□ Firmware current on all devices
+□ Known vulnerabilities patched
+□ Regular vulnerability scans conducted
+□ Penetration testing performed annually
+□ CVE monitoring for all vendors
+
+## BACKUP & RECOVERY
+────────────────────
+□ Configurations backed up daily
+□ Backups stored offsite
+□ Restore procedures tested quarterly
+□ DR plan documented and current
+□ RTO/RPO defined and achievable
+
+## DOCUMENTATION
+────────────────
+□ Network diagrams current
+□ IP address management (IPAM) accurate
+□ Change management process followed
+□ Standard operating procedures documented
+□ Incident response plans tested
+
+## COMPLIANCE SPECIFIC
+──────────────────────
+□ PCI DSS controls implemented (if applicable)
+□ HIPAA safeguards in place (if applicable)
+□ SOC 2 controls documented (if applicable)
+□ Evidence collection for audits prepared
+
+## REVIEW FREQUENCY
+───────────────────
+Daily:      Alert review, log monitoring
+Weekly:     Failed login review, capacity check
+Monthly:    Firewall rule review, patch status
+Quarterly:  Full security assessment, DR test
+Annual:     Penetration test, policy review</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-divider"><span>Related Guides</span></div>
+        <div class="card-grid">
+          <a href="firewall-concepts.html" class="nav-card card">
+            <h4>Firewall Concepts →</h4>
+            <p>Core firewall security fundamentals.</p>
+          </a>
+          <a href="network-segmentation.html" class="nav-card card">
+            <h4>Network Segmentation →</h4>
+            <p>Zero Trust and microsegmentation.</p>
+          </a>
+          <a href="ids-ips.html" class="nav-card card">
+            <h4>IDS/IPS →</h4>
+            <p>Intrusion detection and prevention.</p>
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <p>Network Security & Infrastructure Guide</p>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

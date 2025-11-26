@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Network Troubleshooting Guide - Diagnostic commands, tools, methodologies, and common scenarios for network engineers">
+  <title>Network Troubleshooting | NetSec Guide</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      NetSec Guide
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="network-fundamentals.html">Fundamentals</a></li>
+      <li><a href="forward-proxy.html">Proxies</a></li>
+      <li><a href="firewall-concepts.html">Firewalls</a></li>
+      <li><a href="troubleshooting.html" class="active">Troubleshooting</a></li>
+    </ul>
+    <button class="menu-toggle" aria-label="Toggle menu">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+  </nav>
+
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">On This Page</div>
+      <ul class="sidebar-nav">
+        <li><a href="#methodology">Methodology</a></li>
+        <li><a href="#connectivity">Connectivity Testing</a></li>
+        <li><a href="#dns">DNS Troubleshooting</a></li>
+        <li><a href="#routing">Routing Issues</a></li>
+        <li><a href="#firewall-debug">Firewall Debugging</a></li>
+        <li><a href="#packet-capture">Packet Capture</a></li>
+        <li><a href="#performance">Performance Issues</a></li>
+        <li><a href="#ssl-tls">SSL/TLS Issues</a></li>
+        <li><a href="#scenarios">Common Scenarios</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="content-wrapper">
+      <nav class="breadcrumb">
+        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item active">Troubleshooting</span>
+      </nav>
+
+      <h1>Network Troubleshooting Guide</h1>
+      <p class="hero-subtitle">
+        Systematic approach to diagnosing and resolving network issues. 
+        Covers essential commands, tools, and real-world troubleshooting scenarios.
+      </p>
+
+      <!-- Methodology -->
+      <section>
+        <h2 id="methodology">Troubleshooting Methodology</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            OSI Layer Troubleshooting Approach
+          </div>
+          <pre>
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                    BOTTOM-UP TROUBLESHOOTING APPROACH                               │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                     │
+│  Start at Layer 1 and work up until you find the problem                           │
+│                                                                                     │
+│  ┌─────────────────────────────────────────────────────────────────────────────┐   │
+│  │ LAYER 7: APPLICATION                                                        │   │
+│  │ Check: Application logs, service status, configuration                      │   │
+│  │ Tools: curl, wget, application-specific tools, log files                    │   │
+│  └─────────────────────────────────────────────────────────────────────────────┘   │
+│                                        ▲                                           │
+│  ┌─────────────────────────────────────────────────────────────────────────────┐   │
+│  │ LAYER 4: TRANSPORT                                                          │   │
+│  │ Check: Port open? Service listening? Firewall blocking?                     │   │
+│  │ Tools: netstat, ss, telnet, nc, tcpdump                                     │   │
+│  └─────────────────────────────────────────────────────────────────────────────┘   │
+│                                        ▲                                           │
+│  ┌─────────────────────────────────────────────────────────────────────────────┐   │
+│  │ LAYER 3: NETWORK                                                            │   │
+│  │ Check: IP config, routing, DNS resolution, firewall rules                   │   │
+│  │ Tools: ping, traceroute, ip route, dig, nslookup                            │   │
+│  └─────────────────────────────────────────────────────────────────────────────┘   │
+│                                        ▲                                           │
+│  ┌─────────────────────────────────────────────────────────────────────────────┐   │
+│  │ LAYER 2: DATA LINK                                                          │   │
+│  │ Check: MAC address, ARP table, VLAN config, switch port                     │   │
+│  │ Tools: arp, ip neigh, ethtool, switch CLI                                   │   │
+│  └─────────────────────────────────────────────────────────────────────────────┘   │
+│                                        ▲                                           │
+│  ┌─────────────────────────────────────────────────────────────────────────────┐   │
+│  │ LAYER 1: PHYSICAL                                                           │   │
+│  │ Check: Cable connected? Link light? Speed/duplex?                           │   │
+│  │ Tools: Visual inspection, cable tester, ethtool                             │   │
+│  └─────────────────────────────────────────────────────────────────────────────┘   │
+│                                                                                     │
+│                                                                                     │
+│  QUICK CHECK SEQUENCE:                                                              │
+│  ─────────────────────                                                              │
+│  1. Is the interface up?              → ip link show                               │
+│  2. Do we have an IP?                 → ip addr show                               │
+│  3. Can we reach the gateway?         → ping <gateway>                             │
+│  4. Can we reach external IPs?        → ping 8.8.8.8                               │
+│  5. Does DNS work?                    → nslookup google.com                        │
+│  6. Can we reach the destination?     → ping <destination>                         │
+│  7. Is the service port open?         → telnet <dest> <port>                       │
+│  8. Does the application respond?     → curl http://<dest>                         │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+          </pre>
+        </div>
+      </section>
+
+      <!-- Connectivity Testing -->
+      <section>
+        <h2 id="connectivity">Connectivity Testing</h2>
+
+        <h3>Basic Connectivity Commands</h3>
+        <div class="tabs">
+          <div class="tab-list">
+            <button class="tab-btn active" data-tab="conn-linux">Linux</button>
+            <button class="tab-btn" data-tab="conn-windows">Windows</button>
+          </div>
+          <div id="conn-linux" class="tab-content active">
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-lang">Bash</span>
+                <button class="copy-btn">Copy</button>
+              </div>
+              <pre><code># =============================================================================
+# BASIC CONNECTIVITY TESTING - LINUX
+# =============================================================================
+
+# Check interface status
+ip link show                          # All interfaces
+ip addr show                          # IP addresses
+ip -s link show eth0                  # Interface statistics
+
+# Test connectivity
+ping -c 4 8.8.8.8                     # Basic ping (4 packets)
+ping -c 4 -W 2 192.168.1.1            # With 2s timeout
+ping -I eth0 8.8.8.8                  # From specific interface
+ping6 ::1                             # IPv6 ping
+
+# Trace route to destination
+traceroute 8.8.8.8                    # ICMP traceroute
+traceroute -T -p 443 google.com       # TCP traceroute
+mtr 8.8.8.8                           # Combined ping/traceroute (interactive)
+mtr -r -c 10 8.8.8.8                  # Report mode
+
+# Test TCP connectivity
+nc -zv 192.168.1.100 22               # Check if port 22 is open
+nc -zv -w 2 google.com 443            # With 2s timeout
+telnet 192.168.1.100 80               # Telnet to port
+
+# Check listening ports
+ss -tlnp                              # TCP listening ports
+ss -ulnp                              # UDP listening ports
+ss -anp | grep :80                    # Connections on port 80
+netstat -tlnp                         # Alternative (older)
+
+# ARP/Neighbor table
+ip neigh show                         # View ARP cache
+arp -a                                # Alternative
+arping -I eth0 192.168.1.1            # Send ARP request</code></pre>
+            </div>
+          </div>
+          <div id="conn-windows" class="tab-content">
+            <div class="code-block">
+              <div class="code-header">
+                <span class="code-lang">CMD/PowerShell</span>
+                <button class="copy-btn">Copy</button>
+              </div>
+              <pre><code># =============================================================================
+# BASIC CONNECTIVITY TESTING - WINDOWS
+# =============================================================================
+
+# Check interface status
+ipconfig /all                         # All interface details
+Get-NetAdapter                        # PowerShell - adapters
+Get-NetIPAddress                      # PowerShell - IP addresses
+
+# Test connectivity
+ping 8.8.8.8                          # Basic ping
+ping -n 4 -w 2000 192.168.1.1         # 4 packets, 2s timeout
+Test-Connection 8.8.8.8               # PowerShell ping
+
+# Trace route
+tracert 8.8.8.8                       # Standard traceroute
+pathping 8.8.8.8                      # Combines tracert and ping
+
+# Test TCP connectivity
+Test-NetConnection -ComputerName google.com -Port 443
+Test-NetConnection 192.168.1.100 -Port 22 -InformationLevel Detailed
+tnc google.com -Port 443              # Short alias
+
+# Check listening ports
+netstat -an | findstr LISTENING
+netstat -ano | findstr :80            # Find process using port 80
+Get-NetTCPConnection -State Listen    # PowerShell
+
+# ARP table
+arp -a                                # View ARP cache
+Get-NetNeighbor                       # PowerShell ARP table</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DNS -->
+      <section>
+        <h2 id="dns">DNS Troubleshooting</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <span class="code-filename">DNS Diagnostic Commands</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# DNS TROUBLESHOOTING
+# =============================================================================
+
+# Basic lookup
+nslookup google.com                   # Simple lookup
+nslookup google.com 8.8.8.8           # Query specific DNS server
+dig google.com                        # Detailed lookup
+dig +short google.com                 # Just the IP
+
+# Query specific record types
+dig google.com A                      # A record (IPv4)
+dig google.com AAAA                   # AAAA record (IPv6)
+dig google.com MX                     # Mail servers
+dig google.com NS                     # Name servers
+dig google.com TXT                    # TXT records (SPF, DKIM)
+dig google.com SOA                    # Start of Authority
+dig google.com ANY                    # All records
+
+# Reverse lookup
+dig -x 8.8.8.8                        # PTR record lookup
+nslookup 8.8.8.8
+
+# Trace DNS resolution path
+dig +trace google.com                 # Shows full resolution path
+
+# Check specific DNS server
+dig @8.8.8.8 google.com               # Query Google DNS
+dig @1.1.1.1 google.com               # Query Cloudflare
+dig @192.168.1.1 internal.company.com # Query internal DNS
+
+# Check DNS configuration
+cat /etc/resolv.conf                  # DNS servers configured
+systemd-resolve --status              # systemd-resolved status
+resolvectl status                     # Modern Linux
+
+# Clear DNS cache
+# Linux (systemd-resolved)
+sudo systemd-resolve --flush-caches
+sudo resolvectl flush-caches
+
+# macOS
+sudo dscacheutil -flushcache
+sudo killall -HUP mDNSResponder
+
+# Windows
+ipconfig /flushdns
+
+# Test DNS response time
+dig google.com | grep "Query time"
+
+# Check for DNS propagation issues
+for dns in 8.8.8.8 1.1.1.1 9.9.9.9; do
+    echo "=== $dns ==="
+    dig @$dns example.com +short
+done</code></pre>
+        </div>
+
+        <div class="alert alert-info">
+          <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <div class="alert-content">
+            <div class="alert-title">Common DNS Issues</div>
+            <p>• Can ping IP but not hostname → DNS resolution failure<br>
+            • Intermittent failures → Check for multiple DNS servers with inconsistent records<br>
+            • Slow resolution → DNS server performance or network latency</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Routing -->
+      <section>
+        <h2 id="routing">Routing Troubleshooting</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <span class="code-filename">Routing Commands</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# ROUTING TROUBLESHOOTING
+# =============================================================================
+
+# View routing table
+ip route show                         # Linux - current routes
+ip -6 route show                      # IPv6 routes
+route -n                              # Alternative (older)
+netstat -rn                           # Another alternative
+
+# Windows
+route print                           # Windows routing table
+Get-NetRoute                          # PowerShell
+
+# Check route to specific destination
+ip route get 8.8.8.8                  # Which route will be used
+ip route get 192.168.1.100
+
+# Traceroute to see path
+traceroute -n 8.8.8.8                 # Numeric only (faster)
+traceroute -I 8.8.8.8                 # ICMP mode
+traceroute -T -p 443 8.8.8.8          # TCP mode
+
+# Check for asymmetric routing
+# Run traceroute from both ends and compare paths
+
+# Add/Delete routes (temporary)
+sudo ip route add 10.0.0.0/8 via 192.168.1.1
+sudo ip route del 10.0.0.0/8
+sudo ip route add default via 192.168.1.1
+
+# Common routing issues diagnosis
+# 1. No default gateway
+ip route | grep default
+
+# 2. Wrong gateway
+ping <gateway-ip>
+
+# 3. Routing loop (TTL exceeded)
+traceroute <destination>  # Look for repeating hops
+
+# 4. Black hole (packets disappear)
+traceroute <destination>  # Look for * * * then nothing
+
+# Check interface for routing
+ip link show                          # Is interface up?
+ip addr show                          # Does it have IP?</code></pre>
+        </div>
+      </section>
+
+      <!-- Firewall Debugging -->
+      <section>
+        <h2 id="firewall-debug">Firewall Debugging</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <span class="code-filename">Firewall Debugging Commands</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# FIREWALL DEBUGGING - LINUX
+# =============================================================================
+
+# iptables
+iptables -L -v -n                     # List rules with counters
+iptables -L -v -n --line-numbers      # With line numbers
+iptables -t nat -L -v -n              # NAT table
+watch -n 1 'iptables -L -v -n'        # Watch counters in real-time
+
+# Check if traffic is being dropped
+# Add logging rule temporarily
+iptables -I INPUT -j LOG --log-prefix "IPT-INPUT: " --log-level 4
+tail -f /var/log/kern.log | grep IPT-INPUT
+
+# nftables
+nft list ruleset
+nft list table inet filter
+nft monitor                           # Watch rules being hit
+
+# Conntrack (connection tracking)
+conntrack -L                          # List tracked connections
+conntrack -E                          # Watch connections in real-time
+conntrack -D -s 192.168.1.100         # Delete connection
+
+# Check if firewall is the problem
+# Temporarily disable (CAUTION!)
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -F
+
+# =============================================================================
+# FIREWALL DEBUGGING - WINDOWS
+# =============================================================================
+
+# View firewall status
+netsh advfirewall show allprofiles state
+
+# View rules
+netsh advfirewall firewall show rule name=all
+Get-NetFirewallRule | Where-Object {$_.Enabled -eq 'True'}
+
+# Check logs
+Get-Content "$env:SystemRoot\system32\LogFiles\Firewall\pfirewall.log" -Tail 50
+
+# Temporarily disable (CAUTION!)
+netsh advfirewall set allprofiles state off
+
+# =============================================================================
+# PALO ALTO DEBUGGING
+# =============================================================================
+
+# Test which rule matches
+> test security-policy-match source 192.168.1.10 destination 8.8.8.8 protocol 6 destination-port 443
+
+# View session
+> show session all filter source 192.168.1.10
+> show session id 12345
+
+# Traffic logs
+> show log traffic
+
+# Enable packet debug (advanced)
+> debug dataplane packet-diag set filter match source 192.168.1.10
+> debug dataplane packet-diag set log feature flow basic
+> debug dataplane packet-diag set log on
+# ... reproduce issue ...
+> less dp-log pan_task_log</code></pre>
+        </div>
+      </section>
+
+      <!-- Packet Capture -->
+      <section>
+        <h2 id="packet-capture">Packet Capture</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <span class="code-filename">tcpdump Examples</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# TCPDUMP PACKET CAPTURE
+# =============================================================================
+
+# Basic capture
+tcpdump -i eth0                       # Capture on interface
+tcpdump -i any                        # Capture on all interfaces
+tcpdump -c 100                        # Capture 100 packets
+tcpdump -w capture.pcap               # Write to file
+
+# Filter by host
+tcpdump host 192.168.1.100            # Traffic to/from host
+tcpdump src host 192.168.1.100        # Traffic FROM host
+tcpdump dst host 192.168.1.100        # Traffic TO host
+
+# Filter by port
+tcpdump port 80                       # HTTP traffic
+tcpdump port 443                      # HTTPS traffic
+tcpdump portrange 80-443              # Port range
+tcpdump 'port 80 or port 443'         # Multiple ports
+
+# Filter by protocol
+tcpdump icmp                          # ICMP (ping)
+tcpdump tcp                           # TCP only
+tcpdump udp                           # UDP only
+tcpdump 'tcp[tcpflags] & tcp-syn != 0'  # SYN packets
+
+# Combine filters
+tcpdump -i eth0 host 192.168.1.100 and port 443
+tcpdump 'host 192.168.1.100 and (port 80 or port 443)'
+tcpdump 'src host 192.168.1.10 and dst port 22'
+
+# Output options
+tcpdump -n                            # Don't resolve hostnames
+tcpdump -nn                           # Don't resolve hostnames or ports
+tcpdump -v                            # Verbose
+tcpdump -vvv                          # Very verbose
+tcpdump -X                            # Show packet contents (hex + ASCII)
+tcpdump -A                            # Show packet contents (ASCII only)
+tcpdump -e                            # Show MAC addresses
+
+# Common troubleshooting captures
+# HTTP traffic analysis
+tcpdump -i eth0 -nn -A 'tcp port 80 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) != 0)'
+
+# DNS queries
+tcpdump -i eth0 -nn port 53
+
+# TCP handshake issues
+tcpdump -i eth0 -nn 'tcp[tcpflags] & (tcp-syn|tcp-fin) != 0'
+
+# Capture to file for Wireshark analysis
+tcpdump -i eth0 -w /tmp/capture.pcap host 192.168.1.100 and port 443
+# Then download and open in Wireshark</code></pre>
+        </div>
+
+        <h3>Wireshark Display Filters</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Wireshark</span>
+            <span class="code-filename">Common Display Filters</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# WIRESHARK DISPLAY FILTERS
+# =============================================================================
+
+# Host filters
+ip.addr == 192.168.1.100              # Traffic to/from IP
+ip.src == 192.168.1.100               # Source IP
+ip.dst == 192.168.1.100               # Destination IP
+eth.addr == 00:11:22:33:44:55         # MAC address
+
+# Port filters
+tcp.port == 443                       # TCP port 443
+udp.port == 53                        # UDP port 53
+tcp.dstport == 80                     # Destination port 80
+
+# Protocol filters
+http                                  # HTTP traffic
+dns                                   # DNS traffic
+tls                                   # TLS/SSL traffic
+icmp                                  # ICMP traffic
+arp                                   # ARP traffic
+
+# TCP analysis
+tcp.analysis.retransmission           # Retransmitted packets
+tcp.analysis.duplicate_ack            # Duplicate ACKs
+tcp.analysis.zero_window              # Zero window
+tcp.flags.syn == 1                    # SYN packets
+tcp.flags.reset == 1                  # RST packets
+
+# HTTP analysis
+http.request                          # HTTP requests
+http.response                         # HTTP responses
+http.response.code == 404             # 404 errors
+http.request.method == "POST"         # POST requests
+
+# TLS analysis
+tls.handshake                         # TLS handshakes
+tls.alert_message                     # TLS alerts
+tls.handshake.type == 1               # Client Hello
+tls.handshake.type == 2               # Server Hello
+
+# Combine filters
+ip.addr == 192.168.1.100 && tcp.port == 443
+http.request || http.response
+dns && ip.src == 192.168.1.100
+
+# Exclude filters
+!(arp || icmp)                        # Exclude ARP and ICMP
+!tcp.port == 22                       # Exclude SSH</code></pre>
+        </div>
+      </section>
+
+      <!-- Performance -->
+      <section>
+        <h2 id="performance">Performance Troubleshooting</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <span class="code-filename">Network Performance Tools</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# NETWORK PERFORMANCE TESTING
+# =============================================================================
+
+# Bandwidth testing with iperf3
+# Server side:
+iperf3 -s                             # Start server (default port 5201)
+iperf3 -s -p 5001                     # Custom port
+
+# Client side:
+iperf3 -c <server-ip>                 # Basic test
+iperf3 -c <server-ip> -t 30           # 30 second test
+iperf3 -c <server-ip> -P 4            # 4 parallel streams
+iperf3 -c <server-ip> -R              # Reverse mode (download)
+iperf3 -c <server-ip> -u -b 100M      # UDP test at 100Mbps
+
+# MTU testing
+ping -M do -s 1472 <destination>      # Test MTU (1472 + 28 = 1500)
+# Decrease -s value until it works to find MTU
+
+# Latency testing
+ping -c 100 <destination> | tail -1   # Average latency
+mtr -r -c 100 <destination>           # Detailed path latency
+
+# Interface statistics
+ip -s link show eth0                  # Packet counts, errors, drops
+ethtool -S eth0                       # Detailed NIC statistics
+cat /proc/net/dev                     # All interface stats
+
+# Check for errors/drops
+netstat -i                            # Interface statistics
+watch -n 1 'ip -s link show eth0'     # Watch in real-time
+
+# Socket buffer sizes
+sysctl net.core.rmem_max              # Max receive buffer
+sysctl net.core.wmem_max              # Max send buffer
+sysctl net.ipv4.tcp_rmem              # TCP receive buffer
+sysctl net.ipv4.tcp_wmem              # TCP send buffer
+
+# Check TCP connections
+ss -s                                 # Summary statistics
+ss -ti                                # TCP connection info with metrics
+
+# Network I/O monitoring
+iftop -i eth0                         # Real-time bandwidth per connection
+nethogs eth0                          # Bandwidth per process
+nload eth0                            # Simple bandwidth graph
+bmon                                  # Bandwidth monitor</code></pre>
+        </div>
+      </section>
+
+      <!-- SSL/TLS -->
+      <section>
+        <h2 id="ssl-tls">SSL/TLS Troubleshooting</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <span class="code-filename">SSL/TLS Diagnostic Commands</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# SSL/TLS TROUBLESHOOTING
+# =============================================================================
+
+# Test SSL connection
+openssl s_client -connect google.com:443
+openssl s_client -connect google.com:443 -servername google.com  # SNI
+
+# View certificate
+openssl s_client -connect google.com:443 2>/dev/null | openssl x509 -text -noout
+
+# Check certificate dates
+openssl s_client -connect google.com:443 2>/dev/null | openssl x509 -dates -noout
+
+# Check certificate chain
+openssl s_client -connect google.com:443 -showcerts
+
+# Test specific TLS version
+openssl s_client -connect google.com:443 -tls1_2
+openssl s_client -connect google.com:443 -tls1_3
+
+# Test specific cipher
+openssl s_client -connect google.com:443 -cipher ECDHE-RSA-AES128-GCM-SHA256
+
+# List supported ciphers
+openssl ciphers -v 'HIGH:!aNULL:!MD5'
+
+# Verify certificate
+openssl verify -CAfile ca-bundle.crt certificate.crt
+
+# Check certificate expiration (remote)
+echo | openssl s_client -connect google.com:443 2>/dev/null | \
+    openssl x509 -noout -enddate
+
+# Check multiple hosts
+for host in google.com amazon.com microsoft.com; do
+    echo "=== $host ==="
+    echo | openssl s_client -connect $host:443 2>/dev/null | \
+        openssl x509 -noout -subject -enddate
+done
+
+# Using curl for SSL debugging
+curl -vvv https://google.com 2>&1 | grep -A 10 "SSL connection"
+curl --tlsv1.2 https://google.com
+curl -k https://self-signed-server.local  # Ignore cert errors
+
+# Check for SSL/TLS vulnerabilities (use nmap)
+nmap --script ssl-enum-ciphers -p 443 google.com
+
+# Test with specific CA
+curl --cacert /path/to/ca.crt https://internal-server.company.com</code></pre>
+        </div>
+      </section>
+
+      <!-- Common Scenarios -->
+      <section>
+        <h2 id="scenarios">Common Troubleshooting Scenarios</h2>
+
+        <div class="accordion">
+          <div class="accordion-item">
+            <button class="accordion-header">
+              "Can't reach the internet"
+              <svg class="accordion-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion-body">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div>
+                <pre><code># Step 1: Check interface
+ip addr show
+# Is interface up? Does it have IP?
+
+# Step 2: Check gateway
+ip route | grep default
+ping <gateway-ip>
+
+# Step 3: Check internet connectivity (bypass DNS)
+ping 8.8.8.8
+
+# Step 4: Check DNS
+nslookup google.com
+cat /etc/resolv.conf
+
+# Step 5: Check firewall
+iptables -L -n
+# Try temporarily disabling firewall
+
+# Common causes:
+# - No default gateway
+# - DNS misconfigured
+# - Firewall blocking
+# - Upstream network issue</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header">
+              "Website loads slowly"
+              <svg class="accordion-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion-body">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div>
+                <pre><code># Step 1: Check DNS resolution time
+time nslookup example.com
+# High time = DNS issue
+
+# Step 2: Check latency to server
+ping example.com
+mtr example.com
+
+# Step 3: Check for packet loss
+mtr -r -c 100 example.com
+
+# Step 4: Check SSL handshake
+time curl -so /dev/null -w "DNS: %{time_namelookup}\nConnect: %{time_connect}\nSSL: %{time_appconnect}\nTotal: %{time_total}\n" https://example.com
+
+# Step 5: Check for TCP issues (retransmissions)
+tcpdump -i eth0 -nn host example.com and tcp
+# Look for retransmissions, duplicate ACKs
+
+# Common causes:
+# - Slow DNS resolution
+# - High latency to server
+# - Packet loss causing retransmissions
+# - SSL/TLS overhead
+# - Server performance issue</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header">
+              "Connection refused" error
+              <svg class="accordion-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion-body">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div>
+                <pre><code># "Connection refused" = TCP RST received
+# Service is not listening OR firewall sending RST
+
+# Step 1: Verify service is running on target
+ssh user@target
+ss -tlnp | grep <port>
+systemctl status <service>
+
+# Step 2: Check if service is bound to correct IP
+ss -tlnp | grep <port>
+# Check if listening on 0.0.0.0 or specific IP
+
+# Step 3: Check local firewall on target
+iptables -L -n | grep <port>
+
+# Step 4: Check intermediate firewalls
+traceroute -T -p <port> <target>
+
+# Common causes:
+# - Service not running
+# - Service bound to localhost only (127.0.0.1)
+# - Firewall on target blocking port
+# - Firewall in path blocking port</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header">
+              "Connection timeout" error
+              <svg class="accordion-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion-body">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div>
+                <pre><code># "Connection timeout" = No response at all
+# Packets being dropped (firewall) OR routing issue
+
+# Step 1: Check basic connectivity
+ping <target>
+
+# Step 2: Check routing
+traceroute <target>
+# Where does it stop?
+
+# Step 3: Check if port is filtered
+nmap -Pn -p <port> <target>
+# "filtered" = firewall dropping packets
+
+# Step 4: Check firewall logs
+# On target:
+tail -f /var/log/kern.log | grep <source-ip>
+# On intermediate firewalls: check deny logs
+
+# Common causes:
+# - Firewall dropping packets (no RST)
+# - Routing black hole
+# - Target host down
+# - ACL blocking traffic</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header">
+              "SSL certificate error"
+              <svg class="accordion-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion-body">
+              <div class="code-block">
+                <div class="code-header"><span class="code-lang">Bash</span><button class="copy-btn">Copy</button></div>
+                <pre><code># Step 1: Check certificate details
+openssl s_client -connect server:443 -servername server 2>/dev/null | \
+    openssl x509 -text -noout
+
+# Step 2: Check expiration
+openssl s_client -connect server:443 2>/dev/null | \
+    openssl x509 -noout -dates
+
+# Step 3: Verify certificate chain
+openssl s_client -connect server:443 -showcerts
+
+# Step 4: Check hostname matches certificate
+openssl s_client -connect server:443 2>/dev/null | \
+    openssl x509 -noout -subject -issuer
+
+# Common causes:
+# - Certificate expired
+# - Hostname mismatch (CN/SAN doesn't match)
+# - Self-signed certificate not trusted
+# - Missing intermediate certificate
+# - CA not trusted by client
+# - SSL inspection breaking chain</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-divider"><span>Related Guides</span></div>
+        <div class="card-grid">
+          <a href="network-fundamentals.html" class="nav-card card">
+            <h4>Network Fundamentals →</h4>
+            <p>Review networking basics, OSI model, and protocols.</p>
+          </a>
+          <a href="traffic-analysis.html" class="nav-card card">
+            <h4>Traffic Analysis →</h4>
+            <p>Deep dive into Wireshark and tcpdump analysis.</p>
+          </a>
+          <a href="firewall-concepts.html" class="nav-card card">
+            <h4>Firewall Concepts →</h4>
+            <p>Understanding firewall operation and debugging.</p>
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <p>Network Security & Infrastructure Guide</p>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

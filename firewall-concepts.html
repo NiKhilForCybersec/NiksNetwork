@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Firewall Fundamentals - Stateful inspection, NGFW, zones, NAT, VPN, HA configurations and best practices">
+  <title>Firewall Concepts | NetSec Guide</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      NetSec Guide
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="network-fundamentals.html">Fundamentals</a></li>
+      <li><a href="forward-proxy.html">Proxies</a></li>
+      <li><a href="firewall-concepts.html" class="active">Firewalls</a></li>
+      <li><a href="troubleshooting.html">Troubleshooting</a></li>
+    </ul>
+    <button class="menu-toggle" aria-label="Toggle menu">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+  </nav>
+
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">On This Page</div>
+      <ul class="sidebar-nav">
+        <li><a href="#what-is-firewall">What is a Firewall</a></li>
+        <li><a href="#generations">Firewall Generations</a></li>
+        <li><a href="#stateful">Stateful vs Stateless</a></li>
+        <li><a href="#ngfw">Next-Generation Firewalls</a></li>
+        <li><a href="#zones">Zone-Based Architecture</a></li>
+        <li><a href="#dmz">DMZ Design Patterns</a></li>
+        <li><a href="#rules">Rule Components</a></li>
+        <li><a href="#nat">NAT on Firewalls</a></li>
+        <li><a href="#ha">High Availability</a></li>
+        <li><a href="#best-practices">Best Practices</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Vendor Guides</div>
+      <ul class="sidebar-nav">
+        <li><a href="firewall-paloalto.html">Palo Alto</a></li>
+        <li><a href="firewall-fortinet.html">FortiGate</a></li>
+        <li><a href="firewall-cisco.html">Cisco ASA/FTD</a></li>
+        <li><a href="firewall-opensource.html">Open Source</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="content-wrapper">
+      <nav class="breadcrumb">
+        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item active">Firewall Concepts</span>
+      </nav>
+
+      <h1>Firewall Fundamentals</h1>
+      <p class="hero-subtitle">
+        Comprehensive guide to firewall concepts, architectures, and best practices. 
+        From basic packet filtering to next-generation firewalls with application awareness.
+      </p>
+
+      <section>
+        <h2 id="what-is-firewall">What is a Firewall?</h2>
+        <p>
+          A firewall is a network security device that monitors and controls incoming and outgoing 
+          network traffic based on predetermined security rules. It establishes a barrier between 
+          trusted internal networks and untrusted external networks.
+        </p>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Basic Firewall Operation
+          </div>
+          <pre>
+                          UNTRUSTED NETWORK                    TRUSTED NETWORK
+                            (Internet)                         (Internal)
+                                │                                    │
+                                │                                    │
+    ┌──────────────────────────────────────────────────────────────────────────────┐
+    │                                                                              │
+    │                              FIREWALL                                        │
+    │                                                                              │
+    │   ┌────────────────────────────────────────────────────────────────────┐    │
+    │   │                        SECURITY POLICY                              │    │
+    │   │                                                                     │    │
+    │   │   RULE 1: ALLOW TCP from ANY to WebServer:443 (HTTPS)             │    │
+    │   │   RULE 2: ALLOW TCP from ANY to MailServer:25 (SMTP)              │    │
+    │   │   RULE 3: DENY  TCP from ANY to ANY:23 (Telnet)                   │    │
+    │   │   RULE 4: ALLOW TCP from Internal to ANY:80,443 (Web browsing)    │    │
+    │   │   ...                                                              │    │
+    │   │   DEFAULT: DENY ALL (Implicit deny)                                │    │
+    │   └────────────────────────────────────────────────────────────────────┘    │
+    │                                                                              │
+    │   Incoming Packet ──►  [Inspect] ──► [Match Rules] ──► ALLOW / DENY         │
+    │                                                                              │
+    └──────────────────────────────────────────────────────────────────────────────┘
+                                │                                    │
+                                ▼                                    ▼
+                    ┌─────────────────────┐              ┌─────────────────────┐
+                    │   BLOCKED TRAFFIC   │              │   ALLOWED TRAFFIC   │
+                    │                     │              │                     │
+                    │ • Malicious scans   │              │ • Legitimate web    │
+                    │ • Unauthorized      │              │ • Email traffic     │
+                    │   access attempts   │              │ • Approved apps     │
+                    │ • Policy violations │              │                     │
+                    └─────────────────────┘              └─────────────────────┘
+          </pre>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="generations">Firewall Generations</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Evolution of Firewalls
+          </div>
+          <pre>
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                         FIREWALL EVOLUTION                                          │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                     │
+│  1st GEN: PACKET FILTERING (1988)                                                  │
+│  ═══════════════════════════════                                                   │
+│  • Inspects individual packets                                                     │
+│  • Checks: Source/Dest IP, Port, Protocol                                         │
+│  • No connection state awareness                                                   │
+│  • Fast but limited security                                                       │
+│  • Example: Basic ACLs on routers                                                  │
+│                                                                                     │
+│  2nd GEN: STATEFUL INSPECTION (1994)                                               │
+│  ════════════════════════════════════                                              │
+│  • Tracks connection state (NEW, ESTABLISHED, RELATED)                             │
+│  • Maintains state table                                                           │
+│  • Allows return traffic automatically                                             │
+│  • Much more secure than packet filtering                                          │
+│  • Example: Cisco ASA, iptables with conntrack                                    │
+│                                                                                     │
+│  3rd GEN: APPLICATION LAYER / NGFW (2004+)                                         │
+│  ══════════════════════════════════════════                                        │
+│  • Deep packet inspection (DPI)                                                    │
+│  • Application identification (App-ID)                                             │
+│  • User identification (User-ID)                                                   │
+│  • Integrated IPS, AV, URL filtering                                              │
+│  • SSL/TLS inspection                                                              │
+│  • Example: Palo Alto, FortiGate, Check Point                                     │
+│                                                                                     │
+│  EVOLUTION TIMELINE:                                                               │
+│  ───────────────────────────────────────────────────────────────────────────►      │
+│  1988        1994           2004           2010           2020                     │
+│   │           │              │              │              │                       │
+│   ▼           ▼              ▼              ▼              ▼                       │
+│  Packet    Stateful      Application    Cloud-Native   AI/ML-Powered             │
+│  Filter   Inspection       NGFW         Firewalls      Threat Prevention          │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+          </pre>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Generation</th>
+                <th>Inspection Level</th>
+                <th>State Awareness</th>
+                <th>Application Awareness</th>
+                <th>Examples</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1st Gen</strong></td>
+                <td>L3-L4 (IP, Port)</td>
+                <td><span class="feature-no">No</span></td>
+                <td><span class="feature-no">No</span></td>
+                <td>Router ACLs</td>
+              </tr>
+              <tr>
+                <td><strong>2nd Gen</strong></td>
+                <td>L3-L4 + State</td>
+                <td><span class="feature-yes">Yes</span></td>
+                <td><span class="feature-no">No</span></td>
+                <td>Cisco ASA, iptables</td>
+              </tr>
+              <tr>
+                <td><strong>3rd Gen (NGFW)</strong></td>
+                <td>L3-L7 + Content</td>
+                <td><span class="feature-yes">Yes</span></td>
+                <td><span class="feature-yes">Yes</span></td>
+                <td>Palo Alto, FortiGate</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="stateful">Stateful vs Stateless Firewalls</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Stateful vs Stateless Comparison
+          </div>
+          <pre>
+STATELESS FIREWALL (Packet Filtering)
+═══════════════════════════════════════════════════════════════════════════════
+
+  Client                         Firewall                          Server
+    │                               │                                 │
+    │─── SYN ──────────────────────►│ Check rules                    │
+    │                               │ Rule: Allow outbound 80 ✓      │
+    │                               │───── SYN ──────────────────────►│
+    │                               │                                 │
+    │                               │◄──── SYN-ACK ───────────────────│
+    │                               │ Check rules                    │
+    │                               │ Rule: Allow inbound 80? ✗      │ ← BLOCKED!
+    │                               │ (No rule for return traffic)   │
+    │   Connection fails!           │                                 │
+    │                               │                                 │
+
+  Problem: Must create explicit rules for BOTH directions
+  Solution: Add rule "Allow TCP established" (checking ACK flag)
+
+
+STATEFUL FIREWALL (Connection Tracking)
+═══════════════════════════════════════════════════════════════════════════════
+
+  Client                         Firewall                          Server
+    │                               │                                 │
+    │─── SYN ──────────────────────►│ Check rules                    │
+    │                               │ Rule: Allow outbound 80 ✓      │
+    │                               │ Add to state table:            │
+    │                               │ ┌────────────────────────────┐ │
+    │                               │ │ Src: 192.168.1.10:50000   │ │
+    │                               │ │ Dst: 93.184.216.34:80     │ │
+    │                               │ │ State: SYN_SENT           │ │
+    │                               │ └────────────────────────────┘ │
+    │                               │───── SYN ──────────────────────►│
+    │                               │                                 │
+    │                               │◄──── SYN-ACK ───────────────────│
+    │                               │ Check state table              │
+    │                               │ Match found! Update state:     │
+    │                               │ ┌────────────────────────────┐ │
+    │                               │ │ State: ESTABLISHED        │ │
+    │                               │ └────────────────────────────┘ │
+    │◄──── SYN-ACK ─────────────────│ ✓ ALLOWED (return traffic)    │
+    │                               │                                 │
+    │─── ACK + Data ───────────────►│ ✓ Match state table           │
+    │◄── ACK + Data ────────────────│ ✓ Match state table           │
+    │                               │                                 │
+
+  Advantage: Only need outbound rule; return traffic automatically allowed
+          </pre>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="ngfw">Next-Generation Firewall Features</h2>
+
+        <div class="card-grid">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
+              </div>
+              <h4 class="card-title">Application Identification</h4>
+            </div>
+            <div class="card-body">
+              <p>Identify applications regardless of port, protocol, or encryption. Block Facebook while allowing LinkedIn on port 443.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <h4 class="card-title">User Identification</h4>
+            </div>
+            <div class="card-body">
+              <p>Create policies based on user identity from Active Directory, LDAP, or captive portal instead of just IP addresses.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+              </div>
+              <h4 class="card-title">Intrusion Prevention</h4>
+            </div>
+            <div class="card-body">
+              <p>Integrated IPS with signature-based and anomaly detection to block exploits, malware, and attack traffic inline.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <h4 class="card-title">SSL/TLS Inspection</h4>
+            </div>
+            <div class="card-body">
+              <p>Decrypt and inspect HTTPS traffic for threats hiding in encrypted sessions. Essential for modern networks.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+              </div>
+              <h4 class="card-title">URL Filtering</h4>
+            </div>
+            <div class="card-body">
+              <p>Block access to malicious, inappropriate, or non-business websites based on URL categories and reputation.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+              </div>
+              <h4 class="card-title">Sandboxing</h4>
+            </div>
+            <div class="card-body">
+              <p>Analyze suspicious files in isolated environment to detect zero-day malware before it reaches the network.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="zones">Zone-Based Firewall Architecture</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Security Zones Concept
+          </div>
+          <pre>
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                           ZONE-BASED FIREWALL ARCHITECTURE                          │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                     │
+│                                    INTERNET                                         │
+│                                       │                                             │
+│                                       │                                             │
+│                        ┌──────────────┴──────────────┐                              │
+│                        │       UNTRUST ZONE          │                              │
+│                        │    (Security Level: 0)      │                              │
+│                        │    • External traffic       │                              │
+│                        │    • Untrusted by default   │                              │
+│                        └──────────────┬──────────────┘                              │
+│                                       │                                             │
+│                           ┌───────────┴───────────┐                                 │
+│                           │                       │                                 │
+│              ┌────────────┴────────────┐ ┌───────┴────────────┐                    │
+│              │        DMZ ZONE         │ │    GUEST ZONE      │                    │
+│              │   (Security Level: 50)  │ │ (Security Level: 25)│                   │
+│              │                         │ │                     │                    │
+│              │  ┌─────┐ ┌─────┐       │ │  ┌─────┐ ┌─────┐   │                    │
+│              │  │ Web │ │Email│       │ │  │Guest│ │Guest│   │                    │
+│              │  │ Srv │ │ Srv │       │ │  │ WiFi│ │ PCs │   │                    │
+│              │  └─────┘ └─────┘       │ │  └─────┘ └─────┘   │                    │
+│              │                         │ │                     │                    │
+│              │  • Public-facing       │ │  • Limited access   │                    │
+│              │  • Partially trusted   │ │  • Internet only    │                    │
+│              └────────────┬────────────┘ └───────┬────────────┘                    │
+│                           │                       │                                 │
+│                           └───────────┬───────────┘                                 │
+│                                       │                                             │
+│                        ┌──────────────┴──────────────┐                              │
+│                        │       TRUST ZONE            │                              │
+│                        │   (Security Level: 100)     │                              │
+│                        │                             │                              │
+│    ┌───────────────────┼───────────────────┬─────────┼──────────────────┐          │
+│    │                   │                   │         │                  │          │
+│    ▼                   ▼                   ▼         ▼                  ▼          │
+│  ┌─────┐           ┌─────┐           ┌─────┐    ┌─────┐           ┌─────┐        │
+│  │User │           │User │           │ App │    │ DB  │           │Admin│        │
+│  │ PCs │           │Laptop│          │ Srv │    │ Srv │           │ Srv │        │
+│  └─────┘           └─────┘           └─────┘    └─────┘           └─────┘        │
+│                                                                                     │
+│  • Full internal access                                                             │
+│  • Trusted by default                                                               │
+│  • Most restrictive for inbound                                                     │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+ZONE TRAFFIC RULES:
+═══════════════════════════════════════════════════════════════════════════════
+
+  Higher Security → Lower Security : Generally ALLOWED
+  Lower Security → Higher Security : Generally DENIED (requires explicit rule)
+
+  Trust → DMZ      : Allowed (manage servers)
+  Trust → Untrust  : Allowed (internet access)
+  DMZ → Trust      : DENIED (must be explicit)
+  Untrust → Trust  : DENIED (must be explicit)
+  Untrust → DMZ    : Allowed to specific services (web:443, mail:25)
+          </pre>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="dmz">DMZ Design Patterns</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            DMZ Architecture Patterns
+          </div>
+          <pre>
+PATTERN 1: SINGLE FIREWALL (Three-Legged)
+═══════════════════════════════════════════════════════════════════════════════
+
+                         Internet
+                            │
+                    ┌───────┴───────┐
+                    │   Firewall    │
+                    │  (3 interfaces)│
+                    └───┬───┬───┬───┘
+                        │   │   │
+            ┌───────────┘   │   └───────────┐
+            │               │               │
+            ▼               ▼               ▼
+      ┌─────────┐     ┌─────────┐     ┌─────────┐
+      │  DMZ    │     │ Internal │    │ Untrust │
+      │ Network │     │ Network  │    │         │
+      │         │     │          │    │         │
+      │ Web/Mail│     │ Users/DB │    │ Internet│
+      └─────────┘     └─────────┘     └─────────┘
+
+  Pros: Simple, cost-effective
+  Cons: Single point of failure, firewall compromise = full access
+
+
+PATTERN 2: DUAL FIREWALL (Most Common)
+═══════════════════════════════════════════════════════════════════════════════
+
+                         Internet
+                            │
+                    ┌───────┴───────┐
+                    │   Firewall 1  │ ← External Firewall (Perimeter)
+                    │   (Edge)      │
+                    └───────┬───────┘
+                            │
+                    ┌───────┴───────┐
+                    │      DMZ      │ ← Public-facing servers
+                    │   Web Server  │
+                    │   Mail Server │
+                    │   Reverse Prxy│
+                    └───────┬───────┘
+                            │
+                    ┌───────┴───────┐
+                    │   Firewall 2  │ ← Internal Firewall (Backend)
+                    │   (Internal)  │
+                    └───────┬───────┘
+                            │
+                    ┌───────┴───────┐
+                    │   Internal    │ ← Protected internal network
+                    │   Network     │
+                    │   Users/DB    │
+                    └───────────────┘
+
+  Pros: Defense in depth, compromise of one FW doesn't expose all
+  Cons: Higher cost, more complex management
+  Best Practice: Use different vendors for each firewall
+
+
+PATTERN 3: THREE-TIER ARCHITECTURE
+═══════════════════════════════════════════════════════════════════════════════
+
+                         Internet
+                            │
+                    ┌───────┴───────┐
+                    │   Firewall    │
+                    └───────┬───────┘
+                            │
+        ┌───────────────────┼───────────────────┐
+        │                   │                   │
+        ▼                   ▼                   ▼
+  ┌───────────┐       ┌───────────┐       ┌───────────┐
+  │   Web     │       │Application│       │ Database  │
+  │   Tier    │──────►│   Tier    │──────►│   Tier    │
+  │   (DMZ)   │       │   (App)   │       │ (Secure)  │
+  │           │       │           │       │           │
+  │ Web Srvrs │       │ App Srvrs │       │  DB Srvrs │
+  │ Rev Proxy │       │ API Srvrs │       │  Storage  │
+  └───────────┘       └───────────┘       └───────────┘
+
+  Each tier has strict access controls:
+  • Web → App: Only application ports
+  • App → DB:  Only database ports
+  • DB:        No internet access
+
+  Compromise of web tier doesn't give direct DB access
+          </pre>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="rules">Firewall Rule Components</h2>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>Description</th>
+                <th>Examples</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Source Zone</strong></td>
+                <td>Origin security zone</td>
+                <td>Trust, Untrust, DMZ</td>
+              </tr>
+              <tr>
+                <td><strong>Source Address</strong></td>
+                <td>IP address/range/object</td>
+                <td>192.168.1.0/24, any</td>
+              </tr>
+              <tr>
+                <td><strong>Source User</strong></td>
+                <td>User identity (NGFW)</td>
+                <td>AD\Domain Users, any</td>
+              </tr>
+              <tr>
+                <td><strong>Destination Zone</strong></td>
+                <td>Target security zone</td>
+                <td>Trust, Untrust, DMZ</td>
+              </tr>
+              <tr>
+                <td><strong>Destination Address</strong></td>
+                <td>Target IP address/object</td>
+                <td>10.0.0.10, WebServers</td>
+              </tr>
+              <tr>
+                <td><strong>Application</strong></td>
+                <td>Application signature (NGFW)</td>
+                <td>web-browsing, ssl, facebook</td>
+              </tr>
+              <tr>
+                <td><strong>Service/Port</strong></td>
+                <td>Protocol and port</td>
+                <td>tcp/443, udp/53, any</td>
+              </tr>
+              <tr>
+                <td><strong>Action</strong></td>
+                <td>What to do with matching traffic</td>
+                <td>Allow, Deny, Drop, Reset</td>
+              </tr>
+              <tr>
+                <td><strong>Security Profiles</strong></td>
+                <td>Additional inspection (NGFW)</td>
+                <td>AV, IPS, URL Filter, DLP</td>
+              </tr>
+              <tr>
+                <td><strong>Logging</strong></td>
+                <td>Whether to log matches</td>
+                <td>Log at start, end, both</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="alert alert-warning">
+          <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div class="alert-content">
+            <div class="alert-title">Rule Order Matters!</div>
+            <p>Firewall rules are processed top-to-bottom. First match wins. Place more specific rules above general rules. Always end with an explicit deny-all rule with logging.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="nat">NAT on Firewalls</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            NAT Types on Firewalls
+          </div>
+          <pre>
+SOURCE NAT (SNAT) - Outbound Traffic
+═══════════════════════════════════════════════════════════════════════════════
+
+  Internal                    Firewall                     Internet
+  192.168.1.10:50000 ───────► NAT: 192.168.1.10 ──────► 93.184.216.34:443
+                              →203.0.113.1:50000
+                              (Replace source IP)
+
+  Use Case: Hide internal IPs, internet access for private networks
+
+
+DESTINATION NAT (DNAT) - Inbound Traffic
+═══════════════════════════════════════════════════════════════════════════════
+
+  Internet                    Firewall                     Internal
+  Any:Any ──────────────────► NAT: 203.0.113.10:443 ──► 192.168.1.100:443
+                              → 192.168.1.100:443
+                              (Replace destination IP)
+
+  Use Case: Publish internal servers, port forwarding
+
+
+BIDIRECTIONAL NAT (1:1 NAT)
+═══════════════════════════════════════════════════════════════════════════════
+
+  Maps public IP to private IP in both directions:
+  
+  192.168.1.100 ◄────────► 203.0.113.100
+
+  Use Case: Servers needing consistent public IP
+
+
+PAT (Port Address Translation) / NAT Overload
+═══════════════════════════════════════════════════════════════════════════════
+
+  Multiple internal IPs share one public IP using different ports:
+  
+  192.168.1.10:50001 ──┐
+  192.168.1.11:50002 ──┼────► 203.0.113.1:50001-50003 ────► Internet
+  192.168.1.12:50003 ──┘
+
+  Use Case: Internet access for many users with limited public IPs
+          </pre>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="ha">High Availability</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Firewall HA Configurations
+          </div>
+          <pre>
+ACTIVE/PASSIVE (Failover)
+═══════════════════════════════════════════════════════════════════════════════
+
+                    ┌─────────────────────────┐
+                    │      Virtual IP         │
+                    │    203.0.113.1 (VIP)    │
+                    └───────────┬─────────────┘
+                                │
+              ┌─────────────────┼─────────────────┐
+              │                 │                 │
+              ▼                 │                 ▼
+      ┌───────────────┐   Heartbeat      ┌───────────────┐
+      │  Firewall A   │◄───────────────► │  Firewall B   │
+      │   (ACTIVE)    │    (HA Link)     │  (PASSIVE)    │
+      │ 203.0.113.2   │                  │ 203.0.113.3   │
+      │               │   State Sync     │               │
+      │ Processing    │◄────────────────►│ Standby       │
+      │ all traffic   │                  │ Ready to take │
+      │               │                  │ over          │
+      └───────────────┘                  └───────────────┘
+
+  • Only one firewall active at a time
+  • State table synchronized to passive unit
+  • Automatic failover on failure (seconds)
+  • Sessions maintained after failover
+
+
+ACTIVE/ACTIVE (Load Sharing)
+═══════════════════════════════════════════════════════════════════════════════
+
+                    ┌─────────────────────────┐
+                    │     Load Balancer /     │
+                    │     ECMP Routing        │
+                    └───────────┬─────────────┘
+                                │
+              ┌─────────────────┼─────────────────┐
+              │                 │                 │
+              ▼                 │                 ▼
+      ┌───────────────┐   Session Sync   ┌───────────────┐
+      │  Firewall A   │◄───────────────► │  Firewall B   │
+      │   (ACTIVE)    │                  │   (ACTIVE)    │
+      │               │                  │               │
+      │ Processing    │                  │ Processing    │
+      │ 50% traffic   │                  │ 50% traffic   │
+      └───────────────┘                  └───────────────┘
+
+  • Both firewalls process traffic simultaneously
+  • Better resource utilization
+  • More complex session synchronization
+  • Load distribution via upstream device
+          </pre>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="best-practices">Firewall Rule Best Practices</h2>
+
+        <div class="card-grid">
+          <div class="card">
+            <h4>1. Principle of Least Privilege</h4>
+            <p>Only allow necessary traffic. Deny everything by default. Each rule should be as specific as possible.</p>
+          </div>
+
+          <div class="card">
+            <h4>2. Document Everything</h4>
+            <p>Every rule needs a description, ticket number, owner, and expiration date. Undocumented rules become security debt.</p>
+          </div>
+
+          <div class="card">
+            <h4>3. Rule Ordering</h4>
+            <p>Place most specific rules first, general rules last. Put frequently-hit rules near the top for performance.</p>
+          </div>
+
+          <div class="card">
+            <h4>4. Regular Reviews</h4>
+            <p>Review rules quarterly. Remove unused rules. Validate business justification for each rule still exists.</p>
+          </div>
+
+          <div class="card">
+            <h4>5. Use Objects/Groups</h4>
+            <p>Use named objects and groups instead of raw IPs. Easier to manage and audit. Update in one place.</p>
+          </div>
+
+          <div class="card">
+            <h4>6. Enable Logging</h4>
+            <p>Log all deny rules and critical allow rules. Send logs to SIEM. Monitor for anomalies.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-divider"><span>Vendor Guides</span></div>
+        
+        <div class="card-grid">
+          <a href="firewall-paloalto.html" class="nav-card card">
+            <h4>Palo Alto Networks →</h4>
+            <p>App-ID, User-ID, GlobalProtect, Panorama configurations.</p>
+          </a>
+          <a href="firewall-fortinet.html" class="nav-card card">
+            <h4>FortiGate →</h4>
+            <p>FortiOS, Security Fabric, SD-WAN, VDOMs guide.</p>
+          </a>
+          <a href="firewall-cisco.html" class="nav-card card">
+            <h4>Cisco ASA/FTD →</h4>
+            <p>ASA security levels, Firepower, AnyConnect setup.</p>
+          </a>
+          <a href="firewall-opensource.html" class="nav-card card">
+            <h4>Open Source →</h4>
+            <p>pfSense, OPNsense, iptables, Windows Firewall.</p>
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <p>Network Security & Infrastructure Guide</p>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

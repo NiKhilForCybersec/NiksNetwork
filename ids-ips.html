@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="IDS/IPS Complete Guide - Snort, Suricata, Zeek rule writing, deployment, and tuning">
+  <title>IDS/IPS Guide | NetSec Guide</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      NetSec Guide
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="network-fundamentals.html">Fundamentals</a></li>
+      <li><a href="forward-proxy.html">Proxies</a></li>
+      <li><a href="firewall-concepts.html" class="active">Firewalls</a></li>
+      <li><a href="troubleshooting.html">Troubleshooting</a></li>
+    </ul>
+    <button class="menu-toggle" aria-label="Toggle menu">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+  </nav>
+
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">On This Page</div>
+      <ul class="sidebar-nav">
+        <li><a href="#concepts">IDS/IPS Concepts</a></li>
+        <li><a href="#deployment">Deployment Modes</a></li>
+        <li><a href="#snort">Snort</a></li>
+        <li><a href="#suricata">Suricata</a></li>
+        <li><a href="#zeek">Zeek (Bro)</a></li>
+        <li><a href="#rule-writing">Rule Writing</a></li>
+        <li><a href="#tuning">Tuning & Performance</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Related Pages</div>
+      <ul class="sidebar-nav">
+        <li><a href="firewall-concepts.html">Firewall Concepts</a></li>
+        <li><a href="waf.html">Web Application Firewall</a></li>
+        <li><a href="traffic-analysis.html">Traffic Analysis</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="content-wrapper">
+      <nav class="breadcrumb">
+        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item active">IDS/IPS</span>
+      </nav>
+
+      <h1>IDS/IPS - Intrusion Detection & Prevention</h1>
+      <p class="hero-subtitle">
+        Complete guide to network intrusion detection and prevention systems including 
+        Snort, Suricata, and Zeek with rule writing and deployment strategies.
+      </p>
+
+      <!-- Concepts -->
+      <section>
+        <h2 id="concepts">IDS vs IPS Concepts</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            IDS vs IPS Deployment
+          </div>
+          <pre>
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                           IDS vs IPS COMPARISON                                     │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                     │
+│   INTRUSION DETECTION SYSTEM (IDS) - Passive/Out-of-Band                           │
+│   ═══════════════════════════════════════════════════════════════════════════════  │
+│                                                                                     │
+│   Internet ─────► Switch ─────────────────────────────────► Internal Network       │
+│                     │                                                              │
+│                     │ SPAN/Mirror                                                  │
+│                     │ (Copy of traffic)                                           │
+│                     ▼                                                              │
+│               ┌───────────┐                                                        │
+│               │    IDS    │ ──► Alerts only (cannot block)                        │
+│               │  Sensor   │ ──► Logs to SIEM                                      │
+│               └───────────┘                                                        │
+│                                                                                     │
+│   ✓ No latency added                                                               │
+│   ✓ Failure doesn't affect traffic                                                 │
+│   ✗ Cannot prevent attacks (only detect)                                           │
+│   ✗ Alert fatigue possible                                                         │
+│                                                                                     │
+│                                                                                     │
+│   INTRUSION PREVENTION SYSTEM (IPS) - Inline/Active                                │
+│   ═══════════════════════════════════════════════════════════════════════════════  │
+│                                                                                     │
+│   Internet ─────► IPS ─────────────────────────────────────► Internal Network      │
+│                    │                                                               │
+│                    │ Traffic passes THROUGH IPS                                    │
+│                    │                                                               │
+│               ┌────┴────┐                                                          │
+│               │  Block  │ ──► Malicious traffic dropped                           │
+│               │  Allow  │ ──► Clean traffic passes                                │
+│               │  Alert  │ ──► Suspicious traffic logged                           │
+│               └─────────┘                                                          │
+│                                                                                     │
+│   ✓ Can block attacks in real-time                                                 │
+│   ✓ Automated response                                                             │
+│   ✗ Adds latency                                                                   │
+│   ✗ Failure can affect traffic (bypass mode needed)                                │
+│   ✗ False positives can block legitimate traffic                                   │
+│                                                                                     │
+│                                                                                     │
+│   DETECTION METHODS:                                                               │
+│   ─────────────────                                                                 │
+│   1. Signature-based: Match known attack patterns (fast, misses zero-day)         │
+│   2. Anomaly-based: Detect deviations from baseline (catches unknown, noisy)      │
+│   3. Protocol analysis: Validate protocol compliance (catches malformed packets)  │
+│   4. Behavioral: Machine learning on traffic patterns (adaptive, complex)         │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+          </pre>
+        </div>
+      </section>
+
+      <!-- Deployment -->
+      <section>
+        <h2 id="deployment">Deployment Architectures</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            IDS/IPS Network Placement
+          </div>
+          <pre>
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                     RECOMMENDED IDS/IPS PLACEMENT                                   │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                     │
+│                               INTERNET                                              │
+│                                   │                                                 │
+│                                   │                                                 │
+│                          ┌────────┴────────┐                                        │
+│                          │  Border Router  │                                        │
+│                          └────────┬────────┘                                        │
+│                                   │                                                 │
+│         ┌─────────────────────────┼─────────────────────────┐                       │
+│         │                         │                         │                       │
+│         │  ┌──────────────────────┴────────────────────┐    │                       │
+│         │  │            PERIMETER IPS                  │    │ ← Position 1:        │
+│         │  │         (Inline, blocking)                │    │   Block known        │
+│         │  └──────────────────────┬────────────────────┘    │   attacks at edge    │
+│         │                         │                         │                       │
+│         │                ┌────────┴────────┐                │                       │
+│         │                │    Firewall     │                │                       │
+│         │                └────────┬────────┘                │                       │
+│         │                         │                         │                       │
+│         │      ┌──────────────────┼──────────────────┐      │                       │
+│         │      │                  │                  │      │                       │
+│         │      ▼                  ▼                  ▼      │                       │
+│         │  ┌───────┐         ┌────────┐        ┌────────┐   │                       │
+│         │  │  DMZ  │         │Internal│        │ Guest  │   │                       │
+│         │  │Network│         │Network │        │Network │   │                       │
+│         │  └───┬───┘         └───┬────┘        └────────┘   │                       │
+│         │      │                 │                          │                       │
+│         │      │    ┌────────────┴────────────┐             │                       │
+│         │      │    │       INTERNAL IDS      │             │ ← Position 2:        │
+│         │      │    │  (Passive, monitoring)  │             │   Detect internal    │
+│         │      │    └─────────────────────────┘             │   threats, lateral   │
+│         │      │                                            │   movement           │
+│         │      │                                            │                       │
+│         │      │    ┌─────────────────────────┐             │                       │
+│         │      └───►│       DMZ IDS/IPS       │             │ ← Position 3:        │
+│         │           │   (Monitor web servers) │             │   Protect public     │
+│         │           └─────────────────────────┘             │   services           │
+│         │                                                   │                       │
+│         └───────────────────────────────────────────────────┘                       │
+│                                                                                     │
+│   SENSOR PLACEMENT PRIORITIES:                                                     │
+│   1. Internet edge (catch inbound attacks)                                         │
+│   2. DMZ (protect public services)                                                 │
+│   3. Internal segments (detect lateral movement)                                   │
+│   4. Critical assets (database, domain controllers)                                │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+          </pre>
+        </div>
+      </section>
+
+      <!-- Snort -->
+      <section>
+        <h2 id="snort">Snort</h2>
+        <p>
+          Snort is the most widely deployed open-source IDS/IPS, developed by Sourcefire 
+          (now Cisco). Snort 3 is the latest major version with improved performance.
+        </p>
+
+        <h3>Snort Installation</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <span class="code-filename">Snort 3 Installation</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# SNORT 3 INSTALLATION (Ubuntu)
+# =============================================================================
+
+# Install dependencies
+apt update
+apt install -y build-essential libpcap-dev libpcre3-dev libnet1-dev \
+    zlib1g-dev luajit hwloc libdumbnet-dev bison flex liblzma-dev \
+    openssl libssl-dev pkg-config libhwloc-dev cmake cpputest \
+    libsqlite3-dev uuid-dev libcmocka-dev libnetfilter-queue-dev \
+    libmnl-dev autotools-dev libluajit-5.1-dev libunwind-dev
+
+# Install DAQ (Data Acquisition library)
+cd /tmp
+git clone https://github.com/snort3/libdaq.git
+cd libdaq
+./bootstrap
+./configure
+make
+make install
+ldconfig
+
+# Install Snort 3
+cd /tmp
+git clone https://github.com/snort3/snort3.git
+cd snort3
+./configure_cmake.sh --prefix=/usr/local
+cd build
+make -j$(nproc)
+make install
+
+# Verify installation
+snort -V
+
+# Create directories
+mkdir -p /etc/snort/rules
+mkdir -p /var/log/snort
+
+# Download community rules
+wget https://www.snort.org/downloads/community/snort3-community-rules.tar.gz
+tar -xzf snort3-community-rules.tar.gz -C /etc/snort/rules/</code></pre>
+        </div>
+
+        <h3>Snort Configuration</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Lua</span>
+            <span class="code-filename">/etc/snort/snort.lua</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code>-- =============================================================================
+-- SNORT 3 CONFIGURATION
+-- =============================================================================
+
+-- Home network definition
+HOME_NET = '10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16'
+EXTERNAL_NET = '!$HOME_NET'
+
+-- Configure network variables
+ips = {
+    variables = default_variables,
+    rules = '/etc/snort/rules/snort3-community-rules/snort3-community.rules'
+}
+
+-- Inspection
+inspection = {
+    enabled = true,
+    log_level = 'info'
+}
+
+-- Stream (connection tracking)
+stream = { }
+stream_tcp = {
+    policy = 'linux',
+    session_timeout = 180
+}
+
+-- HTTP inspection
+http_inspect = {
+    response_depth = 65535,
+    request_depth = 65535
+}
+
+-- SSL/TLS inspection
+ssl = { }
+
+-- DNS inspection
+dns = { }
+
+-- Configure logging
+alerts = {
+    log_limit = 0
+}
+
+-- Alert output
+alert_fast = {
+    file = true,
+    packet = false
+}
+
+alert_full = {
+    file = true
+}
+
+-- Unified2 output (for Barnyard2)
+-- unified2 = {
+--     limit = 128
+-- }
+
+-- JSON output
+alert_json = {
+    file = true,
+    limit = 100,
+    fields = 'timestamp pkt_num proto pkt_gen pkt_len dir src_addr src_port dst_addr dst_port rule action'
+}
+
+-- Configure DAQ
+daq = {
+    module_dirs = { '/usr/local/lib/daq' },
+    modules = {
+        {
+            name = 'afpacket',
+            mode = 'inline'
+        }
+    },
+    inputs = { 'eth0' }
+}</code></pre>
+        </div>
+
+        <h3>Snort 3 Commands</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <span class="code-filename">Snort Commands</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># Validate configuration
+snort -c /etc/snort/snort.lua -T
+
+# Run in IDS mode (passive)
+snort -c /etc/snort/snort.lua -i eth0 -A alert_fast -l /var/log/snort/
+
+# Run in IPS mode (inline with NFQ)
+snort -c /etc/snort/snort.lua -Q --daq nfq --daq-var device=eth0
+
+# Read PCAP file
+snort -c /etc/snort/snort.lua -r capture.pcap -A alert_full
+
+# Dump rules info
+snort --list-builtin
+snort --list-plugins
+
+# Test specific rule
+snort -c /etc/snort/snort.lua --rule "alert tcp any any -> any 80 (msg:\"Test\"; sid:1000001;)"
+
+# Performance stats
+snort -c /etc/snort/snort.lua -i eth0 --pcap-show</code></pre>
+        </div>
+      </section>
+
+      <!-- Suricata -->
+      <section>
+        <h2 id="suricata">Suricata</h2>
+        <p>
+          Suricata is a high-performance, open-source IDS/IPS with multi-threading support, 
+          protocol detection, and file extraction capabilities.
+        </p>
+
+        <h3>Suricata Installation</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <span class="code-filename">Suricata Installation</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# SURICATA INSTALLATION
+# =============================================================================
+
+# Ubuntu/Debian
+apt update
+apt install -y suricata suricata-update
+
+# RHEL/CentOS
+dnf install epel-release
+dnf install suricata
+
+# Update rules
+suricata-update
+
+# Enable and start
+systemctl enable suricata
+systemctl start suricata
+
+# Check version
+suricata --build-info</code></pre>
+        </div>
+
+        <h3>Suricata Configuration</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">YAML</span>
+            <span class="code-filename">/etc/suricata/suricata.yaml (Key Sections)</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# SURICATA CONFIGURATION
+# =============================================================================
+
+%YAML 1.1
+---
+
+# Network variables
+vars:
+  address-groups:
+    HOME_NET: "[10.0.0.0/8,172.16.0.0/12,192.168.0.0/16]"
+    EXTERNAL_NET: "!$HOME_NET"
+    HTTP_SERVERS: "$HOME_NET"
+    SQL_SERVERS: "$HOME_NET"
+    DNS_SERVERS: "$HOME_NET"
+
+  port-groups:
+    HTTP_PORTS: "80,8080"
+    SHELLCODE_PORTS: "!80"
+    SSH_PORTS: "22"
+
+# Logging outputs
+outputs:
+  - fast:
+      enabled: yes
+      filename: fast.log
+      append: yes
+
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json
+      types:
+        - alert:
+            payload: yes
+            payload-printable: yes
+            packet: yes
+            http-body: yes
+            http-body-printable: yes
+        - http:
+            extended: yes
+        - dns:
+            version: 2
+        - tls:
+            extended: yes
+        - files:
+            force-magic: no
+        - flow
+        - netflow
+
+# AF-PACKET capture (high performance)
+af-packet:
+  - interface: eth0
+    threads: auto
+    cluster-id: 99
+    cluster-type: cluster_flow
+    defrag: yes
+    use-mmap: yes
+    ring-size: 200000
+
+# IPS mode (inline)
+# nfqueue:
+#   mode: accept
+#   fail-open: yes
+
+# Detection engine
+detect:
+  profile: medium
+  custom-values:
+    toclient-groups: 3
+    toserver-groups: 25
+  sgh-mpm-context: auto
+  inspection-recursion-limit: 3000
+
+# App layer protocols
+app-layer:
+  protocols:
+    http:
+      enabled: yes
+      libhtp:
+        default-config:
+          personality: IDS
+          request-body-limit: 100kb
+          response-body-limit: 100kb
+    
+    tls:
+      enabled: yes
+      detection-ports:
+        dp: 443
+
+    dns:
+      tcp:
+        enabled: yes
+      udp:
+        enabled: yes
+
+# Threading
+threading:
+  set-cpu-affinity: no
+  detect-thread-ratio: 1.0
+
+# Stream engine
+stream:
+  memcap: 256mb
+  reassembly:
+    memcap: 512mb
+    depth: 1mb
+    toserver-chunk-size: 2560
+    toclient-chunk-size: 2560
+
+# Rule files
+rule-files:
+  - suricata.rules</code></pre>
+        </div>
+
+        <h3>Suricata Commands</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <span class="code-filename">Suricata Operations</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># Test configuration
+suricata -T -c /etc/suricata/suricata.yaml
+
+# Run in IDS mode
+suricata -c /etc/suricata/suricata.yaml -i eth0
+
+# Run in IPS mode (NFQueue)
+suricata -c /etc/suricata/suricata.yaml -q 0
+
+# Read PCAP
+suricata -c /etc/suricata/suricata.yaml -r capture.pcap
+
+# Update rules
+suricata-update
+suricata-update list-sources
+suricata-update enable-source et/open
+suricata-update update-sources
+
+# Reload rules without restart
+suricatasc -c reload-rules
+
+# View stats
+suricatasc -c dump-counters
+cat /var/log/suricata/stats.log
+
+# View alerts
+tail -f /var/log/suricata/fast.log
+jq '.' /var/log/suricata/eve.json | head -100</code></pre>
+        </div>
+      </section>
+
+      <!-- Zeek -->
+      <section>
+        <h2 id="zeek">Zeek (formerly Bro)</h2>
+        <p>
+          Zeek is a powerful network analysis framework focused on security monitoring. 
+          It generates detailed logs of network activity rather than signature-based alerts.
+        </p>
+
+        <h3>Zeek Log Types</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Log File</th>
+                <th>Description</th>
+                <th>Key Fields</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>conn.log</strong></td>
+                <td>All TCP/UDP/ICMP connections</td>
+                <td>src/dst IP, port, duration, bytes</td>
+              </tr>
+              <tr>
+                <td><strong>http.log</strong></td>
+                <td>HTTP requests and responses</td>
+                <td>Method, URI, status, user-agent</td>
+              </tr>
+              <tr>
+                <td><strong>dns.log</strong></td>
+                <td>DNS queries and responses</td>
+                <td>Query, answer, rcode</td>
+              </tr>
+              <tr>
+                <td><strong>ssl.log</strong></td>
+                <td>SSL/TLS handshakes</td>
+                <td>Version, cipher, certificate</td>
+              </tr>
+              <tr>
+                <td><strong>files.log</strong></td>
+                <td>Files transferred over network</td>
+                <td>Hash, MIME type, size</td>
+              </tr>
+              <tr>
+                <td><strong>notice.log</strong></td>
+                <td>Zeek notices (alerts)</td>
+                <td>Note type, message, src/dst</td>
+              </tr>
+              <tr>
+                <td><strong>weird.log</strong></td>
+                <td>Protocol anomalies</td>
+                <td>Weird name, additional info</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Zeek Configuration</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Zeek</span>
+            <span class="code-filename">/opt/zeek/share/zeek/site/local.zeek</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# ZEEK LOCAL CONFIGURATION
+# =============================================================================
+
+# Load standard scripts
+@load base/frameworks/software
+@load base/protocols/http
+@load base/protocols/dns
+@load base/protocols/ssl
+@load base/protocols/ssh
+
+# Load detection scripts
+@load policy/protocols/ssl/validate-certs
+@load policy/protocols/ssl/log-hostcerts-only
+@load policy/protocols/http/detect-sqli
+@load policy/protocols/http/detect-webapps
+@load policy/protocols/dns/detect-external-names
+
+# Load file analysis
+@load policy/frameworks/files/hash-all-files
+@load policy/frameworks/files/detect-MHR
+
+# Intel framework
+@load policy/frameworks/intel/seen
+@load policy/frameworks/intel/do_notice
+
+# Network configuration
+redef Site::local_nets = {
+    10.0.0.0/8,
+    172.16.0.0/12,
+    192.168.0.0/16
+};
+
+# Custom detection scripts
+@load ./detect-bruteforce
+@load ./detect-dns-tunneling
+
+# Logging configuration
+redef LogAscii::use_json = T;
+
+# File extraction
+@load policy/frameworks/files/extract-all-files
+redef FileExtract::prefix = "/var/log/zeek/extract_files/";
+
+# Custom notices
+module Local;
+
+export {
+    redef enum Notice::Type += {
+        Large_File_Download,
+        Suspicious_User_Agent
+    };
+}</code></pre>
+        </div>
+
+        <h3>Zeek Commands</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <span class="code-filename">Zeek Operations</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># Install Zeek
+apt install zeek
+
+# Or build from source
+git clone --recursive https://github.com/zeek/zeek
+cd zeek && ./configure && make && make install
+
+# Control Zeek cluster
+zeekctl deploy
+zeekctl start
+zeekctl stop
+zeekctl status
+zeekctl diag
+
+# Read PCAP
+zeek -r capture.pcap
+
+# Live capture
+zeek -i eth0
+
+# Run with specific script
+zeek -r capture.pcap local.zeek
+
+# Search logs with zeek-cut
+cat conn.log | zeek-cut id.orig_h id.resp_h id.resp_p proto
+cat http.log | zeek-cut host uri status_code user_agent
+cat dns.log | zeek-cut query answers
+
+# Search for specific data
+grep -h "malware.com" /var/log/zeek/current/*.log
+cat http.log | zeek-cut -d host uri | grep "\.exe"
+
+# JSON log analysis with jq
+cat conn.log | jq 'select(.resp_bytes > 1000000)'</code></pre>
+        </div>
+      </section>
+
+      <!-- Rule Writing -->
+      <section>
+        <h2 id="rule-writing">Rule Writing</h2>
+
+        <h3>Snort/Suricata Rule Syntax</h3>
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Rule Structure
+          </div>
+          <pre>
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                          SNORT/SURICATA RULE STRUCTURE                              │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                     │
+│   ┌──────────────────────────────────────────────────────────────────────────────┐  │
+│   │ alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection";           │  │
+│   │       content:"SELECT"; nocase; content:"FROM"; distance:0;                  │  │
+│   │       sid:1000001; rev:1; classtype:web-application-attack;)                 │  │
+│   └──────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                     │
+│   RULE HEADER:                                                                      │
+│   ┌─────────┬──────┬───────────────┬─────┬────┬───────────┬──────┐                 │
+│   │ Action  │Proto │  Source       │ Port│ Dir│  Dest     │ Port │                 │
+│   ├─────────┼──────┼───────────────┼─────┼────┼───────────┼──────┤                 │
+│   │  alert  │ tcp  │ $EXTERNAL_NET │ any │ -> │ $HOME_NET │  80  │                 │
+│   └─────────┴──────┴───────────────┴─────┴────┴───────────┴──────┘                 │
+│                                                                                     │
+│   Actions: alert, log, pass, drop, reject, sdrop                                   │
+│   Protocols: tcp, udp, icmp, ip, http, dns, tls, ssh, etc.                        │
+│   Direction: -> (to), <> (bidirectional)                                          │
+│                                                                                     │
+│   RULE OPTIONS:                                                                     │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │ msg:"description"; content:"pattern"; pcre:"/regex/"; sid:number; rev:num;  │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                     │
+│   COMMON OPTIONS:                                                                   │
+│   • msg: Alert message                                                             │
+│   • content: Pattern to match (case-sensitive)                                     │
+│   • nocase: Case-insensitive match                                                 │
+│   • pcre: Regular expression                                                       │
+│   • depth: Search first N bytes                                                    │
+│   • offset: Start search at byte N                                                 │
+│   • distance: Relative position from last match                                    │
+│   • within: Match within N bytes of last match                                     │
+│   • sid: Signature ID (unique)                                                     │
+│   • rev: Rule revision                                                             │
+│   • classtype: Attack classification                                               │
+│   • priority: Alert priority (1-4)                                                 │
+│   • reference: External reference (CVE, etc.)                                      │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+          </pre>
+        </div>
+
+        <h3>Example Rules</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Snort</span>
+            <span class="code-filename">Custom Rules</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# CUSTOM IDS/IPS RULES
+# =============================================================================
+
+# --- MALWARE/C2 DETECTION ---
+
+# Detect potential C2 beacon (regular intervals)
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"Potential C2 Beacon"; \
+    flow:to_server,established; dsize:&lt;100; \
+    detection_filter:track by_src, count 10, seconds 60; \
+    sid:1000001; rev:1; classtype:trojan-activity;)
+
+# Known malicious user-agent
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"Malicious User-Agent Detected"; \
+    http.user_agent; content:"Mozilla/4.0 (compatible; MSIE 6.0;)"; \
+    sid:1000002; rev:1; classtype:trojan-activity;)
+
+# --- WEB APPLICATION ATTACKS ---
+
+# SQL Injection attempt
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"SQL Injection Attempt"; \
+    http.uri; content:"SELECT"; nocase; content:"FROM"; nocase; distance:0; \
+    sid:1000010; rev:1; classtype:web-application-attack;)
+
+# XSS attempt
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"XSS Attempt"; \
+    http.uri; content:"&lt;script"; nocase; \
+    sid:1000011; rev:1; classtype:web-application-attack;)
+
+# Directory traversal
+alert http $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"Directory Traversal"; \
+    http.uri; content:"../"; content:"../"; distance:0; \
+    sid:1000012; rev:1; classtype:web-application-attack;)
+
+# --- RECONNAISSANCE ---
+
+# SSH brute force
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"SSH Brute Force Attempt"; \
+    flow:to_server; flags:S; \
+    threshold:type both, track by_src, count 5, seconds 60; \
+    sid:1000020; rev:1; classtype:attempted-admin;)
+
+# Port scan detection
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"TCP Port Scan"; \
+    flags:S; \
+    threshold:type both, track by_src, count 20, seconds 60; \
+    sid:1000021; rev:1; classtype:attempted-recon;)
+
+# --- DATA EXFILTRATION ---
+
+# Large DNS query (possible tunneling)
+alert dns $HOME_NET any -> any 53 (msg:"Large DNS Query - Possible Tunneling"; \
+    dns.query; content:"|00|"; offset:50; \
+    sid:1000030; rev:1; classtype:policy-violation;)
+
+# Credit card number in cleartext
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"Credit Card in Cleartext"; \
+    pcre:"/\b(?:\d[ -]*?){13,16}\b/"; \
+    sid:1000031; rev:1; classtype:policy-violation;)
+
+# --- PROTOCOL ANOMALIES ---
+
+# HTTP on non-standard port
+alert tcp $HOME_NET any -> $EXTERNAL_NET !$HTTP_PORTS (msg:"HTTP on Non-Standard Port"; \
+    flow:to_server,established; content:"GET "; depth:4; content:" HTTP/"; \
+    sid:1000040; rev:1; classtype:policy-violation;)
+
+# --- FILE DETECTION ---
+
+# Executable download
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"EXE Download Detected"; \
+    http.response_body; content:"MZ"; depth:2; \
+    file.data; content:"This program"; \
+    sid:1000050; rev:1; classtype:policy-violation;)</code></pre>
+        </div>
+      </section>
+
+      <!-- Tuning -->
+      <section>
+        <h2 id="tuning">Tuning & Performance</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Config</span>
+            <span class="code-filename">Performance Tuning Tips</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# IDS/IPS PERFORMANCE TUNING
+# =============================================================================
+
+# 1. DISABLE UNUSED RULES
+# Review enabled rulesets and disable categories not relevant to your environment
+# Example: Disable browser rules on server-only network
+
+# Suricata: Comment out in suricata.yaml
+# rule-files:
+#   - emerging-web_client.rules  # Disable if no browsers
+
+# 2. THRESHOLD/SUPPRESS FALSE POSITIVES
+
+# Suricata threshold.config
+suppress gen_id 1, sig_id 2100498, track by_src, ip 192.168.1.100
+threshold gen_id 1, sig_id 2100499, type limit, track by_src, count 1, seconds 60
+
+# 3. TUNE MEMORY SETTINGS
+
+# Suricata memory tuning
+stream:
+  memcap: 1gb                    # Increase for high-bandwidth networks
+  reassembly:
+    memcap: 2gb
+
+# 4. CPU AFFINITY
+
+# Pin processes to specific CPUs
+threading:
+  set-cpu-affinity: yes
+  cpu-affinity:
+    - management-cpu-set:
+        cpu: [ 0 ]
+    - receive-cpu-set:
+        cpu: [ 1 ]
+    - worker-cpu-set:
+        cpu: [ 2, 3, 4, 5 ]
+
+# 5. INTERFACE OPTIMIZATION
+
+# Use AF_PACKET with mmap for Linux
+af-packet:
+  - interface: eth0
+    threads: 4
+    cluster-type: cluster_flow
+    use-mmap: yes
+    ring-size: 200000
+
+# 6. HARDWARE OFFLOADING
+
+# Disable offloading features that interfere with IDS
+ethtool -K eth0 gro off
+ethtool -K eth0 lro off
+ethtool -K eth0 tso off
+ethtool -K eth0 gso off
+
+# 7. MONITORING PERFORMANCE
+
+# Suricata stats
+tail -f /var/log/suricata/stats.log | grep -E "(capture.kernel_packets|decoder.pkts)"
+
+# Check for drops
+grep "kernel_drops" /var/log/suricata/stats.log</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-divider"><span>Related Guides</span></div>
+        <div class="card-grid">
+          <a href="waf.html" class="nav-card card">
+            <h4>Web Application Firewall →</h4>
+            <p>ModSecurity and cloud WAF solutions.</p>
+          </a>
+          <a href="traffic-analysis.html" class="nav-card card">
+            <h4>Traffic Analysis →</h4>
+            <p>Wireshark and packet analysis techniques.</p>
+          </a>
+          <a href="firewall-concepts.html" class="nav-card card">
+            <h4>Firewall Concepts →</h4>
+            <p>Network firewall fundamentals.</p>
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <p>Network Security & Infrastructure Guide</p>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

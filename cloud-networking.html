@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cloud Networking Guide - AWS VPC, Azure Virtual Network, GCP VPC with security groups, NACLs, and peering">
+  <title>Cloud Networking | NetSec Guide</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      NetSec Guide
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="network-fundamentals.html">Fundamentals</a></li>
+      <li><a href="forward-proxy.html">Proxies</a></li>
+      <li><a href="firewall-concepts.html">Firewalls</a></li>
+      <li><a href="troubleshooting.html">Troubleshooting</a></li>
+    </ul>
+    <button class="menu-toggle" aria-label="Toggle menu">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+  </nav>
+
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">On This Page</div>
+      <ul class="sidebar-nav">
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#aws-vpc">AWS VPC</a></li>
+        <li><a href="#azure-vnet">Azure VNet</a></li>
+        <li><a href="#gcp-vpc">GCP VPC</a></li>
+        <li><a href="#hybrid">Hybrid Connectivity</a></li>
+        <li><a href="#comparison">Comparison</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Related Pages</div>
+      <ul class="sidebar-nav">
+        <li><a href="load-balancing.html">Load Balancing</a></li>
+        <li><a href="vpn.html">VPN Technologies</a></li>
+        <li><a href="network-segmentation.html">Network Segmentation</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="content-wrapper">
+      <nav class="breadcrumb">
+        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item active">Cloud Networking</span>
+      </nav>
+
+      <h1>Cloud Networking Guide</h1>
+      <p class="hero-subtitle">
+        Comprehensive guide to cloud networking across AWS, Azure, and GCP. 
+        Covers VPCs, security groups, peering, and hybrid connectivity.
+      </p>
+
+      <!-- Overview -->
+      <section>
+        <h2 id="overview">Cloud Networking Overview</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Cloud Network Architecture Concepts
+          </div>
+          <pre>
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                    CLOUD NETWORKING CONCEPTS                                        │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                     │
+│   VIRTUAL PRIVATE CLOUD (VPC)                                                       │
+│   ═══════════════════════════════════════════════════════════════════════════════  │
+│                                                                                     │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │                        VPC: 10.0.0.0/16                                     │  │
+│   │                                                                             │  │
+│   │   ┌─────────────────────────┐   ┌─────────────────────────┐                │  │
+│   │   │  Availability Zone A    │   │  Availability Zone B    │                │  │
+│   │   │                         │   │                         │                │  │
+│   │   │  ┌───────────────────┐  │   │  ┌───────────────────┐  │                │  │
+│   │   │  │ Public Subnet     │  │   │  │ Public Subnet     │  │                │  │
+│   │   │  │ 10.0.1.0/24       │  │   │  │ 10.0.2.0/24       │  │                │  │
+│   │   │  │ [Web Servers]     │  │   │  │ [Web Servers]     │  │                │  │
+│   │   │  │ [NAT Gateway]     │  │   │  │ [NAT Gateway]     │  │                │  │
+│   │   │  └───────────────────┘  │   │  └───────────────────┘  │                │  │
+│   │   │                         │   │                         │                │  │
+│   │   │  ┌───────────────────┐  │   │  ┌───────────────────┐  │                │  │
+│   │   │  │ Private Subnet    │  │   │  │ Private Subnet    │  │                │  │
+│   │   │  │ 10.0.10.0/24      │  │   │  │ 10.0.20.0/24      │  │                │  │
+│   │   │  │ [App Servers]     │  │   │  │ [App Servers]     │  │                │  │
+│   │   │  └───────────────────┘  │   │  └───────────────────┘  │                │  │
+│   │   │                         │   │                         │                │  │
+│   │   │  ┌───────────────────┐  │   │  ┌───────────────────┐  │                │  │
+│   │   │  │ Database Subnet   │  │   │  │ Database Subnet   │  │                │  │
+│   │   │  │ 10.0.100.0/24     │  │   │  │ 10.0.200.0/24     │  │                │  │
+│   │   │  │ [RDS Instance]    │  │   │  │ [RDS Standby]     │  │                │  │
+│   │   │  └───────────────────┘  │   │  └───────────────────┘  │                │  │
+│   │   │                         │   │                         │                │  │
+│   │   └─────────────────────────┘   └─────────────────────────┘                │  │
+│   │                                                                             │  │
+│   │   ┌──────────────────┐              ┌──────────────────┐                   │  │
+│   │   │ Internet Gateway │              │  Virtual Private │                   │  │
+│   │   │  (Public access) │              │  Gateway (VPN)   │                   │  │
+│   │   └──────────────────┘              └──────────────────┘                   │  │
+│   │                                                                             │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                     │
+│   KEY CONCEPTS:                                                                     │
+│   • VPC: Isolated virtual network (like your own data center)                      │
+│   • Subnet: IP address range within VPC (public or private)                        │
+│   • Route Table: Controls traffic routing between subnets                          │
+│   • Internet Gateway: Enables internet access for VPC                              │
+│   • NAT Gateway: Allows private subnets to reach internet                          │
+│   • Security Group: Stateful firewall at instance level                            │
+│   • NACL: Stateless firewall at subnet level                                       │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+          </pre>
+        </div>
+      </section>
+
+      <!-- AWS VPC -->
+      <section>
+        <h2 id="aws-vpc">AWS VPC</h2>
+
+        <h3>VPC and Subnet Configuration</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Terraform</span>
+            <span class="code-filename">AWS VPC Infrastructure</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# AWS VPC CONFIGURATION
+# =============================================================================
+
+# VPC
+resource "aws_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  tags = {
+    Name        = "production-vpc"
+    Environment = "production"
+  }
+}
+
+# Internet Gateway
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "production-igw"
+  }
+}
+
+# Public Subnets
+resource "aws_subnet" "public_a" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "us-east-1a"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "public-subnet-a"
+    Type = "public"
+  }
+}
+
+resource "aws_subnet" "public_b" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = "us-east-1b"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "public-subnet-b"
+    Type = "public"
+  }
+}
+
+# Private Subnets
+resource "aws_subnet" "private_a" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.10.0/24"
+  availability_zone = "us-east-1a"
+
+  tags = {
+    Name = "private-subnet-a"
+    Type = "private"
+  }
+}
+
+resource "aws_subnet" "private_b" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.20.0/24"
+  availability_zone = "us-east-1b"
+
+  tags = {
+    Name = "private-subnet-b"
+    Type = "private"
+  }
+}
+
+# NAT Gateway (for private subnet internet access)
+resource "aws_eip" "nat" {
+  domain = "vpc"
+}
+
+resource "aws_nat_gateway" "main" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.public_a.id
+
+  tags = {
+    Name = "production-nat"
+  }
+}
+
+# Route Tables
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main.id
+  }
+
+  tags = {
+    Name = "public-rt"
+  }
+}
+
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.main.id
+  }
+
+  tags = {
+    Name = "private-rt"
+  }
+}
+
+# Route Table Associations
+resource "aws_route_table_association" "public_a" {
+  subnet_id      = aws_subnet.public_a.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "private_a" {
+  subnet_id      = aws_subnet.private_a.id
+  route_table_id = aws_route_table.private.id
+}</code></pre>
+        </div>
+
+        <h3>Security Groups and NACLs</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Terraform</span>
+            <span class="code-filename">AWS Security Groups</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# AWS SECURITY GROUPS (Stateful - Instance Level)
+# =============================================================================
+
+# Web Server Security Group
+resource "aws_security_group" "web" {
+  name        = "web-sg"
+  description = "Security group for web servers"
+  vpc_id      = aws_vpc.main.id
+
+  # HTTP from anywhere
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # HTTPS from anywhere
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # SSH from bastion only
+  ingress {
+    description     = "SSH from Bastion"
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
+    security_groups = [aws_security_group.bastion.id]
+  }
+
+  # All outbound
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "web-sg"
+  }
+}
+
+# Application Server Security Group
+resource "aws_security_group" "app" {
+  name        = "app-sg"
+  description = "Security group for application servers"
+  vpc_id      = aws_vpc.main.id
+
+  # App traffic from web servers only
+  ingress {
+    description     = "App Port"
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [aws_security_group.web.id]
+  }
+
+  # SSH from bastion
+  ingress {
+    description     = "SSH from Bastion"
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
+    security_groups = [aws_security_group.bastion.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "app-sg"
+  }
+}
+
+# Database Security Group
+resource "aws_security_group" "db" {
+  name        = "db-sg"
+  description = "Security group for databases"
+  vpc_id      = aws_vpc.main.id
+
+  # MySQL from app servers only
+  ingress {
+    description     = "MySQL"
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+  }
+
+  # No egress needed for RDS
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "db-sg"
+  }
+}
+
+# =============================================================================
+# NETWORK ACLs (Stateless - Subnet Level)
+# =============================================================================
+
+resource "aws_network_acl" "public" {
+  vpc_id     = aws_vpc.main.id
+  subnet_ids = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+
+  # Inbound HTTP
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 80
+    to_port    = 80
+  }
+
+  # Inbound HTTPS
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 110
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 443
+    to_port    = 443
+  }
+
+  # Inbound ephemeral ports (return traffic)
+  ingress {
+    protocol   = "tcp"
+    rule_no    = 120
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 1024
+    to_port    = 65535
+  }
+
+  # Outbound all
+  egress {
+    protocol   = "-1"
+    rule_no    = 100
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+  }
+
+  tags = {
+    Name = "public-nacl"
+  }
+}</code></pre>
+        </div>
+
+        <h3>VPC Peering</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Terraform</span>
+            <span class="code-filename">AWS VPC Peering</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# VPC PEERING
+# =============================================================================
+
+# Create peering connection
+resource "aws_vpc_peering_connection" "prod_to_dev" {
+  vpc_id        = aws_vpc.production.id
+  peer_vpc_id   = aws_vpc.development.id
+  auto_accept   = true
+
+  tags = {
+    Name = "prod-to-dev-peering"
+  }
+}
+
+# Route in production VPC to development
+resource "aws_route" "prod_to_dev" {
+  route_table_id            = aws_route_table.production.id
+  destination_cidr_block    = "10.1.0.0/16"  # Dev VPC CIDR
+  vpc_peering_connection_id = aws_vpc_peering_connection.prod_to_dev.id
+}
+
+# Route in development VPC to production
+resource "aws_route" "dev_to_prod" {
+  route_table_id            = aws_route_table.development.id
+  destination_cidr_block    = "10.0.0.0/16"  # Prod VPC CIDR
+  vpc_peering_connection_id = aws_vpc_peering_connection.prod_to_dev.id
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Azure VNet -->
+      <section>
+        <h2 id="azure-vnet">Azure Virtual Network</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Terraform</span>
+            <span class="code-filename">Azure VNet Configuration</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# AZURE VIRTUAL NETWORK
+# =============================================================================
+
+# Resource Group
+resource "azurerm_resource_group" "main" {
+  name     = "production-rg"
+  location = "East US"
+}
+
+# Virtual Network
+resource "azurerm_virtual_network" "main" {
+  name                = "production-vnet"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  tags = {
+    Environment = "production"
+  }
+}
+
+# Subnets
+resource "azurerm_subnet" "web" {
+  name                 = "web-subnet"
+  resource_group_name  = azurerm_resource_group.main.name
+  virtual_network_name = azurerm_virtual_network.main.name
+  address_prefixes     = ["10.0.1.0/24"]
+}
+
+resource "azurerm_subnet" "app" {
+  name                 = "app-subnet"
+  resource_group_name  = azurerm_resource_group.main.name
+  virtual_network_name = azurerm_virtual_network.main.name
+  address_prefixes     = ["10.0.10.0/24"]
+}
+
+resource "azurerm_subnet" "db" {
+  name                 = "db-subnet"
+  resource_group_name  = azurerm_resource_group.main.name
+  virtual_network_name = azurerm_virtual_network.main.name
+  address_prefixes     = ["10.0.100.0/24"]
+  
+  # Service endpoint for Azure SQL
+  service_endpoints    = ["Microsoft.Sql"]
+}
+
+# Gateway Subnet (for VPN Gateway)
+resource "azurerm_subnet" "gateway" {
+  name                 = "GatewaySubnet"
+  resource_group_name  = azurerm_resource_group.main.name
+  virtual_network_name = azurerm_virtual_network.main.name
+  address_prefixes     = ["10.0.255.0/27"]
+}
+
+# =============================================================================
+# NETWORK SECURITY GROUPS
+# =============================================================================
+
+resource "azurerm_network_security_group" "web" {
+  name                = "web-nsg"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  security_rule {
+    name                       = "Allow-HTTP"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "Allow-HTTPS"
+    priority                   = 110
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "Deny-All-Inbound"
+    priority                   = 4096
+    direction                  = "Inbound"
+    access                     = "Deny"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+}
+
+resource "azurerm_network_security_group" "app" {
+  name                = "app-nsg"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  security_rule {
+    name                       = "Allow-From-Web"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "8080"
+    source_address_prefix      = "10.0.1.0/24"
+    destination_address_prefix = "*"
+  }
+}
+
+# Associate NSG with Subnet
+resource "azurerm_subnet_network_security_group_association" "web" {
+  subnet_id                 = azurerm_subnet.web.id
+  network_security_group_id = azurerm_network_security_group.web.id
+}
+
+# =============================================================================
+# VNET PEERING
+# =============================================================================
+
+resource "azurerm_virtual_network_peering" "prod_to_dev" {
+  name                      = "prod-to-dev"
+  resource_group_name       = azurerm_resource_group.main.name
+  virtual_network_name      = azurerm_virtual_network.production.name
+  remote_virtual_network_id = azurerm_virtual_network.development.id
+  allow_virtual_network_access = true
+  allow_forwarded_traffic      = true
+}
+
+resource "azurerm_virtual_network_peering" "dev_to_prod" {
+  name                      = "dev-to-prod"
+  resource_group_name       = azurerm_resource_group.dev.name
+  virtual_network_name      = azurerm_virtual_network.development.name
+  remote_virtual_network_id = azurerm_virtual_network.production.id
+  allow_virtual_network_access = true
+  allow_forwarded_traffic      = true
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- GCP VPC -->
+      <section>
+        <h2 id="gcp-vpc">GCP VPC</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Terraform</span>
+            <span class="code-filename">GCP VPC Configuration</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# GCP VPC CONFIGURATION
+# =============================================================================
+
+# VPC Network (GCP VPCs are global)
+resource "google_compute_network" "main" {
+  name                    = "production-vpc"
+  auto_create_subnetworks = false
+  routing_mode            = "REGIONAL"
+}
+
+# Subnets (regional)
+resource "google_compute_subnetwork" "web" {
+  name          = "web-subnet"
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.main.id
+
+  # Enable Private Google Access
+  private_ip_google_access = true
+
+  # Secondary ranges for GKE
+  secondary_ip_range {
+    range_name    = "pods"
+    ip_cidr_range = "10.1.0.0/16"
+  }
+  secondary_ip_range {
+    range_name    = "services"
+    ip_cidr_range = "10.2.0.0/20"
+  }
+}
+
+resource "google_compute_subnetwork" "app" {
+  name          = "app-subnet"
+  ip_cidr_range = "10.0.10.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.main.id
+  private_ip_google_access = true
+}
+
+resource "google_compute_subnetwork" "db" {
+  name          = "db-subnet"
+  ip_cidr_range = "10.0.100.0/24"
+  region        = "us-central1"
+  network       = google_compute_network.main.id
+  private_ip_google_access = true
+}
+
+# =============================================================================
+# FIREWALL RULES (GCP uses network-level firewall rules)
+# =============================================================================
+
+# Allow HTTP/HTTPS to web servers
+resource "google_compute_firewall" "allow_web" {
+  name    = "allow-web-traffic"
+  network = google_compute_network.main.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["80", "443"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["web-server"]
+}
+
+# Allow app traffic from web tier
+resource "google_compute_firewall" "allow_app" {
+  name    = "allow-app-traffic"
+  network = google_compute_network.main.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8080"]
+  }
+
+  source_tags = ["web-server"]
+  target_tags = ["app-server"]
+}
+
+# Allow DB traffic from app tier
+resource "google_compute_firewall" "allow_db" {
+  name    = "allow-db-traffic"
+  network = google_compute_network.main.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["3306", "5432"]
+  }
+
+  source_tags = ["app-server"]
+  target_tags = ["db-server"]
+}
+
+# Allow SSH from IAP (Identity-Aware Proxy)
+resource "google_compute_firewall" "allow_ssh_iap" {
+  name    = "allow-ssh-iap"
+  network = google_compute_network.main.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  # IAP IP ranges
+  source_ranges = ["35.235.240.0/20"]
+  target_tags   = ["ssh-enabled"]
+}
+
+# Deny all other ingress (implicit in GCP, but explicit is better)
+resource "google_compute_firewall" "deny_all" {
+  name     = "deny-all-ingress"
+  network  = google_compute_network.main.name
+  priority = 65534
+
+  deny {
+    protocol = "all"
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+}
+
+# =============================================================================
+# CLOUD NAT (for private instances to reach internet)
+# =============================================================================
+
+resource "google_compute_router" "router" {
+  name    = "nat-router"
+  region  = "us-central1"
+  network = google_compute_network.main.id
+}
+
+resource "google_compute_router_nat" "nat" {
+  name                               = "nat-gateway"
+  router                             = google_compute_router.router.name
+  region                             = google_compute_router.router.region
+  nat_ip_allocate_option             = "AUTO_ONLY"
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+
+  log_config {
+    enable = true
+    filter = "ERRORS_ONLY"
+  }
+}
+
+# =============================================================================
+# VPC PEERING
+# =============================================================================
+
+resource "google_compute_network_peering" "prod_to_dev" {
+  name         = "prod-to-dev"
+  network      = google_compute_network.production.id
+  peer_network = google_compute_network.development.id
+}
+
+resource "google_compute_network_peering" "dev_to_prod" {
+  name         = "dev-to-prod"
+  network      = google_compute_network.development.id
+  peer_network = google_compute_network.production.id
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Hybrid -->
+      <section>
+        <h2 id="hybrid">Hybrid Connectivity</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Hybrid Cloud Connectivity Options
+          </div>
+          <pre>
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                    HYBRID CONNECTIVITY OPTIONS                                      │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                     │
+│   ON-PREMISES                          CLOUD                                        │
+│   ┌─────────────────┐                  ┌─────────────────────────────────────┐     │
+│   │                 │                  │                                     │     │
+│   │   Data Center   │                  │            CLOUD VPC                │     │
+│   │                 │                  │                                     │     │
+│   │  ┌───────────┐  │    OPTION 1:     │                                     │     │
+│   │  │  Router   │══╪════ VPN ════════►│   Virtual Private Gateway           │     │
+│   │  │           │  │    (IPSec)       │   (Site-to-Site VPN)               │     │
+│   │  └───────────┘  │                  │                                     │     │
+│   │                 │                  │                                     │     │
+│   │  ┌───────────┐  │    OPTION 2:     │                                     │     │
+│   │  │  Router   │══╪══ Direct Connect │   Direct Connect Gateway            │     │
+│   │  │           │  │    (Dedicated)   │   (AWS) / ExpressRoute (Azure)     │     │
+│   │  └───────────┘  │                  │   / Cloud Interconnect (GCP)       │     │
+│   │                 │                  │                                     │     │
+│   └─────────────────┘                  └─────────────────────────────────────┘     │
+│                                                                                     │
+│                                                                                     │
+│   CONNECTIVITY OPTIONS COMPARISON:                                                  │
+│   ════════════════════════════════════════════════════════════════════════════════ │
+│                                                                                     │
+│   ┌──────────────────┬─────────────────┬─────────────────┬─────────────────┐       │
+│   │                  │     VPN         │  Direct Connect │    Both (HA)    │       │
+│   ├──────────────────┼─────────────────┼─────────────────┼─────────────────┤       │
+│   │ Bandwidth        │  Up to 1.25Gbps │  1-100 Gbps     │  Combined       │       │
+│   │ Latency          │  Variable       │  Consistent     │  Best of both   │       │
+│   │ Encryption       │  Built-in       │  Optional (MACsec)│ As needed     │       │
+│   │ Setup Time       │  Minutes        │  Days/Weeks     │  Weeks          │       │
+│   │ Cost             │  Low            │  Higher         │  Highest        │       │
+│   │ Reliability      │  Internet-dep.  │  SLA-backed     │  Highest        │       │
+│   │ Use Case         │  Dev/Test, Backup│ Production     │  Critical       │       │
+│   └──────────────────┴─────────────────┴─────────────────┴─────────────────┘       │
+│                                                                                     │
+│                                                                                     │
+│   BEST PRACTICE: Use Direct Connect/ExpressRoute for production with               │
+│   VPN as backup (failover) connection                                              │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+          </pre>
+        </div>
+
+        <h3>AWS Site-to-Site VPN</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Terraform</span>
+            <span class="code-filename">AWS VPN Configuration</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# AWS SITE-TO-SITE VPN
+# =============================================================================
+
+# Customer Gateway (on-premises router)
+resource "aws_customer_gateway" "main" {
+  bgp_asn    = 65000
+  ip_address = "203.0.113.1"  # On-prem public IP
+  type       = "ipsec.1"
+
+  tags = {
+    Name = "on-prem-gateway"
+  }
+}
+
+# Virtual Private Gateway
+resource "aws_vpn_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "vpn-gateway"
+  }
+}
+
+# VPN Connection
+resource "aws_vpn_connection" "main" {
+  vpn_gateway_id      = aws_vpn_gateway.main.id
+  customer_gateway_id = aws_customer_gateway.main.id
+  type                = "ipsec.1"
+  static_routes_only  = false  # Use BGP
+
+  tags = {
+    Name = "on-prem-vpn"
+  }
+}
+
+# Enable route propagation
+resource "aws_vpn_gateway_route_propagation" "main" {
+  vpn_gateway_id = aws_vpn_gateway.main.id
+  route_table_id = aws_route_table.private.id
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Comparison -->
+      <section>
+        <h2 id="comparison">Cloud Provider Comparison</h2>
+
+        <div class="table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>AWS</th>
+                <th>Azure</th>
+                <th>GCP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Virtual Network</strong></td>
+                <td>VPC</td>
+                <td>VNet</td>
+                <td>VPC</td>
+              </tr>
+              <tr>
+                <td><strong>Scope</strong></td>
+                <td>Regional</td>
+                <td>Regional</td>
+                <td>Global</td>
+              </tr>
+              <tr>
+                <td><strong>Instance Firewall</strong></td>
+                <td>Security Groups</td>
+                <td>NSG</td>
+                <td>Firewall Rules + Tags</td>
+              </tr>
+              <tr>
+                <td><strong>Subnet Firewall</strong></td>
+                <td>NACLs</td>
+                <td>NSG on Subnet</td>
+                <td>N/A (network-level)</td>
+              </tr>
+              <tr>
+                <td><strong>NAT</strong></td>
+                <td>NAT Gateway</td>
+                <td>NAT Gateway</td>
+                <td>Cloud NAT</td>
+              </tr>
+              <tr>
+                <td><strong>Dedicated Line</strong></td>
+                <td>Direct Connect</td>
+                <td>ExpressRoute</td>
+                <td>Cloud Interconnect</td>
+              </tr>
+              <tr>
+                <td><strong>VPN</strong></td>
+                <td>Site-to-Site VPN</td>
+                <td>VPN Gateway</td>
+                <td>Cloud VPN</td>
+              </tr>
+              <tr>
+                <td><strong>Peering</strong></td>
+                <td>VPC Peering</td>
+                <td>VNet Peering</td>
+                <td>VPC Peering</td>
+              </tr>
+              <tr>
+                <td><strong>Transit Hub</strong></td>
+                <td>Transit Gateway</td>
+                <td>Virtual WAN</td>
+                <td>N/A (global VPC)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-divider"><span>Related Guides</span></div>
+        <div class="card-grid">
+          <a href="load-balancing.html" class="nav-card card">
+            <h4>Load Balancing →</h4>
+            <p>AWS ALB/NLB, Azure, GCP load balancers.</p>
+          </a>
+          <a href="vpn.html" class="nav-card card">
+            <h4>VPN Technologies →</h4>
+            <p>IPSec, OpenVPN, WireGuard configurations.</p>
+          </a>
+          <a href="network-segmentation.html" class="nav-card card">
+            <h4>Network Segmentation →</h4>
+            <p>Zero Trust and microsegmentation.</p>
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <p>Network Security & Infrastructure Guide</p>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DNS Security Guide - DNSSEC, DNS over HTTPS, DNS over TLS, Pi-hole, and DNS hardening">
+  <title>DNS Security | NetSec Guide</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      NetSec Guide
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="network-fundamentals.html">Fundamentals</a></li>
+      <li><a href="forward-proxy.html">Proxies</a></li>
+      <li><a href="firewall-concepts.html">Firewalls</a></li>
+      <li><a href="troubleshooting.html">Troubleshooting</a></li>
+    </ul>
+    <button class="menu-toggle" aria-label="Toggle menu">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+  </nav>
+
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">On This Page</div>
+      <ul class="sidebar-nav">
+        <li><a href="#threats">DNS Threats</a></li>
+        <li><a href="#dnssec">DNSSEC</a></li>
+        <li><a href="#doh-dot">DoH & DoT</a></li>
+        <li><a href="#filtering">DNS Filtering</a></li>
+        <li><a href="#pihole">Pi-hole</a></li>
+        <li><a href="#hardening">DNS Hardening</a></li>
+        <li><a href="#monitoring">DNS Monitoring</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Related Pages</div>
+      <ul class="sidebar-nav">
+        <li><a href="network-fundamentals.html">Network Fundamentals</a></li>
+        <li><a href="troubleshooting.html">Troubleshooting</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="content-wrapper">
+      <nav class="breadcrumb">
+        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item active">DNS Security</span>
+      </nav>
+
+      <h1>DNS Security Guide</h1>
+      <p class="hero-subtitle">
+        Comprehensive guide to securing DNS infrastructure including DNSSEC, encrypted DNS protocols, 
+        DNS filtering, and monitoring for DNS-based threats.
+      </p>
+
+      <!-- Threats -->
+      <section>
+        <h2 id="threats">DNS Security Threats</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Common DNS Attacks
+          </div>
+          <pre>
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                           DNS SECURITY THREATS                                      │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                     │
+│   1. DNS SPOOFING / CACHE POISONING                                                │
+│   ═════════════════════════════════                                                 │
+│                                                                                     │
+│   User ──► DNS Resolver ──► Authoritative DNS                                      │
+│                 ▲                                                                   │
+│                 │                                                                   │
+│            Attacker injects                                                         │
+│            fake response                                                            │
+│                 │                                                                   │
+│            "bank.com = 192.168.1.100 (attacker)"                                   │
+│                                                                                     │
+│   Result: User visits fake website, credentials stolen                             │
+│   Protection: DNSSEC, randomized source ports, 0x20 encoding                       │
+│                                                                                     │
+│                                                                                     │
+│   2. DNS HIJACKING                                                                  │
+│   ════════════════                                                                  │
+│                                                                                     │
+│   • Router compromise: Attacker changes DNS settings on router                     │
+│   • Malware: Changes local DNS settings or hosts file                              │
+│   • ISP-level: Redirects DNS queries to malicious servers                          │
+│                                                                                     │
+│   Protection: DoH/DoT, DHCP snooping, endpoint protection                          │
+│                                                                                     │
+│                                                                                     │
+│   3. DNS TUNNELING (Data Exfiltration)                                             │
+│   ════════════════════════════════════                                              │
+│                                                                                     │
+│   Infected Host                          Attacker's DNS Server                     │
+│        │                                        │                                   │
+│        │  TXT query: base64data.evil.com       │                                   │
+│        │──────────────────────────────────────►│                                   │
+│        │                                        │                                   │
+│        │  TXT response: command_response        │                                   │
+│        │◄──────────────────────────────────────│                                   │
+│                                                                                     │
+│   Data encoded in DNS queries/responses bypasses firewalls                         │
+│   Protection: DNS query logging, anomaly detection, response policy zones          │
+│                                                                                     │
+│                                                                                     │
+│   4. DNS AMPLIFICATION (DDoS)                                                       │
+│   ═══════════════════════════                                                       │
+│                                                                                     │
+│   Attacker (spoofed source IP) ──► Open DNS Resolvers ──► Victim                   │
+│   Small query (60 bytes)           Large response (3000+ bytes)                    │
+│                                    Amplification factor: 50x                       │
+│                                                                                     │
+│   Protection: Rate limiting, RRL, disable open resolvers                           │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+          </pre>
+        </div>
+      </section>
+
+      <!-- DNSSEC -->
+      <section>
+        <h2 id="dnssec">DNSSEC (DNS Security Extensions)</h2>
+        <p>
+          DNSSEC adds cryptographic signatures to DNS records, allowing resolvers to verify 
+          that responses are authentic and haven't been tampered with.
+        </p>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            DNSSEC Chain of Trust
+          </div>
+          <pre>
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                           DNSSEC CHAIN OF TRUST                                     │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                     │
+│   ROOT ZONE (.)                                                                     │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │  KSK (Key Signing Key) - Signs the ZSK                                      │  │
+│   │  ZSK (Zone Signing Key) - Signs the records                                 │  │
+│   │  DS record points to .com KSK                                               │  │
+│   └───────────────────────────────────┬─────────────────────────────────────────┘  │
+│                                       │ DS record                                  │
+│                                       ▼                                            │
+│   .COM TLD                                                                          │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │  KSK - verified by DS record from root                                      │  │
+│   │  ZSK - Signs .com zone records                                              │  │
+│   │  DS record points to example.com KSK                                        │  │
+│   └───────────────────────────────────┬─────────────────────────────────────────┘  │
+│                                       │ DS record                                  │
+│                                       ▼                                            │
+│   EXAMPLE.COM                                                                       │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │  KSK - verified by DS record from .com                                      │  │
+│   │  ZSK - Signs example.com records                                            │  │
+│   │                                                                             │  │
+│   │  A record: www.example.com → 93.184.216.34                                  │  │
+│   │  RRSIG: Signature proving A record is authentic                             │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                     │
+│                                                                                     │
+│   DNSSEC RECORD TYPES:                                                              │
+│   ────────────────────                                                              │
+│   • DNSKEY: Public keys (KSK and ZSK)                                              │
+│   • DS: Delegation Signer (hash of child's KSK, stored in parent)                  │
+│   • RRSIG: Signature for each record set                                           │
+│   • NSEC/NSEC3: Proves non-existence of records                                    │
+│                                                                                     │
+│                                                                                     │
+│   VALIDATION PROCESS:                                                               │
+│   ───────────────────                                                               │
+│   1. Resolver queries for www.example.com                                          │
+│   2. Gets A record + RRSIG                                                         │
+│   3. Gets DNSKEY from example.com                                                  │
+│   4. Verifies RRSIG with ZSK                                                       │
+│   5. Verifies ZSK with KSK                                                         │
+│   6. Gets DS from .com, verifies KSK hash                                          │
+│   7. Continues up to root (trust anchor)                                           │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+          </pre>
+        </div>
+
+        <h3>DNSSEC Configuration (BIND)</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Config</span>
+            <span class="code-filename">BIND DNSSEC Configuration</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# DNSSEC SIGNING WITH BIND
+# =============================================================================
+
+# Generate ZSK (Zone Signing Key)
+dnssec-keygen -a ECDSAP256SHA256 -n ZONE example.com
+
+# Generate KSK (Key Signing Key)
+dnssec-keygen -a ECDSAP256SHA256 -n ZONE -f KSK example.com
+
+# Sign the zone
+dnssec-signzone -A -3 $(head -c 1000 /dev/urandom | sha1sum | cut -b 1-16) \
+    -N INCREMENT -o example.com -t db.example.com
+
+# BIND named.conf configuration
+zone "example.com" {
+    type master;
+    file "/var/named/db.example.com.signed";
+    key-directory "/var/named/keys";
+    auto-dnssec maintain;
+    inline-signing yes;
+    dnssec-policy default;
+};
+
+# Enable DNSSEC validation on resolver
+options {
+    dnssec-validation auto;
+    # Or explicitly set trust anchor
+    # dnssec-validation yes;
+};
+
+# Verify DNSSEC
+dig +dnssec example.com
+dig +sigchase example.com
+delv @8.8.8.8 example.com</code></pre>
+        </div>
+      </section>
+
+      <!-- DoH & DoT -->
+      <section>
+        <h2 id="doh-dot">DNS over HTTPS (DoH) & DNS over TLS (DoT)</h2>
+
+        <div class="table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Traditional DNS</th>
+                <th>DoT (DNS over TLS)</th>
+                <th>DoH (DNS over HTTPS)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Port</strong></td>
+                <td>UDP/53</td>
+                <td>TCP/853</td>
+                <td>TCP/443</td>
+              </tr>
+              <tr>
+                <td><strong>Encryption</strong></td>
+                <td><span class="feature-no">None</span></td>
+                <td><span class="feature-yes">TLS</span></td>
+                <td><span class="feature-yes">HTTPS</span></td>
+              </tr>
+              <tr>
+                <td><strong>Blockable</strong></td>
+                <td>Easy</td>
+                <td>Easy (port 853)</td>
+                <td>Hard (looks like HTTPS)</td>
+              </tr>
+              <tr>
+                <td><strong>Enterprise Control</strong></td>
+                <td>Easy</td>
+                <td>Easy</td>
+                <td>Difficult</td>
+              </tr>
+              <tr>
+                <td><strong>Privacy</strong></td>
+                <td>None</td>
+                <td>ISP can't see queries</td>
+                <td>ISP can't see queries</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>DoT/DoH Server Configuration</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Config</span>
+            <span class="code-filename">Unbound DoT/DoH Configuration</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# UNBOUND DNS OVER TLS SERVER
+# =============================================================================
+
+# /etc/unbound/unbound.conf
+server:
+    interface: 0.0.0.0
+    port: 53
+    
+    # DNS over TLS
+    interface: 0.0.0.0@853
+    tls-service-key: "/etc/unbound/server.key"
+    tls-service-pem: "/etc/unbound/server.pem"
+    tls-port: 853
+    
+    # Security settings
+    hide-identity: yes
+    hide-version: yes
+    
+    # Access control
+    access-control: 10.0.0.0/8 allow
+    access-control: 192.168.0.0/16 allow
+    
+    # DNSSEC validation
+    auto-trust-anchor-file: "/var/lib/unbound/root.key"
+    
+    # Hardening
+    harden-glue: yes
+    harden-dnssec-stripped: yes
+    harden-referral-path: yes
+    
+    # Privacy
+    qname-minimisation: yes
+    aggressive-nsec: yes
+
+# Forward to upstream DoT servers
+forward-zone:
+    name: "."
+    forward-tls-upstream: yes
+    # Cloudflare
+    forward-addr: 1.1.1.1@853#cloudflare-dns.com
+    forward-addr: 1.0.0.1@853#cloudflare-dns.com
+    # Google
+    forward-addr: 8.8.8.8@853#dns.google
+    forward-addr: 8.8.4.4@853#dns.google</code></pre>
+        </div>
+
+        <h3>Client DoH/DoT Configuration</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Config</span>
+            <span class="code-filename">Client Configuration</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# CLIENT DOT/DOH CONFIGURATION
+# =============================================================================
+
+# Linux systemd-resolved (DoT)
+# /etc/systemd/resolved.conf
+[Resolve]
+DNS=1.1.1.1#cloudflare-dns.com 1.0.0.1#cloudflare-dns.com
+DNSOverTLS=yes
+DNSSEC=yes
+
+# Restart resolved
+sudo systemctl restart systemd-resolved
+
+# Verify
+resolvectl status
+
+# =============================================================================
+# FIREFOX DOH CONFIGURATION
+# =============================================================================
+# about:config
+# network.trr.mode = 2 (prefer DoH, fallback to regular)
+# network.trr.mode = 3 (DoH only)
+# network.trr.uri = https://cloudflare-dns.com/dns-query
+
+# =============================================================================
+# WINDOWS DOH (Windows 11+)
+# =============================================================================
+# Settings → Network & Internet → Ethernet/Wi-Fi → DNS
+# Set DNS to: 1.1.1.1
+# DNS over HTTPS: On (automatic template)
+
+# PowerShell
+Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses "1.1.1.1"
+Set-DnsClientDohServerAddress -ServerAddress "1.1.1.1" -DohTemplate "https://cloudflare-dns.com/dns-query" -AllowFallbackToUdp $false</code></pre>
+        </div>
+      </section>
+
+      <!-- DNS Filtering -->
+      <section>
+        <h2 id="filtering">DNS Filtering & Response Policy Zones</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Config</span>
+            <span class="code-filename">BIND Response Policy Zone (RPZ)</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# RESPONSE POLICY ZONES (RPZ) - DNS FILTERING
+# =============================================================================
+
+# /etc/bind/named.conf.options
+options {
+    response-policy {
+        zone "rpz.local";
+        zone "malware-block.rpz" policy nxdomain;
+    };
+};
+
+# /etc/bind/named.conf.local
+zone "rpz.local" {
+    type master;
+    file "/etc/bind/zones/db.rpz.local";
+    allow-query { none; };
+};
+
+# /etc/bind/zones/db.rpz.local
+$TTL 1H
+@    SOA localhost. root.localhost. (
+         1    ; Serial
+         1H   ; Refresh
+         15M  ; Retry
+         1W   ; Expire
+         1D ) ; Minimum TTL
+
+     NS  localhost.
+
+; Block specific domain
+malware.com         CNAME   .    ; NXDOMAIN
+*.malware.com       CNAME   .    ; Block all subdomains
+
+; Redirect to walled garden
+blocked.com         A       10.0.0.100
+*.blocked.com       A       10.0.0.100
+
+; Block based on IP (if DNS returns this IP, block)
+32.100.0.0.10.rpz-ip    CNAME   .
+
+; Block by nameserver
+ns1.badnameserver.com.rpz-nsdname    CNAME   .
+
+; Passthrough (whitelist)
+allowed.com         CNAME   rpz-passthru.
+
+; =============================================================================
+# COMMERCIAL DNS FILTERING SERVICES
+# =============================================================================
+
+# Cisco Umbrella (OpenDNS)
+# Primary:   208.67.222.222
+# Secondary: 208.67.220.220
+
+# Cloudflare Malware Blocking
+# Primary:   1.1.1.2
+# Secondary: 1.0.0.2
+
+# Cloudflare Malware + Adult Content
+# Primary:   1.1.1.3
+# Secondary: 1.0.0.3
+
+# Quad9 (Malware blocking)
+# Primary:   9.9.9.9
+# Secondary: 149.112.112.112
+
+# CleanBrowsing (Family filter)
+# Primary:   185.228.168.168
+# Secondary: 185.228.169.168</code></pre>
+        </div>
+      </section>
+
+      <!-- Pi-hole -->
+      <section>
+        <h2 id="pihole">Pi-hole DNS Sinkhole</h2>
+        <p>
+          Pi-hole is a network-wide ad blocker that acts as a DNS sinkhole, 
+          blocking ads and tracking at the DNS level for all devices on your network.
+        </p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <span class="code-filename">Pi-hole Installation & Configuration</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# PI-HOLE INSTALLATION
+# =============================================================================
+
+# One-line install (review script first!)
+curl -sSL https://install.pi-hole.net | bash
+
+# Or manual install
+git clone --depth 1 https://github.com/pi-hole/pi-hole.git Pi-hole
+cd "Pi-hole/automated install/"
+sudo bash basic-install.sh
+
+# Set password for web interface
+pihole -a -p
+
+# =============================================================================
+# PI-HOLE CONFIGURATION
+# =============================================================================
+
+# /etc/pihole/pihole-FTL.conf
+PRIVACYLEVEL=0           # Show everything
+MAXDBDAYS=365            # Keep 1 year of data
+DBINTERVAL=1.0           # Update DB every minute
+MAXLOGAGE=24.0           # Log queries for 24 hours
+
+# /etc/pihole/setupVars.conf
+PIHOLE_INTERFACE=eth0
+IPV4_ADDRESS=192.168.1.10/24
+PIHOLE_DNS_1=1.1.1.1
+PIHOLE_DNS_2=1.0.0.1
+QUERY_LOGGING=true
+INSTALL_WEB_SERVER=true
+INSTALL_WEB_INTERFACE=true
+LIGHTTPD_ENABLED=true
+DNSSEC=true
+REV_SERVER=true
+REV_SERVER_CIDR=192.168.1.0/24
+REV_SERVER_TARGET=192.168.1.1
+REV_SERVER_DOMAIN=local
+
+# =============================================================================
+# PIHOLE CLI COMMANDS
+# =============================================================================
+
+# Status
+pihole status
+
+# Update gravity (blocklists)
+pihole -g
+
+# Update Pi-hole
+pihole -up
+
+# Query log
+pihole -t                # Tail log
+pihole -q example.com    # Query specific domain
+
+# Whitelist/Blacklist
+pihole -w example.com    # Whitelist
+pihole -b malware.com    # Blacklist
+pihole --wild malware.com # Wildcard blacklist
+
+# Disable/Enable
+pihole disable 5m        # Disable for 5 minutes
+pihole enable
+
+# Statistics
+pihole -c                # Chronometer (stats)
+
+# =============================================================================
+# RECOMMENDED BLOCKLISTS
+# =============================================================================
+
+# Add to /etc/pihole/adlists.list or via web interface
+
+# Default Pi-hole lists
+https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+
+# Malware domains
+https://urlhaus.abuse.ch/downloads/rpz/
+
+# Phishing
+https://phishing.army/download/phishing_army_blocklist.txt
+
+# Tracking
+https://v.firebog.net/hosts/Easyprivacy.txt
+
+# Ads
+https://v.firebog.net/hosts/AdguardDNS.txt</code></pre>
+        </div>
+      </section>
+
+      <!-- Hardening -->
+      <section>
+        <h2 id="hardening">DNS Server Hardening</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Config</span>
+            <span class="code-filename">BIND Hardening</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# BIND DNS SERVER HARDENING
+# =============================================================================
+
+options {
+    # Run in chroot
+    directory "/var/named";
+    
+    # Hide version
+    version "not disclosed";
+    hostname "not disclosed";
+    
+    # Disable recursion on authoritative servers
+    recursion no;               # For authoritative only
+    # recursion yes;            # For resolvers
+    # allow-recursion { internal; };
+    
+    # Disable zone transfers except to secondaries
+    allow-transfer { none; };
+    # allow-transfer { 192.168.1.2; };  # Secondary NS only
+    
+    # Limit query sources
+    allow-query { any; };       # For authoritative
+    # allow-query { internal; };  # For internal resolver
+    
+    # Rate limiting (RRL) - prevent amplification attacks
+    rate-limit {
+        responses-per-second 10;
+        window 5;
+        slip 2;
+        ipv4-prefix-length 24;
+        ipv6-prefix-length 56;
+    };
+    
+    # DNSSEC
+    dnssec-validation auto;
+    
+    # Disable unused features
+    allow-update { none; };
+    allow-notify { none; };
+    
+    # Logging
+    querylog yes;
+    
+    # Randomize source port and query ID
+    use-v4-udp-ports { range 10000 60000; };
+    use-v6-udp-ports { range 10000 60000; };
+    
+    # Cookie support (DNS cookies for spoofing prevention)
+    send-cookie yes;
+    
+    # Minimize responses
+    minimal-responses yes;
+    
+    # Fetch glue even if not in-bailiwick
+    fetch-glue no;
+};
+
+# Access control lists
+acl "internal" {
+    10.0.0.0/8;
+    192.168.0.0/16;
+    172.16.0.0/12;
+    localhost;
+};
+
+acl "secondaries" {
+    192.168.1.2;
+    192.168.1.3;
+};
+
+# Logging configuration
+logging {
+    channel security_log {
+        file "/var/log/named/security.log" versions 5 size 10m;
+        severity info;
+        print-time yes;
+        print-severity yes;
+        print-category yes;
+    };
+    
+    channel query_log {
+        file "/var/log/named/query.log" versions 5 size 100m;
+        severity info;
+        print-time yes;
+    };
+    
+    category security { security_log; };
+    category queries { query_log; };
+};</code></pre>
+        </div>
+      </section>
+
+      <!-- Monitoring -->
+      <section>
+        <h2 id="monitoring">DNS Monitoring & Threat Detection</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">Bash</span>
+            <span class="code-filename">DNS Monitoring Commands</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# DNS MONITORING & ANALYSIS
+# =============================================================================
+
+# Real-time query logging
+tcpdump -i eth0 -n port 53
+
+# Detailed DNS capture
+tcpdump -i eth0 -n -s0 port 53 -w dns_capture.pcap
+
+# Parse BIND query log
+tail -f /var/log/named/query.log
+
+# Look for DNS tunneling indicators
+# - Unusually long domain names
+# - High query volume to single domain
+# - TXT record queries
+# - Encoded/random subdomain names
+
+grep -E "query.{50,}" /var/log/named/query.log
+awk '{print $4}' /var/log/named/query.log | sort | uniq -c | sort -rn | head
+
+# DNS statistics (BIND)
+rndc stats
+cat /var/named/data/named_stats.txt
+
+# =============================================================================
+# DETECT DNS TUNNELING
+# =============================================================================
+
+# Look for long domain names (possible tunneling)
+cat /var/log/named/query.log | \
+  awk -F'(' '{print $2}' | \
+  awk -F')' '{print length($1), $1}' | \
+  sort -rn | head -20
+
+# High entropy domain detection
+# Tunneled data often has random-looking subdomains
+# Example malicious: a8f3b2c1d4e5.evil.com
+
+# Find domains with many TXT queries (common for tunneling)
+grep "TXT" /var/log/named/query.log | \
+  awk '{print $4}' | sort | uniq -c | sort -rn | head
+
+# =============================================================================
+# SPLUNK/SIEM QUERIES FOR DNS
+# =============================================================================
+
+# High volume DNS to single domain (possible C2)
+# index=dns | stats count by query | where count > 1000
+
+# Long domain names (tunneling)
+# index=dns | eval length=len(query) | where length > 50
+
+# TXT record queries
+# index=dns query_type=TXT | stats count by query
+
+# DNS to non-standard ports
+# index=network dest_port!=53 app=dns
+
+# NXDOMAIN flood (DGA malware)
+# index=dns reply_code=NXDOMAIN | stats count by src_ip | where count > 100</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-divider"><span>Related Guides</span></div>
+        <div class="card-grid">
+          <a href="network-fundamentals.html" class="nav-card card">
+            <h4>Network Fundamentals →</h4>
+            <p>DNS basics and protocol overview.</p>
+          </a>
+          <a href="troubleshooting.html" class="nav-card card">
+            <h4>Troubleshooting →</h4>
+            <p>DNS diagnostic commands and techniques.</p>
+          </a>
+          <a href="ids-ips.html" class="nav-card card">
+            <h4>IDS/IPS →</h4>
+            <p>Detect DNS-based attacks with IDS.</p>
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <p>Network Security & Infrastructure Guide</p>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

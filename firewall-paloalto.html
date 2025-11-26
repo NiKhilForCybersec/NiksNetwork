@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Palo Alto Networks Firewall Guide - App-ID, User-ID, GlobalProtect, Threat Prevention, and CLI configurations">
+  <title>Palo Alto Networks | NetSec Guide</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      NetSec Guide
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="network-fundamentals.html">Fundamentals</a></li>
+      <li><a href="forward-proxy.html">Proxies</a></li>
+      <li><a href="firewall-concepts.html" class="active">Firewalls</a></li>
+      <li><a href="troubleshooting.html">Troubleshooting</a></li>
+    </ul>
+    <button class="menu-toggle" aria-label="Toggle menu">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+  </nav>
+
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">On This Page</div>
+      <ul class="sidebar-nav">
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#app-id">App-ID</a></li>
+        <li><a href="#user-id">User-ID</a></li>
+        <li><a href="#security-policy">Security Policy</a></li>
+        <li><a href="#nat-policy">NAT Policy</a></li>
+        <li><a href="#security-profiles">Security Profiles</a></li>
+        <li><a href="#globalprotect">GlobalProtect VPN</a></li>
+        <li><a href="#cli">CLI Commands</a></li>
+        <li><a href="#troubleshooting">Troubleshooting</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Other Firewalls</div>
+      <ul class="sidebar-nav">
+        <li><a href="firewall-concepts.html">Firewall Concepts</a></li>
+        <li><a href="firewall-fortinet.html">FortiGate</a></li>
+        <li><a href="firewall-cisco.html">Cisco ASA/FTD</a></li>
+        <li><a href="firewall-opensource.html">Open Source</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="content-wrapper">
+      <nav class="breadcrumb">
+        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item"><a href="firewall-concepts.html">Firewalls</a></span>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item active">Palo Alto Networks</span>
+      </nav>
+
+      <h1>Palo Alto Networks Firewall</h1>
+      <p class="hero-subtitle">
+        Complete guide to Palo Alto Networks next-generation firewalls including App-ID, 
+        User-ID, Content-ID, GlobalProtect, and enterprise configurations.
+      </p>
+
+      <section>
+        <h2 id="overview">Overview</h2>
+        <p>
+          Palo Alto Networks pioneered the next-generation firewall (NGFW) market with application-aware 
+          security. Their firewalls use a single-pass architecture to inspect traffic once for all threats, 
+          providing superior performance while enabling application, user, and content visibility.
+        </p>
+
+        <div class="alert alert-info">
+          <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <div class="alert-content">
+            <div class="alert-title">Key Technologies</div>
+            <p><strong>App-ID:</strong> Identify applications regardless of port/protocol<br>
+            <strong>User-ID:</strong> Map IP addresses to user identities<br>
+            <strong>Content-ID:</strong> Inspect content for threats and data</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="architecture">Single-Pass Architecture</h2>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Palo Alto Single-Pass Parallel Processing (SP3)
+          </div>
+          <pre>
+                                    INCOMING PACKET
+                                          │
+                                          ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           SINGLE-PASS ARCHITECTURE                              │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│    ┌─────────────────────────────────────────────────────────────────────┐     │
+│    │                     NETWORKING & MANAGEMENT                         │     │
+│    │                                                                     │     │
+│    │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐           │     │
+│    │  │ Routing  │  │   NAT    │  │   QoS    │  │  Zones   │           │     │
+│    │  └──────────┘  └──────────┘  └──────────┘  └──────────┘           │     │
+│    └─────────────────────────────────────────────────────────────────────┘     │
+│                                      │                                         │
+│                                      ▼                                         │
+│    ┌─────────────────────────────────────────────────────────────────────┐     │
+│    │                        APP-ID ENGINE                                │     │
+│    │                                                                     │     │
+│    │  ┌──────────────────────────────────────────────────────────────┐  │     │
+│    │  │ 1. Protocol Detection (HTTP, SSL, SSH, etc.)                 │  │     │
+│    │  │ 2. Protocol Decoding (extract application data)              │  │     │
+│    │  │ 3. Application Signatures (2500+ apps identified)            │  │     │
+│    │  │ 4. Heuristics (behavioral analysis for unknown apps)         │  │     │
+│    │  └──────────────────────────────────────────────────────────────┘  │     │
+│    └─────────────────────────────────────────────────────────────────────┘     │
+│                                      │                                         │
+│                                      ▼                                         │
+│    ┌─────────────────────────────────────────────────────────────────────┐     │
+│    │                    CONTENT-ID ENGINE (Parallel)                     │     │
+│    │                                                                     │     │
+│    │  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐       │     │
+│    │  │  Threat    │ │    URL     │ │    Data    │ │   File     │       │     │
+│    │  │ Prevention │ │ Filtering  │ │ Filtering  │ │ Blocking   │       │     │
+│    │  │            │ │            │ │   (DLP)    │ │            │       │     │
+│    │  │ • IPS      │ │ • 80+ cats │ │ • SSN/CC   │ │ • File type│       │     │
+│    │  │ • AV       │ │ • Custom   │ │ • Custom   │ │ • WildFire │       │     │
+│    │  │ • Spyware  │ │ • Cloud    │ │ • Patterns │ │ • Sandbox  │       │     │
+│    │  └────────────┘ └────────────┘ └────────────┘ └────────────┘       │     │
+│    └─────────────────────────────────────────────────────────────────────┘     │
+│                                      │                                         │
+│                                      ▼                                         │
+│                              POLICY DECISION                                   │
+│                              (Allow / Deny)                                    │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+                                          │
+                                          ▼
+                                   FORWARDED / DROPPED
+          </pre>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="app-id">App-ID (Application Identification)</h2>
+        <p>
+          App-ID identifies applications on the network regardless of port, protocol, SSL encryption, 
+          or evasive tactics. It uses multiple techniques to determine what application is generating traffic.
+        </p>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            App-ID Classification Process
+          </div>
+          <pre>
+                              INCOMING SESSION
+                                    │
+                                    ▼
+              ┌─────────────────────────────────────────┐
+              │   1. APPLICATION PROTOCOL DETECTION     │
+              │                                         │
+              │   Identify base protocol:               │
+              │   HTTP, SSL, SSH, FTP, DNS, etc.       │
+              └─────────────────────┬───────────────────┘
+                                    │
+                                    ▼
+              ┌─────────────────────────────────────────┐
+              │   2. APPLICATION PROTOCOL DECODING      │
+              │                                         │
+              │   Decode protocol to find app data:     │
+              │   HTTP headers, SSL certificates,       │
+              │   DNS queries, etc.                     │
+              └─────────────────────┬───────────────────┘
+                                    │
+                                    ▼
+              ┌─────────────────────────────────────────┐
+              │   3. APPLICATION SIGNATURES             │
+              │                                         │
+              │   Match against 2500+ signatures:       │
+              │   facebook-base, youtube-streaming,     │
+              │   office365-enterprise, etc.            │
+              └─────────────────────┬───────────────────┘
+                                    │
+                                    ▼
+              ┌─────────────────────────────────────────┐
+              │   4. HEURISTICS                         │
+              │                                         │
+              │   Behavioral analysis for unknown:      │
+              │   unknown-tcp, unknown-udp,             │
+              │   encrypted-unknown                     │
+              └─────────────────────┬───────────────────┘
+                                    │
+                                    ▼
+                        APPLICATION IDENTIFIED
+                        (e.g., "facebook-chat")
+
+
+EXAMPLE: Facebook over HTTPS (port 443)
+═══════════════════════════════════════════════════════════════════════════════
+
+  Traditional Firewall:    Sees TCP/443 → Allows as "HTTPS"
+  
+  Palo Alto with App-ID:   
+    1. Sees TCP/443 → SSL protocol
+    2. Decodes SSL → Sees SNI: facebook.com
+    3. After handshake, inspects HTTP headers
+    4. Matches signature → "facebook-base"
+    5. Further inspection → "facebook-chat" (specific function)
+    
+  Result: Can block facebook-chat while allowing facebook-base
+          </pre>
+        </div>
+
+        <h3>Common Application Categories</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Examples</th>
+                <th>Risk Level</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>business-systems</strong></td>
+                <td>salesforce, workday, servicenow</td>
+                <td><span class="badge badge-success">Low</span></td>
+              </tr>
+              <tr>
+                <td><strong>collaboration</strong></td>
+                <td>ms-teams, zoom, slack, webex</td>
+                <td><span class="badge badge-success">Low</span></td>
+              </tr>
+              <tr>
+                <td><strong>social-networking</strong></td>
+                <td>facebook, linkedin, twitter</td>
+                <td><span class="badge badge-warning">Medium</span></td>
+              </tr>
+              <tr>
+                <td><strong>file-sharing</strong></td>
+                <td>dropbox, google-drive, bittorrent</td>
+                <td><span class="badge badge-warning">Medium</span></td>
+              </tr>
+              <tr>
+                <td><strong>proxy</strong></td>
+                <td>ultrasurf, tor, psiphon</td>
+                <td><span class="badge badge-danger">High</span></td>
+              </tr>
+              <tr>
+                <td><strong>remote-access</strong></td>
+                <td>teamviewer, anydesk, logmein</td>
+                <td><span class="badge badge-danger">High</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="user-id">User-ID (User Identification)</h2>
+        <p>
+          User-ID maps IP addresses to usernames, enabling user-based security policies 
+          instead of IP-based rules.
+        </p>
+
+        <div class="ascii-diagram">
+          <div class="ascii-diagram-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            User-ID Sources
+          </div>
+          <pre>
+                         USER-ID MAPPING SOURCES
+                                  │
+        ┌─────────────────────────┼─────────────────────────┐
+        │                         │                         │
+        ▼                         ▼                         ▼
+┌───────────────┐       ┌───────────────┐       ┌───────────────┐
+│  Server       │       │   Network     │       │    Client     │
+│  Monitoring   │       │   Integration │       │    Probing    │
+├───────────────┤       ├───────────────┤       ├───────────────┤
+│               │       │               │       │               │
+│ • AD Security │       │ • Syslog      │       │ • WMI Probing │
+│   Event Logs  │       │   (from       │       │   (query      │
+│   (4624,4768) │       │   proxies,    │       │   endpoint    │
+│               │       │   VPN, WiFi)  │       │   directly)   │
+│ • Exchange    │       │               │       │               │
+│   Server      │       │ • XML API     │       │ • NetBIOS     │
+│               │       │   (custom)    │       │   Probing     │
+│ • Novell      │       │               │       │               │
+│   eDirectory  │       │ • GlobalProt  │       │               │
+│               │       │   (VPN users) │       │               │
+└───────────────┘       └───────────────┘       └───────────────┘
+        │                         │                         │
+        └─────────────────────────┼─────────────────────────┘
+                                  │
+                                  ▼
+                    ┌───────────────────────────┐
+                    │     USER-ID AGENT         │
+                    │  (On DC or Firewall)      │
+                    │                           │
+                    │  IP Address → Username    │
+                    │  192.168.1.50 → CORP\jsmith
+                    │  192.168.1.51 → CORP\mjones
+                    │  192.168.1.52 → CORP\admin
+                    └───────────────────────────┘
+                                  │
+                                  ▼
+                    ┌───────────────────────────┐
+                    │     FIREWALL POLICY       │
+                    │                           │
+                    │  IF user = "IT-Admins"    │
+                    │  THEN allow SSH to servers│
+                    │                           │
+                    │  IF user = "Sales"        │
+                    │  THEN allow Salesforce    │
+                    │  DENY remote-access apps  │
+                    └───────────────────────────┘
+          </pre>
+        </div>
+
+        <h3>User-ID Agent Configuration</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">CLI</span>
+            <span class="code-filename">User-ID Agent Setup</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># Configure User-ID Agent on firewall
+configure
+
+# Enable User-ID on a zone
+set zone trust enable-user-identification yes
+
+# Configure AD server monitoring
+set user-id-agent ad-server "DC01" host 192.168.1.10
+set user-id-agent ad-server "DC01" port 389
+set user-id-agent ad-server "DC01" base-dn "DC=company,DC=com"
+set user-id-agent ad-server "DC01" bind-dn "CN=svc-palo,OU=Service,DC=company,DC=com"
+set user-id-agent ad-server "DC01" bind-password "SecurePassword123"
+set user-id-agent ad-server "DC01" server-type "active-directory"
+
+# Configure WMI probing
+set user-id-agent wmi-probe enable yes
+set user-id-agent wmi-probe interval 20
+
+# Define group mappings
+set user-id-agent ldap-server "LDAP01" host 192.168.1.10
+set user-id-agent ldap-server "LDAP01" port 389
+set user-id-agent ldap-server "LDAP01" base-dn "DC=company,DC=com"
+set user-id-agent ldap-server "LDAP01" group-mapping admin-role "CN=IT-Admins,OU=Groups,DC=company,DC=com"
+
+commit</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="security-policy">Security Policy</h2>
+        <p>
+          Security policies control traffic flow between zones based on source, destination, 
+          application, user, and service criteria.
+        </p>
+
+        <h3>Policy Structure</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">CLI</span>
+            <span class="code-filename">Security Policy Examples</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# PALO ALTO SECURITY POLICY CONFIGURATION
+# =============================================================================
+
+configure
+
+# -----------------------------------------------------------------------------
+# Allow IT Admins SSH to servers
+# -----------------------------------------------------------------------------
+set rulebase security rules "Allow-IT-SSH" from trust
+set rulebase security rules "Allow-IT-SSH" to dmz
+set rulebase security rules "Allow-IT-SSH" source any
+set rulebase security rules "Allow-IT-SSH" source-user "CORP\IT-Admins"
+set rulebase security rules "Allow-IT-SSH" destination "Server-Group"
+set rulebase security rules "Allow-IT-SSH" application ssh
+set rulebase security rules "Allow-IT-SSH" service application-default
+set rulebase security rules "Allow-IT-SSH" action allow
+set rulebase security rules "Allow-IT-SSH" log-start yes
+set rulebase security rules "Allow-IT-SSH" log-end yes
+
+# -----------------------------------------------------------------------------
+# Allow web browsing for all users
+# -----------------------------------------------------------------------------
+set rulebase security rules "Allow-Web-Browsing" from trust
+set rulebase security rules "Allow-Web-Browsing" to untrust
+set rulebase security rules "Allow-Web-Browsing" source any
+set rulebase security rules "Allow-Web-Browsing" destination any
+set rulebase security rules "Allow-Web-Browsing" application [ web-browsing ssl ]
+set rulebase security rules "Allow-Web-Browsing" service application-default
+set rulebase security rules "Allow-Web-Browsing" action allow
+set rulebase security rules "Allow-Web-Browsing" profile-setting profiles \
+    virus "default" spyware "strict" vulnerability "strict" \
+    url-filtering "Corporate-URL-Profile" file-blocking "basic file blocking"
+
+# -----------------------------------------------------------------------------
+# Allow Microsoft 365
+# -----------------------------------------------------------------------------
+set rulebase security rules "Allow-M365" from trust
+set rulebase security rules "Allow-M365" to untrust
+set rulebase security rules "Allow-M365" source any
+set rulebase security rules "Allow-M365" destination any
+set rulebase security rules "Allow-M365" application [ ms-office365 ms-teams outlook-web-online sharepoint-online ]
+set rulebase security rules "Allow-M365" service application-default
+set rulebase security rules "Allow-M365" action allow
+
+# -----------------------------------------------------------------------------
+# Block high-risk applications
+# -----------------------------------------------------------------------------
+set rulebase security rules "Block-HighRisk-Apps" from trust
+set rulebase security rules "Block-HighRisk-Apps" to untrust
+set rulebase security rules "Block-HighRisk-Apps" source any
+set rulebase security rules "Block-HighRisk-Apps" destination any
+set rulebase security rules "Block-HighRisk-Apps" application [ bittorrent tor ultrasurf psiphon ]
+set rulebase security rules "Block-HighRisk-Apps" service any
+set rulebase security rules "Block-HighRisk-Apps" action deny
+set rulebase security rules "Block-HighRisk-Apps" log-end yes
+
+# -----------------------------------------------------------------------------
+# Block social media (except LinkedIn for Sales)
+# -----------------------------------------------------------------------------
+set rulebase security rules "Allow-LinkedIn-Sales" from trust
+set rulebase security rules "Allow-LinkedIn-Sales" to untrust
+set rulebase security rules "Allow-LinkedIn-Sales" source any
+set rulebase security rules "Allow-LinkedIn-Sales" source-user "CORP\Sales"
+set rulebase security rules "Allow-LinkedIn-Sales" destination any
+set rulebase security rules "Allow-LinkedIn-Sales" application linkedin
+set rulebase security rules "Allow-LinkedIn-Sales" action allow
+
+set rulebase security rules "Block-Social-Media" from trust
+set rulebase security rules "Block-Social-Media" to untrust
+set rulebase security rules "Block-Social-Media" source any
+set rulebase security rules "Block-Social-Media" destination any
+set rulebase security rules "Block-Social-Media" application [ facebook twitter instagram tiktok ]
+set rulebase security rules "Block-Social-Media" action deny
+set rulebase security rules "Block-Social-Media" log-end yes
+
+# -----------------------------------------------------------------------------
+# Inbound rule - Allow HTTPS to web servers
+# -----------------------------------------------------------------------------
+set rulebase security rules "Allow-Inbound-HTTPS" from untrust
+set rulebase security rules "Allow-Inbound-HTTPS" to dmz
+set rulebase security rules "Allow-Inbound-HTTPS" source any
+set rulebase security rules "Allow-Inbound-HTTPS" destination "WebServer-Group"
+set rulebase security rules "Allow-Inbound-HTTPS" application [ web-browsing ssl ]
+set rulebase security rules "Allow-Inbound-HTTPS" service [ service-http service-https ]
+set rulebase security rules "Allow-Inbound-HTTPS" action allow
+set rulebase security rules "Allow-Inbound-HTTPS" profile-setting profiles \
+    virus "strict" spyware "strict" vulnerability "strict"
+
+# -----------------------------------------------------------------------------
+# Default deny rule (should be last)
+# -----------------------------------------------------------------------------
+set rulebase security rules "Deny-All" from any
+set rulebase security rules "Deny-All" to any
+set rulebase security rules "Deny-All" source any
+set rulebase security rules "Deny-All" destination any
+set rulebase security rules "Deny-All" application any
+set rulebase security rules "Deny-All" service any
+set rulebase security rules "Deny-All" action deny
+set rulebase security rules "Deny-All" log-end yes
+
+commit</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="nat-policy">NAT Policy</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">CLI</span>
+            <span class="code-filename">NAT Policy Examples</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# NAT POLICY CONFIGURATION
+# =============================================================================
+
+configure
+
+# -----------------------------------------------------------------------------
+# Source NAT - Hide internal users behind public IP (outbound)
+# -----------------------------------------------------------------------------
+set rulebase nat rules "Outbound-SNAT" from trust
+set rulebase nat rules "Outbound-SNAT" to untrust
+set rulebase nat rules "Outbound-SNAT" source "Internal-Networks"
+set rulebase nat rules "Outbound-SNAT" destination any
+set rulebase nat rules "Outbound-SNAT" service any
+set rulebase nat rules "Outbound-SNAT" source-translation dynamic-ip-and-port \
+    interface-address interface ethernet1/1
+
+# -----------------------------------------------------------------------------
+# Destination NAT - Publish web server (inbound)
+# -----------------------------------------------------------------------------
+set rulebase nat rules "Inbound-WebServer-DNAT" from untrust
+set rulebase nat rules "Inbound-WebServer-DNAT" to untrust
+set rulebase nat rules "Inbound-WebServer-DNAT" source any
+set rulebase nat rules "Inbound-WebServer-DNAT" destination "Public-WebServer-IP"
+set rulebase nat rules "Inbound-WebServer-DNAT" service service-https
+set rulebase nat rules "Inbound-WebServer-DNAT" destination-translation \
+    translated-address 192.168.10.100
+
+# -----------------------------------------------------------------------------
+# Bidirectional NAT (1:1 NAT for server)
+# -----------------------------------------------------------------------------
+set rulebase nat rules "Bidir-MailServer" from untrust
+set rulebase nat rules "Bidir-MailServer" to untrust
+set rulebase nat rules "Bidir-MailServer" source any
+set rulebase nat rules "Bidir-MailServer" destination "Public-Mail-IP"
+set rulebase nat rules "Bidir-MailServer" service any
+set rulebase nat rules "Bidir-MailServer" destination-translation \
+    translated-address 192.168.10.25
+set rulebase nat rules "Bidir-MailServer" bi-directional yes
+
+commit</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="security-profiles">Security Profiles</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">CLI</span>
+            <span class="code-filename">Security Profile Configuration</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# SECURITY PROFILES
+# =============================================================================
+
+configure
+
+# -----------------------------------------------------------------------------
+# Antivirus Profile
+# -----------------------------------------------------------------------------
+set profiles virus "Strict-AV" decoder ftp action reset-both
+set profiles virus "Strict-AV" decoder http action reset-both
+set profiles virus "Strict-AV" decoder smtp action reset-both
+set profiles virus "Strict-AV" decoder smb action reset-both
+set profiles virus "Strict-AV" decoder imap action reset-both
+set profiles virus "Strict-AV" decoder pop3 action reset-both
+set profiles virus "Strict-AV" mlav-engine-filebased-enabled yes
+
+# -----------------------------------------------------------------------------
+# Anti-Spyware Profile
+# -----------------------------------------------------------------------------
+set profiles spyware "Strict-Spyware" botnet-domains action block
+set profiles spyware "Strict-Spyware" botnet-domains packet-capture single-packet
+set profiles spyware "Strict-Spyware" rules "Block-Critical" severity critical action reset-both
+set profiles spyware "Strict-Spyware" rules "Block-High" severity high action reset-both
+set profiles spyware "Strict-Spyware" rules "Alert-Medium" severity medium action alert
+set profiles spyware "Strict-Spyware" dns-security action sinkhole
+
+# -----------------------------------------------------------------------------
+# Vulnerability Protection Profile
+# -----------------------------------------------------------------------------
+set profiles vulnerability "Strict-Vuln" rules "Block-Critical" severity critical action reset-both
+set profiles vulnerability "Strict-Vuln" rules "Block-High" severity high action reset-both
+set profiles vulnerability "Strict-Vuln" rules "Block-Medium" severity medium action reset-both
+set profiles vulnerability "Strict-Vuln" rules "Alert-Low" severity low action alert
+
+# -----------------------------------------------------------------------------
+# URL Filtering Profile
+# -----------------------------------------------------------------------------
+set profiles url-filtering "Corporate-URL" action block category adult
+set profiles url-filtering "Corporate-URL" action block category gambling
+set profiles url-filtering "Corporate-URL" action block category hacking
+set profiles url-filtering "Corporate-URL" action block category malware
+set profiles url-filtering "Corporate-URL" action block category phishing
+set profiles url-filtering "Corporate-URL" action block category proxy-avoidance-and-anonymizers
+set profiles url-filtering "Corporate-URL" action alert category social-networking
+set profiles url-filtering "Corporate-URL" action continue category streaming-media
+set profiles url-filtering "Corporate-URL" credential-enforcement mode ip-user
+set profiles url-filtering "Corporate-URL" safe-search-enforcement yes
+
+# -----------------------------------------------------------------------------
+# File Blocking Profile
+# -----------------------------------------------------------------------------
+set profiles file-blocking "Strict-FileBlock" rules "Block-Executables" \
+    application any file-type [ exe dll msi bat cmd ps1 vbs ] direction both action block
+set profiles file-blocking "Strict-FileBlock" rules "Block-Archives" \
+    application any file-type [ 7z rar tar ] direction upload action alert
+
+# -----------------------------------------------------------------------------
+# WildFire Analysis Profile
+# -----------------------------------------------------------------------------
+set profiles wildfire-analysis "Forward-All" rules "Forward-All" \
+    application any file-type any direction both analysis public-cloud
+
+# -----------------------------------------------------------------------------
+# Security Profile Group
+# -----------------------------------------------------------------------------
+set profile-group "Strict-Security" virus "Strict-AV"
+set profile-group "Strict-Security" spyware "Strict-Spyware"
+set profile-group "Strict-Security" vulnerability "Strict-Vuln"
+set profile-group "Strict-Security" url-filtering "Corporate-URL"
+set profile-group "Strict-Security" file-blocking "Strict-FileBlock"
+set profile-group "Strict-Security" wildfire-analysis "Forward-All"
+
+commit</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="globalprotect">GlobalProtect VPN</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">CLI</span>
+            <span class="code-filename">GlobalProtect Configuration</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# GLOBALPROTECT VPN CONFIGURATION
+# =============================================================================
+
+configure
+
+# -----------------------------------------------------------------------------
+# SSL/TLS Service Profile
+# -----------------------------------------------------------------------------
+set shared ssl-tls-service-profile "GP-SSL-Profile" protocol-settings min-version tls1-2
+set shared ssl-tls-service-profile "GP-SSL-Profile" certificate "GP-Certificate"
+
+# -----------------------------------------------------------------------------
+# GlobalProtect Portal
+# -----------------------------------------------------------------------------
+set network global-protect global-protect-portal "GP-Portal" portal-config \
+    local-address interface ethernet1/1 ip 203.0.113.1
+
+set network global-protect global-protect-portal "GP-Portal" portal-config \
+    certificate "GP-Certificate"
+
+set network global-protect global-protect-portal "GP-Portal" portal-config \
+    authentication-profile "LDAP-Auth"
+
+# Client configuration
+set network global-protect global-protect-portal "GP-Portal" client-config configs \
+    "Remote-Users" gateways external-gateways "GP-Gateway" \
+    address 203.0.113.1 priority 1
+
+set network global-protect global-protect-portal "GP-Portal" client-config configs \
+    "Remote-Users" authentication-override generate-cookie yes cookie-lifetime 24:00
+
+# -----------------------------------------------------------------------------
+# GlobalProtect Gateway
+# -----------------------------------------------------------------------------
+set network global-protect global-protect-gateway "GP-Gateway" \
+    local-address interface ethernet1/1 ip 203.0.113.1
+
+set network global-protect global-protect-gateway "GP-Gateway" \
+    certificate "GP-Certificate"
+
+set network global-protect global-protect-gateway "GP-Gateway" \
+    authentication-profile "LDAP-Auth"
+
+# Tunnel configuration
+set network global-protect global-protect-gateway "GP-Gateway" \
+    tunnel-interface tunnel.1
+
+set network global-protect global-protect-gateway "GP-Gateway" \
+    client-config tunnel-config ip-pool "GP-IP-Pool"
+
+set network global-protect global-protect-gateway "GP-Gateway" \
+    client-config tunnel-config split-tunnel access-route 10.0.0.0/8
+
+set network global-protect global-protect-gateway "GP-Gateway" \
+    client-config tunnel-config dns-server 10.1.1.10 10.1.1.11
+
+# -----------------------------------------------------------------------------
+# IP Pool for VPN clients
+# -----------------------------------------------------------------------------
+set address "GP-IP-Pool" ip-range 10.100.1.1-10.100.1.254
+
+# -----------------------------------------------------------------------------
+# Security zone for VPN
+# -----------------------------------------------------------------------------
+set zone vpn network layer3 tunnel.1
+set zone vpn enable-user-identification yes
+
+# -----------------------------------------------------------------------------
+# Security policy for VPN users
+# -----------------------------------------------------------------------------
+set rulebase security rules "VPN-to-Internal" from vpn to trust \
+    source any destination any application any service any action allow
+
+commit</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="cli">Essential CLI Commands</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">CLI</span>
+            <span class="code-filename">Operational Commands</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+          <pre><code># =============================================================================
+# PALO ALTO CLI REFERENCE
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# System Information
+# -----------------------------------------------------------------------------
+show system info                     # System details, serial, version
+show system resources                # CPU, memory usage
+show system state                    # Detailed system state
+show system disk-space               # Disk usage
+show system environmentals           # Hardware sensors
+
+# -----------------------------------------------------------------------------
+# Session Management
+# -----------------------------------------------------------------------------
+show session all                     # All active sessions
+show session all filter source 192.168.1.100  # Filter by source
+show session all filter destination 8.8.8.8   # Filter by destination
+show session all filter application facebook  # Filter by app
+show session id <session-id>         # Detailed session info
+clear session all                    # Clear all sessions (careful!)
+
+# -----------------------------------------------------------------------------
+# Traffic/Threat Logs
+# -----------------------------------------------------------------------------
+show log traffic                     # Traffic logs
+show log threat                      # Threat logs
+show log url                         # URL filtering logs
+show log userid                      # User-ID logs
+tail follow yes mp-log ms.log        # Follow management plane log
+
+# -----------------------------------------------------------------------------
+# Policy and Configuration
+# -----------------------------------------------------------------------------
+show running security-policy         # Active security rules
+show running nat-policy              # Active NAT rules
+show config running                  # Running configuration
+show config diff                     # Uncommitted changes
+
+# -----------------------------------------------------------------------------
+# Network
+# -----------------------------------------------------------------------------
+show interface all                   # Interface status
+show interface ethernet1/1           # Specific interface
+show routing route                   # Routing table
+show arp all                         # ARP table
+show neighbor all                    # IPv6 neighbors
+ping source 10.1.1.1 host 8.8.8.8    # Ping from specific source
+traceroute host 8.8.8.8              # Traceroute
+
+# -----------------------------------------------------------------------------
+# High Availability
+# -----------------------------------------------------------------------------
+show high-availability all           # HA status
+show high-availability state         # HA state (active/passive)
+request high-availability state suspend  # Suspend HA node
+request high-availability sync-to-remote running-config  # Sync config
+
+# -----------------------------------------------------------------------------
+# User-ID
+# -----------------------------------------------------------------------------
+show user ip-user-mapping all        # IP to user mappings
+show user group-mapping group all    # Group memberships
+show user server-monitor status      # User-ID agent status
+
+# -----------------------------------------------------------------------------
+# App-ID
+# -----------------------------------------------------------------------------
+show application status              # App-ID signature status
+show application "facebook"          # App details
+
+# -----------------------------------------------------------------------------
+# GlobalProtect
+# -----------------------------------------------------------------------------
+show global-protect-gateway current-user  # Connected VPN users
+show global-protect-gateway statistics    # Gateway stats
+test global-protect-gateway gateway-config  # Test gateway config
+
+# -----------------------------------------------------------------------------
+# Troubleshooting
+# -----------------------------------------------------------------------------
+debug dataplane packet-diag set filter source 192.168.1.100
+debug dataplane packet-diag set filter destination 8.8.8.8
+debug dataplane packet-diag set capture stage receive
+debug dataplane packet-diag set capture stage firewall
+debug dataplane packet-diag set capture stage transmit
+debug dataplane packet-diag aggregate-logs yes
+debug dataplane packet-diag show setting  # Show capture settings
+debug dataplane packet-diag clear all     # Clear captures
+
+# Test policy match
+test security-policy-match source 192.168.1.100 destination 8.8.8.8 \
+    destination-port 443 protocol 6 application ssl
+
+# Test NAT policy
+test nat-policy-match source 192.168.1.100 destination 8.8.8.8 \
+    destination-port 443 protocol 6
+
+# -----------------------------------------------------------------------------
+# Configuration Management
+# -----------------------------------------------------------------------------
+configure                            # Enter configuration mode
+commit                               # Apply changes
+commit force                         # Force commit
+commit partial admin <username>      # Commit specific admin changes
+rollback to previous                 # Rollback to previous config
+save config to <filename>            # Save config to file
+load config from <filename>          # Load config from file
+export configuration                 # Export full config</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="troubleshooting">Troubleshooting</h2>
+
+        <div class="accordion">
+          <div class="accordion-item">
+            <button class="accordion-header">
+              Traffic Not Passing Through Firewall
+              <svg class="accordion-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion-body">
+              <div class="code-block">
+                <div class="code-header">
+                  <span class="code-lang">CLI</span>
+                  <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code># Check if there's a matching security rule
+test security-policy-match source 192.168.1.100 destination 8.8.8.8 \
+    destination-port 443 protocol 6
+
+# Check session table
+show session all filter source 192.168.1.100
+
+# Check traffic logs for denies
+show log traffic direction equal backward action equal deny
+
+# Verify NAT translation
+test nat-policy-match source 192.168.1.100 destination 8.8.8.8 \
+    destination-port 443 protocol 6
+
+# Check routing
+show routing fib virtual-router default | match 8.8.8.8
+
+# Packet capture
+debug dataplane packet-diag set filter source 192.168.1.100
+debug dataplane packet-diag set capture stage receive
+debug dataplane packet-diag show setting</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header">
+              Application Not Identified Correctly
+              <svg class="accordion-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion-body">
+              <div class="code-block">
+                <div class="code-header">
+                  <span class="code-lang">CLI</span>
+                  <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code># Check application signature version
+show application status
+
+# View session with App-ID info
+show session all filter application incomplete
+show session id <id>
+
+# Enable App-ID debug
+debug dataplane packet-diag set filter application name
+debug dataplane packet-diag set log feature appid all
+
+# Check content update status
+request content upgrade check
+
+# Force content update
+request content upgrade download latest
+request content upgrade install version latest</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header">
+              User-ID Not Working
+              <svg class="accordion-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion-body">
+              <div class="code-block">
+                <div class="code-header">
+                  <span class="code-lang">CLI</span>
+                  <button class="copy-btn">Copy</button>
+                </div>
+                <pre><code># Check User-ID agent status
+show user server-monitor state all
+
+# Check IP-to-user mappings
+show user ip-user-mapping all
+show user ip-user-mapping ip 192.168.1.100
+
+# Check group mappings
+show user group-mapping state all
+show user group list
+
+# Test LDAP connection
+test authentication authentication-profile "LDAP-Auth" \
+    username testuser password testpass
+
+# Debug User-ID
+debug user-id log-ip-user-mapping on
+debug user-id log-group-mapping on
+tail follow yes mp-log useridd.log</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-divider"><span>Continue Learning</span></div>
+        
+        <div class="card-grid">
+          <a href="firewall-fortinet.html" class="nav-card card">
+            <h4>FortiGate →</h4>
+            <p>Fortinet FortiOS configuration and Security Fabric.</p>
+          </a>
+          <a href="firewall-cisco.html" class="nav-card card">
+            <h4>Cisco ASA/FTD →</h4>
+            <p>Cisco firewall and Firepower configurations.</p>
+          </a>
+          <a href="vpn.html" class="nav-card card">
+            <h4>VPN Technologies →</h4>
+            <p>IPSec, SSL VPN, and site-to-site configurations.</p>
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <p>Network Security & Infrastructure Guide</p>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
