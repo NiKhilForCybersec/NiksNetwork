@@ -17,14 +17,235 @@
                     <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
                 </a>
             </div>
-            <nav class="sidebar-nav">
-                <div class="nav-section active">
-                    <div class="nav-section-header">
-                        <div class="nav-section-title"><span class="nav-section-icon">☁️</span>Cloud Security</div>
+            <div class="sidebar-search">
+                <input type="text" id="searchInput" placeholder="Search... (Ctrl+K)" autocomplete="off">
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Section 1: Networking Fundamentals -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌐</span>Networking Fundamentals</div>
+                        <span class="nav-section-toggle">▼</span>
                     </div>
                     <div class="nav-section-content">
+                        <a href="1-1-osi-model.html" class="nav-link"><span class="nav-link-number">1.1</span> OSI Model</a>
+                        <a href="1-2-tcpip.html" class="nav-link"><span class="nav-link-number">1.2</span> TCP/IP Networking</a>
+                        <a href="1-3-ip-addressing.html" class="nav-link"><span class="nav-link-number">1.3</span> IP Addressing & Subnetting</a>
+                        <a href="1-4-dns.html" class="nav-link"><span class="nav-link-number">1.4</span> DNS</a>
+                        <a href="1-5-routing.html" class="nav-link"><span class="nav-link-number">1.5</span> Routing Protocols</a>
+                        <a href="1-6-switching.html" class="nav-link"><span class="nav-link-number">1.6</span> Switching & VLANs</a>
+                        <a href="1-7-dns-security.html" class="nav-link"><span class="nav-link-number">1.7</span> DNS Security</a>
+                        <a href="1-8-wireless-security.html" class="nav-link"><span class="nav-link-number">1.8</span> Wireless Security</a>
+                        <a href="1-9-bgp-security.html" class="nav-link"><span class="nav-link-number">1.9</span> BGP Security</a>
+                        <a href="1-10-layer2-security.html" class="nav-link"><span class="nav-link-number">1.10</span> Layer 2 Security</a>
+                        <a href="1-11-snmp-security.html" class="nav-link"><span class="nav-link-number">1.11</span> SNMP Security</a>
+                        <a href="1-12-aaa-radius-tacacs.html" class="nav-link"><span class="nav-link-number">1.12</span> AAA / RADIUS / TACACS+</a>
+                        <a href="1-13-ipv6-security.html" class="nav-link"><span class="nav-link-number">1.13</span> IPv6 Security</a>
+                        <a href="1-14-macsec.html" class="nav-link"><span class="nav-link-number">1.14</span> MACsec</a>
+                        <a href="1-15-network-taps.html" class="nav-link"><span class="nav-link-number">1.15</span> Network TAPs & Visibility</a>
+                        <a href="1-16-doh-dot.html" class="nav-link"><span class="nav-link-number">1.16</span> DoH/DoT Security</a>
+                    </div>
+                </div>
+
+                <!-- Section 2: Firewalls -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔥</span>Firewalls</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="2-1-firewall-fundamentals.html" class="nav-link"><span class="nav-link-number">2.1</span> Firewall Fundamentals</a>
+                        <a href="2-4-palo-alto.html" class="nav-link"><span class="nav-link-number">2.4</span> Palo Alto Networks</a>
+                        <a href="2-5-cisco-firepower.html" class="nav-link"><span class="nav-link-number">2.5</span> Cisco Firepower/ASA</a>
+                        <a href="2-6-fortigate.html" class="nav-link"><span class="nav-link-number">2.6</span> Fortinet FortiGate</a>
+                        <a href="2-7-checkpoint.html" class="nav-link"><span class="nav-link-number">2.7</span> Check Point</a>
+                        <a href="2-8-cloud-firewalls.html" class="nav-link"><span class="nav-link-number">2.8</span> Cloud Firewalls</a>
+                        <a href="2-9-firewall-ha.html" class="nav-link"><span class="nav-link-number">2.9</span> High Availability</a>
+                        <a href="2-10-firewall-logging.html" class="nav-link"><span class="nav-link-number">2.10</span> Firewall Logging</a>
+                        <a href="2-11-firewall-troubleshooting.html" class="nav-link"><span class="nav-link-number">2.11</span> Troubleshooting</a>
+                        <a href="2-12-ddos-protection.html" class="nav-link"><span class="nav-link-number">2.12</span> DDoS Protection</a>
+                    </div>
+                </div>
+
+                <!-- Section 3: Web Proxy -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌍</span>Web Proxy & TLS</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="3-1-proxy-fundamentals.html" class="nav-link"><span class="nav-link-number">3.1</span> Proxy Fundamentals</a>
+                        <a href="3-2-ssl-inspection.html" class="nav-link"><span class="nav-link-number">3.2</span> SSL/TLS Inspection</a>
+                        <a href="3-3-url-filtering.html" class="nav-link"><span class="nav-link-number">3.3</span> URL Filtering</a>
+                        <a href="3-4-squid.html" class="nav-link"><span class="nav-link-number">3.4</span> Squid Proxy</a>
+                        <a href="3-5-tls-hardening.html" class="nav-link"><span class="nav-link-number">3.5</span> TLS Hardening</a>
+                    </div>
+                </div>
+
+                <!-- Section 4: WAF & API Security -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">🛡️</span>WAF & API Security</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="4-1-waf-fundamentals.html" class="nav-link"><span class="nav-link-number">4.1</span> WAF Fundamentals</a>
+                        <a href="4-2-owasp-top10.html" class="nav-link"><span class="nav-link-number">4.2</span> OWASP Top 10</a>
+                        <a href="4-3-aws-waf.html" class="nav-link"><span class="nav-link-number">4.3</span> AWS WAF</a>
+                        <a href="4-4-azure-waf.html" class="nav-link"><span class="nav-link-number">4.4</span> Azure WAF</a>
+                        <a href="4-5-cloudflare-waf.html" class="nav-link"><span class="nav-link-number">4.5</span> Cloudflare WAF</a>
+                        <a href="4-6-api-security.html" class="nav-link"><span class="nav-link-number">4.6</span> API Security</a>
+                    </div>
+                </div>
+
+                <!-- Section 5: IDS/IPS & NDR -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">🚨</span>IDS/IPS & NDR</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="5-1-ids-ips-fundamentals.html" class="nav-link"><span class="nav-link-number">5.1</span> IDS/IPS Fundamentals</a>
+                        <a href="5-2-snort-suricata.html" class="nav-link"><span class="nav-link-number">5.2</span> Snort & Suricata</a>
+                        <a href="5-3-zeek.html" class="nav-link"><span class="nav-link-number">5.3</span> Zeek (Bro)</a>
+                        <a href="5-4-ids-tuning.html" class="nav-link"><span class="nav-link-number">5.4</span> IDS/IPS Tuning</a>
+                        <a href="5-5-ndr.html" class="nav-link"><span class="nav-link-number">5.5</span> Network Detection & Response</a>
+                    </div>
+                </div>
+
+                <!-- Section 6: VPN & WAN -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔐</span>VPN & SD-WAN</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="6-1-vpn-fundamentals.html" class="nav-link"><span class="nav-link-number">6.1</span> VPN Fundamentals</a>
+                        <a href="6-2-ipsec.html" class="nav-link"><span class="nav-link-number">6.2</span> IPSec Deep Dive</a>
+                        <a href="6-3-ssl-vpn.html" class="nav-link"><span class="nav-link-number">6.3</span> SSL VPN</a>
+                        <a href="6-4-site-to-site.html" class="nav-link"><span class="nav-link-number">6.4</span> Site-to-Site VPN</a>
+                        <a href="6-5-vpn-troubleshooting.html" class="nav-link"><span class="nav-link-number">6.5</span> VPN Troubleshooting</a>
+                        <a href="6-6-sdwan-security.html" class="nav-link"><span class="nav-link-number">6.6</span> SD-WAN Security</a>
+                    </div>
+                </div>
+
+                <!-- Section 7: Network Architecture -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">🏗️</span>Network Architecture</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="7-1-network-segmentation.html" class="nav-link"><span class="nav-link-number">7.1</span> Network Segmentation</a>
+                        <a href="7-2-zero-trust.html" class="nav-link"><span class="nav-link-number">7.2</span> Zero Trust Network</a>
+                        <a href="7-3-zscaler-platform.html" class="nav-link"><span class="nav-link-number">7.3</span> Zscaler Platform</a>
+                        <a href="7-4-threat-intel.html" class="nav-link"><span class="nav-link-number">7.4</span> Network Threat Intelligence</a>
+                        <a href="7-5-active-directory.html" class="nav-link"><span class="nav-link-number">7.5</span> Active Directory Security</a>
+                        <a href="7-7-nac.html" class="nav-link"><span class="nav-link-number">7.7</span> Network Access Control</a>
+                        <a href="7-8-datacenter-security.html" class="nav-link"><span class="nav-link-number">7.8</span> Data Center Security</a>
+                        <a href="7-9-network-automation.html" class="nav-link"><span class="nav-link-number">7.9</span> Network Automation Security</a>
+                    </div>
+                </div>
+
+                <!-- Section 8: Load Balancers -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">⚖️</span>Load Balancers</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="8-1-lb-fundamentals.html" class="nav-link"><span class="nav-link-number">8.1</span> Load Balancer Fundamentals</a>
+                        <a href="8-2-f5-bigip.html" class="nav-link"><span class="nav-link-number">8.2</span> F5 BIG-IP</a>
+                        <a href="8-3-aws-elb.html" class="nav-link"><span class="nav-link-number">8.3</span> AWS ALB/NLB</a>
+                        <a href="8-4-haproxy.html" class="nav-link"><span class="nav-link-number">8.4</span> HAProxy</a>
+                        <a href="8-5-nginx.html" class="nav-link"><span class="nav-link-number">8.5</span> NGINX</a>
+                    </div>
+                </div>
+
+                <!-- Section 10: SIEM -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">📊</span>SIEM & Log Analysis</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="10-1-siem-fundamentals.html" class="nav-link"><span class="nav-link-number">10.1</span> SIEM Fundamentals</a>
+                        <a href="10-2-splunk.html" class="nav-link"><span class="nav-link-number">10.2</span> Splunk</a>
+                        <a href="10-3-microsoft-sentinel.html" class="nav-link"><span class="nav-link-number">10.3</span> Microsoft Sentinel</a>
+                        <a href="10-4-elastic-security.html" class="nav-link"><span class="nav-link-number">10.4</span> Elastic Security</a>
+                    </div>
+                </div>
+
+                <!-- Section 12: Network Operations -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔧</span>Network Operations</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="12-1-methodology.html" class="nav-link"><span class="nav-link-number">12.1</span> Troubleshooting Methodology</a>
+                        <a href="12-2-incident-response.html" class="nav-link"><span class="nav-link-number">12.2</span> Network Incident Response</a>
+                        <a href="12-3-log-analysis.html" class="nav-link"><span class="nav-link-number">12.3</span> Network Log Analysis</a>
+                        <a href="12-4-packet-capture.html" class="nav-link"><span class="nav-link-number">12.4</span> Packet Capture & Analysis</a>
+                        <a href="12-5-threat-hunting.html" class="nav-link"><span class="nav-link-number">12.5</span> Network Threat Hunting</a>
+                        <a href="12-6-netflow.html" class="nav-link"><span class="nav-link-number">12.6</span> NetFlow & sFlow</a>
+                        <a href="12-7-network-forensics.html" class="nav-link"><span class="nav-link-number">12.7</span> Network Forensics</a>
+                        <a href="12-8-network-pentesting.html" class="nav-link"><span class="nav-link-number">12.8</span> Network Pentesting</a>
+                    </div>
+                </div>
+
+                <!-- Section 13: Compliance -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">📋</span>Compliance</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="13-1-compliance-frameworks.html" class="nav-link"><span class="nav-link-number">13.1</span> Network Compliance</a>
+                        <a href="13-2-vulnerability-management.html" class="nav-link"><span class="nav-link-number">13.2</span> Vulnerability Scanning</a>
+                    </div>
+                </div>
+
+                <!-- Section 14: Cloud Network Security -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">☁️</span>Cloud Network Security</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="14-1-cloud-security.html" class="nav-link"><span class="nav-link-number">14.1</span> Cloud Network Fundamentals</a>
+                        <a href="14-2-aws-security.html" class="nav-link"><span class="nav-link-number">14.2</span> AWS Network Security</a>
+                        <a href="14-3-azure-security.html" class="nav-link"><span class="nav-link-number">14.3</span> Azure Network Security</a>
+                        <a href="14-4-gcp-security.html" class="nav-link"><span class="nav-link-number">14.4</span> GCP Network Security</a>
+                        <a href="14-5-container-security.html" class="nav-link"><span class="nav-link-number">14.5</span> Container Network Security</a>
+                        <a href="14-6-casb.html" class="nav-link"><span class="nav-link-number">14.6</span> CASB</a>
                         <a href="14-7-aws-vpc-deep-dive.html" class="nav-link"><span class="nav-link-number">14.7</span> AWS VPC Deep Dive</a>
-                        <a href="14-8-azure-networking.html" class="nav-link active"><span class="nav-link-number">14.8</span> Azure Networking</a>
+                        <a href="14-8-azure-networking.html" class="nav-link"><span class="nav-link-number">14.8</span> Azure Networking Deep Dive</a>
+                        <a href="14-9-service-mesh.html" class="nav-link"><span class="nav-link-number">14.9</span> Service Mesh Security</a>
+                        <a href="14-10-kubernetes-networking.html" class="nav-link"><span class="nav-link-number">14.10</span> Kubernetes Networking</a>
+                    </div>
+                </div>
+
+                <!-- Section 23: IoT/OT -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">📡</span>IoT/OT Security</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="23-1-iot-security.html" class="nav-link"><span class="nav-link-number">23.1</span> IoT Network Security</a>
+                    </div>
+                </div>
+
+                <!-- Section 15: Resources -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">📚</span>Resources</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="15-2-interview-questions.html" class="nav-link"><span class="nav-link-number">15.2</span> Interview Questions</a>
+                        <a href="15-4-cheat-sheets.html" class="nav-link"><span class="nav-link-number">15.4</span> Command Cheat Sheets</a>
                     </div>
                 </div>
             </nav>
