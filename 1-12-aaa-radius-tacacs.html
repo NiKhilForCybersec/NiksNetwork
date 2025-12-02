@@ -281,6 +281,36 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: AAA, RADIUS & TACACS+</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">🎫 AAA = The Nightclub System</div>
+                            <p>AAA explained as club entry:</p>
+                            <ul>
+                                <li><strong>Authentication</strong> = "Who are you?" - Check your ID at the door</li>
+                                <li><strong>Authorization</strong> = "What can you do?" - VIP gets backstage, regular guest stays in main area</li>
+                                <li><strong>Accounting</strong> = "What did you do?" - Recording your tab/activity</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">📡 RADIUS vs TACACS+</div>
+                            <ul>
+                                <li><strong>RADIUS</strong> = Network access (WiFi, VPN) - Combines auth+authz, UDP, encrypts only password</li>
+                                <li><strong>TACACS+</strong> = Device admin (routers, switches) - Separates AAA, TCP, encrypts entire packet, Cisco-developed</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Quick Rule:</strong><br>
+                            Network access (users) → RADIUS<br>
+                            Device administration (admins) → TACACS+<br>
+                            Both use central server (ISE, FreeRADIUS, NPS)
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>AAA Framework</h2>
                 

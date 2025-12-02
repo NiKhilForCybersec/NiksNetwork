@@ -292,6 +292,34 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: IPSec Deep Dive</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">🤝 The Two-Phase Handshake</div>
+                            <p>IPSec setup is like establishing a secure business relationship:</p>
+                            <ul>
+                                <li><strong>Phase 1 (IKE SA)</strong> = Initial meeting - Exchange business cards, verify identities, agree on how to communicate securely. Result: A secure channel to negotiate further.</li>
+                                <li><strong>Phase 2 (IPSec SA)</strong> = Contract signing - Using the secure channel from Phase 1, negotiate exactly how data will be protected. Result: The actual VPN tunnel!</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">📋 AH vs ESP - What Gets Protected?</div>
+                            <ul>
+                                <li><strong>AH (Authentication Header)</strong> = Tamper-evident seal - Proves data wasn't modified, but everyone can still READ it (no encryption!)</li>
+                                <li><strong>ESP (Encapsulating Security Payload)</strong> = Sealed opaque envelope - Data is ENCRYPTED and authenticated. This is what you usually want!</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Remember IKEv1 vs IKEv2:</strong><br>
+                            <strong>IKEv1</strong> = 6-9 messages to establish (Main Mode), older, complex<br>
+                            <strong>IKEv2</strong> = 4 messages, built-in NAT traversal, MOBIKE for mobile, modern choice!
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>IPSec Architecture Overview</h2>
                 

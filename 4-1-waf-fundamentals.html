@@ -291,6 +291,38 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: WAF Fundamentals</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">🚪 WAF = Nightclub Bouncer for Web Apps</div>
+                            <p>A WAF is like a bouncer at an exclusive club:</p>
+                            <ul>
+                                <li><strong>Firewall (L3/L4)</strong> = Checking if you have an invitation (IP/port allowed)</li>
+                                <li><strong>WAF (L7)</strong> = Checking what's in your pockets, your behavior, dress code (HTTP inspection)</li>
+                                <li><strong>Block Mode</strong> = "You're not coming in" - stops bad requests</li>
+                                <li><strong>Detection Mode</strong> = "I'm watching you" - logs but allows through</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🎯 What WAF Stops (OWASP Top 10)</div>
+                            <ul>
+                                <li><strong>SQL Injection</strong> = "Hi, my name is '; DROP TABLE users;--" - modifying database queries</li>
+                                <li><strong>XSS</strong> = Sneaking malicious script into pages others will view</li>
+                                <li><strong>Path Traversal</strong> = Asking for ../../../../etc/passwd</li>
+                                <li><strong>Command Injection</strong> = Tricking app into running system commands</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 WAF Deployment:</strong><br>
+                            <strong>Inline/Reverse Proxy</strong> = All traffic flows THROUGH WAF (can block)<br>
+                            <strong>Out-of-Band</strong> = WAF sees copy of traffic (can only detect, not block)
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>Why Do We Need WAF?</h2>
                 

@@ -290,6 +290,40 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: Firewall Fundamentals</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">🏰 Castle Security Analogy</div>
+                            <p>A firewall is like castle defenses:</p>
+                            <ul>
+                                <li><strong>Packet Filter</strong> = Gate guard checking ID cards (IP/port only)</li>
+                                <li><strong>Stateful Firewall</strong> = Guard who remembers "this person left, so they can come back in"</li>
+                                <li><strong>Application Firewall</strong> = Guard who opens your bags and inspects contents</li>
+                                <li><strong>NGFW</strong> = Full security team with ID checks, bag inspection, background checks, and behavior analysis</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🚦 Firewall Rule Logic</div>
+                            <p>Rules are processed TOP to BOTTOM, first match wins:</p>
+                            <ul>
+                                <li><strong>Explicit Allow</strong> = "VIPs on the list can enter"</li>
+                                <li><strong>Explicit Deny</strong> = "These troublemakers are banned"</li>
+                                <li><strong>Implicit Deny</strong> = "If not on any list, you're not getting in" (default at bottom)</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Golden Rules:</strong><br>
+                            1. Most specific rules first, general rules last<br>
+                            2. Deny rules before allow rules for same traffic<br>
+                            3. "Implicit deny all" should be your last rule<br>
+                            4. Log denied traffic for troubleshooting!
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>What is a Firewall?</h2>
                 

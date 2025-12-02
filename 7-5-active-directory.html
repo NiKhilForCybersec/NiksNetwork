@@ -281,6 +281,41 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: Active Directory Security</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">🏰 AD = The Kingdom's Master Registry</div>
+                            <p>Active Directory is like a medieval kingdom:</p>
+                            <ul>
+                                <li><strong>Domain Controller</strong> = The castle keep with all records</li>
+                                <li><strong>Users</strong> = Citizens with identity papers</li>
+                                <li><strong>Groups</strong> = Guilds/Roles with specific privileges</li>
+                                <li><strong>GPO</strong> = Royal decrees that apply to everyone</li>
+                                <li><strong>Kerberos</strong> = The royal seal that proves your identity</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">⚔️ Common AD Attacks</div>
+                            <ul>
+                                <li><strong>Pass-the-Hash</strong> = Stealing the royal seal imprint</li>
+                                <li><strong>Kerberoasting</strong> = Cracking service account passwords offline</li>
+                                <li><strong>Golden Ticket</strong> = Forging the king's signature (domain admin compromise)</li>
+                                <li><strong>DCSync</strong> = Pretending to be a domain controller to steal credentials</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Protect the Crown Jewels:</strong><br>
+                            1. Tier your admin accounts (0=DC, 1=Server, 2=Workstation)<br>
+                            2. Use PAWs for admin tasks<br>
+                            3. Enable Protected Users group<br>
+                            4. Monitor DC replication events!
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>Common AD Attack Techniques</h2>
                 

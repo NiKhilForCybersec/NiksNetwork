@@ -281,6 +281,40 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: Packet Capture & Analysis</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">🎥 Network Traffic = Security Camera Footage</div>
+                            <p>Packet capture is like reviewing security footage:</p>
+                            <ul>
+                                <li><strong>Full Packet Capture</strong> = HD video with audio - see everything but huge storage needs</li>
+                                <li><strong>Flow Data (NetFlow)</strong> = Motion sensor logs - who moved where, when, but no details</li>
+                                <li><strong>Wireshark</strong> = Your video review station - replay and analyze recordings</li>
+                                <li><strong>tcpdump</strong> = Quick security camera check from command line</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🔍 Essential Wireshark Filters</div>
+                            <ul>
+                                <li><strong>ip.addr == 192.168.1.1</strong> = Show all traffic involving this IP</li>
+                                <li><strong>tcp.port == 443</strong> = Show HTTPS traffic</li>
+                                <li><strong>http.request.method == "POST"</strong> = Show HTTP POST requests</li>
+                                <li><strong>dns</strong> = Show all DNS traffic</li>
+                                <li><strong>tcp.flags.syn == 1</strong> = Show connection attempts</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Quick tcpdump:</strong><br>
+                            <code>tcpdump -i eth0 -w capture.pcap</code> = Capture traffic to file<br>
+                            <code>tcpdump -r capture.pcap</code> = Read capture file<br>
+                            <code>tcpdump port 53</code> = Capture only DNS traffic
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>tcpdump Commands</h2>
                 

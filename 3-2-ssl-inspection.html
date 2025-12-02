@@ -282,6 +282,35 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: SSL/TLS Inspection</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">📬 The Encrypted Letter Problem</div>
+                            <p>SSL inspection is like opening sealed mail:</p>
+                            <ul>
+                                <li><strong>Without Inspection</strong> = Mail carrier can't read sealed letters - malware could be inside!</li>
+                                <li><strong>With SSL Inspection</strong> = Security opens mail, checks for threats, reseals with their own stamp, delivers</li>
+                                <li><strong>Client trusts proxy's certificate</strong> = Client accepts new envelope because they trust the security office</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🔐 How It Works (MITM - The Good Kind)</div>
+                            <ul>
+                                <li>1. Client connects to proxy thinking it's the server</li>
+                                <li>2. Proxy presents its OWN certificate to client</li>
+                                <li>3. Proxy connects to real server separately</li>
+                                <li>4. Proxy decrypts, inspects, re-encrypts traffic both ways</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Key Requirement:</strong> Client devices MUST trust the proxy's CA certificate - otherwise they'll get certificate warnings! Deploy via GPO or MDM.
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>Why SSL Inspection?</h2>
                 

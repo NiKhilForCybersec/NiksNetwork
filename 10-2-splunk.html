@@ -291,6 +291,41 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: Splunk</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">🔍 Splunk SPL = Google for Logs</div>
+                            <p>Think of Splunk queries like searching:</p>
+                            <ul>
+                                <li><strong>index=</strong> = Which filing cabinet to search</li>
+                                <li><strong>sourcetype=</strong> = What type of documents</li>
+                                <li><strong>| (pipe)</strong> = "then do this" - chain commands together</li>
+                                <li><strong>stats</strong> = Summarize what you found</li>
+                                <li><strong>table</strong> = Show specific columns only</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🔧 Essential SPL Commands</div>
+                            <ul>
+                                <li><strong>| stats count by src_ip</strong> = "Count events grouped by source IP"</li>
+                                <li><strong>| where count > 100</strong> = "Only show results over 100"</li>
+                                <li><strong>| sort -count</strong> = "Sort by count, descending"</li>
+                                <li><strong>| head 10</strong> = "Show top 10 results"</li>
+                                <li><strong>| eval</strong> = Create new calculated fields</li>
+                                <li><strong>| rex</strong> = Extract data using regex</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Common Security Search:</strong><br>
+                            <code>index=security sourcetype=WinEventLog:Security EventCode=4625 | stats count by src_ip, user | where count > 5</code><br>
+                            Translation: "Find failed logins (4625), count by IP and user, show where more than 5 failures"
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>Splunk Architecture</h2>
                 

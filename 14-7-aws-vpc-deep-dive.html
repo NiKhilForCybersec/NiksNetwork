@@ -281,6 +281,39 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: AWS VPC</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">🏢 VPC = Your Private Data Center in AWS</div>
+                            <p>VPC components as a building:</p>
+                            <ul>
+                                <li><strong>VPC</strong> = Your private building (10.0.0.0/16)</li>
+                                <li><strong>Subnets</strong> = Floors - public (lobby) and private (offices)</li>
+                                <li><strong>Internet Gateway</strong> = Main entrance to street (internet)</li>
+                                <li><strong>NAT Gateway</strong> = Private exit - inside can go out, outside can't come in</li>
+                                <li><strong>Route Tables</strong> = Directory signs - "To reach X, go this way"</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🔐 Public vs Private Subnet</div>
+                            <ul>
+                                <li><strong>Public Subnet</strong> = Route table points to IGW, instances can have public IPs</li>
+                                <li><strong>Private Subnet</strong> = Route table points to NAT GW, no direct internet access</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 VPC Security Layers:</strong><br>
+                            1. Security Groups = Instance firewall (stateful)<br>
+                            2. NACLs = Subnet firewall (stateless)<br>
+                            3. VPC Flow Logs = Traffic recording<br>
+                            4. VPC Endpoints = Private AWS service access
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>VPC Architecture</h2>
                 

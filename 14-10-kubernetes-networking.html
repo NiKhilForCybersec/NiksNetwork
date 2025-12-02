@@ -281,6 +281,42 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: Kubernetes Network Security</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">🏘️ The Neighborhood Analogy</div>
+                            <p>Kubernetes networking is like a gated community:</p>
+                            <ul>
+                                <li><strong>Cluster</strong> = The entire gated community</li>
+                                <li><strong>Namespace</strong> = Different neighborhoods within</li>
+                                <li><strong>Pod</strong> = Individual houses (with their own IP address)</li>
+                                <li><strong>Service</strong> = Community directory - "Contact the Smith family" resolves to a house</li>
+                                <li><strong>NetworkPolicy</strong> = Neighborhood rules - "No visitors after 10 PM"</li>
+                                <li><strong>Ingress</strong> = Main gate guard - controls who enters from outside</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🔒 Critical K8s Security Concept</div>
+                            <p><strong>By default, Kubernetes is WIDE OPEN:</strong></p>
+                            <ul>
+                                <li>Every pod can talk to every other pod (no fences between houses!)</li>
+                                <li>You MUST add NetworkPolicies to restrict traffic</li>
+                                <li>CNI plugin must support NetworkPolicies (Calico, Cilium - NOT Flannel alone)</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 K8s Security Checklist:</strong><br>
+                            1. Default deny NetworkPolicy in every namespace<br>
+                            2. Explicitly allow only required traffic<br>
+                            3. Use a CNI that supports policies (Calico/Cilium)<br>
+                            4. Don't forget to allow DNS (kube-system, port 53)!
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>Kubernetes Networking Model</h2>
                 

@@ -281,6 +281,37 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: AWS Load Balancers</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">⚖️ Three Types of AWS LB</div>
+                            <p>Choose the right load balancer:</p>
+                            <ul>
+                                <li><strong>ALB (Application)</strong> = Smart restaurant host - reads reservations (HTTP headers), routes to right section (path-based)</li>
+                                <li><strong>NLB (Network)</strong> = Fast bouncer - just checks if you're on the list (IP/port), ultra-fast, preserves source IP</li>
+                                <li><strong>CLB (Classic)</strong> = Old-school host - still works but use ALB/NLB for new projects</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🎯 When to Use Which</div>
+                            <ul>
+                                <li><strong>ALB</strong> = HTTP/HTTPS apps, microservices, path routing, WAF integration</li>
+                                <li><strong>NLB</strong> = TCP/UDP, extreme performance, static IP needed, preserve source IP</li>
+                                <li><strong>GWLB</strong> = Gateway Load Balancer - for inline security appliances</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Quick Decision:</strong><br>
+                            Web app? → ALB<br>
+                            Gaming/streaming/need speed? → NLB<br>
+                            Security appliances inline? → GWLB
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>Load Balancer Types</h2>
                 

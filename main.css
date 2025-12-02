@@ -830,6 +830,76 @@ td strong {
 .callout-interview .callout-title { color: var(--accent-purple); }
 .callout-interview p { margin-bottom: 12px; }
 
+/* Memory Aid Box - Special learning style */
+.callout-memoryaid {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+    border-color: var(--accent-cyan);
+    border-width: 2px;
+    position: relative;
+}
+
+.callout-memoryaid::before {
+    content: '🧠';
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background: var(--bg-primary);
+    padding: 0 8px;
+    font-size: 20px;
+}
+
+.callout-memoryaid .callout-title { 
+    color: var(--accent-cyan); 
+    font-size: 18px;
+}
+
+.callout-memoryaid .analogy {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    padding: 16px;
+    margin: 12px 0;
+    border-left: 3px solid var(--accent-cyan);
+}
+
+.callout-memoryaid .analogy-title {
+    color: var(--accent-cyan);
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.callout-memoryaid .remember {
+    background: rgba(16, 185, 129, 0.15);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    border-left: 3px solid var(--accent-green);
+}
+
+.callout-memoryaid .remember strong {
+    color: var(--accent-green);
+}
+
+.callout-memoryaid ul {
+    list-style: none;
+    margin: 12px 0;
+}
+
+.callout-memoryaid li {
+    padding: 8px 0 8px 28px;
+    position: relative;
+    line-height: 1.6;
+}
+
+.callout-memoryaid li::before {
+    content: '💡';
+    position: absolute;
+    left: 0;
+    font-size: 14px;
+}
+
 /* Page Navigation */
 .page-navigation {
     display: flex;

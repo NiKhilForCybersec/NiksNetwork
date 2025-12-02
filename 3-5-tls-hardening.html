@@ -281,6 +281,38 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: TLS Hardening</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">🔐 TLS Versions = Lock Generations</div>
+                            <p>TLS evolution:</p>
+                            <ul>
+                                <li><strong>SSL 2.0/3.0</strong> = Ancient locks - broken, never use!</li>
+                                <li><strong>TLS 1.0/1.1</strong> = Old locks - vulnerable, deprecated</li>
+                                <li><strong>TLS 1.2</strong> = Modern lock - still good with right config</li>
+                                <li><strong>TLS 1.3</strong> = Latest smart lock - fastest, most secure, removes weak options</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🛡️ TLS Hardening Checklist</div>
+                            <ul>
+                                <li><strong>Disable</strong> = SSL all versions, TLS 1.0, TLS 1.1</li>
+                                <li><strong>Enable</strong> = TLS 1.2 minimum, prefer TLS 1.3</li>
+                                <li><strong>Cipher Suites</strong> = Use strong only (AES-GCM, CHACHA20)</li>
+                                <li><strong>Perfect Forward Secrecy</strong> = Use ECDHE key exchange</li>
+                                <li><strong>HSTS</strong> = Force HTTPS always</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Strong Cipher Format:</strong> TLS_<KeyExchange>_WITH_<Cipher>_<Hash><br>
+                            Example: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>TLS Version Comparison</h2>
                 

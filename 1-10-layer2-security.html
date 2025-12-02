@@ -281,6 +281,36 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: Layer 2 Security</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">🏢 Layer 2 Attacks = Office Building Attacks</div>
+                            <p>Common L2 attacks explained:</p>
+                            <ul>
+                                <li><strong>ARP Spoofing</strong> = Changing the lobby directory to send visitors to wrong office (redirect traffic to attacker)</li>
+                                <li><strong>MAC Flooding</strong> = Overwhelming reception with fake business cards - they give up checking and let everyone in (switch fails open)</li>
+                                <li><strong>VLAN Hopping</strong> = Sneaking between floors using maintenance access (double-tagging attack)</li>
+                                <li><strong>STP Attack</strong> = Claiming to be building management to reroute traffic</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🛡️ Protection Mechanisms</div>
+                            <ul>
+                                <li><strong>Dynamic ARP Inspection (DAI)</strong> = Verify all directory changes are legitimate</li>
+                                <li><strong>DHCP Snooping</strong> = Only trust the real DHCP server, not imposters</li>
+                                <li><strong>Port Security</strong> = Limit how many MACs per port, lock down ports</li>
+                                <li><strong>BPDU Guard</strong> = Block STP attacks on access ports</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Rule:</strong> "Never trust the user port - enable port security, DHCP snooping, and DAI on all access switches!"
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>Layer 2 Attack Surface</h2>
                 

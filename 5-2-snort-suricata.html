@@ -281,6 +281,39 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: Snort & Suricata Rules</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">📝 Rule Structure = Sentence Structure</div>
+                            <p>A Snort/Suricata rule is like a sentence:</p>
+                            <ul>
+                                <li><strong>Action</strong> = Verb (alert, drop, pass) - "What to do?"</li>
+                                <li><strong>Protocol</strong> = Subject type (tcp, udp, icmp) - "What kind of traffic?"</li>
+                                <li><strong>Source/Dest</strong> = Who's talking to whom</li>
+                                <li><strong>Options</strong> = The details in parentheses - "What specifically to look for?"</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🔍 Common Rule Options</div>
+                            <ul>
+                                <li><strong>content:</strong> = "Look for this exact text"</li>
+                                <li><strong>pcre:</strong> = "Look for this pattern" (regex)</li>
+                                <li><strong>flow:</strong> = "Only check established connections going to server"</li>
+                                <li><strong>sid:</strong> = Rule ID number (must be unique!)</li>
+                                <li><strong>rev:</strong> = Version of this rule</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Snort vs Suricata:</strong><br>
+                            <strong>Snort</strong> = The original, single-threaded, Cisco-owned<br>
+                            <strong>Suricata</strong> = Multi-threaded fork, better for high-speed networks, mostly Snort-compatible rules
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>Snort vs Suricata</h2>
                 

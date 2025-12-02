@@ -281,6 +281,35 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: Network Access Control (NAC)</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">🏥 NAC = Hospital Check-In</div>
+                            <p>NAC is like hospital admission:</p>
+                            <ul>
+                                <li><strong>Authentication</strong> = Check patient identity</li>
+                                <li><strong>Health Check</strong> = Is antivirus updated? Patches current? (posture assessment)</li>
+                                <li><strong>Quarantine</strong> = Unhealthy device goes to isolation network for remediation</li>
+                                <li><strong>Authorization</strong> = Healthy devices get appropriate network access</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🔧 NAC Methods</div>
+                            <ul>
+                                <li><strong>802.1X</strong> = Port-based authentication - switch won't give access until you authenticate</li>
+                                <li><strong>MAC Authentication Bypass</strong> = For devices that can't do 802.1X (printers, IoT)</li>
+                                <li><strong>Web Auth</strong> = Captive portal - guest WiFi style</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 NAC Flow:</strong> Connect → Authenticate → Posture Check → Authorize → Continuous Monitoring
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>NAC Architecture</h2>
                 

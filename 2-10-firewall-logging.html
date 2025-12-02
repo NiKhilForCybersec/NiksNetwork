@@ -281,6 +281,36 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: Firewall Logging</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">📹 Logging = Security Cameras</div>
+                            <p>Firewall logs are like security footage:</p>
+                            <ul>
+                                <li><strong>Traffic Logs</strong> = Recording who entered/exited (connection logs)</li>
+                                <li><strong>Threat Logs</strong> = Recording security incidents (IPS, malware blocks)</li>
+                                <li><strong>System Logs</strong> = Recording building system status (CPU, memory, failover)</li>
+                                <li><strong>Config Logs</strong> = Recording who changed settings (audit trail)</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🎯 What to Log</div>
+                            <ul>
+                                <li><strong>Denied Traffic</strong> = ALWAYS log - shows attack attempts</li>
+                                <li><strong>Allowed Traffic</strong> = Log important rules (to sensitive zones)</li>
+                                <li><strong>Admin Actions</strong> = Log all config changes (who did what when)</li>
+                                <li><strong>Session Start/End</strong> = For compliance and forensics</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Remember:</strong> "If it's not logged, it didn't happen. Send logs to SIEM, retain for 1+ year, protect log integrity!"
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>Log Types</h2>
                 

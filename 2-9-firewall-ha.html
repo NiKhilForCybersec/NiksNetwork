@@ -281,6 +281,36 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: Firewall High Availability</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">👥 HA Modes Explained</div>
+                            <p>High Availability is like having backup pilots:</p>
+                            <ul>
+                                <li><strong>Active/Passive</strong> = Main pilot flies, co-pilot on standby. If main fails, co-pilot takes over.</li>
+                                <li><strong>Active/Active</strong> = Both pilots sharing flight duties. Both handle traffic, if one fails, other handles all.</li>
+                                <li><strong>Cluster</strong> = Multiple pilots working as a team, load balanced.</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🔄 Key HA Concepts</div>
+                            <ul>
+                                <li><strong>Heartbeat</strong> = "Are you alive?" check between firewalls</li>
+                                <li><strong>State Sync</strong> = Sharing connection tables so failover is seamless</li>
+                                <li><strong>Failover Time</strong> = How long until backup takes over (usually seconds)</li>
+                                <li><strong>Preemption</strong> = Should primary take back control when it recovers?</li>
+                                <li><strong>Split Brain</strong> = DANGER! Both think they're primary (prevent with proper heartbeat)</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Golden Rule:</strong> "State sync is critical - without it, all connections drop on failover. Test failover regularly!"
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>HA Modes</h2>
                 

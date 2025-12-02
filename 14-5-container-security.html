@@ -281,6 +281,41 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: Container Security</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">📦 Containers vs VMs</div>
+                            <p>Understanding the difference:</p>
+                            <ul>
+                                <li><strong>VM</strong> = Separate house with own foundation, plumbing, electricity</li>
+                                <li><strong>Container</strong> = Apartment in shared building - shares OS kernel (foundation) but isolated space</li>
+                                <li><strong>Image</strong> = The blueprint/floor plan</li>
+                                <li><strong>Registry</strong> = Blueprint storage warehouse (Docker Hub, ECR, ACR)</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🔒 Container Security Layers</div>
+                            <ul>
+                                <li><strong>Image Security</strong> = Scan blueprints for problems before building</li>
+                                <li><strong>Registry Security</strong> = Lock the warehouse, only allow trusted blueprints</li>
+                                <li><strong>Runtime Security</strong> = Monitor apartments for bad behavior</li>
+                                <li><strong>Network Policies</strong> = Control who can visit which apartments</li>
+                                <li><strong>Secrets Management</strong> = Don't leave keys under the doormat!</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Container Security Checklist:</strong><br>
+                            1. Scan images before deployment<br>
+                            2. Use minimal base images (Alpine, distroless)<br>
+                            3. Don't run as root<br>
+                            4. No secrets in images - use vault/secrets manager!
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>Container Attack Surface</h2>
                 

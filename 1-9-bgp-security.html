@@ -281,6 +281,35 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: BGP Security</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">🗺️ BGP = The Internet's GPS</div>
+                            <p>BGP is like the postal routing system between countries:</p>
+                            <ul>
+                                <li><strong>Autonomous System (AS)</strong> = A country/organization with its own postal system</li>
+                                <li><strong>BGP Announcement</strong> = "Hey, I can deliver to these addresses!"</li>
+                                <li><strong>BGP Hijacking</strong> = Fraudster saying "Send Pakistan's mail to me!" (route theft)</li>
+                                <li><strong>BGP Leak</strong> = Accidentally routing traffic through wrong country</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🛡️ BGP Security Measures</div>
+                            <ul>
+                                <li><strong>RPKI/ROA</strong> = Cryptographic proof "I'm authorized to announce these routes"</li>
+                                <li><strong>BGP Prefix Filtering</strong> = "I'll only accept routes I expect from you"</li>
+                                <li><strong>AS-Path Filtering</strong> = "This route path looks suspicious, reject it"</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Key Fact:</strong> BGP was built on TRUST - no built-in authentication. That's why hijacking is possible! RPKI helps prove legitimacy.
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>BGP Fundamentals</h2>
                 

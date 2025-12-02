@@ -281,6 +281,36 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: API Security</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">🚪 API = Digital Doorways</div>
+                            <p>APIs are like service windows:</p>
+                            <ul>
+                                <li><strong>REST API</strong> = Standard service counter - HTTP methods (GET=read, POST=create, PUT=update, DELETE=remove)</li>
+                                <li><strong>API Key</strong> = Basic ticket number - easy but not very secure</li>
+                                <li><strong>OAuth 2.0</strong> = Valet system - give limited access without sharing your keys</li>
+                                <li><strong>JWT</strong> = Stamped wristband - carries identity info, can be verified</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">⚠️ Common API Vulnerabilities</div>
+                            <ul>
+                                <li><strong>BOLA</strong> = Broken Object Level Auth - accessing other users' data by changing ID</li>
+                                <li><strong>No Rate Limiting</strong> = Unlimited requests allowing abuse</li>
+                                <li><strong>Excessive Data</strong> = API returns more than needed</li>
+                                <li><strong>Injection</strong> = SQL/NoSQL through API parameters</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 API Security Checklist:</strong> Authentication (who) + Authorization (what) + Rate Limiting (how much) + Input Validation (what data) + Encryption (TLS)
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>OWASP API Security Top 10 (2023)</h2>
                 

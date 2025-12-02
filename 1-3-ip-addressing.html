@@ -290,6 +290,38 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: IP Addressing & Subnetting</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">🏠 Street Address Analogy</div>
+                            <p>Think of IP addresses like street addresses:</p>
+                            <ul>
+                                <li><strong>IP Address</strong> = Full address (123 Main Street, Apt 4)</li>
+                                <li><strong>Network ID</strong> = Street name (Main Street)</li>
+                                <li><strong>Host ID</strong> = House number (123, Apt 4)</li>
+                                <li><strong>Subnet Mask</strong> = Tells you where street name ends and house number begins</li>
+                                <li><strong>Default Gateway</strong> = The post office for your neighborhood - packages going outside go here first</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🧮 CIDR Notation Trick</div>
+                            <p>For /24, /16, /8 - count by 8s from the right:</p>
+                            <ul>
+                                <li><strong>/8</strong> = 255.0.0.0 (first octet = network) → 16 million hosts</li>
+                                <li><strong>/16</strong> = 255.255.0.0 (first two octets) → 65,534 hosts</li>
+                                <li><strong>/24</strong> = 255.255.255.0 (first three octets) → 254 hosts</li>
+                                <li><strong>/32</strong> = Single host (255.255.255.255)</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Quick Math:</strong> Hosts = 2^(32-CIDR) - 2. For /24: 2^8 - 2 = 254 usable hosts (subtract network & broadcast)
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>IPv4 Address Structure</h2>
                 

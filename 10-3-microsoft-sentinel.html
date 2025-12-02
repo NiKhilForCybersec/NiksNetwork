@@ -291,6 +291,42 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: Microsoft Sentinel</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">☁️ Sentinel Architecture</div>
+                            <p>Sentinel components explained:</p>
+                            <ul>
+                                <li><strong>Log Analytics Workspace</strong> = The database where all logs live</li>
+                                <li><strong>Data Connectors</strong> = Pipes bringing logs in (Microsoft 365, Azure, AWS, firewalls)</li>
+                                <li><strong>Analytics Rules</strong> = Detection recipes - "If X happens, create an alert"</li>
+                                <li><strong>Incidents</strong> = Grouped alerts that need investigation</li>
+                                <li><strong>Playbooks</strong> = Automated response scripts (Logic Apps)</li>
+                                <li><strong>Workbooks</strong> = Custom dashboards and reports</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">🔍 KQL = Kusto Query Language</div>
+                            <ul>
+                                <li><strong>TableName |</strong> = Start with a table (like SecurityEvent)</li>
+                                <li><strong>where</strong> = Filter rows</li>
+                                <li><strong>project</strong> = Select columns (like SQL SELECT)</li>
+                                <li><strong>summarize</strong> = Aggregate (like SQL GROUP BY)</li>
+                                <li><strong>extend</strong> = Add calculated columns</li>
+                                <li><strong>join</strong> = Combine tables</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 KQL Example:</strong><br>
+                            <code>SigninLogs | where ResultType != 0 | summarize FailedLogins=count() by UserPrincipalName | where FailedLogins > 10</code><br>
+                            Translation: "Failed sign-ins, grouped by user, where more than 10 failures"
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>Sentinel Architecture</h2>
                 

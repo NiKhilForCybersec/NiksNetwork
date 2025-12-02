@@ -281,6 +281,39 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="callout callout-memoryaid">
+                    <div class="callout-title">🧠 Memory Aid: Routing Protocols</div>
+                    <div class="callout-content">
+                        <div class="analogy">
+                            <div class="analogy-title">🗺️ GPS Navigation Analogy</div>
+                            <p>Routing protocols are like different GPS apps:</p>
+                            <ul>
+                                <li><strong>Static Routing</strong> = Written directions - you set the exact path, never changes</li>
+                                <li><strong>RIP</strong> = Counts only distance (hops) - "shortest path by stops"</li>
+                                <li><strong>OSPF</strong> = Google Maps - considers traffic, road quality, speed (link state)</li>
+                                <li><strong>BGP</strong> = International flight routing - connects different "countries" (autonomous systems)</li>
+                            </ul>
+                        </div>
+                        <div class="analogy">
+                            <div class="analogy-title">📊 Administrative Distance (AD) - Who to Trust</div>
+                            <p>Lower AD = More trustworthy. Like asking for directions:</p>
+                            <ul>
+                                <li><strong>AD 0</strong> = Connected - You can see it yourself!</li>
+                                <li><strong>AD 1</strong> = Static - Boss told you explicitly</li>
+                                <li><strong>AD 90</strong> = EIGRP - Trusted colleague (Cisco proprietary)</li>
+                                <li><strong>AD 110</strong> = OSPF - Industry standard recommendation</li>
+                                <li><strong>AD 120</strong> = RIP - Random person's suggestion</li>
+                                <li><strong>AD 200</strong> = BGP (external) - A stranger from another company</li>
+                            </ul>
+                        </div>
+                        <div class="remember">
+                            <strong>🎯 Remember:</strong> IGP = Inside your network (OSPF, EIGRP, RIP) | EGP/BGP = Between networks (the "glue" of the internet)
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <h2>Routing Concepts</h2>
                 
