@@ -1,878 +1,480 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Comprehensive Network Security & Infrastructure Ultimate Guide - Forward Proxy, Reverse Proxy, Firewalls, and Enterprise Networking Tools">
-  <title>Network Security & Infrastructure Ultimate Guide</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Network Security Ultimate Guide - Comprehensive documentation covering firewalls, VPN, IDS/IPS, network architecture, and more">
+    <title>Network Security Ultimate Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
 </head>
 <body>
-  <!-- Navigation Bar -->
-  <nav class="navbar">
-    <a href="index.html" class="navbar-brand">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-        <path d="M12 8v4M12 16h.01"/>
-      </svg>
-      NetSec Guide
-    </a>
-    <ul class="navbar-nav">
-      <li><a href="index.html" class="active">Home</a></li>
-      <li><a href="network-fundamentals.html">Fundamentals</a></li>
-      <li><a href="forward-proxy.html">Proxies</a></li>
-      <li><a href="firewall-concepts.html">Firewalls</a></li>
-      <li><a href="troubleshooting.html">Troubleshooting</a></li>
-    </ul>
-    <button class="menu-toggle" aria-label="Toggle menu">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="3" y1="12" x2="21" y2="12"></line>
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-        <line x1="3" y1="18" x2="21" y2="18"></line>
-      </svg>
-    </button>
-  </nav>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <div class="sidebar-search">
+                <input type="text" id="searchInput" placeholder="Search... (Ctrl+K)" autocomplete="off">
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Section 1: Networking Fundamentals -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌐</span>Networking Fundamentals</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="1-1-osi-model.html" class="nav-link"><span class="nav-link-number">1.1</span> OSI Model</a>
+                        <a href="1-2-tcpip.html" class="nav-link"><span class="nav-link-number">1.2</span> TCP/IP Networking</a>
+                        <a href="1-3-ip-addressing.html" class="nav-link"><span class="nav-link-number">1.3</span> IP Addressing & Subnetting</a>
+                        <a href="1-4-dns.html" class="nav-link"><span class="nav-link-number">1.4</span> DNS</a>
+                        <a href="1-5-routing.html" class="nav-link"><span class="nav-link-number">1.5</span> Routing Protocols</a>
+                        <a href="1-6-switching.html" class="nav-link"><span class="nav-link-number">1.6</span> Switching & VLANs</a>
+                        <a href="1-7-dns-security.html" class="nav-link"><span class="nav-link-number">1.7</span> DNS Security</a>
+                        <a href="1-8-wireless-security.html" class="nav-link"><span class="nav-link-number">1.8</span> Wireless Security</a>
+                        <a href="1-9-bgp-security.html" class="nav-link"><span class="nav-link-number">1.9</span> BGP Security</a>
+                        <a href="1-10-layer2-security.html" class="nav-link"><span class="nav-link-number">1.10</span> Layer 2 Security</a>
+                        <a href="1-11-snmp-security.html" class="nav-link"><span class="nav-link-number">1.11</span> SNMP Security</a>
+                        <a href="1-12-aaa-radius-tacacs.html" class="nav-link"><span class="nav-link-number">1.12</span> AAA / RADIUS / TACACS+</a>
+                        <a href="1-13-ipv6-security.html" class="nav-link"><span class="nav-link-number">1.13</span> IPv6 Security</a>
+                        <a href="1-14-macsec.html" class="nav-link"><span class="nav-link-number">1.14</span> MACsec</a>
+                        <a href="1-15-network-taps.html" class="nav-link"><span class="nav-link-number">1.15</span> Network TAPs & Visibility</a>
+                        <a href="1-16-doh-dot.html" class="nav-link"><span class="nav-link-number">1.16</span> DoH/DoT Security</a>
+                    </div>
+                </div>
 
-  <!-- Sidebar Navigation -->
-  <aside class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-title">Getting Started</div>
-      <ul class="sidebar-nav">
-        <li><a href="index.html" class="active">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          Home
-        </a></li>
-        <li><a href="network-fundamentals.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-          Network Fundamentals
-        </a></li>
-      </ul>
-    </div>
+                <!-- Section 2: Firewalls -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔥</span>Firewalls</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="2-1-firewall-fundamentals.html" class="nav-link"><span class="nav-link-number">2.1</span> Firewall Fundamentals</a>
+                        <a href="2-4-palo-alto.html" class="nav-link"><span class="nav-link-number">2.4</span> Palo Alto Networks</a>
+                        <a href="2-5-cisco-firepower.html" class="nav-link"><span class="nav-link-number">2.5</span> Cisco Firepower/ASA</a>
+                        <a href="2-6-fortigate.html" class="nav-link"><span class="nav-link-number">2.6</span> Fortinet FortiGate</a>
+                        <a href="2-7-checkpoint.html" class="nav-link"><span class="nav-link-number">2.7</span> Check Point</a>
+                        <a href="2-8-cloud-firewalls.html" class="nav-link"><span class="nav-link-number">2.8</span> Cloud Firewalls</a>
+                        <a href="2-9-firewall-ha.html" class="nav-link"><span class="nav-link-number">2.9</span> High Availability</a>
+                        <a href="2-10-firewall-logging.html" class="nav-link"><span class="nav-link-number">2.10</span> Firewall Logging</a>
+                        <a href="2-11-firewall-troubleshooting.html" class="nav-link"><span class="nav-link-number">2.11</span> Troubleshooting</a>
+                        <a href="2-12-ddos-protection.html" class="nav-link"><span class="nav-link-number">2.12</span> DDoS Protection</a>
+                    </div>
+                </div>
 
-    <div class="sidebar-section">
-      <div class="sidebar-title">Proxy Technologies</div>
-      <ul class="sidebar-nav">
-        <li><a href="forward-proxy.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-          Forward Proxy
-        </a></li>
-        <li><a href="reverse-proxy.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 3 3 3 3 9"/><polyline points="15 21 21 21 21 15"/><line x1="3" y1="3" x2="10" y2="10"/><line x1="21" y1="21" x2="14" y2="14"/></svg>
-          Reverse Proxy
-        </a></li>
-        <li><a href="load-balancing.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          Load Balancing
-        </a></li>
-      </ul>
-    </div>
+                <!-- Section 3: Web Proxy -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌍</span>Web Proxy & TLS</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="3-1-proxy-fundamentals.html" class="nav-link"><span class="nav-link-number">3.1</span> Proxy Fundamentals</a>
+                        <a href="3-2-ssl-inspection.html" class="nav-link"><span class="nav-link-number">3.2</span> SSL/TLS Inspection</a>
+                        <a href="3-3-url-filtering.html" class="nav-link"><span class="nav-link-number">3.3</span> URL Filtering</a>
+                        <a href="3-4-squid.html" class="nav-link"><span class="nav-link-number">3.4</span> Squid Proxy</a>
+                        <a href="3-5-tls-hardening.html" class="nav-link"><span class="nav-link-number">3.5</span> TLS Hardening</a>
+                    </div>
+                </div>
 
-    <div class="sidebar-section">
-      <div class="sidebar-title">Firewalls</div>
-      <ul class="sidebar-nav">
-        <li><a href="firewall-concepts.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Firewall Concepts
-        </a></li>
-        <li><a href="firewall-paloalto.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-          Palo Alto
-        </a></li>
-        <li><a href="firewall-fortinet.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M15 21V9"/></svg>
-          FortiGate
-        </a></li>
-        <li><a href="firewall-cisco.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
-          Cisco ASA/FTD
-        </a></li>
-        <li><a href="firewall-opensource.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
-          Open Source (pfSense/iptables)
-        </a></li>
-      </ul>
-    </div>
+                <!-- Section 4: WAF & API Security -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">🛡️</span>WAF & API Security</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="4-1-waf-fundamentals.html" class="nav-link"><span class="nav-link-number">4.1</span> WAF Fundamentals</a>
+                        <a href="4-2-owasp-top10.html" class="nav-link"><span class="nav-link-number">4.2</span> OWASP Top 10</a>
+                        <a href="4-3-aws-waf.html" class="nav-link"><span class="nav-link-number">4.3</span> AWS WAF</a>
+                        <a href="4-4-azure-waf.html" class="nav-link"><span class="nav-link-number">4.4</span> Azure WAF</a>
+                        <a href="4-5-cloudflare-waf.html" class="nav-link"><span class="nav-link-number">4.5</span> Cloudflare WAF</a>
+                        <a href="4-6-api-security.html" class="nav-link"><span class="nav-link-number">4.6</span> API Security</a>
+                    </div>
+                </div>
 
-    <div class="sidebar-section">
-      <div class="sidebar-title">Security Technologies</div>
-      <ul class="sidebar-nav">
-        <li><a href="waf.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-          Web Application Firewall
-        </a></li>
-        <li><a href="ids-ips.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          IDS/IPS
-        </a></li>
-        <li><a href="vpn.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          VPN Technologies
-        </a></li>
-        <li><a href="dns-security.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-          DNS Security
-        </a></li>
-      </ul>
-    </div>
+                <!-- Section 5: IDS/IPS & NDR -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">🚨</span>IDS/IPS & NDR</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="5-1-ids-ips-fundamentals.html" class="nav-link"><span class="nav-link-number">5.1</span> IDS/IPS Fundamentals</a>
+                        <a href="5-2-snort-suricata.html" class="nav-link"><span class="nav-link-number">5.2</span> Snort & Suricata</a>
+                        <a href="5-3-zeek.html" class="nav-link"><span class="nav-link-number">5.3</span> Zeek (Bro)</a>
+                        <a href="5-4-ids-tuning.html" class="nav-link"><span class="nav-link-number">5.4</span> IDS/IPS Tuning</a>
+                        <a href="5-5-ndr.html" class="nav-link"><span class="nav-link-number">5.5</span> Network Detection & Response</a>
+                    </div>
+                </div>
 
-    <div class="sidebar-section">
-      <div class="sidebar-title">Architecture</div>
-      <ul class="sidebar-nav">
-        <li><a href="network-segmentation.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-          Network Segmentation & Zero Trust
-        </a></li>
-        <li><a href="sdwan.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-          SD-WAN
-        </a></li>
-        <li><a href="cloud-networking.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
-          Cloud Networking
-        </a></li>
-      </ul>
-    </div>
+                <!-- Section 6: VPN & WAN -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔐</span>VPN & SD-WAN</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="6-1-vpn-fundamentals.html" class="nav-link"><span class="nav-link-number">6.1</span> VPN Fundamentals</a>
+                        <a href="6-2-ipsec.html" class="nav-link"><span class="nav-link-number">6.2</span> IPSec Deep Dive</a>
+                        <a href="6-3-ssl-vpn.html" class="nav-link"><span class="nav-link-number">6.3</span> SSL VPN</a>
+                        <a href="6-4-site-to-site.html" class="nav-link"><span class="nav-link-number">6.4</span> Site-to-Site VPN</a>
+                        <a href="6-5-vpn-troubleshooting.html" class="nav-link"><span class="nav-link-number">6.5</span> VPN Troubleshooting</a>
+                        <a href="6-6-sdwan-security.html" class="nav-link"><span class="nav-link-number">6.6</span> SD-WAN Security</a>
+                    </div>
+                </div>
 
-    <div class="sidebar-section">
-      <div class="sidebar-title">Operations</div>
-      <ul class="sidebar-nav">
-        <li><a href="traffic-analysis.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          Traffic Analysis
-        </a></li>
-        <li><a href="troubleshooting.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          Troubleshooting
-        </a></li>
-        <li><a href="best-practices.html">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          Best Practices
-        </a></li>
-      </ul>
-    </div>
-  </aside>
+                <!-- Section 7: Network Architecture -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">🏗️</span>Network Architecture</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="7-1-network-segmentation.html" class="nav-link"><span class="nav-link-number">7.1</span> Network Segmentation</a>
+                        <a href="7-2-zero-trust.html" class="nav-link"><span class="nav-link-number">7.2</span> Zero Trust Network</a>
+                        <a href="7-3-zscaler-platform.html" class="nav-link"><span class="nav-link-number">7.3</span> Zscaler Platform</a>
+                        <a href="7-4-threat-intel.html" class="nav-link"><span class="nav-link-number">7.4</span> Network Threat Intelligence</a>
+                        <a href="7-5-active-directory.html" class="nav-link"><span class="nav-link-number">7.5</span> Active Directory Security</a>
+                        <a href="7-7-nac.html" class="nav-link"><span class="nav-link-number">7.7</span> Network Access Control</a>
+                        <a href="7-8-datacenter-security.html" class="nav-link"><span class="nav-link-number">7.8</span> Data Center Security</a>
+                        <a href="7-9-network-automation.html" class="nav-link"><span class="nav-link-number">7.9</span> Network Automation Security</a>
+                    </div>
+                </div>
 
-  <!-- Main Content -->
-  <main class="main-content">
-    <div class="content-wrapper">
-      <!-- Hero Section -->
-      <section class="hero">
-        <div class="hero-content">
-          <h1>Network Security & Infrastructure</h1>
-          <p class="hero-subtitle">
-            The complete enterprise guide to forward proxies, reverse proxies, firewalls, 
-            load balancers, and essential networking infrastructure. From fundamentals to 
-            advanced configurations.
-          </p>
-          <div class="flex gap-2 mt-3">
-            <a href="network-fundamentals.html" class="btn btn-primary">Get Started</a>
-            <a href="#quick-reference" class="btn btn-outline">Quick Reference</a>
-          </div>
-        </div>
-      </section>
+                <!-- Section 8: Load Balancers -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">⚖️</span>Load Balancers</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="8-1-lb-fundamentals.html" class="nav-link"><span class="nav-link-number">8.1</span> Load Balancer Fundamentals</a>
+                        <a href="8-2-f5-bigip.html" class="nav-link"><span class="nav-link-number">8.2</span> F5 BIG-IP</a>
+                        <a href="8-3-aws-elb.html" class="nav-link"><span class="nav-link-number">8.3</span> AWS ALB/NLB</a>
+                        <a href="8-4-haproxy.html" class="nav-link"><span class="nav-link-number">8.4</span> HAProxy</a>
+                        <a href="8-5-nginx.html" class="nav-link"><span class="nav-link-number">8.5</span> NGINX</a>
+                    </div>
+                </div>
 
-      <!-- Network Security Layers -->
-      <section>
-        <h2 id="security-layers">Enterprise Network Security Architecture</h2>
-        <p>
-          Modern enterprise networks implement defense-in-depth through multiple security layers.
-          Each layer provides specific protections and works in concert with others to create
-          a comprehensive security posture.
-        </p>
+                <!-- Section 10: SIEM -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">📊</span>SIEM & Log Analysis</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="10-1-siem-fundamentals.html" class="nav-link"><span class="nav-link-number">10.1</span> SIEM Fundamentals</a>
+                        <a href="10-2-splunk.html" class="nav-link"><span class="nav-link-number">10.2</span> Splunk</a>
+                        <a href="10-3-microsoft-sentinel.html" class="nav-link"><span class="nav-link-number">10.3</span> Microsoft Sentinel</a>
+                        <a href="10-4-elastic-security.html" class="nav-link"><span class="nav-link-number">10.4</span> Elastic Security</a>
+                    </div>
+                </div>
 
-        <div class="ascii-diagram">
-          <div class="ascii-diagram-title">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            Enterprise Network Security Layers
-          </div>
-          <pre>
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                              INTERNET / EXTERNAL NETWORKS                           │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-                                          │
-                                          ▼
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│  ╔═══════════════════════════════════════════════════════════════════════════════╗  │
-│  ║                        PERIMETER SECURITY LAYER                               ║  │
-│  ║  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          ║  │
-│  ║  │   DDoS      │  │   Edge      │  │  Forward    │  │    WAF      │          ║  │
-│  ║  │ Protection  │──│  Firewall   │──│   Proxy     │──│  (Layer 7)  │          ║  │
-│  ║  │  (ISP/CDN)  │  │  (NGFW)     │  │ (Zscaler)   │  │ (CloudFlare)│          ║  │
-│  ║  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘          ║  │
-│  ╚═══════════════════════════════════════════════════════════════════════════════╝  │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-                                          │
-                                          ▼
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│  ╔═══════════════════════════════════════════════════════════════════════════════╗  │
-│  ║                              DMZ LAYER                                        ║  │
-│  ║  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          ║  │
-│  ║  │   Reverse   │  │    Load     │  │   Public    │  │    Mail     │          ║  │
-│  ║  │   Proxy     │──│  Balancer   │──│    Web      │──│   Gateway   │          ║  │
-│  ║  │  (Nginx)    │  │  (HAProxy)  │  │  Servers    │  │  (Proofpoint)│         ║  │
-│  ║  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘          ║  │
-│  ╚═══════════════════════════════════════════════════════════════════════════════╝  │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-                                          │
-                                          ▼
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│  ╔═══════════════════════════════════════════════════════════════════════════════╗  │
-│  ║                        INTERNAL NETWORK LAYER                                 ║  │
-│  ║  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          ║  │
-│  ║  │  Internal   │  │    IDS/     │  │   Network   │  │   Internal  │          ║  │
-│  ║  │  Firewall   │──│    IPS      │──│   Access    │──│   Services  │          ║  │
-│  ║  │(Segmentation)│ │  (Suricata) │  │  Control    │  │  (AD, DNS)  │          ║  │
-│  ║  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘          ║  │
-│  ╚═══════════════════════════════════════════════════════════════════════════════╝  │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-                                          │
-                                          ▼
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│  ╔═══════════════════════════════════════════════════════════════════════════════╗  │
-│  ║                          ENDPOINT LAYER                                       ║  │
-│  ║  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          ║  │
-│  ║  │   Host      │  │    EDR/     │  │   DLP       │  │   Endpoint  │          ║  │
-│  ║  │  Firewall   │──│    XDR      │──│   Agent     │──│  Encryption │          ║  │
-│  ║  │ (Windows FW)│  │   (MDE)     │  │  (Purview)  │  │ (BitLocker) │          ║  │
-│  ║  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘          ║  │
-│  ╚═══════════════════════════════════════════════════════════════════════════════╝  │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-          </pre>
-        </div>
-      </section>
+                <!-- Section 12: Network Operations -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔧</span>Network Operations</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="12-1-methodology.html" class="nav-link"><span class="nav-link-number">12.1</span> Troubleshooting Methodology</a>
+                        <a href="12-2-incident-response.html" class="nav-link"><span class="nav-link-number">12.2</span> Network Incident Response</a>
+                        <a href="12-3-log-analysis.html" class="nav-link"><span class="nav-link-number">12.3</span> Network Log Analysis</a>
+                        <a href="12-4-packet-capture.html" class="nav-link"><span class="nav-link-number">12.4</span> Packet Capture & Analysis</a>
+                        <a href="12-5-threat-hunting.html" class="nav-link"><span class="nav-link-number">12.5</span> Network Threat Hunting</a>
+                        <a href="12-6-netflow.html" class="nav-link"><span class="nav-link-number">12.6</span> NetFlow & sFlow</a>
+                        <a href="12-7-network-forensics.html" class="nav-link"><span class="nav-link-number">12.7</span> Network Forensics</a>
+                        <a href="12-8-network-pentesting.html" class="nav-link"><span class="nav-link-number">12.8</span> Network Pentesting</a>
+                    </div>
+                </div>
 
-      <!-- Navigation Cards -->
-      <section>
-        <h2>Explore the Guide</h2>
-        <p>
-          Navigate through comprehensive documentation covering all aspects of enterprise
-          network security infrastructure.
-        </p>
+                <!-- Section 13: Compliance -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">📋</span>Compliance</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="13-1-compliance-frameworks.html" class="nav-link"><span class="nav-link-number">13.1</span> Network Compliance</a>
+                        <a href="13-2-vulnerability-management.html" class="nav-link"><span class="nav-link-number">13.2</span> Vulnerability Scanning</a>
+                    </div>
+                </div>
 
-        <div class="card-grid">
-          <!-- Fundamentals -->
-          <a href="network-fundamentals.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-              </div>
-              <h3 class="card-title">Network Fundamentals</h3>
-            </div>
-            <div class="card-body">
-              <p>OSI/TCP-IP models, IP addressing, subnetting, routing, switching, VLANs, and essential protocols.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-primary">Foundation</span>
-            </div>
-          </a>
+                <!-- Section 14: Cloud Network Security -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">☁️</span>Cloud Network Security</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="14-1-cloud-security.html" class="nav-link"><span class="nav-link-number">14.1</span> Cloud Network Fundamentals</a>
+                        <a href="14-2-aws-security.html" class="nav-link"><span class="nav-link-number">14.2</span> AWS Network Security</a>
+                        <a href="14-3-azure-security.html" class="nav-link"><span class="nav-link-number">14.3</span> Azure Network Security</a>
+                        <a href="14-4-gcp-security.html" class="nav-link"><span class="nav-link-number">14.4</span> GCP Network Security</a>
+                        <a href="14-5-container-security.html" class="nav-link"><span class="nav-link-number">14.5</span> Container Network Security</a>
+                        <a href="14-6-casb.html" class="nav-link"><span class="nav-link-number">14.6</span> CASB</a>
+                        <a href="14-7-aws-vpc-deep-dive.html" class="nav-link"><span class="nav-link-number">14.7</span> AWS VPC Deep Dive</a>
+                        <a href="14-8-azure-networking.html" class="nav-link"><span class="nav-link-number">14.8</span> Azure Networking Deep Dive</a>
+                        <a href="14-9-service-mesh.html" class="nav-link"><span class="nav-link-number">14.9</span> Service Mesh Security</a>
+                        <a href="14-10-kubernetes-networking.html" class="nav-link"><span class="nav-link-number">14.10</span> Kubernetes Networking</a>
+                    </div>
+                </div>
 
-          <!-- Forward Proxy -->
-          <a href="forward-proxy.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-              </div>
-              <h3 class="card-title">Forward Proxy</h3>
-            </div>
-            <div class="card-body">
-              <p>Squid, Zscaler, Blue Coat configurations. Web filtering, SSL inspection, PAC files, and caching.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-info">Client-Side</span>
-            </div>
-          </a>
+                <!-- Section 23: IoT/OT -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">📡</span>IoT/OT Security</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="23-1-iot-security.html" class="nav-link"><span class="nav-link-number">23.1</span> IoT Network Security</a>
+                    </div>
+                </div>
 
-          <!-- Reverse Proxy -->
-          <a href="reverse-proxy.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 3 3 3 3 9"/><polyline points="15 21 21 21 21 15"/><line x1="3" y1="3" x2="10" y2="10"/><line x1="21" y1="21" x2="14" y2="14"/></svg>
-              </div>
-              <h3 class="card-title">Reverse Proxy</h3>
-            </div>
-            <div class="card-body">
-              <p>Nginx, HAProxy, Apache, F5, Traefik, Envoy. SSL termination, load balancing, and caching.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-success">Server-Side</span>
-            </div>
-          </a>
-
-          <!-- Load Balancing -->
-          <a href="load-balancing.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-              </div>
-              <h3 class="card-title">Load Balancing</h3>
-            </div>
-            <div class="card-body">
-              <p>L4 vs L7, algorithms, health checks, session persistence, HA patterns, and cloud load balancers.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-primary">Availability</span>
-            </div>
-          </a>
-
-          <!-- Firewall Concepts -->
-          <a href="firewall-concepts.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              </div>
-              <h3 class="card-title">Firewall Concepts</h3>
-            </div>
-            <div class="card-body">
-              <p>Stateful inspection, NGFW features, zones, NAT, VPN, HA configurations, and rule best practices.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-danger">Security</span>
-            </div>
-          </a>
-
-          <!-- Palo Alto -->
-          <a href="firewall-paloalto.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-              </div>
-              <h3 class="card-title">Palo Alto NGFW</h3>
-            </div>
-            <div class="card-body">
-              <p>App-ID, User-ID, Content-ID, GlobalProtect, Panorama, security profiles, and 40+ config examples.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-warning">Enterprise</span>
-            </div>
-          </a>
-
-          <!-- FortiGate -->
-          <a href="firewall-fortinet.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M15 21V9"/></svg>
-              </div>
-              <h3 class="card-title">FortiGate Firewall</h3>
-            </div>
-            <div class="card-body">
-              <p>FortiOS, Security Fabric, UTM/NGFW, SD-WAN, VDOMs, SSL VPN, and comprehensive configurations.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-warning">Enterprise</span>
-            </div>
-          </a>
-
-          <!-- Cisco -->
-          <a href="firewall-cisco.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
-              </div>
-              <h3 class="card-title">Cisco ASA & FTD</h3>
-            </div>
-            <div class="card-body">
-              <p>ASA security levels, FMC, Firepower, AnyConnect, MPF, ACLs, and multi-context configurations.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-warning">Enterprise</span>
-            </div>
-          </a>
-
-          <!-- Open Source Firewalls -->
-          <a href="firewall-opensource.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
-              </div>
-              <h3 class="card-title">Open Source Firewalls</h3>
-            </div>
-            <div class="card-body">
-              <p>pfSense, OPNsense, iptables/nftables, Windows Firewall. Complete rules and configurations.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-success">Open Source</span>
-            </div>
-          </a>
-
-          <!-- WAF -->
-          <a href="waf.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-              </div>
-              <h3 class="card-title">Web Application Firewall</h3>
-            </div>
-            <div class="card-body">
-              <p>ModSecurity, AWS WAF, Azure WAF, Cloudflare, F5 ASM. OWASP rules and custom policies.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-danger">Layer 7</span>
-            </div>
-          </a>
-
-          <!-- IDS/IPS -->
-          <a href="ids-ips.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              </div>
-              <h3 class="card-title">IDS/IPS Systems</h3>
-            </div>
-            <div class="card-body">
-              <p>Snort, Suricata, Zeek. Signature writing, anomaly detection, tuning, and SIEM integration.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-danger">Detection</span>
-            </div>
-          </a>
-
-          <!-- VPN -->
-          <a href="vpn.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              </div>
-              <h3 class="card-title">VPN Technologies</h3>
-            </div>
-            <div class="card-body">
-              <p>IPSec, SSL/TLS VPN, OpenVPN, WireGuard. Site-to-site, remote access, and cloud VPN configs.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-info">Encryption</span>
-            </div>
-          </a>
-
-          <!-- DNS Security -->
-          <a href="dns-security.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-              </div>
-              <h3 class="card-title">DNS & DNS Security</h3>
-            </div>
-            <div class="card-body">
-              <p>BIND, Windows DNS, DNSSEC, DoH/DoT, DNS attacks, filtering, and security configurations.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-primary">Infrastructure</span>
-            </div>
-          </a>
-
-          <!-- Network Segmentation -->
-          <a href="network-segmentation.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-              </div>
-              <h3 class="card-title">Segmentation & Zero Trust</h3>
-            </div>
-            <div class="card-body">
-              <p>VLANs, microsegmentation, DMZ designs, ZTNA, SDP, and compliance requirements.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-success">Architecture</span>
-            </div>
-          </a>
-
-          <!-- Traffic Analysis -->
-          <a href="traffic-analysis.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-              </div>
-              <h3 class="card-title">Traffic Analysis</h3>
-            </div>
-            <div class="card-body">
-              <p>tcpdump, Wireshark, SNMP, NetFlow, network monitoring tools, TAPs, and SPAN configuration.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-info">Operations</span>
-            </div>
-          </a>
-
-          <!-- SD-WAN -->
-          <a href="sdwan.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-              </div>
-              <h3 class="card-title">SD-WAN</h3>
-            </div>
-            <div class="card-body">
-              <p>Cisco Viptela, Fortinet, Palo Alto Prisma, VMware VeloCloud. Architecture and configuration.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-primary">WAN</span>
-            </div>
-          </a>
-
-          <!-- Cloud Networking -->
-          <a href="cloud-networking.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
-              </div>
-              <h3 class="card-title">Cloud Networking</h3>
-            </div>
-            <div class="card-body">
-              <p>AWS VPC, Azure VNet, GCP networking, security groups, NACLs, and hybrid connectivity.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-info">Cloud</span>
-            </div>
-          </a>
-
-          <!-- Troubleshooting -->
-          <a href="troubleshooting.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              </div>
-              <h3 class="card-title">Troubleshooting</h3>
-            </div>
-            <div class="card-body">
-              <p>Methodology, tools, commands, common issues, 20+ real-world scenarios with solutions.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-warning">Operations</span>
-            </div>
-          </a>
-
-          <!-- Best Practices -->
-          <a href="best-practices.html" class="nav-card card">
-            <div class="card-header">
-              <div class="card-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-              </div>
-              <h3 class="card-title">Best Practices</h3>
-            </div>
-            <div class="card-body">
-              <p>Defense in depth, hardening guides, compliance (PCI-DSS, HIPAA), and security operations.</p>
-            </div>
-            <div class="card-footer">
-              <span class="badge badge-success">Governance</span>
-            </div>
-          </a>
-        </div>
-      </section>
-
-      <!-- Quick Reference -->
-      <section>
-        <h2 id="quick-reference">Quick Reference: When to Use Which Technology</h2>
-
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Scenario</th>
-                <th>Technology</th>
-                <th>Key Purpose</th>
-                <th>Examples</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Control employee web access</td>
-                <td><span class="badge badge-info">Forward Proxy</span></td>
-                <td>Filter, log, cache outbound traffic</td>
-                <td>Squid, Zscaler ZIA, Blue Coat</td>
-              </tr>
-              <tr>
-                <td>Protect web servers from internet</td>
-                <td><span class="badge badge-success">Reverse Proxy</span></td>
-                <td>SSL termination, caching, security</td>
-                <td>Nginx, HAProxy, F5 BIG-IP</td>
-              </tr>
-              <tr>
-                <td>Distribute traffic across servers</td>
-                <td><span class="badge badge-primary">Load Balancer</span></td>
-                <td>High availability, scalability</td>
-                <td>HAProxy, Nginx, AWS ALB</td>
-              </tr>
-              <tr>
-                <td>Control network access</td>
-                <td><span class="badge badge-danger">Firewall</span></td>
-                <td>Allow/deny traffic by policy</td>
-                <td>Palo Alto, FortiGate, Cisco ASA</td>
-              </tr>
-              <tr>
-                <td>Protect web applications</td>
-                <td><span class="badge badge-danger">WAF</span></td>
-                <td>Block OWASP attacks, bot protection</td>
-                <td>ModSecurity, AWS WAF, Cloudflare</td>
-              </tr>
-              <tr>
-                <td>Detect network threats</td>
-                <td><span class="badge badge-warning">IDS/IPS</span></td>
-                <td>Signature & anomaly detection</td>
-                <td>Snort, Suricata, Zeek</td>
-              </tr>
-              <tr>
-                <td>Secure remote access</td>
-                <td><span class="badge badge-info">VPN</span></td>
-                <td>Encrypted tunnels</td>
-                <td>GlobalProtect, AnyConnect, OpenVPN</td>
-              </tr>
-              <tr>
-                <td>Connect branch offices</td>
-                <td><span class="badge badge-primary">SD-WAN</span></td>
-                <td>Optimized WAN, direct cloud access</td>
-                <td>Cisco Viptela, Fortinet, VeloCloud</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Technology Comparison -->
-      <section>
-        <h2 id="proxy-comparison">Forward Proxy vs Reverse Proxy</h2>
+                <!-- Section 15: Resources -->
+                <div class="nav-section">
+                    <div class="nav-section-header" onclick="toggleSection(this)">
+                        <div class="nav-section-title"><span class="nav-section-icon">📚</span>Resources</div>
+                        <span class="nav-section-toggle">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="15-2-interview-questions.html" class="nav-link"><span class="nav-link-number">15.2</span> Interview Questions</a>
+                        <a href="15-4-cheat-sheets.html" class="nav-link"><span class="nav-link-number">15.4</span> Command Cheat Sheets</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
         
-        <div class="ascii-diagram">
-          <div class="ascii-diagram-title">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            Proxy Direction Comparison
-          </div>
-          <pre>
-FORWARD PROXY (Client-Side)
-═══════════════════════════════════════════════════════════════════════════════
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-current">Network Security Ultimate Guide</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <div class="hero-section">
+                    <h1>🔒 Network Security Ultimate Guide</h1>
+                    <p class="hero-subtitle">Comprehensive documentation for network security professionals covering firewalls, VPN, IDS/IPS, cloud networking, and enterprise infrastructure security.</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">90+</div>
+                        <div class="stat-label">Technical Guides</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">14</div>
+                        <div class="stat-label">Topic Sections</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">15+</div>
+                        <div class="stat-label">Vendor Platforms</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Network Focused</div>
+                    </div>
+                </div>
 
-  ┌──────────────┐                                      ┌──────────────────┐
-  │              │                                      │                  │
-  │   Clients    │ ──► FORWARD  ──► ┌───────────┐ ──►   │    Internet      │
-  │  (Internal)  │      PROXY       │ Firewall  │       │   Web Servers    │
-  │              │ ◄── (Squid)  ◄── └───────────┘ ◄──   │                  │
-  └──────────────┘                                      └──────────────────┘
-        │
-        ├── Web Filtering & Content Control
-        ├── User Authentication & Logging  
-        ├── Bandwidth Optimization & Caching
-        ├── SSL/TLS Inspection (MITM)
-        └── Anonymous Browsing
+                <h2>📖 Documentation Sections</h2>
+                
+                <div class="section-grid">
+                    <a href="1-1-osi-model.html" class="section-card">
+                        <div class="section-card-icon">🌐</div>
+                        <h3>Networking Fundamentals</h3>
+                        <p>OSI, TCP/IP, routing, switching, BGP, Layer 2, SNMP, AAA, IPv6, MACsec</p>
+                        <span class="section-card-count">16 guides</span>
+                    </a>
+                    
+                    <a href="2-1-firewall-fundamentals.html" class="section-card">
+                        <div class="section-card-icon">🔥</div>
+                        <h3>Firewalls</h3>
+                        <p>Palo Alto, Cisco, FortiGate, Check Point, cloud firewalls, HA, DDoS</p>
+                        <span class="section-card-count">10 guides</span>
+                    </a>
+                    
+                    <a href="3-1-proxy-fundamentals.html" class="section-card">
+                        <div class="section-card-icon">🌍</div>
+                        <h3>Web Proxy & TLS</h3>
+                        <p>Proxy, SSL inspection, URL filtering, TLS hardening</p>
+                        <span class="section-card-count">5 guides</span>
+                    </a>
+                    
+                    <a href="4-1-waf-fundamentals.html" class="section-card">
+                        <div class="section-card-icon">🛡️</div>
+                        <h3>WAF & API Security</h3>
+                        <p>WAF fundamentals, OWASP Top 10, AWS/Azure/Cloudflare WAF</p>
+                        <span class="section-card-count">6 guides</span>
+                    </a>
+                    
+                    <a href="5-1-ids-ips-fundamentals.html" class="section-card">
+                        <div class="section-card-icon">🚨</div>
+                        <h3>IDS/IPS & NDR</h3>
+                        <p>Snort, Suricata, Zeek, Network Detection & Response</p>
+                        <span class="section-card-count">5 guides</span>
+                    </a>
+                    
+                    <a href="6-1-vpn-fundamentals.html" class="section-card">
+                        <div class="section-card-icon">🔐</div>
+                        <h3>VPN & SD-WAN</h3>
+                        <p>IPSec, SSL VPN, site-to-site, SD-WAN security, SASE</p>
+                        <span class="section-card-count">6 guides</span>
+                    </a>
+                    
+                    <a href="7-1-network-segmentation.html" class="section-card">
+                        <div class="section-card-icon">🏗️</div>
+                        <h3>Network Architecture</h3>
+                        <p>Segmentation, Zero Trust, NAC, data center, automation security</p>
+                        <span class="section-card-count">8 guides</span>
+                    </a>
+                    
+                    <a href="8-1-lb-fundamentals.html" class="section-card">
+                        <div class="section-card-icon">⚖️</div>
+                        <h3>Load Balancers</h3>
+                        <p>F5 BIG-IP, AWS ALB/NLB, HAProxy, NGINX</p>
+                        <span class="section-card-count">5 guides</span>
+                    </a>
+                    
+                    <a href="10-1-siem-fundamentals.html" class="section-card">
+                        <div class="section-card-icon">📊</div>
+                        <h3>SIEM & Log Analysis</h3>
+                        <p>Splunk, Microsoft Sentinel, Elastic Security</p>
+                        <span class="section-card-count">4 guides</span>
+                    </a>
+                    
+                    <a href="12-1-methodology.html" class="section-card">
+                        <div class="section-card-icon">🔧</div>
+                        <h3>Network Operations</h3>
+                        <p>Troubleshooting, forensics, pentesting, NetFlow, packet capture</p>
+                        <span class="section-card-count">8 guides</span>
+                    </a>
+                    
+                    <a href="14-1-cloud-security.html" class="section-card">
+                        <div class="section-card-icon">☁️</div>
+                        <h3>Cloud Network Security</h3>
+                        <p>AWS VPC, Azure VNet, GCP, Kubernetes, Service Mesh</p>
+                        <span class="section-card-count">10 guides</span>
+                    </a>
+                    
+                    <a href="15-2-interview-questions.html" class="section-card">
+                        <div class="section-card-icon">📚</div>
+                        <h3>Resources</h3>
+                        <p>Interview questions, command cheat sheets</p>
+                        <span class="section-card-count">2 guides</span>
+                    </a>
+                </div>
 
+                <h2>🚀 Quick Start Paths</h2>
+                
+                <div class="path-grid">
+                    <div class="path-card">
+                        <h4>🔰 Network Security Basics</h4>
+                        <ol>
+                            <li><a href="1-1-osi-model.html">OSI Model</a></li>
+                            <li><a href="1-10-layer2-security.html">Layer 2 Security</a></li>
+                            <li><a href="2-1-firewall-fundamentals.html">Firewall Fundamentals</a></li>
+                            <li><a href="5-1-ids-ips-fundamentals.html">IDS/IPS Fundamentals</a></li>
+                            <li><a href="6-1-vpn-fundamentals.html">VPN Fundamentals</a></li>
+                        </ol>
+                    </div>
+                    
+                    <div class="path-card">
+                        <h4>🏢 Enterprise Security</h4>
+                        <ol>
+                            <li><a href="7-1-network-segmentation.html">Network Segmentation</a></li>
+                            <li><a href="7-8-datacenter-security.html">Data Center Security</a></li>
+                            <li><a href="1-12-aaa-radius-tacacs.html">AAA / RADIUS / TACACS+</a></li>
+                            <li><a href="7-2-zero-trust.html">Zero Trust Architecture</a></li>
+                            <li><a href="7-9-network-automation.html">Automation Security</a></li>
+                        </ol>
+                    </div>
+                    
+                    <div class="path-card">
+                        <h4>☁️ Cloud Networking</h4>
+                        <ol>
+                            <li><a href="14-7-aws-vpc-deep-dive.html">AWS VPC Deep Dive</a></li>
+                            <li><a href="14-8-azure-networking.html">Azure Networking</a></li>
+                            <li><a href="14-10-kubernetes-networking.html">Kubernetes Networking</a></li>
+                            <li><a href="14-9-service-mesh.html">Service Mesh Security</a></li>
+                            <li><a href="14-6-casb.html">CASB</a></li>
+                        </ol>
+                    </div>
+                    
+                    <div class="path-card">
+                        <h4>🔍 Detection & Response</h4>
+                        <ol>
+                            <li><a href="5-5-ndr.html">Network Detection & Response</a></li>
+                            <li><a href="12-6-netflow.html">NetFlow & sFlow</a></li>
+                            <li><a href="12-4-packet-capture.html">Packet Capture</a></li>
+                            <li><a href="12-5-threat-hunting.html">Threat Hunting</a></li>
+                            <li><a href="12-7-network-forensics.html">Network Forensics</a></li>
+                        </ol>
+                    </div>
+                </div>
 
-REVERSE PROXY (Server-Side)
-═══════════════════════════════════════════════════════════════════════════════
+                <h2>🎯 Technologies Covered</h2>
+                
+                <div class="tech-grid">
+                    <div class="tech-category">
+                        <h4>Firewall Vendors</h4>
+                        <div class="tech-tags">
+                            <span class="tech-tag">Palo Alto</span>
+                            <span class="tech-tag">Cisco ASA/FTD</span>
+                            <span class="tech-tag">FortiGate</span>
+                            <span class="tech-tag">Check Point</span>
+                            <span class="tech-tag">Azure Firewall</span>
+                        </div>
+                    </div>
+                    <div class="tech-category">
+                        <h4>Network Detection</h4>
+                        <div class="tech-tags">
+                            <span class="tech-tag">Snort</span>
+                            <span class="tech-tag">Suricata</span>
+                            <span class="tech-tag">Zeek</span>
+                            <span class="tech-tag">Darktrace</span>
+                            <span class="tech-tag">Vectra</span>
+                        </div>
+                    </div>
+                    <div class="tech-category">
+                        <h4>Cloud Platforms</h4>
+                        <div class="tech-tags">
+                            <span class="tech-tag">AWS VPC</span>
+                            <span class="tech-tag">Azure VNet</span>
+                            <span class="tech-tag">GCP VPC</span>
+                            <span class="tech-tag">Kubernetes</span>
+                            <span class="tech-tag">Istio</span>
+                        </div>
+                    </div>
+                    <div class="tech-category">
+                        <h4>Protocols</h4>
+                        <div class="tech-tags">
+                            <span class="tech-tag">IPSec</span>
+                            <span class="tech-tag">BGP</span>
+                            <span class="tech-tag">802.1X</span>
+                            <span class="tech-tag">RADIUS</span>
+                            <span class="tech-tag">SNMPv3</span>
+                            <span class="tech-tag">MACsec</span>
+                        </div>
+                    </div>
+                </div>
 
-  ┌──────────────┐                                      ┌──────────────────┐
-  │              │                                      │                  │
-  │   Internet   │ ──► REVERSE  ──► ┌───────────┐ ──►   │   Backend        │
-  │   Clients    │      PROXY       │ Firewall  │       │   Web Servers    │
-  │              │ ◄── (Nginx)  ◄── └───────────┘ ◄──   │   (Internal)     │
-  └──────────────┘                                      └──────────────────┘
-                                                              │
-                         ├── SSL/TLS Termination ─────────────┤
-                         ├── Load Balancing ──────────────────┤
-                         ├── Caching & Compression ───────────┤
-                         ├── Hide Backend Server IPs ─────────┤
-                         └── URL Rewriting & Routing ─────────┘
-          </pre>
-        </div>
-
-        <div class="table-wrapper">
-          <table class="comparison-table">
-            <thead>
-              <tr>
-                <th>Aspect</th>
-                <th>Forward Proxy</th>
-                <th>Reverse Proxy</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>Position</strong></td>
-                <td>In front of clients (client-side)</td>
-                <td>In front of servers (server-side)</td>
-              </tr>
-              <tr>
-                <td><strong>Protects</strong></td>
-                <td>Internal users/clients</td>
-                <td>Backend servers/applications</td>
-              </tr>
-              <tr>
-                <td><strong>Hides</strong></td>
-                <td>Client IP addresses</td>
-                <td>Server IP addresses</td>
-              </tr>
-              <tr>
-                <td><strong>Primary Use</strong></td>
-                <td>Web filtering, caching, anonymity</td>
-                <td>Load balancing, SSL termination, security</td>
-              </tr>
-              <tr>
-                <td><strong>SSL Inspection</strong></td>
-                <td>Decrypt outbound HTTPS traffic</td>
-                <td>Terminate inbound HTTPS traffic</td>
-              </tr>
-              <tr>
-                <td><strong>Common Solutions</strong></td>
-                <td>Squid, Zscaler, Blue Coat</td>
-                <td>Nginx, HAProxy, F5, Traefik</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Career Paths -->
-      <section>
-        <h2 id="career-paths">Network Security Career Paths</h2>
-        <p>
-          Network security offers diverse career trajectories, from hands-on engineering 
-          roles to strategic architecture positions.
-        </p>
-
-        <div class="card-grid">
-          <div class="card">
-            <h4>Network Security Engineer</h4>
-            <p>Design, implement, and maintain network security infrastructure including firewalls, VPNs, and IDS/IPS systems.</p>
-            <ul class="checklist">
-              <li>Firewall administration (Palo Alto, FortiGate, Cisco)</li>
-              <li>VPN configuration and troubleshooting</li>
-              <li>Network segmentation design</li>
-              <li>Security policy implementation</li>
-            </ul>
-          </div>
-
-          <div class="card">
-            <h4>Security Architect</h4>
-            <p>Design comprehensive security architectures aligning technical controls with business requirements and compliance.</p>
-            <ul class="checklist">
-              <li>Zero Trust architecture design</li>
-              <li>Cloud security architecture</li>
-              <li>Security frameworks (NIST, CIS)</li>
-              <li>Risk assessment and mitigation</li>
-            </ul>
-          </div>
-
-          <div class="card">
-            <h4>SOC Analyst</h4>
-            <p>Monitor security events, investigate alerts, and respond to security incidents using SIEM and network tools.</p>
-            <ul class="checklist">
-              <li>SIEM analysis (Splunk, Sentinel)</li>
-              <li>Packet capture analysis</li>
-              <li>Incident response procedures</li>
-              <li>Threat hunting techniques</li>
-            </ul>
-          </div>
-
-          <div class="card">
-            <h4>Cloud Security Engineer</h4>
-            <p>Secure cloud environments across AWS, Azure, and GCP with focus on network security controls.</p>
-            <ul class="checklist">
-              <li>VPC/VNet design and security</li>
-              <li>Cloud firewall configuration</li>
-              <li>Hybrid connectivity security</li>
-              <li>Container and Kubernetes security</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <!-- Certifications -->
-      <section>
-        <h2>Relevant Certifications</h2>
-        
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Certification</th>
-                <th>Focus Area</th>
-                <th>Level</th>
-                <th>Vendor</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>CCNA / CCNP Security</strong></td>
-                <td>Network security fundamentals, Cisco security technologies</td>
-                <td>Associate / Professional</td>
-                <td>Cisco</td>
-              </tr>
-              <tr>
-                <td><strong>PCNSA / PCNSE</strong></td>
-                <td>Palo Alto Networks firewall administration</td>
-                <td>Associate / Engineer</td>
-                <td>Palo Alto</td>
-              </tr>
-              <tr>
-                <td><strong>NSE 4-7</strong></td>
-                <td>Fortinet security technologies</td>
-                <td>Professional / Expert</td>
-                <td>Fortinet</td>
-              </tr>
-              <tr>
-                <td><strong>CompTIA Security+</strong></td>
-                <td>General security fundamentals</td>
-                <td>Entry</td>
-                <td>CompTIA</td>
-              </tr>
-              <tr>
-                <td><strong>CISSP</strong></td>
-                <td>Security management and architecture</td>
-                <td>Expert</td>
-                <td>(ISC)²</td>
-              </tr>
-              <tr>
-                <td><strong>AWS/Azure Security Specialty</strong></td>
-                <td>Cloud security</td>
-                <td>Professional</td>
-                <td>AWS / Microsoft</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
+                <div class="footer-info">
+                    <p>Built for Network Security Engineers • Interview Preparation • Enterprise Reference</p>
+                    <p class="keyboard-hint">💡 Press <kbd>Ctrl</kbd> + <kbd>K</kbd> to search</p>
+                </div>
+            </div>
+        </main>
     </div>
-  </main>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-content">
-      <div class="footer-section">
-        <h4>Documentation</h4>
-        <ul>
-          <li><a href="network-fundamentals.html">Network Fundamentals</a></li>
-          <li><a href="forward-proxy.html">Forward Proxy Guide</a></li>
-          <li><a href="reverse-proxy.html">Reverse Proxy Guide</a></li>
-          <li><a href="firewall-concepts.html">Firewall Concepts</a></li>
-        </ul>
-      </div>
-      <div class="footer-section">
-        <h4>Technologies</h4>
-        <ul>
-          <li><a href="firewall-paloalto.html">Palo Alto</a></li>
-          <li><a href="firewall-fortinet.html">FortiGate</a></li>
-          <li><a href="firewall-cisco.html">Cisco ASA/FTD</a></li>
-          <li><a href="firewall-opensource.html">pfSense / iptables</a></li>
-        </ul>
-      </div>
-      <div class="footer-section">
-        <h4>Operations</h4>
-        <ul>
-          <li><a href="traffic-analysis.html">Traffic Analysis</a></li>
-          <li><a href="troubleshooting.html">Troubleshooting</a></li>
-          <li><a href="best-practices.html">Best Practices</a></li>
-          <li><a href="vpn.html">VPN Technologies</a></li>
-        </ul>
-      </div>
-      <div class="footer-section">
-        <h4>Architecture</h4>
-        <ul>
-          <li><a href="network-segmentation.html">Network Segmentation</a></li>
-          <li><a href="sdwan.html">SD-WAN</a></li>
-          <li><a href="cloud-networking.html">Cloud Networking</a></li>
-          <li><a href="waf.html">Web Application Firewall</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>Network Security & Infrastructure Ultimate Guide | Enterprise Documentation</p>
-    </div>
-  </footer>
-
-  <script src="main.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>

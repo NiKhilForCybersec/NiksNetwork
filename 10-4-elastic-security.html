@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Elastic Security - Complete guide to Elastic SIEM, ELK stack for security, detection rules, and threat hunting">
+    <title>Elastic Security | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 10: SIEM (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">📊</span>
+                            SIEM
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="10-1-siem-fundamentals.html" class="nav-link"><span class="nav-link-number">10.1</span> SIEM Fundamentals</a>
+                        <a href="10-2-splunk.html" class="nav-link"><span class="nav-link-number">10.2</span> Splunk</a>
+                        <a href="10-3-microsoft-sentinel.html" class="nav-link"><span class="nav-link-number">10.3</span> Microsoft Sentinel</a>
+                        <a href="10-4-elastic-security.html" class="nav-link active"><span class="nav-link-number">10.4</span> Elastic Security</a>
+                        <a href="10-5-qradar.html" class="nav-link"><span class="nav-link-number">10.5</span> IBM QRadar</a>
+                        <a href="10-6-log-sources.html" class="nav-link"><span class="nav-link-number">10.6</span> Log Sources</a>
+                        <a href="10-7-detection-rules.html" class="nav-link"><span class="nav-link-number">10.7</span> Detection Rules</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">SIEM</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Elastic Security</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>Elastic Security</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Elastic Security (formerly Elastic SIEM) is built on the Elastic Stack (ELK) and provides SIEM, endpoint security, and cloud security capabilities. Its open architecture and powerful search make it popular for both enterprise and budget-conscious organizations.</p>
+                        <ul>
+                            <li>Elastic Stack architecture for security</li>
+                            <li>Elastic Security features</li>
+                            <li>KQL and EQL query languages</li>
+                            <li>Detection rules and alerts</li>
+                            <li>Endpoint security (Elastic Agent)</li>
+                            <li>Common security use cases</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Elastic Stack Architecture</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Elastic Security Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ELASTIC SECURITY ARCHITECTURE                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  DATA SOURCES                                                               │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐              │
+│  │ Windows │ │ Linux   │ │Firewall │ │  Cloud  │ │ Network │              │
+│  │ Events  │ │ Logs    │ │ Logs    │ │  Logs   │ │ Flows   │              │
+│  └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘              │
+│       │           │           │           │           │                     │
+│       └───────────┴───────────┴───────────┴───────────┘                     │
+│                               │                                              │
+│                     ┌─────────┴─────────┐                                   │
+│                     │                   │                                   │
+│                     ▼                   ▼                                   │
+│  ┌─────────────────────┐    ┌─────────────────────┐                        │
+│  │    ELASTIC AGENT    │    │      BEATS          │                        │
+│  │                     │    │                     │                        │
+│  │ • Unified agent     │    │ • Filebeat          │                        │
+│  │ • Endpoint security │    │ • Winlogbeat        │                        │
+│  │ • Log collection    │    │ • Packetbeat        │                        │
+│  │ • Fleet managed     │    │ • Auditbeat         │                        │
+│  └──────────┬──────────┘    └──────────┬──────────┘                        │
+│             │                          │                                    │
+│             └──────────┬───────────────┘                                    │
+│                        │                                                     │
+│                        ▼                                                     │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    ELASTICSEARCH                                     │    │
+│  │                                                                      │    │
+│  │  • Distributed search and analytics engine                          │    │
+│  │  • Stores all security data                                         │    │
+│  │  • Scales horizontally                                              │    │
+│  │  • Hot/Warm/Cold/Frozen tiers                                       │    │
+│  │                                                                      │    │
+│  │  Indices:                                                           │    │
+│  │  • logs-* (log data)                                                │    │
+│  │  • metrics-* (metrics)                                              │    │
+│  │  • .alerts-* (security alerts)                                      │    │
+│  │  • .siem-signals-* (detection signals)                              │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                        │                                                     │
+│                        ▼                                                     │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    KIBANA                                            │    │
+│  │                                                                      │    │
+│  │  ┌─────────────────────────────────────────────────────────────┐    │    │
+│  │  │ ELASTIC SECURITY APP                                         │    │    │
+│  │  │                                                               │    │    │
+│  │  │ • Overview Dashboard    • Detection Rules                    │    │    │
+│  │  │ • Alerts               • Cases                               │    │    │
+│  │  │ • Timelines            • Threat Intelligence                 │    │    │
+│  │  │ • Hosts / Network      • Endpoints                           │    │    │
+│  │  │ • Rules                • ML Jobs                             │    │    │
+│  │  └─────────────────────────────────────────────────────────────┘    │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Elastic Security Features</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Description</th>
+                                <th>License</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>SIEM</strong></td>
+                                <td>Log aggregation, correlation, detection rules</td>
+                                <td>Basic (Free)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Endpoint Security</strong></td>
+                                <td>Malware prevention, ransomware protection</td>
+                                <td>Platinum/Enterprise</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Detection Rules</strong></td>
+                                <td>Pre-built and custom detection rules</td>
+                                <td>Basic (Free)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Machine Learning</strong></td>
+                                <td>Anomaly detection, threat modeling</td>
+                                <td>Platinum</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Case Management</strong></td>
+                                <td>Track and manage security incidents</td>
+                                <td>Basic (Free)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Timelines</strong></td>
+                                <td>Investigation workspace for threat hunting</td>
+                                <td>Basic (Free)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>osquery</strong></td>
+                                <td>Query endpoints with SQL-like syntax</td>
+                                <td>Basic (Free)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Query Languages</h2>
+                
+                <h3>KQL (Kibana Query Language)</h3>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">KQL - Basic Queries</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># KQL BASIC SYNTAX</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Simple field search</span>
+<span class="token-keyword">event.action</span>: "logon-failed"
+
+<span class="token-comment"># Wildcard search</span>
+<span class="token-keyword">process.name</span>: powershell*
+
+<span class="token-comment"># Boolean operators</span>
+<span class="token-keyword">event.action</span>: "logon-failed" <span class="token-keyword">and</span> <span class="token-keyword">source.ip</span>: 10.0.0.*
+<span class="token-keyword">event.action</span>: "logon-failed" <span class="token-keyword">or</span> <span class="token-keyword">event.action</span>: "authentication-failure"
+<span class="token-keyword">not</span> <span class="token-keyword">source.ip</span>: 10.0.0.*
+
+<span class="token-comment"># Range queries</span>
+<span class="token-keyword">http.response.status_code</span> >= 400
+
+<span class="token-comment"># Nested field queries</span>
+<span class="token-keyword">user.name</span>: "admin" <span class="token-keyword">and</span> <span class="token-keyword">event.outcome</span>: "failure"
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># COMMON SECURITY QUERIES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Failed Windows logins</span>
+<span class="token-keyword">event.code</span>: 4625
+
+<span class="token-comment"># PowerShell execution</span>
+<span class="token-keyword">process.name</span>: "powershell.exe" <span class="token-keyword">and</span> <span class="token-keyword">process.command_line</span>: *-enc*
+
+<span class="token-comment"># Firewall blocks</span>
+<span class="token-keyword">event.action</span>: "deny" <span class="token-keyword">and</span> <span class="token-keyword">event.category</span>: "network"
+
+<span class="token-comment"># SSH logins</span>
+<span class="token-keyword">event.action</span>: "ssh_login" <span class="token-keyword">and</span> <span class="token-keyword">event.outcome</span>: "success"</code></pre>
+                </div>
+                
+                <h3>EQL (Event Query Language)</h3>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">EQL - Advanced Threat Hunting</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">// EQL - Event Query Language (for sequences and correlations)</span>
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">// Simple process query</span>
+<span class="token-keyword">process</span> where process.name == "powershell.exe"
+
+<span class="token-comment">// Process with encoded command</span>
+<span class="token-keyword">process</span> where process.name == "powershell.exe" and 
+  process.command_line like "*-enc*"
+
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">// SEQUENCE QUERIES (detect multi-step attacks)</span>
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">// Office spawning suspicious child process</span>
+<span class="token-keyword">sequence</span> by host.name
+  [<span class="token-keyword">process</span> where process.name in ("winword.exe", "excel.exe")]
+  [<span class="token-keyword">process</span> where process.parent.name in ("winword.exe", "excel.exe") and
+   process.name in ("cmd.exe", "powershell.exe", "wscript.exe")]
+
+<span class="token-comment">// Brute force followed by successful login</span>
+<span class="token-keyword">sequence</span> by source.ip with maxspan=10m
+  [<span class="token-keyword">authentication</span> where event.outcome == "failure"] with runs=10
+  [<span class="token-keyword">authentication</span> where event.outcome == "success"]
+
+<span class="token-comment">// Ransomware behavior (mass file modifications)</span>
+<span class="token-keyword">sequence</span> by host.name with maxspan=1m
+  [<span class="token-keyword">file</span> where event.action == "modification"] with runs=100
+
+<span class="token-comment">// Lateral movement via SMB</span>
+<span class="token-keyword">sequence</span> by user.name with maxspan=5m
+  [<span class="token-keyword">authentication</span> where event.outcome == "success"]
+  [<span class="token-keyword">network</span> where destination.port == 445]
+  [<span class="token-keyword">process</span> where process.name == "cmd.exe"]
+
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">// JOIN QUERIES</span>
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">// Process making network connection then file write</span>
+<span class="token-keyword">join</span> by process.entity_id
+  [<span class="token-keyword">process</span> where process.name == "powershell.exe"]
+  [<span class="token-keyword">network</span> where destination.port == 443]
+  [<span class="token-keyword">file</span> where file.extension == "exe"]</code></pre>
+                </div>
+                
+                <h2>Detection Rules</h2>
+                
+                <p>Elastic Security includes 800+ pre-built detection rules mapped to MITRE ATT&CK, with options to create custom rules.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rule Type</th>
+                                <th>Description</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Custom Query</strong></td>
+                                <td>KQL or Lucene query</td>
+                                <td>Simple threshold or pattern detection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Threshold</strong></td>
+                                <td>Alert when count exceeds threshold</td>
+                                <td>Brute force, scanning</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EQL</strong></td>
+                                <td>Event Query Language</td>
+                                <td>Multi-step attacks, sequences</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Machine Learning</strong></td>
+                                <td>Anomaly detection</td>
+                                <td>Unusual behavior, data exfiltration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Indicator Match</strong></td>
+                                <td>Match against threat intel</td>
+                                <td>IOC matching</td>
+                            </tr>
+                            <tr>
+                                <td><strong>New Terms</strong></td>
+                                <td>Alert on first occurrence</td>
+                                <td>New user, new process</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Elastic Agent & Fleet</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Fleet Management</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ELASTIC AGENT & FLEET                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    FLEET SERVER                                      │    │
+│  │                                                                      │    │
+│  │  • Centralized agent management                                     │    │
+│  │  • Policy distribution                                              │    │
+│  │  • Agent monitoring                                                 │    │
+│  │  • Upgrade management                                               │    │
+│  │                                                                      │    │
+│  │  Agent Policies:                                                    │    │
+│  │  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐       │    │
+│  │  │ Windows         │ │ Linux           │ │ Endpoint        │       │    │
+│  │  │ Servers         │ │ Servers         │ │ Security        │       │    │
+│  │  │                 │ │                 │ │                 │       │    │
+│  │  │ • Winlogbeat    │ │ • Filebeat      │ │ • Malware       │       │    │
+│  │  │ • Sysmon        │ │ • Auditd        │ │   Prevention    │       │    │
+│  │  │ • osquery       │ │ • osquery       │ │ • Response      │       │    │
+│  │  └─────────────────┘ └─────────────────┘ └─────────────────┘       │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                               │                                              │
+│                               │ Policy Push                                  │
+│                               │                                              │
+│        ┌──────────────────────┼──────────────────────┐                      │
+│        ▼                      ▼                      ▼                      │
+│  ┌───────────┐          ┌───────────┐          ┌───────────┐               │
+│  │  Agent    │          │  Agent    │          │  Agent    │               │
+│  │  (Win)    │          │  (Linux)  │          │  (Mac)    │               │
+│  │           │          │           │          │           │               │
+│  │ Integrat: │          │ Integrat: │          │ Integrat: │               │
+│  │ • System  │          │ • System  │          │ • System  │               │
+│  │ • Windows │          │ • Auditd  │          │ • Endpoint│               │
+│  │ • Endpoint│          │ • Endpoint│          │ • osquery │               │
+│  └───────────┘          └───────────┘          └───────────┘               │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - Elastic Security</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Use Elastic Common Schema (ECS):</strong> Ensures consistent field names across sources</li>
+                            <li><strong>Enable pre-built rules:</strong> Start with Elastic's 800+ detection rules</li>
+                            <li><strong>Use data tiers:</strong> Hot → Warm → Cold → Frozen for cost optimization</li>
+                            <li><strong>Fleet for agents:</strong> Centrally manage all Elastic Agents</li>
+                            <li><strong>Index lifecycle:</strong> Configure ILM policies for retention</li>
+                            <li><strong>Timelines:</strong> Use for investigation workspaces</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>Common Elastic Security operations:</strong></p>
+                        <ul>
+                            <li><strong>Alert triage:</strong> Review detection alerts, close false positives</li>
+                            <li><strong>Timeline investigation:</strong> Build investigation timelines for incidents</li>
+                            <li><strong>Rule tuning:</strong> Adjust rules to reduce false positives</li>
+                            <li><strong>Threat hunting:</strong> Use KQL/EQL for proactive searches</li>
+                            <li><strong>Agent management:</strong> Monitor agent health via Fleet</li>
+                            <li><strong>Case management:</strong> Track ongoing investigations</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "What's the difference between KQL and EQL?"</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>KQL (Kibana Query Language):</strong> Used for searching and filtering data in Kibana. Good for simple queries like "show me all failed logins." Works on single events.</li>
+                            <li><strong>EQL (Event Query Language):</strong> Designed for threat hunting and detection. Supports sequences and correlations across multiple events. Can detect multi-step attacks like "Office spawns PowerShell which makes network connection."</li>
+                        </ul>
+                        <p><strong>When to use:</strong> "KQL for dashboards and simple searches. EQL for detection rules that need to correlate multiple events or detect attack sequences."</p>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="10-3-microsoft-sentinel.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Microsoft Sentinel</span>
+                        </div>
+                    </a>
+                    <a href="10-5-qradar.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">IBM QRadar</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

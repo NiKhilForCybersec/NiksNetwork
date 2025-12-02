@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AAA RADIUS TACACS+ - Complete guide to network device authentication and authorization">
+    <title>AAA / RADIUS / TACACS+ | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌐</span>Networking</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="1-11-snmp-security.html" class="nav-link"><span class="nav-link-number">1.11</span> SNMP Security</a>
+                        <a href="1-12-aaa-radius-tacacs.html" class="nav-link active"><span class="nav-link-number">1.12</span> AAA / RADIUS / TACACS+</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Networking</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">AAA / RADIUS / TACACS+</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>AAA / RADIUS / TACACS+</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>AAA (Authentication, Authorization, Accounting) provides centralized security for network device access. RADIUS and TACACS+ are the protocols used to implement AAA, each with different strengths.</p>
+                        <ul>
+                            <li>AAA framework concepts</li>
+                            <li>RADIUS vs TACACS+ comparison</li>
+                            <li>Cisco ISE and FreeRADIUS</li>
+                            <li>Network device AAA configuration</li>
+                            <li>Best practices and security</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>AAA Framework</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">AAA Components</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    AAA - AUTHENTICATION, AUTHORIZATION, ACCOUNTING          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ AUTHENTICATION - "Who are you?"                                      │   │
+│  │                                                                      │   │
+│  │ • Verify user identity                                              │   │
+│  │ • Username/password, certificates, tokens, MFA                      │   │
+│  │ • Centralized user database (AD, LDAP)                             │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ AUTHORIZATION - "What can you do?"                                   │   │
+│  │                                                                      │   │
+│  │ • Define permitted actions per user/role                            │   │
+│  │ • Privilege levels (read-only, config, full admin)                  │   │
+│  │ • Command authorization (which commands allowed)                    │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ ACCOUNTING - "What did you do?"                                      │   │
+│  │                                                                      │   │
+│  │ • Log all user activity                                             │   │
+│  │ • Session start/stop times                                          │   │
+│  │ • Commands executed (for audit)                                     │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│  FLOW:                                                                      │
+│  User ──► Network Device ──► AAA Server ──► User Database (AD/LDAP)       │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>RADIUS vs TACACS+</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>RADIUS</th>
+                                <th>TACACS+</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Protocol</strong></td>
+                                <td>UDP 1812/1813</td>
+                                <td>TCP 49</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Encryption</strong></td>
+                                <td>Password only encrypted</td>
+                                <td>Entire packet encrypted</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AAA Separation</strong></td>
+                                <td>Combined auth + authz</td>
+                                <td>Separate auth, authz, acct</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Command Authorization</strong></td>
+                                <td>Limited</td>
+                                <td>Per-command authorization</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Multiprotocol</strong></td>
+                                <td>Limited</td>
+                                <td>Supports multiple protocols</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Best For</strong></td>
+                                <td>Network access (802.1X, VPN)</td>
+                                <td>Device administration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Standard</strong></td>
+                                <td>IETF (RFC 2865)</td>
+                                <td>Cisco proprietary</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ When to Use Which</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>RADIUS:</strong> 802.1X, VPN authentication, wireless, general network access</li>
+                            <li><strong>TACACS+:</strong> Network device administration (routers, switches, firewalls)</li>
+                            <li><strong>Both:</strong> Many environments use RADIUS for users, TACACS+ for admins</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>TACACS+ Configuration</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco IOS - TACACS+ Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! TACACS+ FOR DEVICE ADMINISTRATION</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">! Define TACACS+ servers</span>
+tacacs server ISE-PRIMARY
+ address ipv4 10.0.0.50
+ key <span class="token-string">T@c@csK3y!</span>
+ timeout 5
+
+tacacs server ISE-SECONDARY
+ address ipv4 10.0.0.51
+ key <span class="token-string">T@c@csK3y!</span>
+ timeout 5
+
+<span class="token-comment">! Create server group</span>
+aaa group server tacacs+ ISE-SERVERS
+ server name ISE-PRIMARY
+ server name ISE-SECONDARY
+
+<span class="token-comment">! Enable AAA</span>
+aaa new-model
+
+<span class="token-comment">! Authentication: Try TACACS+ first, fall back to local</span>
+aaa authentication login default group ISE-SERVERS local
+aaa authentication login CONSOLE local   <span class="token-comment">! Console always local</span>
+aaa authentication enable default group ISE-SERVERS enable
+
+<span class="token-comment">! Authorization: Check with TACACS+ for commands</span>
+aaa authorization exec default group ISE-SERVERS local if-authenticated
+aaa authorization commands 15 default group ISE-SERVERS local if-authenticated
+
+<span class="token-comment">! Accounting: Log all commands</span>
+aaa accounting exec default start-stop group ISE-SERVERS
+aaa accounting commands 15 default start-stop group ISE-SERVERS
+
+<span class="token-comment">! Apply to lines</span>
+line console 0
+ login authentication CONSOLE   <span class="token-comment">! Local auth for console</span>
+ 
+line vty 0 15
+ login authentication default   <span class="token-comment">! TACACS+ for remote</span>
+ transport input ssh</code></pre>
+                </div>
+                
+                <h2>RADIUS Configuration</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco IOS - RADIUS for 802.1X</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! RADIUS FOR 802.1X NETWORK ACCESS</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">! Define RADIUS servers</span>
+radius server ISE-PRIMARY
+ address ipv4 10.0.0.50 auth-port 1812 acct-port 1813
+ key <span class="token-string">R@d1usK3y!</span>
+ timeout 5
+
+radius server ISE-SECONDARY
+ address ipv4 10.0.0.51 auth-port 1812 acct-port 1813
+ key <span class="token-string">R@d1usK3y!</span>
+ timeout 5
+
+<span class="token-comment">! Create server group</span>
+aaa group server radius ISE-RADIUS
+ server name ISE-PRIMARY
+ server name ISE-SECONDARY
+
+<span class="token-comment">! Enable AAA</span>
+aaa new-model
+
+<span class="token-comment">! 802.1X authentication</span>
+aaa authentication dot1x default group ISE-RADIUS
+aaa authorization network default group ISE-RADIUS
+aaa accounting dot1x default start-stop group ISE-RADIUS
+
+<span class="token-comment">! Enable 802.1X globally</span>
+dot1x system-auth-control
+
+<span class="token-comment">! Configure access port for 802.1X</span>
+interface GigabitEthernet0/10
+ switchport mode access
+ switchport access vlan 10
+ authentication port-control auto
+ authentication host-mode multi-auth
+ dot1x pae authenticator
+ spanning-tree portfast</code></pre>
+                </div>
+                
+                <h2>AAA Servers</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Solution</th>
+                                <th>Type</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Cisco ISE</strong></td>
+                                <td>Commercial</td>
+                                <td>Enterprise, full NAC, TACACS+ & RADIUS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Aruba ClearPass</strong></td>
+                                <td>Commercial</td>
+                                <td>Enterprise, multi-vendor</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Microsoft NPS</strong></td>
+                                <td>Included with Windows</td>
+                                <td>Windows environment, RADIUS only</td>
+                            </tr>
+                            <tr>
+                                <td><strong>FreeRADIUS</strong></td>
+                                <td>Open Source</td>
+                                <td>RADIUS, flexible, scriptable</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TACACS+ (tac_plus)</strong></td>
+                                <td>Open Source</td>
+                                <td>Device admin, TACACS+ only</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>AAA Security Best Practices</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">AAA Hardening Checklist</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># AAA SECURITY BEST PRACTICES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+AUTHENTICATION:
+☐ Use TACACS+ for device admin (full encryption)
+☐ Use RADIUS for network access (802.1X, VPN)
+☐ Integrate with central directory (AD, LDAP)
+☐ Require MFA for privileged access
+☐ Use strong shared secrets (16+ chars, complex)
+☐ Different secrets per device or device group
+
+FALLBACK:
+☐ Always configure local fallback accounts
+☐ Store local credentials securely (type 8/9 hashes)
+☐ Test fallback regularly
+☐ Document break-glass procedures
+
+AUTHORIZATION:
+☐ Implement role-based access (read-only, operator, admin)
+☐ Use command authorization for TACACS+
+☐ Restrict dangerous commands (reload, erase, etc.)
+☐ Assign minimum privilege needed
+
+ACCOUNTING:
+☐ Log all sessions start/stop
+☐ Log all commands (especially priv 15)
+☐ Send logs to SIEM
+☐ Retain logs per compliance requirements
+
+NETWORK:
+☐ AAA servers on management VLAN
+☐ Redundant AAA servers
+☐ Monitor AAA server availability
+☐ Block AAA ports at perimeter
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LOCAL FALLBACK (Cisco)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+username emergency privilege 15 secret <span class="token-string">Em3rg3ncyP@ss!</span>
+
+<span class="token-comment">! Use type 9 (scrypt) for password hashing</span>
+username admin privilege 15 algorithm-type scrypt secret <span class="token-string">Str0ngP@ss!</span></code></pre>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "What's the difference between RADIUS and TACACS+? When would you use each?"</p>
+                        <p><strong>Answer:</strong> "Both provide centralized AAA, but they have different strengths. RADIUS uses UDP and only encrypts the password, while TACACS+ uses TCP and encrypts the entire packet - making TACACS+ more secure for device administration. RADIUS combines authentication and authorization in one exchange, while TACACS+ separates all three AAA functions, allowing more granular control. The key difference for network administration is command authorization - TACACS+ can authorize each command individually, so you can allow 'show' commands but deny 'configure'. For this reason, I'd use TACACS+ for network device administration, and RADIUS for user network access like 802.1X, VPN, and wireless. Many enterprises use both - TACACS+ for admins, RADIUS for end users."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="1-11-snmp-security.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">SNMP Security</span>
+                        </div>
+                    </a>
+                    <a href="1-13-ipv6-security.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">IPv6 Security</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

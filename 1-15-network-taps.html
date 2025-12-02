@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Network TAPs & Visibility - Complete guide to network visibility architecture, TAPs vs SPAN, and packet brokers">
+    <title>Network TAPs & Visibility | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌐</span>Networking</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="1-14-macsec.html" class="nav-link"><span class="nav-link-number">1.14</span> MACsec</a>
+                        <a href="1-15-network-taps.html" class="nav-link active"><span class="nav-link-number">1.15</span> Network TAPs & Visibility</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Networking</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Network TAPs & Visibility</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Network TAPs & Visibility</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Network visibility is the foundation of security monitoring. You can't detect threats in traffic you can't see. TAPs and packet brokers provide reliable access to network traffic for security tools.</p>
+                        <ul>
+                            <li>TAP vs SPAN comparison</li>
+                            <li>Network packet brokers</li>
+                            <li>Visibility architecture design</li>
+                            <li>Traffic aggregation and filtering</li>
+                            <li>Visibility for encrypted traffic</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>TAP vs SPAN</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Network Traffic Access Methods</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    TAP vs SPAN (Port Mirror)                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  SPAN (Switched Port Analyzer / Port Mirroring)                            │
+│  ──────────────────────────────────────────────                             │
+│                                                                              │
+│    ┌────────────────────────────┐                                          │
+│    │         SWITCH             │                                          │
+│    │                            │                                          │
+│    │  Port 1 ────┐              │                                          │
+│    │  Port 2 ────┼── SPAN ─────►│ Monitor Port → IDS                       │
+│    │  Port 3 ────┘   (copy)     │                                          │
+│    └────────────────────────────┘                                          │
+│                                                                              │
+│    ⚠ Issues:                                                                │
+│    • Switch CPU overhead                                                   │
+│    • Drops packets under load                                              │
+│    • May miss errors/runts                                                 │
+│    • Requires switch config                                                │
+│    • Limited number of sessions                                            │
+│                                                                              │
+│  ════════════════════════════════════════════════════════════════════════  │
+│                                                                              │
+│  TAP (Test Access Point)                                                   │
+│  ───────────────────────                                                    │
+│                                                                              │
+│    Device A ════════╗         ╔════════ Device B                           │
+│                     ║   TAP   ║                                            │
+│                     ╠════╦════╣                                            │
+│                     ║    ║    ║                                            │
+│                     ║    ║    ║                                            │
+│                     ║    ▼    ▼                                            │
+│                     ║  ┌──────────┐                                        │
+│                     ║  │   IDS    │                                        │
+│                     ║  └──────────┘                                        │
+│                                                                              │
+│    ✓ Benefits:                                                              │
+│    • Passive - no impact on network                                        │
+│    • 100% packet capture (no drops)                                        │
+│    • Fail-safe (fail-open options)                                         │
+│    • Captures all traffic including errors                                 │
+│    • Out-of-band - invisible to network                                    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>TAP vs SPAN Comparison</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>SPAN</th>
+                                <th>TAP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Packet Loss</strong></td>
+                                <td>Can drop under load</td>
+                                <td>No drops (passive)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network Impact</strong></td>
+                                <td>Uses switch CPU/memory</td>
+                                <td>Zero impact</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Timing</strong></td>
+                                <td>May alter timestamps</td>
+                                <td>Preserves timing</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Errors</strong></td>
+                                <td>May miss corrupt frames</td>
+                                <td>Captures all including errors</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cost</strong></td>
+                                <td>Free (built into switch)</td>
+                                <td>Hardware purchase</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Failure Mode</strong></td>
+                                <td>Switch failure = no data</td>
+                                <td>Fail-open available</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Configuration</strong></td>
+                                <td>Requires switch access</td>
+                                <td>Physical install only</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Best For</strong></td>
+                                <td>Troubleshooting, temporary</td>
+                                <td>Security monitoring, production</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Network Packet Brokers (NPB)</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Packet Broker Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    NETWORK PACKET BROKER ARCHITECTURE                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│                     NETWORK TRAFFIC SOURCES                                 │
+│     ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐                  │
+│     │  TAP 1  │   │  TAP 2  │   │  TAP 3  │   │  SPAN   │                  │
+│     │ (Core)  │   │ (DMZ)   │   │ (WAN)   │   │(Branch) │                  │
+│     └────┬────┘   └────┬────┘   └────┬────┘   └────┬────┘                  │
+│          │             │             │             │                        │
+│          └─────────────┴──────┬──────┴─────────────┘                        │
+│                               │                                             │
+│                               ▼                                             │
+│          ┌────────────────────────────────────────────┐                    │
+│          │         NETWORK PACKET BROKER              │                    │
+│          │                                            │                    │
+│          │  FUNCTIONS:                                │                    │
+│          │  • Aggregation - Combine multiple sources  │                    │
+│          │  • Filtering - Send only relevant traffic  │                    │
+│          │  • Load balancing - Distribute to tools    │                    │
+│          │  • Deduplication - Remove duplicate pkts   │                    │
+│          │  • SSL decryption - Decrypt for inspection │                    │
+│          │  • Packet slicing - Send headers only      │                    │
+│          │  • Timestamping - Add precise timestamps   │                    │
+│          │                                            │                    │
+│          └─────────────────┬──────────────────────────┘                    │
+│                            │                                               │
+│          ┌─────────────────┼─────────────────┐                             │
+│          │                 │                 │                             │
+│          ▼                 ▼                 ▼                             │
+│    ┌──────────┐     ┌──────────┐     ┌──────────┐                         │
+│    │   IDS    │     │   NDR    │     │  SIEM    │                         │
+│    │(All tfc) │     │(Metadata)│     │(Sampled) │                         │
+│    └──────────┘     └──────────┘     └──────────┘                         │
+│                                                                              │
+│  FILTERING EXAMPLES:                                                        │
+│  • Send only HTTP/HTTPS to WAF                                             │
+│  • Send only DNS to DNS security tool                                      │
+│  • Send everything to full packet capture                                  │
+│  • Send only east-west to NDR                                              │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Visibility Vendors</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Vendor</th>
+                                <th>Products</th>
+                                <th>Strengths</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Gigamon</strong></td>
+                                <td>GigaVUE, TAPs</td>
+                                <td>Market leader, full visibility platform</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Keysight (Ixia)</strong></td>
+                                <td>Vision NPB, TAPs</td>
+                                <td>High performance, cloud visibility</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NETSCOUT</strong></td>
+                                <td>nGenius, TAPs</td>
+                                <td>Service assurance + security</td>
+                            </tr>
+                            <tr>
+                                <td><strong>cPacket</strong></td>
+                                <td>cVu, cStor</td>
+                                <td>Analytics integrated</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Garland</strong></td>
+                                <td>TAPs, Aggregators</td>
+                                <td>Cost-effective TAPs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Profitap</strong></td>
+                                <td>TAPs, Brokers</td>
+                                <td>Compact, versatile TAPs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Visibility Architecture Design</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Visibility Placement Strategy</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># WHERE TO PLACE TAPs FOR MAXIMUM VISIBILITY</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+PERIMETER (North-South Traffic):
+┌─────────────────────────────────────────────────┐
+│ Location: Internet edge, before/after firewall  │
+│ Traffic: All ingress/egress                     │
+│ Tools:   IDS/IPS, Threat Intel, DDoS detection │
+│ TAP:     Fail-open bypass TAP recommended       │
+└─────────────────────────────────────────────────┘
+
+DATA CENTER CORE (East-West Traffic):
+┌─────────────────────────────────────────────────┐
+│ Location: Between core switches                 │
+│ Traffic: Server-to-server, lateral movement    │
+│ Tools:   NDR, behavioral analysis              │
+│ TAP:     High-speed aggregation TAPs (40G/100G)│
+└─────────────────────────────────────────────────┘
+
+DMZ:
+┌─────────────────────────────────────────────────┐
+│ Location: DMZ segment                           │
+│ Traffic: Web servers, email, DNS               │
+│ Tools:   WAF monitoring, application security  │
+│ TAP:     Dedicated DMZ TAPs                    │
+└─────────────────────────────────────────────────┘
+
+CLOUD (Virtual TAPs):
+┌─────────────────────────────────────────────────┐
+│ Location: VPC traffic mirroring                │
+│ Traffic: Cloud workload traffic                │
+│ Tools:   Cloud IDS, NDR                        │
+│ Method:  AWS VPC Mirror, Azure vTAP, GCP Mirror│
+└─────────────────────────────────────────────────┘
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DESIGN PRINCIPLES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+1. TAP everything critical - don't rely on SPAN alone
+2. Aggregate through packet broker - efficient tool usage
+3. Filter intelligently - don't overwhelm tools
+4. Plan for growth - oversubscription will happen
+5. Consider encrypted traffic - may need SSL decryption
+6. Include cloud - virtual TAPs for cloud visibility</code></pre>
+                </div>
+                
+                <h2>SPAN Configuration</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco - SPAN Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! LOCAL SPAN - Mirror to port on same switch</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">! Mirror specific ports</span>
+monitor session 1 source interface Gi0/1 - 10 both
+monitor session 1 destination interface Gi0/48
+
+<span class="token-comment">! Mirror entire VLAN</span>
+monitor session 2 source vlan 10, 20 both
+monitor session 2 destination interface Gi0/47
+
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! RSPAN - Remote SPAN across switches</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">! Create RSPAN VLAN on all switches in path</span>
+vlan 900
+ name RSPAN
+ remote-span
+
+<span class="token-comment">! Source switch</span>
+monitor session 1 source interface Gi0/1 both
+monitor session 1 destination remote vlan 900
+
+<span class="token-comment">! Destination switch</span>
+monitor session 1 source remote vlan 900
+monitor session 1 destination interface Gi0/48
+
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! ERSPAN - Encapsulated RSPAN (across L3)</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">! Source switch - encapsulate and send to remote IP</span>
+monitor session 1 type erspan-source
+ source interface Gi0/1 both
+ destination
+  erspan-id 100
+  ip address 10.0.0.100
+  origin ip address 10.0.0.1
+
+<span class="token-comment">! Destination (at 10.0.0.100) - decapsulate</span>
+monitor session 1 type erspan-destination
+ destination interface Gi0/48
+ source
+  erspan-id 100
+  ip address 10.0.0.1</code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Visibility Best Practices</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Use TAPs for production:</strong> SPAN is fine for troubleshooting, TAPs for security</li>
+                            <li><strong>Fail-safe TAPs:</strong> Use bypass TAPs for inline tools to prevent outages</li>
+                            <li><strong>Packet broker investment:</strong> Pays off with tool efficiency and flexibility</li>
+                            <li><strong>Plan capacity:</strong> Account for traffic growth and tool additions</li>
+                            <li><strong>Include cloud:</strong> Don't forget virtual environments need visibility too</li>
+                            <li><strong>Test regularly:</strong> Verify TAPs and SPAN sessions are working</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "What's the difference between a TAP and SPAN, and when would you use each?"</p>
+                        <p><strong>Answer:</strong> "A TAP is a passive hardware device that copies traffic off the wire without any impact on the network, while SPAN uses switch CPU to copy packets to a monitor port. TAPs are preferred for production security monitoring because they guarantee 100% packet capture - SPAN can drop packets under heavy load when the switch prioritizes forwarding over mirroring. TAPs also capture everything including malformed frames that SPAN might miss. The downside is TAPs cost money and require physical installation. I'd use SPAN for temporary troubleshooting or when TAPs aren't available, but for production IDS/NDR deployment, TAPs are the standard. In larger environments, you'd feed TAPs into a network packet broker that aggregates, filters, and load-balances traffic to your security tools efficiently."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="1-14-macsec.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">MACsec</span>
+                        </div>
+                    </a>
+                    <a href="2-1-firewall-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Firewall Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

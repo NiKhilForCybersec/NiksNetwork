@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Network Security Command Cheat Sheets - Quick reference for Palo Alto, Cisco, Fortinet, Check Point, and Linux networking commands">
+    <title>Command Cheat Sheets | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 15: Resources (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">📚</span>
+                            Resources & Reference
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="15-1-glossary.html" class="nav-link"><span class="nav-link-number">15.1</span> Glossary</a>
+                        <a href="15-2-interview-questions.html" class="nav-link"><span class="nav-link-number">15.2</span> Interview Questions</a>
+                        <a href="15-3-scenarios.html" class="nav-link"><span class="nav-link-number">15.3</span> Scenario Walkthroughs</a>
+                        <a href="15-4-cheat-sheets.html" class="nav-link active"><span class="nav-link-number">15.4</span> Command Cheat Sheets</a>
+                        <a href="15-5-templates.html" class="nav-link"><span class="nav-link-number">15.5</span> Configuration Templates</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Resources</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Command Cheat Sheets</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>Command Cheat Sheets</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 Quick Reference Guide</div>
+                    <div class="overview-content">
+                        <p>Essential commands for daily network security operations. Use these cheat sheets for quick lookups during troubleshooting, configuration, and monitoring tasks.</p>
+                        <ul>
+                            <li>Palo Alto Networks CLI</li>
+                            <li>Cisco ASA / Firepower CLI</li>
+                            <li>Fortinet FortiGate CLI</li>
+                            <li>Check Point CLI</li>
+                            <li>Linux Networking Commands</li>
+                            <li>Windows Networking Commands</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Palo Alto Networks</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Palo Alto CLI - Quick Reference</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SYSTEM</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show system info                          <span class="token-comment"># Version, serial, uptime</span>
+show system resources                     <span class="token-comment"># CPU, memory, disk</span>
+show system environmentals                <span class="token-comment"># Temperature, fans</span>
+show high-availability state              <span class="token-comment"># HA status</span>
+show jobs all                             <span class="token-comment"># Background jobs</span>
+request restart system                    <span class="token-comment"># Reboot firewall</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SESSIONS & TRAFFIC</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show session all                          <span class="token-comment"># All sessions</span>
+show session all filter source 10.1.1.100
+show session all filter destination 8.8.8.8
+show session all filter application dns
+show session all filter destination-port 443
+show session id &lt;id&gt;                      <span class="token-comment"># Session details</span>
+show session info                         <span class="token-comment"># Session statistics</span>
+clear session all filter source 10.1.1.100
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># POLICY TESTING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+test security-policy-match source 10.1.1.100 destination 8.8.8.8 protocol 6 destination-port 443
+test security-policy-match source 10.1.1.100 destination 8.8.8.8 protocol 6 destination-port 443 application ssl
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ROUTING & NETWORK</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show routing route                        <span class="token-comment"># Routing table</span>
+show routing fib                          <span class="token-comment"># Forwarding table</span>
+test routing fib-lookup ip 8.8.8.8 virtual-router default
+show interface all                        <span class="token-comment"># Interface status</span>
+show interface ethernet1/1                <span class="token-comment"># Specific interface</span>
+show arp all                              <span class="token-comment"># ARP table</span>
+show neighbor all                         <span class="token-comment"># NDP table (IPv6)</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># USER-ID</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show user ip-user-mapping all             <span class="token-comment"># User mappings</span>
+show user ip-user-mapping ip 10.1.1.100
+show user group-mapping state all
+clear user-cache ip 10.1.1.100
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># VPN</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show vpn ike-sa                           <span class="token-comment"># Phase 1 SAs</span>
+show vpn ike-sa gateway &lt;name&gt;
+show vpn ipsec-sa                         <span class="token-comment"># Phase 2 SAs</span>
+show vpn flow                             <span class="token-comment"># VPN stats</span>
+test vpn ike-sa gateway &lt;name&gt;            <span class="token-comment"># Initiate tunnel</span>
+clear vpn ike-sa gateway &lt;name&gt;           <span class="token-comment"># Clear Phase 1</span>
+clear vpn ipsec-sa tunnel &lt;name&gt;          <span class="token-comment"># Clear Phase 2</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># GLOBALPROTECT</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show global-protect-gateway current-user
+show global-protect-gateway statistics
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LOGS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show log traffic direction equal backward dest equal 10.1.1.100
+show log threat
+show log url
+tail follow yes mp-log &lt;logfile&gt;.log      <span class="token-comment"># Follow log file</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># COMMIT / CONFIG</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show config diff                          <span class="token-comment"># Uncommitted changes</span>
+commit                                    <span class="token-comment"># Commit config</span>
+commit force                              <span class="token-comment"># Force commit</span>
+load config last-saved                    <span class="token-comment"># Revert to saved</span>
+save config to &lt;filename&gt;                 <span class="token-comment"># Backup config</span>
+scp export configuration from running-config.xml to user@host:path</code></pre>
+                </div>
+                
+                <h2>Cisco ASA / Firepower</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco ASA CLI - Quick Reference</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SYSTEM</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show version                              <span class="token-comment"># Version, uptime, serial</span>
+show cpu usage                            <span class="token-comment"># CPU utilization</span>
+show memory                               <span class="token-comment"># Memory usage</span>
+show failover                             <span class="token-comment"># HA status</span>
+show failover state                       <span class="token-comment"># Active/Standby</span>
+reload                                    <span class="token-comment"># Reboot</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CONNECTIONS & SESSIONS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show conn                                 <span class="token-comment"># Active connections</span>
+show conn count                           <span class="token-comment"># Connection count</span>
+show conn address 10.1.1.100              <span class="token-comment"># Connections from IP</span>
+show local-host                           <span class="token-comment"># Local host table</span>
+clear conn address 10.1.1.100             <span class="token-comment"># Clear connections</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ACCESS LISTS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show access-list                          <span class="token-comment"># All ACLs with hit counts</span>
+show access-list &lt;name&gt;                   <span class="token-comment"># Specific ACL</span>
+clear access-list &lt;name&gt; counters         <span class="token-comment"># Reset hit counts</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># NAT</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show nat                                  <span class="token-comment"># NAT rules</span>
+show xlate                                <span class="token-comment"># NAT translations</span>
+show xlate detail                         <span class="token-comment"># Translation details</span>
+clear xlate                               <span class="token-comment"># Clear translations</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ROUTING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show route                                <span class="token-comment"># Routing table</span>
+show route 10.1.1.0                       <span class="token-comment"># Route to destination</span>
+show arp                                  <span class="token-comment"># ARP table</span>
+show interface                            <span class="token-comment"># Interface status</span>
+show interface ip brief                   <span class="token-comment"># Interface summary</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># VPN</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show crypto isakmp sa                     <span class="token-comment"># IKE Phase 1 SAs</span>
+show crypto ipsec sa                      <span class="token-comment"># IPSec Phase 2 SAs</span>
+show crypto ikev2 sa                      <span class="token-comment"># IKEv2 SAs</span>
+show vpn-sessiondb                        <span class="token-comment"># VPN sessions</span>
+show vpn-sessiondb anyconnect             <span class="token-comment"># AnyConnect sessions</span>
+clear crypto isakmp sa                    <span class="token-comment"># Clear Phase 1</span>
+clear crypto ipsec sa                     <span class="token-comment"># Clear Phase 2</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># TROUBLESHOOTING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+packet-tracer input inside tcp 10.1.1.100 12345 8.8.8.8 443
+<span class="token-comment"># Simulates packet through firewall</span>
+
+capture CAP interface inside match ip host 10.1.1.100 any
+capture CAP interface outside match ip host 10.1.1.100 any
+show capture CAP                          <span class="token-comment"># View capture</span>
+copy /pcap capture:CAP tftp://server/cap.pcap
+clear capture CAP                         <span class="token-comment"># Clear capture</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LOGGING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show logging                              <span class="token-comment"># View logs</span>
+show logging asdm | include 10.1.1.100    <span class="token-comment"># Filter logs</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CONFIG</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show running-config                       <span class="token-comment"># Running config</span>
+show running-config access-list           <span class="token-comment"># ACL config</span>
+write memory                              <span class="token-comment"># Save config</span>
+copy running-config tftp://server/backup.cfg</code></pre>
+                </div>
+                
+                <h2>Fortinet FortiGate</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">FortiGate CLI - Quick Reference</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SYSTEM</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+get system status                         <span class="token-comment"># System info, version</span>
+get system performance status             <span class="token-comment"># CPU, memory, sessions</span>
+get system ha status                      <span class="token-comment"># HA status</span>
+diagnose hardware sysinfo memory          <span class="token-comment"># Memory details</span>
+execute reboot                            <span class="token-comment"># Reboot</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SESSIONS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+diagnose sys session stat                 <span class="token-comment"># Session statistics</span>
+diagnose sys session list                 <span class="token-comment"># All sessions</span>
+diagnose sys session filter src 10.1.1.100
+diagnose sys session filter dst 8.8.8.8
+diagnose sys session filter dport 443
+diagnose sys session list                 <span class="token-comment"># Filtered sessions</span>
+diagnose sys session clear                <span class="token-comment"># Clear filtered sessions</span>
+diagnose sys session filter clear         <span class="token-comment"># Clear filter</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ROUTING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+get router info routing-table all         <span class="token-comment"># Routing table</span>
+get router info routing-table details 8.8.8.8
+diagnose ip arp list                      <span class="token-comment"># ARP table</span>
+get system interface                      <span class="token-comment"># Interface status</span>
+diagnose netlink interface list           <span class="token-comment"># Interface details</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># FIREWALL POLICY</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+diagnose firewall policy list             <span class="token-comment"># All policies</span>
+get firewall policy                       <span class="token-comment"># Policy config</span>
+diagnose firewall iprope lookup 10.1.1.100 8.8.8.8 6 12345 443
+<span class="token-comment"># Policy lookup: src dst proto sport dport</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># VPN</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+diagnose vpn ike gateway list             <span class="token-comment"># Phase 1 SAs</span>
+diagnose vpn tunnel list                  <span class="token-comment"># Phase 2 tunnels</span>
+diagnose vpn tunnel stat                  <span class="token-comment"># Tunnel statistics</span>
+execute vpn ike restart                   <span class="token-comment"># Restart VPN daemon</span>
+diagnose debug application ike -1         <span class="token-comment"># IKE debug</span>
+diagnose debug enable
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PACKET CAPTURE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+diagnose sniffer packet any 'host 10.1.1.100 and port 443' 4
+<span class="token-comment"># 4 = verbose (includes payload)</span>
+<span class="token-comment"># 1 = IP headers, 2 = add TCP/UDP, 3 = add payload, 4 = interface</span>
+
+diagnose sniffer packet port1 'host 10.1.1.100' 4 100
+<span class="token-comment"># Capture 100 packets on port1</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DEBUG</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+diagnose debug flow filter addr 10.1.1.100
+diagnose debug flow filter port 443
+diagnose debug flow trace start 100      <span class="token-comment"># Trace 100 packets</span>
+diagnose debug enable
+diagnose debug disable
+diagnose debug reset
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CONFIG</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+show full-configuration                   <span class="token-comment"># Full config</span>
+execute backup config tftp &lt;filename&gt; &lt;server&gt;
+execute restore config tftp &lt;filename&gt; &lt;server&gt;</code></pre>
+                </div>
+                
+                <h2>Check Point</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Check Point CLI - Quick Reference</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SYSTEM</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+cpstat os                                 <span class="token-comment"># OS statistics</span>
+cpstat fw                                 <span class="token-comment"># Firewall statistics</span>
+cpview                                    <span class="token-comment"># Interactive monitoring</span>
+fw ver                                    <span class="token-comment"># Firewall version</span>
+cphaprob state                            <span class="token-comment"># HA status</span>
+cphaprob list                             <span class="token-comment"># HA problem list</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># POLICY</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+fw stat                                   <span class="token-comment"># Policy status</span>
+fw tab -t connections -s                  <span class="token-comment"># Connections table</span>
+fw tab -t connections -f                  <span class="token-comment"># Full connections</span>
+fw ctl pstat                              <span class="token-comment"># Packet statistics</span>
+fw ctl zdebug drop                        <span class="token-comment"># Show dropped packets</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CONNECTIONS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+fw tab -t connections -u                  <span class="token-comment"># Connection count</span>
+fw tab -t connections -f -k &lt;ip&gt;          <span class="token-comment"># Search by IP</span>
+cpstat fw -f all                          <span class="token-comment"># All FW stats</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># VPN</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+vpn tu                                    <span class="token-comment"># VPN tunnel utility</span>
+vpn shell                                 <span class="token-comment"># VPN shell</span>
+cpstat vpn -f all                         <span class="token-comment"># VPN statistics</span>
+vpn debug ikeon                           <span class="token-comment"># Enable IKE debug</span>
+vpn debug ikeoff                          <span class="token-comment"># Disable IKE debug</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># NETWORK</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+netstat -rn                               <span class="token-comment"># Routing table</span>
+arp -a                                    <span class="token-comment"># ARP table</span>
+ifconfig -a                               <span class="token-comment"># Interface config</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PACKET CAPTURE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+tcpdump -i eth1 host 10.1.1.100
+fw monitor -e 'accept src=10.1.1.100;'    <span class="token-comment"># FW monitor</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SMARTCONSOLE / MANAGEMENT</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+cpwd_admin list                           <span class="token-comment"># List CP processes</span>
+cp_conf sic state                         <span class="token-comment"># SIC status</span>
+fwm load -p &lt;policy&gt;                      <span class="token-comment"># Install policy</span></code></pre>
+                </div>
+                
+                <h2>Linux Networking Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Linux Networking - Quick Reference</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CONNECTIVITY TESTING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+ping -c 4 10.1.1.100                      <span class="token-comment"># Ping (4 packets)</span>
+ping -I eth0 10.1.1.100                   <span class="token-comment"># Ping from interface</span>
+traceroute 10.1.1.100                     <span class="token-comment"># Trace path</span>
+traceroute -n 10.1.1.100                  <span class="token-comment"># No DNS resolution</span>
+mtr 10.1.1.100                            <span class="token-comment"># Live traceroute</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PORT TESTING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+nc -zv 10.1.1.100 443                     <span class="token-comment"># Test TCP port</span>
+nc -zvu 10.1.1.100 53                     <span class="token-comment"># Test UDP port</span>
+telnet 10.1.1.100 443                     <span class="token-comment"># Telnet test</span>
+nmap -p 443 10.1.1.100                    <span class="token-comment"># Port scan</span>
+nmap -sV -p 22,80,443 10.1.1.100          <span class="token-comment"># Service detection</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DNS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+nslookup example.com                      <span class="token-comment"># DNS lookup</span>
+dig example.com                           <span class="token-comment"># Detailed DNS</span>
+dig +short example.com                    <span class="token-comment"># Just the answer</span>
+dig @8.8.8.8 example.com                  <span class="token-comment"># Use specific DNS</span>
+dig +trace example.com                    <span class="token-comment"># Full DNS path</span>
+host example.com                          <span class="token-comment"># Simple DNS lookup</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># INTERFACE & ROUTING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+ip addr                                   <span class="token-comment"># Show IP addresses</span>
+ip link                                   <span class="token-comment"># Show interfaces</span>
+ip route                                  <span class="token-comment"># Show routes</span>
+ip route get 8.8.8.8                      <span class="token-comment"># Route to dest</span>
+ip neigh                                  <span class="token-comment"># ARP table</span>
+ifconfig -a                               <span class="token-comment"># Interfaces (old)</span>
+route -n                                  <span class="token-comment"># Routes (old)</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LISTENING PORTS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+ss -tuln                                  <span class="token-comment"># Listening TCP/UDP</span>
+ss -tulnp                                 <span class="token-comment"># With process names</span>
+netstat -tuln                             <span class="token-comment"># Old style</span>
+lsof -i :443                              <span class="token-comment"># What's on port 443</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PACKET CAPTURE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+tcpdump -i eth0 host 10.1.1.100           <span class="token-comment"># Capture host</span>
+tcpdump -i eth0 port 443                  <span class="token-comment"># Capture port</span>
+tcpdump -i eth0 host 10.1.1.100 and port 443
+tcpdump -i eth0 -w capture.pcap           <span class="token-comment"># Write to file</span>
+tcpdump -r capture.pcap                   <span class="token-comment"># Read file</span>
+tcpdump -i eth0 -nn -v host 10.1.1.100    <span class="token-comment"># Verbose, no DNS</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SSL/TLS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+openssl s_client -connect example.com:443
+openssl s_client -connect example.com:443 -servername example.com
+openssl s_client -connect example.com:443 | openssl x509 -noout -text
+openssl s_client -connect example.com:443 | openssl x509 -noout -dates
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># HTTP/CURL</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+curl -v https://example.com               <span class="token-comment"># Verbose</span>
+curl -I https://example.com               <span class="token-comment"># Headers only</span>
+curl -k https://example.com               <span class="token-comment"># Ignore SSL errors</span>
+curl -x proxy:8080 https://example.com    <span class="token-comment"># Via proxy</span>
+curl --connect-timeout 5 https://example.com
+wget --spider https://example.com         <span class="token-comment"># Check if exists</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># IPTABLES (Linux Firewall)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+iptables -L -n -v                         <span class="token-comment"># List rules</span>
+iptables -L -n -v --line-numbers          <span class="token-comment"># With line numbers</span>
+iptables -S                               <span class="token-comment"># Show as commands</span>
+iptables -t nat -L -n -v                  <span class="token-comment"># NAT table</span></code></pre>
+                </div>
+                
+                <h2>Windows Networking Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Windows Networking - Quick Reference</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CONNECTIVITY</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+ping 10.1.1.100                           <span class="token-comment"># Ping</span>
+ping -n 4 10.1.1.100                      <span class="token-comment"># 4 pings</span>
+ping -t 10.1.1.100                        <span class="token-comment"># Continuous ping</span>
+tracert 10.1.1.100                        <span class="token-comment"># Traceroute</span>
+tracert -d 10.1.1.100                     <span class="token-comment"># No DNS resolution</span>
+pathping 10.1.1.100                       <span class="token-comment"># Combined ping/trace</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DNS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+nslookup example.com                      <span class="token-comment"># DNS lookup</span>
+nslookup example.com 8.8.8.8              <span class="token-comment"># Specific DNS server</span>
+ipconfig /displaydns                      <span class="token-comment"># DNS cache</span>
+ipconfig /flushdns                        <span class="token-comment"># Clear DNS cache</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># INTERFACE & ROUTING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+ipconfig /all                             <span class="token-comment"># All interface info</span>
+netsh interface ip show config            <span class="token-comment"># Interface config</span>
+route print                               <span class="token-comment"># Routing table</span>
+arp -a                                    <span class="token-comment"># ARP table</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PORTS & CONNECTIONS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+netstat -an                               <span class="token-comment"># All connections</span>
+netstat -an | findstr LISTENING           <span class="token-comment"># Listening ports</span>
+netstat -an | findstr 443                 <span class="token-comment"># Port 443</span>
+netstat -b                                <span class="token-comment"># With process names</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># POWERSHELL NETWORKING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+Test-NetConnection 10.1.1.100             <span class="token-comment"># Ping equivalent</span>
+Test-NetConnection 10.1.1.100 -Port 443   <span class="token-comment"># Port test</span>
+Test-NetConnection 10.1.1.100 -TraceRoute <span class="token-comment"># Traceroute</span>
+Resolve-DnsName example.com               <span class="token-comment"># DNS lookup</span>
+Get-NetIPConfiguration                    <span class="token-comment"># IP config</span>
+Get-NetRoute                              <span class="token-comment"># Routes</span>
+Get-NetNeighbor                           <span class="token-comment"># ARP table</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># WINDOWS FIREWALL</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+netsh advfirewall show allprofiles        <span class="token-comment"># Firewall status</span>
+netsh advfirewall firewall show rule name=all
+Get-NetFirewallRule | Where Enabled -eq True</code></pre>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Quick Tips</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Always start with ping/traceroute</strong> to verify basic connectivity</li>
+                            <li><strong>Use -v (verbose)</strong> flags to get more information</li>
+                            <li><strong>Pipe to grep/findstr</strong> to filter long outputs</li>
+                            <li><strong>Save outputs</strong> to files for later comparison</li>
+                            <li><strong>Use tcpdump/Wireshark</strong> when logs aren't enough</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="15-3-scenarios.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Scenario Walkthroughs</span>
+                        </div>
+                    </a>
+                    <a href="15-5-templates.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Configuration Templates</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

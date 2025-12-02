@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Network Forensics - Complete guide to network-based incident investigation and evidence collection">
+    <title>Network Forensics | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔧</span>Forensics</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="12-6-netflow.html" class="nav-link"><span class="nav-link-number">12.6</span> NetFlow</a>
+                        <a href="12-7-network-forensics.html" class="nav-link active"><span class="nav-link-number">12.7</span> Network Forensics</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Forensics</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Network Forensics</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Network Forensics</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Network forensics involves capturing, recording, and analyzing network traffic to detect intrusions, investigate incidents, and gather evidence. It's essential for understanding what happened during a security incident.</p>
+                        <ul>
+                            <li>Evidence sources and collection</li>
+                            <li>PCAP analysis techniques</li>
+                            <li>Traffic reconstruction</li>
+                            <li>Timeline analysis</li>
+                            <li>Forensic tools and methodology</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Network Evidence Sources</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Network Forensics Data Sources</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    NETWORK EVIDENCE SOURCES                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  FULL PACKET CAPTURE (PCAP)                                                │
+│  ───────────────────────────                                                │
+│  │ Source: Network TAPs, SPAN ports                                        │
+│  │ Detail: Complete packet content                                         │
+│  │ Storage: Large (1 GB/min on busy network)                              │
+│  │ Retention: Days to weeks typically                                      │
+│  │ Use: Reconstruct sessions, extract files, detailed analysis            │
+│  └─────────────────────────────────────────────────────────────────────────│
+│                                                                              │
+│  FLOW DATA (NetFlow/IPFIX/sFlow)                                           │
+│  ────────────────────────────────                                           │
+│  │ Source: Routers, switches, firewalls                                    │
+│  │ Detail: Metadata only (IPs, ports, bytes, timing)                      │
+│  │ Storage: Small (~0.5% of PCAP)                                         │
+│  │ Retention: Months to years                                              │
+│  │ Use: Identify connections, detect anomalies, long-term patterns        │
+│  └─────────────────────────────────────────────────────────────────────────│
+│                                                                              │
+│  DEVICE LOGS                                                                │
+│  ────────────                                                               │
+│  │ Source: Firewalls, proxies, DNS, IDS/IPS                               │
+│  │ Detail: Connection decisions, alerts, actions                          │
+│  │ Storage: Moderate                                                       │
+│  │ Retention: Months (in SIEM)                                            │
+│  │ Use: Policy decisions, blocked connections, alert context              │
+│  └─────────────────────────────────────────────────────────────────────────│
+│                                                                              │
+│  ZEEK/BRO LOGS                                                             │
+│  ─────────────                                                              │
+│  │ Source: Zeek sensors                                                    │
+│  │ Detail: Protocol-parsed metadata (DNS queries, HTTP requests, etc.)    │
+│  │ Storage: Moderate (much smaller than PCAP, richer than flow)           │
+│  │ Retention: Weeks to months                                              │
+│  │ Use: Protocol analysis, connection details, file hashes                │
+│  └─────────────────────────────────────────────────────────────────────────│
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Forensic Analysis Process</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Phase</th>
+                                <th>Activities</th>
+                                <th>Tools</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. Identification</strong></td>
+                                <td>Identify relevant traffic, time window, hosts</td>
+                                <td>SIEM, Flow analysis</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. Collection</strong></td>
+                                <td>Capture/preserve evidence with integrity</td>
+                                <td>tcpdump, Wireshark, TAPs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. Analysis</strong></td>
+                                <td>Parse, filter, correlate, reconstruct</td>
+                                <td>Wireshark, Zeek, NetworkMiner</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. Reconstruction</strong></td>
+                                <td>Rebuild sessions, extract files</td>
+                                <td>Wireshark Follow Stream, Xplico</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. Documentation</strong></td>
+                                <td>Record findings, timeline, chain of custody</td>
+                                <td>Report templates, notes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>PCAP Analysis Techniques</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Network Forensics Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># EVIDENCE COLLECTION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Capture with tcpdump (write to file)</span>
+<span class="token-command">tcpdump</span> -i eth0 -w evidence_$(date +%Y%m%d_%H%M%S).pcap -s 0
+
+<span class="token-comment"># Capture specific host traffic</span>
+<span class="token-command">tcpdump</span> -i eth0 host 192.168.1.100 -w suspect_host.pcap
+
+<span class="token-comment"># Capture time window</span>
+<span class="token-command">tcpdump</span> -i eth0 -w capture.pcap -G 3600 -W 24  <span class="token-comment"># Rotate hourly, keep 24</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># TSHARK ANALYSIS (Command-line Wireshark)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Extract HTTP requests</span>
+<span class="token-command">tshark</span> -r capture.pcap -Y "http.request" -T fields \
+  -e frame.time -e ip.src -e http.host -e http.request.uri
+
+<span class="token-comment"># Extract DNS queries</span>
+<span class="token-command">tshark</span> -r capture.pcap -Y "dns.qry.name" -T fields \
+  -e frame.time -e ip.src -e dns.qry.name
+
+<span class="token-comment"># Find all unique destination IPs</span>
+<span class="token-command">tshark</span> -r capture.pcap -T fields -e ip.dst | sort -u
+
+<span class="token-comment"># Extract file downloads</span>
+<span class="token-command">tshark</span> -r capture.pcap --export-objects http,./extracted_files/
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ZEEK ANALYSIS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Process PCAP with Zeek</span>
+<span class="token-command">zeek</span> -r capture.pcap
+
+<span class="token-comment"># Produces: conn.log, dns.log, http.log, files.log, etc.</span>
+
+<span class="token-comment"># Find C2 candidates (long connections, regular intervals)</span>
+<span class="token-command">cat</span> conn.log | zeek-cut duration orig_bytes resp_bytes \
+  | awk '$1 > 3600 {print}'
+
+<span class="token-comment"># Extract file hashes</span>
+<span class="token-command">cat</span> files.log | zeek-cut md5 sha1 filename
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SESSION RECONSTRUCTION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Wireshark: Right-click → Follow → TCP Stream</span>
+<span class="token-comment"># Shows full conversation between client and server</span>
+
+<span class="token-comment"># Extract files from HTTP traffic</span>
+<span class="token-command">foremost</span> -i capture.pcap -o carved_files/
+
+<span class="token-comment"># NetworkMiner (GUI) for automatic extraction</span></code></pre>
+                </div>
+                
+                <h2>Investigation Checklist</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Question</th>
+                                <th>Evidence Source</th>
+                                <th>Analysis</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>What IPs did host contact?</strong></td>
+                                <td>PCAP, Flow, Firewall logs</td>
+                                <td>List unique destinations</td>
+                            </tr>
+                            <tr>
+                                <td><strong>What was downloaded?</strong></td>
+                                <td>PCAP, Proxy logs</td>
+                                <td>HTTP object export, file carving</td>
+                            </tr>
+                            <tr>
+                                <td><strong>What DNS queries?</strong></td>
+                                <td>PCAP, DNS logs, Zeek</td>
+                                <td>Extract dns.qry.name</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Data exfiltration?</strong></td>
+                                <td>Flow, PCAP</td>
+                                <td>Large outbound transfers, unusual destinations</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lateral movement?</strong></td>
+                                <td>PCAP, Flow, Zeek</td>
+                                <td>Internal RDP/SMB/SSH, new connections</td>
+                            </tr>
+                            <tr>
+                                <td><strong>C2 communication?</strong></td>
+                                <td>PCAP, Zeek</td>
+                                <td>Beaconing patterns, known C2 signatures</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Forensic Tools</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tool</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Wireshark</strong></td>
+                                <td>Packet analysis, protocol dissection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Zeek (Bro)</strong></td>
+                                <td>Protocol parsing, log generation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NetworkMiner</strong></td>
+                                <td>File extraction, host profiling</td>
+                            </tr>
+                            <tr>
+                                <td><strong>tcpdump/tshark</strong></td>
+                                <td>Command-line capture and filtering</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Moloch/Arkime</strong></td>
+                                <td>Large-scale PCAP storage and search</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security Onion</strong></td>
+                                <td>Full forensics platform (Zeek, Suricata, etc.)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-critical">
+                    <div class="callout-title">🚨 Evidence Integrity</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Hash original evidence:</strong> MD5/SHA256 before analysis</li>
+                            <li><strong>Work on copies:</strong> Never modify original PCAP</li>
+                            <li><strong>Document chain of custody:</strong> Who handled evidence, when</li>
+                            <li><strong>Timestamps:</strong> Ensure NTP sync, document timezone</li>
+                            <li><strong>Legal hold:</strong> Don't delete if litigation possible</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "Walk me through a network forensics investigation."</p>
+                        <p><strong>Answer:</strong> "I'd start by identifying the scope - which hosts, what time window, what we're looking for. Then I'd collect evidence from multiple sources: full PCAP if available, flow data for broader context, firewall and proxy logs, and Zeek logs for protocol details. I'd hash all evidence files for integrity. Analysis starts with the basics: what external IPs did the suspect host contact? Any known malicious indicators? I'd use Wireshark to follow TCP streams and see actual conversations, extract any downloaded files, and examine DNS queries for C2 domains. I'd look for data exfiltration by finding large outbound transfers to unusual destinations. For lateral movement, I'd analyze east-west traffic for new RDP/SMB connections. Throughout, I'd build a timeline correlating network events with endpoint logs. All findings would be documented with screenshots and packet references."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="12-6-netflow.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">NetFlow/sFlow</span>
+                        </div>
+                    </a>
+                    <a href="13-1-compliance-frameworks.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Compliance Frameworks</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

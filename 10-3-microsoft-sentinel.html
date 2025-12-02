@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Microsoft Sentinel - Complete guide to Azure's cloud-native SIEM, KQL queries, analytics rules, and playbooks">
+    <title>Microsoft Sentinel | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 10: SIEM (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">📊</span>
+                            SIEM & Log Management
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="10-1-siem-fundamentals.html" class="nav-link"><span class="nav-link-number">10.1</span> SIEM Fundamentals</a>
+                        <a href="10-2-splunk.html" class="nav-link"><span class="nav-link-number">10.2</span> Splunk</a>
+                        <a href="10-3-microsoft-sentinel.html" class="nav-link active"><span class="nav-link-number">10.3</span> Microsoft Sentinel</a>
+                        <a href="10-4-elastic-siem.html" class="nav-link"><span class="nav-link-number">10.4</span> Elastic SIEM</a>
+                        <a href="10-5-qradar.html" class="nav-link"><span class="nav-link-number">10.5</span> IBM QRadar</a>
+                        <a href="10-6-log-sources.html" class="nav-link"><span class="nav-link-number">10.6</span> Log Sources</a>
+                        <a href="10-7-correlation-rules.html" class="nav-link"><span class="nav-link-number">10.7</span> Correlation Rules</a>
+                        <a href="10-8-use-cases.html" class="nav-link"><span class="nav-link-number">10.8</span> Detection Use Cases</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">SIEM & Log Management</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Microsoft Sentinel</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>Microsoft Sentinel</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Microsoft Sentinel (formerly Azure Sentinel) is a cloud-native SIEM and SOAR solution built on Azure. It offers native integration with Microsoft 365, Azure, and third-party sources, making it ideal for organizations invested in the Microsoft ecosystem.</p>
+                        <ul>
+                            <li>Sentinel architecture and workspace setup</li>
+                            <li>Data connectors and ingestion</li>
+                            <li>Kusto Query Language (KQL) basics</li>
+                            <li>Analytics rules and incidents</li>
+                            <li>Playbooks and automation (SOAR)</li>
+                            <li>Workbooks and dashboards</li>
+                            <li>Hunting queries and notebooks</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Sentinel Architecture</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Microsoft Sentinel Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    MICROSOFT SENTINEL ARCHITECTURE                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  DATA SOURCES                                                               │
+│  ┌───────────────┐ ┌───────────────┐ ┌───────────────┐                     │
+│  │ Microsoft 365 │ │  Azure AD /   │ │ Azure Services│                     │
+│  │ • Defender    │ │  Entra ID     │ │ • Activity    │                     │
+│  │ • Office      │ │  • Sign-ins   │ │ • Diagnostic  │                     │
+│  │ • Teams       │ │  • Audit      │ │ • Defender    │                     │
+│  └───────┬───────┘ └───────┬───────┘ └───────┬───────┘                     │
+│          │                 │                 │                              │
+│          │    Native Integration (Free)     │                              │
+│          └─────────────────┼─────────────────┘                              │
+│                            │                                                 │
+│  ┌───────────────┐ ┌──────┴───────┐ ┌───────────────┐                      │
+│  │  On-Premises  │ │  Third-Party │ │    Custom     │                      │
+│  │ • Windows     │ │ • Firewalls  │ │ • REST API    │                      │
+│  │   via AMA     │ │ • AWS/GCP    │ │ • Log Ingestion│                     │
+│  │ • Syslog      │ │ • SaaS Apps  │ │   API         │                      │
+│  └───────┬───────┘ └───────┬──────┘ └───────┬───────┘                      │
+│          │                 │                 │                              │
+│          └─────────────────┴─────────────────┘                              │
+│                            │                                                 │
+│                            ▼                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │              LOG ANALYTICS WORKSPACE                                 │    │
+│  │                                                                      │    │
+│  │  Tables:                                                            │    │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐   │    │
+│  │  │SigninLogs   │ │SecurityEvent│ │CommonSecurity│ │ AzureActivity│   │    │
+│  │  │             │ │(Windows)    │ │Log (CEF)    │ │             │   │    │
+│  │  └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘   │    │
+│  │                                                                      │    │
+│  │  Retention: 90 days free, up to 2 years                             │    │
+│  │  Query language: KQL (Kusto Query Language)                         │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                            │                                                 │
+│              ┌─────────────┼─────────────┐                                  │
+│              ▼             ▼             ▼                                  │
+│  ┌───────────────┐ ┌───────────────┐ ┌───────────────┐                     │
+│  │  ANALYTICS    │ │   HUNTING     │ │  WORKBOOKS    │                     │
+│  │   RULES       │ │               │ │               │                     │
+│  │               │ │ • Queries     │ │ • Dashboards  │                     │
+│  │ • Scheduled   │ │ • Bookmarks   │ │ • Visualize   │                     │
+│  │ • NRT         │ │ • Livestream  │ │ • Reports     │                     │
+│  │ • Fusion      │ │ • Notebooks   │ │               │                     │
+│  │ • ML          │ │               │ │               │                     │
+│  └───────┬───────┘ └───────────────┘ └───────────────┘                     │
+│          │                                                                   │
+│          ▼                                                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                        INCIDENTS                                     │    │
+│  │                                                                      │    │
+│  │  • Auto-created from analytics rules                                │    │
+│  │  • Grouped related alerts                                           │    │
+│  │  • Assignable to analysts                                           │    │
+│  │  • Investigation graph                                              │    │
+│  └───────────────────────────────────────────────────────────────────────┘    │
+│          │                                                                   │
+│          ▼                                                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                     PLAYBOOKS (Logic Apps)                           │    │
+│  │                                                                      │    │
+│  │  • Automated response                                               │    │
+│  │  • Enrichment (threat intel, user info)                            │    │
+│  │  • Notification (Teams, email, ticketing)                          │    │
+│  │  • Remediation (block IP, disable user)                            │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Key Data Tables</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Table</th>
+                                <th>Source</th>
+                                <th>Contains</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>SigninLogs</strong></td>
+                                <td>Azure AD / Entra ID</td>
+                                <td>Interactive user sign-ins</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AADNonInteractiveUserSignInLogs</strong></td>
+                                <td>Azure AD</td>
+                                <td>Service/app sign-ins</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AuditLogs</strong></td>
+                                <td>Azure AD</td>
+                                <td>Directory changes, app registrations</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SecurityEvent</strong></td>
+                                <td>Windows (via AMA)</td>
+                                <td>Windows security logs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Syslog</strong></td>
+                                <td>Linux, network devices</td>
+                                <td>Syslog messages</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CommonSecurityLog</strong></td>
+                                <td>CEF sources (firewalls)</td>
+                                <td>CEF-formatted logs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AzureActivity</strong></td>
+                                <td>Azure subscriptions</td>
+                                <td>Azure resource operations</td>
+                            </tr>
+                            <tr>
+                                <td><strong>OfficeActivity</strong></td>
+                                <td>Microsoft 365</td>
+                                <td>O365 audit logs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DeviceEvents</strong></td>
+                                <td>Defender for Endpoint</td>
+                                <td>Endpoint telemetry</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>KQL (Kusto Query Language)</h2>
+                
+                <p>KQL is the query language for Sentinel and Log Analytics. It's similar to SQL but optimized for log data.</p>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">KQL - Basic Syntax</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">// BASIC STRUCTURE: Table | operator | operator | ...</span>
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">// Simple query - last 24 hours of sign-in logs</span>
+<span class="token-keyword">SigninLogs</span>
+| <span class="token-command">where</span> TimeGenerated > ago(24h)
+
+<span class="token-comment">// Filter by specific condition</span>
+<span class="token-keyword">SigninLogs</span>
+| <span class="token-command">where</span> TimeGenerated > ago(24h)
+| <span class="token-command">where</span> ResultType != 0  <span class="token-comment">// Failed logins only</span>
+
+<span class="token-comment">// Select specific columns</span>
+<span class="token-keyword">SigninLogs</span>
+| <span class="token-command">where</span> TimeGenerated > ago(24h)
+| <span class="token-command">project</span> TimeGenerated, UserPrincipalName, IPAddress, ResultType
+
+<span class="token-comment">// Count by field</span>
+<span class="token-keyword">SigninLogs</span>
+| <span class="token-command">where</span> TimeGenerated > ago(24h)
+| <span class="token-command">summarize</span> count() by UserPrincipalName
+| <span class="token-command">order by</span> count_ desc
+
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">// COMMON OPERATORS</span>
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">// where - filter rows</span>
+| <span class="token-command">where</span> IPAddress == "10.1.1.100"
+| <span class="token-command">where</span> UserPrincipalName contains "admin"
+| <span class="token-command">where</span> TimeGenerated between (ago(7d) .. ago(1d))
+
+<span class="token-comment">// project - select columns</span>
+| <span class="token-command">project</span> TimeGenerated, UserPrincipalName, IPAddress
+
+<span class="token-comment">// extend - add calculated column</span>
+| <span class="token-command">extend</span> Country = tostring(LocationDetails.countryOrRegion)
+
+<span class="token-comment">// summarize - aggregate</span>
+| <span class="token-command">summarize</span> count() by bin(TimeGenerated, 1h)
+| <span class="token-command">summarize</span> FailedLogins=count(), Users=dcount(UserPrincipalName) by IPAddress
+
+<span class="token-comment">// order by / sort by</span>
+| <span class="token-command">order by</span> TimeGenerated desc
+
+<span class="token-comment">// take / limit</span>
+| <span class="token-command">take</span> 100
+
+<span class="token-comment">// join - combine tables</span>
+<span class="token-keyword">SigninLogs</span>
+| <span class="token-command">join</span> kind=inner (
+    <span class="token-keyword">IdentityInfo</span>
+    | <span class="token-command">where</span> TimeGenerated > ago(14d)
+) on $left.UserPrincipalName == $right.AccountUPN</code></pre>
+                </div>
+                
+                <h2>Common Security Queries</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">KQL - Security Use Cases</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">// FAILED SIGN-INS BY USER</span>
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">SigninLogs</span>
+| <span class="token-command">where</span> TimeGenerated > ago(24h)
+| <span class="token-command">where</span> ResultType != 0
+| <span class="token-command">summarize</span> FailedAttempts = count() by UserPrincipalName, IPAddress
+| <span class="token-command">where</span> FailedAttempts > 10
+| <span class="token-command">order by</span> FailedAttempts desc
+
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">// SIGN-INS FROM NEW COUNTRIES</span>
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">let</span> KnownCountries = <span class="token-keyword">SigninLogs</span>
+| <span class="token-command">where</span> TimeGenerated between (ago(30d) .. ago(7d))
+| <span class="token-command">summarize</span> by UserPrincipalName, Country=tostring(LocationDetails.countryOrRegion);
+<span class="token-keyword">SigninLogs</span>
+| <span class="token-command">where</span> TimeGenerated > ago(7d)
+| <span class="token-command">extend</span> Country = tostring(LocationDetails.countryOrRegion)
+| <span class="token-command">join</span> kind=leftanti KnownCountries on UserPrincipalName, Country
+| <span class="token-command">project</span> TimeGenerated, UserPrincipalName, Country, IPAddress
+
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">// IMPOSSIBLE TRAVEL - User in two locations too quickly</span>
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">SigninLogs</span>
+| <span class="token-command">where</span> TimeGenerated > ago(24h)
+| <span class="token-command">where</span> ResultType == 0
+| <span class="token-command">extend</span> Country = tostring(LocationDetails.countryOrRegion)
+| <span class="token-command">summarize</span> Countries=make_set(Country), Logins=count() by UserPrincipalName, bin(TimeGenerated, 1h)
+| <span class="token-command">where</span> array_length(Countries) > 1
+
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">// WINDOWS - SUSPICIOUS PROCESS EXECUTION</span>
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">SecurityEvent</span>
+| <span class="token-command">where</span> TimeGenerated > ago(24h)
+| <span class="token-command">where</span> EventID == 4688  <span class="token-comment">// Process creation</span>
+| <span class="token-command">where</span> NewProcessName has_any ("powershell", "cmd", "wscript", "cscript")
+| <span class="token-command">where</span> CommandLine has_any ("-enc", "-e ", "bypass", "hidden", "downloadstring")
+| <span class="token-command">project</span> TimeGenerated, Computer, Account, NewProcessName, CommandLine
+
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">// AZURE AD - PRIVILEGED ROLE ASSIGNMENT</span>
+<span class="token-comment">// ═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">AuditLogs</span>
+| <span class="token-command">where</span> TimeGenerated > ago(7d)
+| <span class="token-command">where</span> OperationName == "Add member to role"
+| <span class="token-command">extend</span> Role = tostring(TargetResources[0].displayName)
+| <span class="token-command">extend</span> User = tostring(TargetResources[0].userPrincipalName)
+| <span class="token-command">where</span> Role has_any ("Global Administrator", "Security Administrator", "Privileged Role")
+| <span class="token-command">project</span> TimeGenerated, OperationName, Role, User, InitiatedBy</code></pre>
+                </div>
+                
+                <h2>Analytics Rules</h2>
+                
+                <p>Analytics rules run on a schedule (or near real-time) to detect threats and create incidents.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rule Type</th>
+                                <th>Description</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Scheduled</strong></td>
+                                <td>KQL query runs on schedule (5 min to 14 days)</td>
+                                <td>Custom detections, threshold-based</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NRT (Near Real-Time)</strong></td>
+                                <td>Runs every minute with limited time window</td>
+                                <td>High-priority, time-sensitive detections</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fusion</strong></td>
+                                <td>ML-based correlation of low-fidelity alerts</td>
+                                <td>Multi-stage attack detection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Microsoft Security</strong></td>
+                                <td>Alerts from other Microsoft security products</td>
+                                <td>Defender, Cloud Apps, Identity</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ML Behavior Analytics</strong></td>
+                                <td>Anomaly detection using machine learning</td>
+                                <td>UEBA, unusual behavior</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - Sentinel Cost Management</div>
+                    <div class="callout-content">
+                        <p><strong>Control costs with these strategies:</strong></p>
+                        <ul>
+                            <li><strong>Commitment tiers:</strong> Pre-purchase GB/day for discounts (100GB+)</li>
+                            <li><strong>Basic logs:</strong> Use for high-volume, low-value data (50% cheaper)</li>
+                            <li><strong>Data collection rules:</strong> Filter data before ingestion</li>
+                            <li><strong>Free data sources:</strong> Azure Activity, Office 365, Azure AD (many are free)</li>
+                            <li><strong>Archive:</strong> Move old data to archive tier for long-term retention</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Playbooks (Logic Apps)</h2>
+                
+                <p>Playbooks provide SOAR capabilities, automating response actions when incidents are created.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action Category</th>
+                                <th>Examples</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Enrichment</strong></td>
+                                <td>Look up IP reputation, get user details from Azure AD, query VirusTotal</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Notification</strong></td>
+                                <td>Send Teams message, email alert, create ServiceNow ticket</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Containment</strong></td>
+                                <td>Block IP in firewall, disable user account, isolate endpoint</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Investigation</strong></td>
+                                <td>Collect additional logs, run hunting query, get related alerts</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>Common Sentinel operations:</strong></p>
+                        <ul>
+                            <li><strong>Incident triage:</strong> Review and assign incidents, set status/severity</li>
+                            <li><strong>Investigation:</strong> Use investigation graph, run KQL queries</li>
+                            <li><strong>Rule tuning:</strong> Adjust analytics rules to reduce false positives</li>
+                            <li><strong>Data connector health:</strong> Monitor connector status, fix ingestion issues</li>
+                            <li><strong>Hunting:</strong> Proactive threat hunting with saved queries</li>
+                            <li><strong>Workbook updates:</strong> Maintain dashboards for stakeholders</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "What are the advantages of Microsoft Sentinel over other SIEMs?"</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>Native Microsoft integration:</strong> Free or low-cost ingestion for M365, Azure AD, Defender products</li>
+                            <li><strong>Cloud-native:</strong> No infrastructure to manage, scales automatically</li>
+                            <li><strong>Built-in SOAR:</strong> Logic Apps playbooks included</li>
+                            <li><strong>UEBA:</strong> User and Entity Behavior Analytics built-in</li>
+                            <li><strong>Content hub:</strong> Pre-built solutions, analytics rules, playbooks</li>
+                            <li><strong>Cost model:</strong> Pay per GB ingested, no user-based licensing</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="10-2-splunk.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Splunk</span>
+                        </div>
+                    </a>
+                    <a href="10-4-elastic-siem.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Elastic SIEM</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

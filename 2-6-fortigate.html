@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Fortinet FortiGate - Complete guide to FortiOS, Security Fabric, policies, FortiManager, and CLI commands">
+    <title>Fortinet FortiGate | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 2: Firewalls (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🛡️</span>
+                            Firewalls
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="2-1-firewall-fundamentals.html" class="nav-link"><span class="nav-link-number">2.1</span> Firewall Fundamentals</a>
+                        <a href="2-2-firewall-types.html" class="nav-link"><span class="nav-link-number">2.2</span> Firewall Types Deep Dive</a>
+                        <a href="2-3-rule-design.html" class="nav-link"><span class="nav-link-number">2.3</span> Firewall Rule Design</a>
+                        <a href="2-4-palo-alto.html" class="nav-link"><span class="nav-link-number">2.4</span> Palo Alto Networks</a>
+                        <a href="2-5-cisco-firepower.html" class="nav-link"><span class="nav-link-number">2.5</span> Cisco Firepower/ASA</a>
+                        <a href="2-6-fortigate.html" class="nav-link active"><span class="nav-link-number">2.6</span> Fortinet FortiGate</a>
+                        <a href="2-7-checkpoint.html" class="nav-link"><span class="nav-link-number">2.7</span> Check Point</a>
+                        <a href="2-8-cloud-firewalls.html" class="nav-link"><span class="nav-link-number">2.8</span> Cloud Firewalls</a>
+                        <a href="2-9-firewall-ha.html" class="nav-link"><span class="nav-link-number">2.9</span> High Availability</a>
+                        <a href="2-10-logging-monitoring.html" class="nav-link"><span class="nav-link-number">2.10</span> Logging & Monitoring</a>
+                        <a href="2-11-troubleshooting.html" class="nav-link"><span class="nav-link-number">2.11</span> Troubleshooting</a>
+                        <a href="2-12-security-assessment.html" class="nav-link"><span class="nav-link-number">2.12</span> Security Assessment</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Firewalls</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Fortinet FortiGate</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>Fortinet FortiGate</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Fortinet FortiGate is a leading Next-Generation Firewall known for its custom Security Processing Units (SPUs) that provide high performance. FortiGate is part of the Fortinet Security Fabric, integrating with other Fortinet products for unified security.</p>
+                        <ul>
+                            <li>FortiGate architecture and SPU technology</li>
+                            <li>FortiOS concepts and navigation</li>
+                            <li>Firewall policies and security profiles</li>
+                            <li>FortiGuard services</li>
+                            <li>FortiManager centralized management</li>
+                            <li>VPN configuration (IPSec and SSL)</li>
+                            <li>Essential CLI commands</li>
+                            <li>Troubleshooting techniques</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>FortiGate Architecture</h2>
+                
+                <p>Fortinet differentiates itself through custom ASIC chips (Security Processing Units) that accelerate security functions in hardware, providing high performance even with all features enabled.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">FortiGate SPU Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    FORTIGATE SECURITY PROCESSING UNITS                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                        TRAFFIC FLOW                                  │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ NP (Network Processor)                                               │    │
+│  │ • Hardware acceleration for firewall, VPN, routing                  │    │
+│  │ • Handles millions of sessions                                      │    │
+│  │ • IPSec/SSL encryption/decryption                                   │    │
+│  │ • Interface processing                                              │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│          ┌─────────────────────────┼─────────────────────────┐              │
+│          ▼                         ▼                         ▼              │
+│  ┌───────────────┐        ┌───────────────┐        ┌───────────────┐       │
+│  │ CP (Content   │        │ SP (Security  │        │    CPU        │       │
+│  │  Processor)   │        │  Processor)   │        │               │       │
+│  │               │        │               │        │ • Management  │       │
+│  │ • IPS         │        │ • SSL Deep    │        │ • Logging     │       │
+│  │ • Antivirus   │        │   Inspection  │        │ • HA sync     │       │
+│  │ • App Control │        │ • Offload     │        │ • Complex     │       │
+│  │ • Web Filter  │        │   from CPU    │        │   inspections │       │
+│  └───────────────┘        └───────────────┘        └───────────────┘       │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  KEY BENEFIT:                                                               │
+│  Unlike competitors that rely heavily on CPU, FortiGate offloads            │
+│  security functions to dedicated chips, maintaining performance             │
+│  even with all features enabled (IPS, AV, SSL Inspection, etc.)            │
+│                                                                              │
+│  RESULT:                                                                    │
+│  • Consistent throughput with security enabled                             │
+│  • Lower latency for real-time applications                                │
+│  • Better price/performance ratio                                          │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>FortiOS Concepts</h2>
+                
+                <h3>Policy Types</h3>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Policy Type</th>
+                                <th>Description</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Firewall Policy</strong></td>
+                                <td>Controls traffic between interfaces/zones</td>
+                                <td>Allow/deny traffic, apply security profiles</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Local-in Policy</strong></td>
+                                <td>Controls traffic destined TO the FortiGate itself</td>
+                                <td>Restrict management access, VPN termination</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DoS Policy</strong></td>
+                                <td>Protects against denial-of-service attacks</td>
+                                <td>Rate limiting, anomaly detection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Multicast Policy</strong></td>
+                                <td>Controls multicast traffic</td>
+                                <td>Video streaming, multicast applications</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Traffic Shaping</strong></td>
+                                <td>QoS and bandwidth management</td>
+                                <td>Prioritize business traffic</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h3>Security Profiles</h3>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">FortiGate Security Profiles</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SECURITY PROFILES                                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Security profiles are applied to firewall policies to add deep             │
+│  inspection capabilities. Multiple profiles can be combined.                │
+│                                                                              │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐          │
+│  │   AntiVirus      │  │      IPS         │  │  Web Filter      │          │
+│  │                  │  │                  │  │                  │          │
+│  │ • File scanning  │  │ • Signature      │  │ • URL categories │          │
+│  │ • Sandbox (AV)   │  │   based          │  │ • SafeSearch     │          │
+│  │ • Protocol scan  │  │ • Rate limiting  │  │ • Quota          │          │
+│  │ • Grayware       │  │ • Anomaly        │  │ • Override       │          │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘          │
+│                                                                              │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐          │
+│  │ App Control      │  │  SSL Inspection  │  │    DNS Filter    │          │
+│  │                  │  │                  │  │                  │          │
+│  │ • 4000+ apps     │  │ • Deep inspect   │  │ • Block botnet   │          │
+│  │ • Categories     │  │ • Certificate    │  │ • Block malware  │          │
+│  │ • Actions        │  │   inspection     │  │   domains        │          │
+│  │ • Traffic shape  │  │ • Exempt list    │  │ • Safe DNS       │          │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘          │
+│                                                                              │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐          │
+│  │      DLP         │  │  File Filter     │  │   Video Filter   │          │
+│  │                  │  │                  │  │                  │          │
+│  │ • Credit cards   │  │ • Block by type  │  │ • YouTube        │          │
+│  │ • SSN patterns   │  │ • Block by size  │  │   categories     │          │
+│  │ • Custom regex   │  │ • Direction      │  │ • Vimeo control  │          │
+│  │ • Fingerprints   │  │                  │  │                  │          │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘          │
+│                                                                              │
+│  APPLYING PROFILES TO POLICY:                                               │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ Policy: "Internet-Access"                                           │   │
+│  │ Source: internal → Destination: all                                 │   │
+│  │ Action: ACCEPT                                                      │   │
+│  │                                                                      │   │
+│  │ Security Profiles:                                                   │   │
+│  │  ☑ Antivirus: default                                              │   │
+│  │  ☑ Web Filter: corporate-filter                                    │   │
+│  │  ☑ Application Control: block-risky-apps                           │   │
+│  │  ☑ IPS: protect_client                                             │   │
+│  │  ☑ SSL Inspection: deep-inspection                                 │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Essential CLI Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">FortiGate CLI - Quick Reference</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SYSTEM INFORMATION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">get</span> system status                     <span class="token-comment"># Version, serial, uptime</span>
+<span class="token-command">get</span> system performance status         <span class="token-comment"># CPU, memory, sessions</span>
+<span class="token-command">get</span> system ha status                  <span class="token-comment"># HA cluster status</span>
+<span class="token-command">diagnose</span> hardware sysinfo memory      <span class="token-comment"># Memory details</span>
+<span class="token-command">execute</span> reboot                        <span class="token-comment"># Reboot device</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SESSION MANAGEMENT</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">diagnose</span> sys session stat             <span class="token-comment"># Session statistics</span>
+<span class="token-command">diagnose</span> sys session list             <span class="token-comment"># All active sessions</span>
+<span class="token-command">diagnose</span> sys session filter src 10.1.1.100
+<span class="token-command">diagnose</span> sys session filter dst 8.8.8.8
+<span class="token-command">diagnose</span> sys session filter dport 443
+<span class="token-command">diagnose</span> sys session list             <span class="token-comment"># Show filtered sessions</span>
+<span class="token-command">diagnose</span> sys session clear            <span class="token-comment"># Clear filtered sessions</span>
+<span class="token-command">diagnose</span> sys session filter clear     <span class="token-comment"># Reset filter</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ROUTING & NETWORK</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">get</span> router info routing-table all     <span class="token-comment"># Routing table</span>
+<span class="token-command">get</span> router info routing-table details 8.8.8.8
+<span class="token-command">diagnose</span> ip arp list                  <span class="token-comment"># ARP table</span>
+<span class="token-command">get</span> system interface                  <span class="token-comment"># Interface list</span>
+<span class="token-command">diagnose</span> netlink interface list       <span class="token-comment"># Detailed interface stats</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># FIREWALL POLICY</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">diagnose</span> firewall policy list         <span class="token-comment"># All policies</span>
+<span class="token-command">get</span> firewall policy                   <span class="token-comment"># Policy config (show)</span>
+<span class="token-command">diagnose</span> firewall iprope lookup 10.1.1.100 8.8.8.8 6 12345 443
+<span class="token-comment"># Policy lookup: src dst proto sport dport</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># VPN</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">diagnose</span> vpn ike gateway list         <span class="token-comment"># IKE Phase 1 status</span>
+<span class="token-command">diagnose</span> vpn tunnel list              <span class="token-comment"># IPSec tunnel status</span>
+<span class="token-command">diagnose</span> vpn tunnel stat              <span class="token-comment"># Tunnel statistics</span>
+<span class="token-command">get</span> vpn ipsec tunnel summary          <span class="token-comment"># Tunnel summary</span>
+<span class="token-command">diagnose</span> debug application ike -1     <span class="token-comment"># IKE debug (verbose)</span>
+<span class="token-command">diagnose</span> debug enable
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SSL VPN</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">get</span> vpn ssl monitor                   <span class="token-comment"># SSL VPN sessions</span>
+<span class="token-command">diagnose</span> vpn ssl list                 <span class="token-comment"># Detailed SSL VPN info</span>
+<span class="token-command">diagnose</span> vpn ssl statistics           <span class="token-comment"># SSL VPN stats</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PACKET CAPTURE (SNIFFER)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Syntax: diagnose sniffer packet &lt;interface&gt; '&lt;filter&gt;' &lt;verbose&gt; &lt;count&gt;</span>
+<span class="token-comment"># Verbose: 1=IP, 2=TCP/UDP, 3=payload, 4=interface info</span>
+
+<span class="token-command">diagnose</span> sniffer packet any 'host 10.1.1.100' 4
+<span class="token-command">diagnose</span> sniffer packet any 'host 10.1.1.100 and port 443' 4 100
+<span class="token-command">diagnose</span> sniffer packet port1 'tcp port 22' 4 50
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DEBUG FLOW (Policy Matching)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">diagnose</span> debug flow filter addr 10.1.1.100
+<span class="token-command">diagnose</span> debug flow filter port 443
+<span class="token-command">diagnose</span> debug flow trace start 100   <span class="token-comment"># Trace 100 packets</span>
+<span class="token-command">diagnose</span> debug enable
+<span class="token-comment"># Generate traffic, observe output</span>
+<span class="token-command">diagnose</span> debug disable
+<span class="token-command">diagnose</span> debug flow trace stop
+<span class="token-command">diagnose</span> debug reset
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CONFIGURATION BACKUP</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">execute</span> backup config tftp &lt;filename&gt; &lt;server&gt;
+<span class="token-command">execute</span> restore config tftp &lt;filename&gt; &lt;server&gt;
+<span class="token-command">show</span> full-configuration               <span class="token-comment"># Show entire config</span></code></pre>
+                </div>
+                
+                <h2>FortiGuard Services</h2>
+                
+                <p>FortiGuard is Fortinet's threat intelligence and security services subscription, providing updates for all security features.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Description</th>
+                                <th>Update Frequency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>AntiVirus</strong></td>
+                                <td>Malware signatures, heuristics</td>
+                                <td>Hourly</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IPS</strong></td>
+                                <td>Intrusion prevention signatures</td>
+                                <td>Daily to weekly</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Web Filtering</strong></td>
+                                <td>URL categorization database (77+ categories)</td>
+                                <td>Real-time cloud lookup</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Application Control</strong></td>
+                                <td>Application signatures (4000+ apps)</td>
+                                <td>Weekly</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Botnet IP/Domain</strong></td>
+                                <td>Known malicious IPs and domains</td>
+                                <td>Hourly</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sandbox (FortiSandbox)</strong></td>
+                                <td>Cloud or on-prem sandbox analysis</td>
+                                <td>N/A (on-demand)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Check FortiGuard Status</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># Check FortiGuard connection and license</span>
+<span class="token-command">diagnose</span> autoupdate status
+<span class="token-command">diagnose</span> autoupdate versions
+
+<span class="token-comment"># Force update check</span>
+<span class="token-command">execute</span> update-now
+
+<span class="token-comment"># Check web filter rating</span>
+<span class="token-command">diagnose</span> debug rating
+
+<span class="token-comment"># Test URL category lookup</span>
+<span class="token-command">diagnose</span> webfilter fortiguard https://www.example.com</code></pre>
+                </div>
+                
+                <h2>FortiManager Centralized Management</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">FortiManager Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    FORTIMANAGER CENTRALIZED MANAGEMENT                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                        FORTIMANAGER                                  │    │
+│  │                                                                      │    │
+│  │  ┌──────────────────────────────────────────────────────────────┐   │    │
+│  │  │ ADOMS (Administrative Domains)                                │   │    │
+│  │  │                                                               │   │    │
+│  │  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐             │   │    │
+│  │  │  │ ADOM:       │ │ ADOM:       │ │ ADOM:       │             │   │    │
+│  │  │  │ Corporate   │ │ Branch      │ │ Cloud       │             │   │    │
+│  │  │  └─────────────┘ └─────────────┘ └─────────────┘             │   │    │
+│  │  └──────────────────────────────────────────────────────────────┘   │    │
+│  │                                                                      │    │
+│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐       │    │
+│  │  │ Policy &   │ │  Object    │ │  Scripts   │ │  Workflow  │       │    │
+│  │  │ Objects    │ │  Database  │ │  & CLI     │ │  Approval  │       │    │
+│  │  │ Packages   │ │  Shared    │ │  Templates │ │            │       │    │
+│  │  └────────────┘ └────────────┘ └────────────┘ └────────────┘       │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│              │                    │                    │                     │
+│              │  Install Policy    │  Install Policy    │  Install Policy    │
+│              ▼                    ▼                    ▼                     │
+│  ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐       │
+│  │    FortiGate      │  │    FortiGate      │  │   FortiGate-VM    │       │
+│  │    (HQ)           │  │    (Branch)       │  │   (AWS/Azure)     │       │
+│  └───────────────────┘  └───────────────────┘  └───────────────────┘       │
+│                                                                              │
+│  FORTIMANAGER FEATURES:                                                     │
+│  • Centralized policy management for hundreds of FortiGates                │
+│  • Template-based configuration                                            │
+│  • Change management with revision history                                 │
+│  • Script execution across devices                                         │
+│  • SD-WAN orchestration                                                    │
+│  • Integration with FortiAnalyzer for logging                              │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>VPN Configuration</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">FortiGate IPSec VPN Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SITE-TO-SITE IPSEC VPN (IKEv2)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Phase 1 Configuration</span>
+<span class="token-keyword">config</span> vpn ipsec phase1-interface
+  <span class="token-keyword">edit</span> "VPN-to-Branch"
+    <span class="token-keyword">set</span> interface "wan1"
+    <span class="token-keyword">set</span> ike-version 2
+    <span class="token-keyword">set</span> peertype any
+    <span class="token-keyword">set</span> proposal aes256-sha256
+    <span class="token-keyword">set</span> dhgrp 14 20
+    <span class="token-keyword">set</span> remote-gw 203.0.113.50
+    <span class="token-keyword">set</span> psksecret "YourSecretKey"
+    <span class="token-keyword">set</span> dpd on-idle
+    <span class="token-keyword">set</span> dpd-retryinterval 10
+  <span class="token-keyword">next</span>
+<span class="token-keyword">end</span>
+
+<span class="token-comment"># Phase 2 Configuration</span>
+<span class="token-keyword">config</span> vpn ipsec phase2-interface
+  <span class="token-keyword">edit</span> "VPN-to-Branch-P2"
+    <span class="token-keyword">set</span> phase1name "VPN-to-Branch"
+    <span class="token-keyword">set</span> proposal aes256-sha256
+    <span class="token-keyword">set</span> pfs enable
+    <span class="token-keyword">set</span> dhgrp 14
+    <span class="token-keyword">set</span> auto-negotiate enable
+    <span class="token-keyword">set</span> src-subnet 10.1.0.0/16
+    <span class="token-keyword">set</span> dst-subnet 10.2.0.0/16
+  <span class="token-keyword">next</span>
+<span class="token-keyword">end</span>
+
+<span class="token-comment"># Static Route for remote network</span>
+<span class="token-keyword">config</span> router static
+  <span class="token-keyword">edit</span> 0
+    <span class="token-keyword">set</span> dst 10.2.0.0/16
+    <span class="token-keyword">set</span> device "VPN-to-Branch"
+  <span class="token-keyword">next</span>
+<span class="token-keyword">end</span>
+
+<span class="token-comment"># Firewall Policy for VPN traffic</span>
+<span class="token-keyword">config</span> firewall policy
+  <span class="token-keyword">edit</span> 0
+    <span class="token-keyword">set</span> name "Internal-to-Branch"
+    <span class="token-keyword">set</span> srcintf "internal"
+    <span class="token-keyword">set</span> dstintf "VPN-to-Branch"
+    <span class="token-keyword">set</span> srcaddr "all"
+    <span class="token-keyword">set</span> dstaddr "all"
+    <span class="token-keyword">set</span> action accept
+    <span class="token-keyword">set</span> schedule "always"
+    <span class="token-keyword">set</span> service "ALL"
+  <span class="token-keyword">next</span>
+<span class="token-keyword">end</span></code></pre>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>Common FortiGate operations:</strong></p>
+                        <ul>
+                            <li><strong>Policy management:</strong> Create/modify firewall policies, apply security profiles</li>
+                            <li><strong>VPN support:</strong> Monitor tunnel status, troubleshoot IPSec/SSL VPN issues</li>
+                            <li><strong>Traffic analysis:</strong> Use debug flow and sniffer for troubleshooting</li>
+                            <li><strong>FortiGuard updates:</strong> Verify updates are applying, check license status</li>
+                            <li><strong>HA monitoring:</strong> Check cluster sync, verify failover readiness</li>
+                            <li><strong>Log review:</strong> Analyze security events in FortiAnalyzer or local logs</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "What makes FortiGate different from other NGFWs?"</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>SPU Architecture:</strong> Custom ASICs (NP, CP, SP) accelerate security functions in hardware, maintaining high performance with all features enabled. Competitors often see significant performance drops with IPS/AV enabled.</li>
+                            <li><strong>Security Fabric:</strong> Tight integration with other Fortinet products (FortiAnalyzer, FortiManager, FortiSandbox, FortiSwitch, FortiAP) for unified visibility and response.</li>
+                            <li><strong>Price/Performance:</strong> Generally offers better throughput per dollar than competitors, especially in mid-market.</li>
+                            <li><strong>SD-WAN:</strong> Native SD-WAN capabilities without additional license in most models.</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="2-5-cisco-firepower.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Cisco Firepower/ASA</span>
+                        </div>
+                    </a>
+                    <a href="2-7-checkpoint.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Check Point</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

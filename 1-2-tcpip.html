@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TCP/IP Networking - Complete guide to TCP/IP protocol suite, IP addressing, subnetting, and network troubleshooting">
+    <title>TCP/IP Networking | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 1: Networking (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🌐</span>
+                            Networking Basics
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="1-1-osi-model.html" class="nav-link"><span class="nav-link-number">1.1</span> OSI Model</a>
+                        <a href="1-2-tcpip.html" class="nav-link active"><span class="nav-link-number">1.2</span> TCP/IP Networking</a>
+                        <a href="1-3-ip-addressing.html" class="nav-link"><span class="nav-link-number">1.3</span> IP Addressing & Subnetting</a>
+                        <a href="1-4-dns.html" class="nav-link"><span class="nav-link-number">1.4</span> DNS</a>
+                        <a href="1-5-routing.html" class="nav-link"><span class="nav-link-number">1.5</span> Routing Fundamentals</a>
+                        <a href="1-6-switching.html" class="nav-link"><span class="nav-link-number">1.6</span> Switching & VLANs</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Networking Basics</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">TCP/IP Networking</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>TCP/IP Networking</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>The TCP/IP protocol suite is the foundation of modern networking and the Internet. Understanding TCP/IP is essential for network security professionals to analyze traffic, troubleshoot issues, and identify attacks.</p>
+                        <ul>
+                            <li>TCP/IP model layers</li>
+                            <li>IP protocol and addressing</li>
+                            <li>TCP vs UDP</li>
+                            <li>Three-way handshake</li>
+                            <li>Common ports and protocols</li>
+                            <li>Network troubleshooting commands</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>TCP/IP Model</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">TCP/IP Model vs OSI Model</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    TCP/IP MODEL vs OSI MODEL                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│       OSI MODEL                              TCP/IP MODEL                   │
+│                                                                              │
+│  ┌─────────────────────┐                ┌─────────────────────┐             │
+│  │  7. Application     │                │                     │             │
+│  ├─────────────────────┤                │    Application      │             │
+│  │  6. Presentation    │   ═══════►     │    (HTTP, FTP,      │             │
+│  ├─────────────────────┤                │     SMTP, DNS)      │             │
+│  │  5. Session         │                │                     │             │
+│  ├─────────────────────┤                ├─────────────────────┤             │
+│  │  4. Transport       │   ═══════►     │    Transport        │             │
+│  │     (TCP, UDP)      │                │    (TCP, UDP)       │             │
+│  ├─────────────────────┤                ├─────────────────────┤             │
+│  │  3. Network         │   ═══════►     │    Internet         │             │
+│  │     (IP)            │                │    (IP, ICMP, ARP)  │             │
+│  ├─────────────────────┤                ├─────────────────────┤             │
+│  │  2. Data Link       │                │    Network Access   │             │
+│  ├─────────────────────┤   ═══════►     │    (Ethernet,       │             │
+│  │  1. Physical        │                │     Wi-Fi)          │             │
+│  └─────────────────────┘                └─────────────────────┘             │
+│                                                                              │
+│  The TCP/IP model is a simplified, practical 4-layer model                  │
+│  that maps to the theoretical 7-layer OSI model.                            │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>TCP Three-Way Handshake</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">TCP Connection Establishment</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    TCP THREE-WAY HANDSHAKE                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│       CLIENT                                           SERVER               │
+│         │                                                │                  │
+│         │  1. SYN (SEQ=100)                              │                  │
+│         │ ───────────────────────────────────────────►   │                  │
+│         │    "I want to connect, my sequence is 100"     │                  │
+│         │                                                │                  │
+│         │  2. SYN-ACK (SEQ=300, ACK=101)                 │                  │
+│         │ ◄───────────────────────────────────────────   │                  │
+│         │    "OK, my sequence is 300, expecting 101"     │                  │
+│         │                                                │                  │
+│         │  3. ACK (SEQ=101, ACK=301)                     │                  │
+│         │ ───────────────────────────────────────────►   │                  │
+│         │    "Got it, expecting 301"                     │                  │
+│         │                                                │                  │
+│         │  ═══════════ CONNECTION ESTABLISHED ════════   │                  │
+│         │                                                │                  │
+│         │  4. DATA + ACK                                 │                  │
+│         │ ◄──────────────────────────────────────────►   │                  │
+│         │                                                │                  │
+│                                                                              │
+│  CONNECTION TERMINATION (Four-Way)                                          │
+│         │                                                │                  │
+│         │  FIN ──────────────────────────────────────►   │                  │
+│         │  ◄───────────────────────────────────── ACK    │                  │
+│         │  ◄───────────────────────────────────── FIN    │                  │
+│         │  ACK ──────────────────────────────────────►   │                  │
+│         │                                                │                  │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>TCP vs UDP</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>TCP</th>
+                                <th>UDP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Connection</strong></td>
+                                <td>Connection-oriented (handshake)</td>
+                                <td>Connectionless</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Reliability</strong></td>
+                                <td>Guaranteed delivery, retransmission</td>
+                                <td>Best effort, no guarantee</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ordering</strong></td>
+                                <td>Maintains order</td>
+                                <td>No ordering</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Speed</strong></td>
+                                <td>Slower (overhead)</td>
+                                <td>Faster (less overhead)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Header Size</strong></td>
+                                <td>20-60 bytes</td>
+                                <td>8 bytes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use Cases</strong></td>
+                                <td>HTTP, HTTPS, SSH, FTP, SMTP</td>
+                                <td>DNS, DHCP, VoIP, Video, Gaming</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Flow Control</strong></td>
+                                <td>Yes (windowing)</td>
+                                <td>No</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Common Ports</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Port</th>
+                                <th>Protocol</th>
+                                <th>Service</th>
+                                <th>Security Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>20, 21</strong></td>
+                                <td>TCP</td>
+                                <td>FTP</td>
+                                <td>Unencrypted, use SFTP (22) instead</td>
+                            </tr>
+                            <tr>
+                                <td><strong>22</strong></td>
+                                <td>TCP</td>
+                                <td>SSH/SFTP</td>
+                                <td>Secure, common brute force target</td>
+                            </tr>
+                            <tr>
+                                <td><strong>23</strong></td>
+                                <td>TCP</td>
+                                <td>Telnet</td>
+                                <td>Unencrypted, use SSH instead</td>
+                            </tr>
+                            <tr>
+                                <td><strong>25</strong></td>
+                                <td>TCP</td>
+                                <td>SMTP</td>
+                                <td>Email, often blocked outbound</td>
+                            </tr>
+                            <tr>
+                                <td><strong>53</strong></td>
+                                <td>TCP/UDP</td>
+                                <td>DNS</td>
+                                <td>DNS tunneling risk</td>
+                            </tr>
+                            <tr>
+                                <td><strong>80</strong></td>
+                                <td>TCP</td>
+                                <td>HTTP</td>
+                                <td>Unencrypted web traffic</td>
+                            </tr>
+                            <tr>
+                                <td><strong>443</strong></td>
+                                <td>TCP</td>
+                                <td>HTTPS</td>
+                                <td>Encrypted web, requires SSL inspection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>445</strong></td>
+                                <td>TCP</td>
+                                <td>SMB</td>
+                                <td>File sharing, ransomware vector</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3389</strong></td>
+                                <td>TCP</td>
+                                <td>RDP</td>
+                                <td>Remote desktop, major attack target</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Network Troubleshooting Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Network Troubleshooting - Cross-Platform</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CONNECTIVITY TESTING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Ping - ICMP echo request/reply</span>
+<span class="token-command">ping</span> 8.8.8.8                          <span class="token-comment"># Test reachability</span>
+<span class="token-command">ping</span> -c 4 google.com                  <span class="token-comment"># Linux: 4 packets</span>
+<span class="token-command">ping</span> -n 4 google.com                  <span class="token-comment"># Windows: 4 packets</span>
+
+<span class="token-comment"># Traceroute - show path to destination</span>
+<span class="token-command">traceroute</span> google.com                 <span class="token-comment"># Linux/Mac</span>
+<span class="token-command">tracert</span> google.com                    <span class="token-comment"># Windows</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DNS RESOLUTION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">nslookup</span> google.com                   <span class="token-comment"># Query DNS</span>
+<span class="token-command">nslookup</span> google.com 8.8.8.8           <span class="token-comment"># Query specific DNS server</span>
+<span class="token-command">dig</span> google.com                        <span class="token-comment"># Linux: detailed DNS query</span>
+<span class="token-command">dig</span> google.com +short                 <span class="token-comment"># Linux: just the IP</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PORT TESTING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Telnet - test if port is open</span>
+<span class="token-command">telnet</span> google.com 443                 <span class="token-comment"># Test HTTPS port</span>
+
+<span class="token-comment"># Netcat - Swiss army knife</span>
+<span class="token-command">nc</span> -zv google.com 443                 <span class="token-comment"># Test port (Linux)</span>
+
+<span class="token-comment"># Test-NetConnection (PowerShell)</span>
+<span class="token-command">Test-NetConnection</span> google.com -Port 443
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LOCAL CONFIGURATION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">ipconfig</span>                              <span class="token-comment"># Windows: IP config</span>
+<span class="token-command">ipconfig</span> /all                         <span class="token-comment"># Windows: detailed</span>
+<span class="token-command">ifconfig</span>                              <span class="token-comment"># Linux/Mac: IP config</span>
+<span class="token-command">ip</span> addr                               <span class="token-comment"># Linux: modern command</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CONNECTIONS AND PORTS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">netstat</span> -an                           <span class="token-comment"># All connections</span>
+<span class="token-command">netstat</span> -ano                          <span class="token-comment"># Windows: with PID</span>
+<span class="token-command">netstat</span> -tulpn                        <span class="token-comment"># Linux: listening TCP/UDP</span>
+<span class="token-command">ss</span> -tulpn                             <span class="token-comment"># Linux: modern netstat</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ARP TABLE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">arp</span> -a                                <span class="token-comment"># View ARP cache</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ROUTING TABLE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">route</span> print                           <span class="token-comment"># Windows</span>
+<span class="token-command">ip</span> route                              <span class="token-comment"># Linux</span>
+<span class="token-command">netstat</span> -rn                           <span class="token-comment"># Cross-platform</span></code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Security Implications</div>
+                    <div class="callout-content">
+                        <p><strong>TCP/IP security considerations:</strong></p>
+                        <ul>
+                            <li><strong>SYN Flood:</strong> Attack that exhausts server resources with half-open connections</li>
+                            <li><strong>Port Scanning:</strong> Attackers use TCP/UDP to discover open services</li>
+                            <li><strong>IP Spoofing:</strong> Forging source IP for attacks or evasion</li>
+                            <li><strong>Session Hijacking:</strong> Predicting sequence numbers to take over connections</li>
+                            <li><strong>ARP Spoofing:</strong> Poisoning ARP cache for man-in-the-middle attacks</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "Explain the TCP three-way handshake."</p>
+                        <p><strong>Answer:</strong></p>
+                        <ol>
+                            <li><strong>SYN:</strong> Client sends SYN packet with initial sequence number</li>
+                            <li><strong>SYN-ACK:</strong> Server responds with its own sequence number and acknowledges client's</li>
+                            <li><strong>ACK:</strong> Client acknowledges server's sequence number, connection established</li>
+                        </ol>
+                        <p><strong>Security note:</strong> "SYN floods exploit this by sending many SYNs without completing the handshake, exhausting server connection tables. SYN cookies are a common mitigation."</p>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="1-1-osi-model.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">OSI Model</span>
+                        </div>
+                    </a>
+                    <a href="1-3-ip-addressing.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">IP Addressing & Subnetting</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BGP Security - Complete guide to BGP hijacking, RPKI, and route security">
+    <title>BGP Security | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌐</span>Networking</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="1-5-routing.html" class="nav-link"><span class="nav-link-number">1.5</span> Routing</a>
+                        <a href="1-9-bgp-security.html" class="nav-link active"><span class="nav-link-number">1.9</span> BGP Security</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Networking</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">BGP Security</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>BGP Security</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>BGP (Border Gateway Protocol) is the routing protocol that holds the Internet together. It was designed without security, making it vulnerable to hijacking, leaks, and spoofing attacks that can redirect traffic globally.</p>
+                        <ul>
+                            <li>BGP fundamentals and AS numbers</li>
+                            <li>BGP hijacking and route leaks</li>
+                            <li>RPKI and ROA validation</li>
+                            <li>BGP security best practices</li>
+                            <li>Monitoring and detection</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>BGP Fundamentals</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">BGP and Autonomous Systems</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    BGP INTERNET ROUTING                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  AS = Autonomous System (network under single administrative control)       │
+│  ASN = AS Number (unique identifier, e.g., AS15169 = Google)               │
+│                                                                              │
+│  ┌───────────────┐          ┌───────────────┐          ┌───────────────┐   │
+│  │   AS 64501    │          │   AS 64502    │          │   AS 64503    │   │
+│  │   (ISP A)     │◄────────►│   (Transit)   │◄────────►│   (ISP B)     │   │
+│  │               │   eBGP   │               │   eBGP   │               │   │
+│  │ Prefix:       │          │               │          │ Prefix:       │   │
+│  │ 192.0.2.0/24  │          │               │          │ 198.51.100/24 │   │
+│  └───────────────┘          └───────────────┘          └───────────────┘   │
+│         │                          │                          │            │
+│         │ iBGP                     │                          │ iBGP       │
+│         ▼                          ▼                          ▼            │
+│  ┌───────────────┐          ┌───────────────┐          ┌───────────────┐   │
+│  │  Customer A   │          │   Internet    │          │  Customer B   │   │
+│  │  Network      │          │   Exchange    │          │  Network      │   │
+│  └───────────────┘          └───────────────┘          └───────────────┘   │
+│                                                                              │
+│  BGP ADVERTISEMENT:                                                         │
+│  "I can reach 192.0.2.0/24 via AS_PATH: 64501"                            │
+│  "I can reach 198.51.100.0/24 via AS_PATH: 64502 64503"                   │
+│                                                                              │
+│  KEY POINT: BGP trusts what peers announce - no built-in verification!     │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>BGP Attacks</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Attack</th>
+                                <th>Description</th>
+                                <th>Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>BGP Hijacking</strong></td>
+                                <td>Announce someone else's prefix as your own</td>
+                                <td>Traffic redirected to attacker</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Prefix Hijacking</strong></td>
+                                <td>Announce more specific prefix (/25 vs /24)</td>
+                                <td>More specific wins, traffic stolen</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AS Path Manipulation</strong></td>
+                                <td>Forge or modify AS path</td>
+                                <td>Bypass security, misdirect traffic</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Route Leak</strong></td>
+                                <td>Accidentally re-announce learned routes</td>
+                                <td>Traffic blackholed or misdirected</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BGP Session Hijacking</strong></td>
+                                <td>Take over BGP TCP session</td>
+                                <td>Inject malicious routes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>RPKI and ROA</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">RPKI Route Origin Validation</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    RPKI (Resource Public Key Infrastructure)                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ROA (Route Origin Authorization):                                          │
+│  "AS 64501 is authorized to announce 192.0.2.0/24"                         │
+│                                                                              │
+│  VALIDATION STATES:                                                         │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ VALID       │ Prefix + Origin AS matches a ROA                      │   │
+│  │             │ Action: ACCEPT                                        │   │
+│  ├─────────────────────────────────────────────────────────────────────┤   │
+│  │ INVALID     │ ROA exists but origin AS doesn't match                │   │
+│  │             │ Action: REJECT (potential hijack!)                    │   │
+│  ├─────────────────────────────────────────────────────────────────────┤   │
+│  │ NOT FOUND   │ No ROA exists for this prefix                        │   │
+│  │             │ Action: ACCEPT (legacy, no RPKI yet)                  │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│  RPKI HIERARCHY:                                                            │
+│                                                                              │
+│       IANA (Root)                                                           │
+│           │                                                                 │
+│     ┌─────┴─────┐                                                          │
+│     ▼           ▼                                                          │
+│   RIRs (ARIN, RIPE, APNIC, AFRINIC, LACNIC)                               │
+│     │                                                                       │
+│     ▼                                                                       │
+│   LIRs/ISPs (create ROAs for their prefixes)                              │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>BGP Security Configuration</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco IOS - BGP Security</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! BGP NEIGHBOR AUTHENTICATION (MD5)</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+router bgp 64501
+ neighbor 192.0.2.1 remote-as 64502
+ neighbor 192.0.2.1 password <span class="token-string">BGP-SECRET-KEY</span>
+ neighbor 192.0.2.1 ttl-security hops 1
+
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! PREFIX FILTERING - ACCEPT ONLY EXPECTED PREFIXES</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+ip prefix-list CUSTOMER-PREFIXES seq 10 permit 198.51.100.0/24
+ip prefix-list CUSTOMER-PREFIXES seq 20 permit 203.0.113.0/24
+ip prefix-list CUSTOMER-PREFIXES seq 100 deny 0.0.0.0/0 le 32
+
+router bgp 64501
+ neighbor 192.0.2.1 prefix-list CUSTOMER-PREFIXES in
+
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! BOGON FILTERING - REJECT INVALID PREFIXES</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+ip prefix-list BOGONS seq 10 deny 0.0.0.0/8 le 32
+ip prefix-list BOGONS seq 20 deny 10.0.0.0/8 le 32
+ip prefix-list BOGONS seq 30 deny 127.0.0.0/8 le 32
+ip prefix-list BOGONS seq 40 deny 169.254.0.0/16 le 32
+ip prefix-list BOGONS seq 50 deny 172.16.0.0/12 le 32
+ip prefix-list BOGONS seq 60 deny 192.168.0.0/16 le 32
+ip prefix-list BOGONS seq 70 deny 224.0.0.0/4 le 32
+ip prefix-list BOGONS seq 100 permit 0.0.0.0/0 le 32
+
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! RPKI VALIDATION</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+router bgp 64501
+ bgp rpki server tcp 192.0.2.100 port 323 refresh 600
+ 
+ neighbor 192.0.2.1 remote-as 64502
+ address-family ipv4
+  neighbor 192.0.2.1 route-map RPKI-FILTER in
+
+route-map RPKI-FILTER permit 10
+ match rpki valid
+route-map RPKI-FILTER permit 20
+ match rpki not-found
+route-map RPKI-FILTER deny 30
+ match rpki invalid</code></pre>
+                </div>
+                
+                <h2>BGP Security Best Practices</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Control</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>MD5 Authentication</strong></td>
+                                <td>Authenticate BGP sessions with shared secret</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TTL Security (GTSM)</strong></td>
+                                <td>Require TTL=255, prevents remote attacks</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Prefix Filtering</strong></td>
+                                <td>Only accept expected prefixes from peers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Max Prefix Limits</strong></td>
+                                <td>Limit number of prefixes accepted</td>
+                            </tr>
+                            <tr>
+                                <td><strong>RPKI/ROV</strong></td>
+                                <td>Validate route origins cryptographically</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bogon Filtering</strong></td>
+                                <td>Reject private/reserved address space</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AS Path Filtering</strong></td>
+                                <td>Reject routes with suspicious AS paths</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>BGP Monitoring</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">BGP Monitoring Tools</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BGP MONITORING SERVICES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+PUBLIC MONITORING:
+• BGPStream (bgpstream.com) - Real-time BGP data
+• RIPE RIS (ris.ripe.net) - Route collectors
+• RouteViews (routeviews.org) - Route archives
+• Cloudflare Radar - BGP anomaly detection
+• ThousandEyes - Path monitoring
+
+ALERTING SERVICES:
+• BGPMon - Hijack alerts
+• ARTEMIS - Self-hosted detection
+• Kentik - Network analytics + BGP
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># COMMAND LINE CHECKS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Check your prefix from external view</span>
+<span class="token-command">whois</span> -h whois.radb.net 192.0.2.0/24
+<span class="token-command">curl</span> https://stat.ripe.net/data/routing-status/data.json?resource=192.0.2.0/24
+
+<span class="token-comment"># Check RPKI status</span>
+<span class="token-command">curl</span> https://rpki-validator.ripe.net/api/v1/validity/AS64501/192.0.2.0/24
+
+<span class="token-comment"># Looking glass queries</span>
+<span class="token-comment"># Use public looking glasses to verify how your routes appear globally</span></code></pre>
+                </div>
+                
+                <div class="callout callout-critical">
+                    <div class="callout-title">🚨 Real-World BGP Incidents</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>2008 Pakistan/YouTube:</strong> Pakistan Telecom hijacked YouTube prefix globally</li>
+                            <li><strong>2018 Amazon Route 53:</strong> BGP hijack stole cryptocurrency</li>
+                            <li><strong>2019 Google:</strong> Traffic routed through China for 74 minutes</li>
+                            <li><strong>2021 Facebook Outage:</strong> BGP withdrawal made Facebook unreachable</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "What is BGP hijacking and how do you prevent it?"</p>
+                        <p><strong>Answer:</strong> "BGP hijacking occurs when an AS announces routes for prefixes it doesn't own. Because BGP was designed to trust announcements, other routers accept these false routes and traffic gets misdirected to the attacker. Prevention requires multiple layers: First, create ROAs (Route Origin Authorizations) in RPKI so validators can verify your prefixes. Second, configure prefix filters on all BGP sessions to only accept expected routes. Third, use MD5 authentication and TTL security (GTSM) to protect BGP sessions themselves. Fourth, monitor your prefixes using services like BGPMon or RIPE RIS to detect unauthorized announcements. The industry is moving toward RPKI adoption - major networks now reject RPKI-invalid routes."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="1-8-wireless-security.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Wireless Security</span>
+                        </div>
+                    </a>
+                    <a href="2-1-firewall-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Firewall Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

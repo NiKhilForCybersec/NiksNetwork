@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HAProxy - Complete guide to HAProxy load balancing, configuration, and security">
+    <title>HAProxy | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">⚖️</span>Load Balancers</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="8-1-lb-fundamentals.html" class="nav-link"><span class="nav-link-number">8.1</span> Fundamentals</a>
+                        <a href="8-2-f5-bigip.html" class="nav-link"><span class="nav-link-number">8.2</span> F5 BIG-IP</a>
+                        <a href="8-3-aws-elb.html" class="nav-link"><span class="nav-link-number">8.3</span> AWS ALB/NLB</a>
+                        <a href="8-4-haproxy.html" class="nav-link active"><span class="nav-link-number">8.4</span> HAProxy</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Load Balancers</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">HAProxy</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>HAProxy</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>HAProxy is a high-performance, open-source load balancer and proxy server. It's widely used for its reliability, performance, and flexibility in both Layer 4 and Layer 7 load balancing.</p>
+                        <ul>
+                            <li>HAProxy architecture</li>
+                            <li>Configuration structure</li>
+                            <li>Frontend and backend configuration</li>
+                            <li>SSL termination</li>
+                            <li>Health checks and monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Configuration Structure</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">HAProxy Configuration Sections</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    HAPROXY CONFIGURATION                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ GLOBAL                                                               │    │
+│  │ • Process-wide settings (user, chroot, logging)                     │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ DEFAULTS                                                             │    │
+│  │ • Default settings for all frontends/backends                       │    │
+│  │ • Timeouts, modes, options                                          │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ FRONTEND (Listeners)                                                 │    │
+│  │ • Bind addresses and ports                                          │    │
+│  │ • ACLs and routing rules                                            │    │
+│  │ • SSL certificates                                                  │    │
+│  └────────────────────────────────┬────────────────────────────────────┘    │
+│                                   │                                         │
+│                                   ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ BACKEND (Server Pools)                                               │    │
+│  │ • Server definitions                                                │    │
+│  │ • Health checks                                                     │    │
+│  │ • Load balancing algorithm                                          │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Example Configuration</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">haproxy.cfg</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># GLOBAL SETTINGS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">global</span>
+    log /dev/log local0
+    log /dev/log local1 notice
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
+    
+    <span class="token-comment"># SSL settings</span>
+    ssl-default-bind-ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256
+    ssl-default-bind-options no-sslv3 no-tlsv10 no-tlsv11
+    tune.ssl.default-dh-param 2048
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DEFAULTS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">defaults</span>
+    log     global
+    mode    http
+    option  httplog
+    option  dontlognull
+    option  forwardfor          <span class="token-comment"># Add X-Forwarded-For header</span>
+    timeout connect 5000ms
+    timeout client  50000ms
+    timeout server  50000ms
+    errorfile 400 /etc/haproxy/errors/400.http
+    errorfile 403 /etc/haproxy/errors/403.http
+    errorfile 500 /etc/haproxy/errors/500.http
+    errorfile 502 /etc/haproxy/errors/502.http
+    errorfile 503 /etc/haproxy/errors/503.http
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># FRONTEND - HTTPS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">frontend</span> https_front
+    bind *:443 ssl crt /etc/ssl/certs/example.com.pem
+    mode http
+    
+    <span class="token-comment"># Security headers</span>
+    http-response set-header Strict-Transport-Security "max-age=31536000"
+    http-response set-header X-Frame-Options "SAMEORIGIN"
+    http-response set-header X-Content-Type-Options "nosniff"
+    
+    <span class="token-comment"># ACLs for routing</span>
+    acl is_api path_beg /api
+    acl is_admin path_beg /admin
+    acl is_websocket hdr(Upgrade) -i WebSocket
+    
+    <span class="token-comment"># Rate limiting (requires stick-table)</span>
+    stick-table type ip size 100k expire 30s store http_req_rate(10s)
+    http-request track-sc0 src
+    http-request deny deny_status 429 if { sc_http_req_rate(0) gt 100 }
+    
+    <span class="token-comment"># Routing rules</span>
+    use_backend api_servers if is_api
+    use_backend admin_servers if is_admin
+    default_backend web_servers
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BACKEND - WEB SERVERS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">backend</span> web_servers
+    balance roundrobin
+    option httpchk GET /health
+    http-check expect status 200
+    
+    server web1 10.0.1.10:80 check inter 5s fall 3 rise 2
+    server web2 10.0.1.11:80 check inter 5s fall 3 rise 2
+    server web3 10.0.1.12:80 check inter 5s fall 3 rise 2 backup
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BACKEND - API SERVERS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">backend</span> api_servers
+    balance leastconn
+    option httpchk GET /api/health
+    
+    server api1 10.0.2.10:8080 check
+    server api2 10.0.2.11:8080 check
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># STATS PAGE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">frontend</span> stats
+    bind *:8404
+    mode http
+    stats enable
+    stats uri /stats
+    stats refresh 10s
+    stats auth admin:SecurePassword123</code></pre>
+                </div>
+                
+                <h2>Load Balancing Algorithms</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Algorithm</th>
+                                <th>Description</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>roundrobin</strong></td>
+                                <td>Sequential distribution</td>
+                                <td>Stateless, equal servers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>leastconn</strong></td>
+                                <td>Fewest active connections</td>
+                                <td>Long-lived connections</td>
+                            </tr>
+                            <tr>
+                                <td><strong>source</strong></td>
+                                <td>Hash of source IP</td>
+                                <td>Session persistence</td>
+                            </tr>
+                            <tr>
+                                <td><strong>uri</strong></td>
+                                <td>Hash of URI</td>
+                                <td>Caching proxies</td>
+                            </tr>
+                            <tr>
+                                <td><strong>first</strong></td>
+                                <td>First available server</td>
+                                <td>Minimize active servers</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Management Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">HAProxy Management</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># Check configuration syntax</span>
+<span class="token-command">haproxy</span> -c -f /etc/haproxy/haproxy.cfg
+
+<span class="token-comment"># Reload configuration (graceful)</span>
+<span class="token-command">systemctl</span> reload haproxy
+
+<span class="token-comment"># View stats via socket</span>
+<span class="token-command">echo</span> "show stat" | socat stdio /run/haproxy/admin.sock
+
+<span class="token-comment"># Disable server</span>
+<span class="token-command">echo</span> "disable server web_servers/web1" | socat stdio /run/haproxy/admin.sock
+
+<span class="token-comment"># Enable server</span>
+<span class="token-command">echo</span> "enable server web_servers/web1" | socat stdio /run/haproxy/admin.sock
+
+<span class="token-comment"># View server status</span>
+<span class="token-command">echo</span> "show servers state" | socat stdio /run/haproxy/admin.sock</code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - HAProxy</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Use HTTPS:</strong> Always terminate SSL at HAProxy</li>
+                            <li><strong>Enable health checks:</strong> Use application-level checks</li>
+                            <li><strong>Configure timeouts:</strong> Appropriate values for your application</li>
+                            <li><strong>Enable stats:</strong> Monitor via stats page (protect with auth)</li>
+                            <li><strong>Rate limiting:</strong> Use stick-tables for DDoS protection</li>
+                            <li><strong>Security headers:</strong> Add HSTS, X-Frame-Options</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you implement rate limiting in HAProxy?"</p>
+                        <p><strong>Answer:</strong> "HAProxy uses stick-tables for rate limiting. You define a stick-table that tracks requests per IP, then create an ACL that checks the request rate. For example: `stick-table type ip size 100k expire 30s store http_req_rate(10s)` creates a table tracking the request rate over 10 seconds. Then `http-request deny deny_status 429 if { sc_http_req_rate(0) gt 100 }` blocks IPs exceeding 100 requests in 10 seconds with a 429 status code. This happens in memory, so it's very fast."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="8-3-aws-elb.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">AWS ALB/NLB</span>
+                        </div>
+                    </a>
+                    <a href="9-1-edr-xdr-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">EDR/XDR Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cisco Firepower and ASA - Complete guide to Cisco firewalls, FMC management, FTD, and migration strategies">
+    <title>Cisco Firepower/ASA | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 2: Firewalls (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🛡️</span>
+                            Firewalls
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="2-1-firewall-fundamentals.html" class="nav-link"><span class="nav-link-number">2.1</span> Firewall Fundamentals</a>
+                        <a href="2-2-firewall-types.html" class="nav-link"><span class="nav-link-number">2.2</span> Firewall Types Deep Dive</a>
+                        <a href="2-3-rule-design.html" class="nav-link"><span class="nav-link-number">2.3</span> Firewall Rule Design</a>
+                        <a href="2-4-palo-alto.html" class="nav-link"><span class="nav-link-number">2.4</span> Palo Alto Networks</a>
+                        <a href="2-5-cisco-firepower.html" class="nav-link active"><span class="nav-link-number">2.5</span> Cisco Firepower/ASA</a>
+                        <a href="2-6-fortigate.html" class="nav-link"><span class="nav-link-number">2.6</span> Fortinet FortiGate</a>
+                        <a href="2-7-checkpoint.html" class="nav-link"><span class="nav-link-number">2.7</span> Check Point</a>
+                        <a href="2-8-cloud-firewalls.html" class="nav-link"><span class="nav-link-number">2.8</span> Cloud Firewalls</a>
+                        <a href="2-9-firewall-ha.html" class="nav-link"><span class="nav-link-number">2.9</span> High Availability</a>
+                        <a href="2-10-logging-monitoring.html" class="nav-link"><span class="nav-link-number">2.10</span> Logging & Monitoring</a>
+                        <a href="2-11-troubleshooting.html" class="nav-link"><span class="nav-link-number">2.11</span> Troubleshooting</a>
+                        <a href="2-12-security-assessment.html" class="nav-link"><span class="nav-link-number">2.12</span> Security Assessment</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Firewalls</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Cisco Firepower/ASA</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>Cisco Firepower and ASA</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Cisco offers two major firewall platforms: the legacy ASA (Adaptive Security Appliance) and the next-generation Firepower Threat Defense (FTD). Understanding both is essential as many organizations still run ASA or are migrating to FTD.</p>
+                        <ul>
+                            <li>ASA vs Firepower (FTD) - key differences</li>
+                            <li>Firepower Management Center (FMC)</li>
+                            <li>Access Control Policies</li>
+                            <li>Intrusion Prevention (Snort)</li>
+                            <li>AnyConnect VPN configuration</li>
+                            <li>Essential CLI commands</li>
+                            <li>Migration strategies from ASA to FTD</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Cisco Firewall Evolution</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Cisco Firewall Product Timeline</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    CISCO FIREWALL EVOLUTION                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  2005              2013              2016              2020+                │
+│   │                 │                 │                 │                   │
+│   ▼                 ▼                 ▼                 ▼                   │
+│  ┌────────┐    ┌──────────┐    ┌──────────────┐   ┌────────────────┐       │
+│  │  ASA   │    │ Sourcefire│    │     FTD      │   │  Secure FW    │       │
+│  │        │───►│ Acquired  │───►│ (ASA + Fire- │───►│  (Rebranded)  │       │
+│  │        │    │           │    │   POWER)     │   │               │       │
+│  └────────┘    └──────────┘    └──────────────┘   └────────────────┘       │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  CURRENT OPTIONS:                                                           │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ ASA SOFTWARE                                                         │    │
+│  │ • Legacy, still widely deployed                                     │    │
+│  │ • L3/L4 stateful firewall                                          │    │
+│  │ • AnyConnect VPN                                                    │    │
+│  │ • No integrated NGFW (requires separate FirePOWER module)          │    │
+│  │ • CLI-centric management                                           │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ FIREPOWER THREAT DEFENSE (FTD)                                       │    │
+│  │ • Next-generation firewall                                          │    │
+│  │ • Unified ASA + FirePOWER in single image                          │    │
+│  │ • Application visibility & control                                  │    │
+│  │ • Integrated IPS (Snort)                                           │    │
+│  │ • URL filtering, malware protection                                │    │
+│  │ • Managed via FMC (GUI) or FDM (local)                             │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>ASA vs FTD Comparison</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>ASA</th>
+                                <th>FTD</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Firewall Type</strong></td>
+                                <td>Stateful L3/L4</td>
+                                <td>Next-Gen (L3-L7)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Application Awareness</strong></td>
+                                <td>No (requires FirePOWER module)</td>
+                                <td>Yes (built-in)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IPS</strong></td>
+                                <td>No (requires module)</td>
+                                <td>Yes (Snort engine)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>URL Filtering</strong></td>
+                                <td>Basic (requires module)</td>
+                                <td>Yes (Talos intelligence)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Malware Protection</strong></td>
+                                <td>No</td>
+                                <td>Yes (AMP integration)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Management</strong></td>
+                                <td>CLI, ASDM (Java GUI)</td>
+                                <td>FMC (centralized), FDM (local)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>VPN</strong></td>
+                                <td>Site-to-site, AnyConnect</td>
+                                <td>Site-to-site, AnyConnect</td>
+                            </tr>
+                            <tr>
+                                <td><strong>HA</strong></td>
+                                <td>Active/Standby, Active/Active</td>
+                                <td>Active/Standby, HA clustering</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Firepower Management Center (FMC)</h2>
+                
+                <p>FMC is the centralized management platform for FTD devices. It provides policy management, monitoring, reporting, and integration with other Cisco security products.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">FMC Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    FIREPOWER MANAGEMENT CENTER                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    FMC (Management Console)                          │    │
+│  │                                                                      │    │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │    │
+│  │  │   Policies   │  │  Monitoring  │  │  Reporting   │               │    │
+│  │  │              │  │              │  │              │               │    │
+│  │  │ • Access     │  │ • Dashboard  │  │ • Threats    │               │    │
+│  │  │   Control    │  │ • Events     │  │ • Compliance │               │    │
+│  │  │ • IPS        │  │ • Health     │  │ • Custom     │               │    │
+│  │  │ • Malware    │  │ • Alerts     │  │              │               │    │
+│  │  │ • NAT        │  │              │  │              │               │    │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘               │    │
+│  │                                                                      │    │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │    │
+│  │  │  Analysis    │  │ Intelligence │  │   Objects    │               │    │
+│  │  │              │  │              │  │              │               │    │
+│  │  │ • Context    │  │ • Talos      │  │ • Network    │               │    │
+│  │  │   Explorer   │  │ • Threat     │  │ • Port       │               │    │
+│  │  │ • Correl-    │  │   Feeds      │  │ • URL        │               │    │
+│  │  │   ation      │  │ • IOCs       │  │ • Variables  │               │    │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘               │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│              │                    │                    │                     │
+│              │  Policy Push       │  Policy Push       │  Policy Push       │
+│              ▼                    ▼                    ▼                     │
+│  ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐       │
+│  │    FTD Device     │  │    FTD Device     │  │    FTD Device     │       │
+│  │    (Data Center)  │  │    (Branch)       │  │    (Cloud)        │       │
+│  └───────────────────┘  └───────────────────┘  └───────────────────┘       │
+│                                                                              │
+│  KEY POINTS:                                                                │
+│  • FMC can manage hundreds of FTD devices                                  │
+│  • Policies created once, pushed to multiple devices                       │
+│  • Events/logs centrally collected and analyzed                            │
+│  • Available as appliance, VM, or cloud (CDO)                              │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Access Control Policy</h2>
+                
+                <p>Access Control Policies in FTD determine how traffic is handled. They include rules for allowing/blocking, IPS inspection, file/malware inspection, and logging.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Access Control Policy Flow</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ACCESS CONTROL POLICY FLOW                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  TRAFFIC ARRIVES                                                            │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ PREFILTER POLICY                                                     │    │
+│  │ • Fast-path for trusted traffic (bypass deep inspection)            │    │
+│  │ • Block obviously bad traffic early                                 │    │
+│  │ • Tunnel rules for encapsulated traffic                             │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ SSL POLICY (if applicable)                                           │    │
+│  │ • Decrypt HTTPS for inspection                                      │    │
+│  │ • Do-not-decrypt rules (banking, privacy)                           │    │
+│  │ • Block if certificate issues                                       │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ ACCESS CONTROL RULES (evaluated top to bottom)                       │    │
+│  │                                                                      │    │
+│  │  Rule 1: Block Malware Sites                                        │    │
+│  │  • Zones: any → any                                                 │    │
+│  │  • URL Category: Malware, Phishing                                  │    │
+│  │  • Action: BLOCK                                                    │    │
+│  │                                                                      │    │
+│  │  Rule 2: Allow Web Access                                           │    │
+│  │  • Zones: Inside → Outside                                          │    │
+│  │  • Applications: HTTP, HTTPS, SSL                                   │    │
+│  │  • Action: ALLOW                                                    │    │
+│  │  • IPS Policy: Balanced Security                                    │    │
+│  │  • File Policy: Malware Cloud Lookup                                │    │
+│  │                                                                      │    │
+│  │  Rule 3: Allow DNS                                                  │    │
+│  │  • Zones: Inside → Outside                                          │    │
+│  │  • Applications: DNS                                                │    │
+│  │  • Destinations: DNS Servers                                        │    │
+│  │  • Action: ALLOW                                                    │    │
+│  │                                                                      │    │
+│  │  DEFAULT ACTION: Block All                                          │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ INTRUSION POLICY (Snort)                                             │    │
+│  │ • Applied to traffic matching "Allow" rules with IPS enabled        │    │
+│  │ • Signatures detect exploits, malware, policy violations            │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│         │                                                                    │
+│         ▼                                                                    │
+│  TRAFFIC FORWARDED (if allowed) or BLOCKED                                  │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Essential CLI Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco ASA CLI - Quick Reference</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SYSTEM INFORMATION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> version                          <span class="token-comment"># Version, uptime, serial</span>
+<span class="token-command">show</span> cpu usage                        <span class="token-comment"># CPU utilization</span>
+<span class="token-command">show</span> memory                           <span class="token-comment"># Memory usage</span>
+<span class="token-command">show</span> failover                         <span class="token-comment"># HA status</span>
+<span class="token-command">show</span> failover state                   <span class="token-comment"># Active/Standby</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CONNECTIONS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> conn                             <span class="token-comment"># Active connections</span>
+<span class="token-command">show</span> conn count                       <span class="token-comment"># Connection count</span>
+<span class="token-command">show</span> conn address 10.1.1.100          <span class="token-comment"># Connections from IP</span>
+<span class="token-command">show</span> conn port 443                    <span class="token-comment"># Connections on port</span>
+<span class="token-command">clear</span> conn address 10.1.1.100         <span class="token-comment"># Clear connections</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ACCESS LISTS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> access-list                      <span class="token-comment"># All ACLs with hit counts</span>
+<span class="token-command">show</span> access-list inside_access_in    <span class="token-comment"># Specific ACL</span>
+<span class="token-command">clear</span> access-list counters            <span class="token-comment"># Reset hit counts</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># NAT</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> nat                              <span class="token-comment"># NAT rules</span>
+<span class="token-command">show</span> xlate                            <span class="token-comment"># Active translations</span>
+<span class="token-command">show</span> xlate detail                     <span class="token-comment"># Translation details</span>
+<span class="token-command">clear</span> xlate                           <span class="token-comment"># Clear all translations</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ROUTING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> route                            <span class="token-comment"># Routing table</span>
+<span class="token-command">show</span> arp                              <span class="token-comment"># ARP table</span>
+<span class="token-command">show</span> interface                        <span class="token-comment"># Interface status</span>
+<span class="token-command">show</span> interface ip brief               <span class="token-comment"># Interface summary</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># VPN</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> crypto isakmp sa                 <span class="token-comment"># IKE Phase 1 SAs</span>
+<span class="token-command">show</span> crypto ipsec sa                  <span class="token-comment"># IPSec Phase 2 SAs</span>
+<span class="token-command">show</span> crypto ikev2 sa                  <span class="token-comment"># IKEv2 SAs</span>
+<span class="token-command">show</span> vpn-sessiondb                    <span class="token-comment"># VPN session summary</span>
+<span class="token-command">show</span> vpn-sessiondb anyconnect         <span class="token-comment"># AnyConnect sessions</span>
+<span class="token-command">vpn-sessiondb</span> logoff name jsmith     <span class="token-comment"># Disconnect user</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># TROUBLESHOOTING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Packet tracer - simulates packet flow</span>
+<span class="token-command">packet-tracer</span> input inside tcp 10.1.1.100 12345 8.8.8.8 443
+
+<span class="token-comment"># Capture traffic</span>
+<span class="token-command">capture</span> CAP interface inside match ip host 10.1.1.100 any
+<span class="token-command">show</span> capture CAP
+<span class="token-command">copy</span> /pcap capture:CAP tftp://server/cap.pcap
+<span class="token-command">no</span> capture CAP                        <span class="token-comment"># Remove capture</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LOGGING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> logging                          <span class="token-comment"># View buffer logs</span>
+<span class="token-command">show</span> logging asdm | include 10.1.1.100
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CONFIGURATION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> running-config                   <span class="token-comment"># Running config</span>
+<span class="token-command">show</span> running-config access-list       <span class="token-comment"># ACL config only</span>
+<span class="token-command">write</span> memory                          <span class="token-comment"># Save config</span>
+<span class="token-command">copy</span> running-config tftp://server/backup.cfg</code></pre>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco FTD CLI (via FTD Console)</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># FTD uses a combination of CLISH (Firepower) and LINA (ASA)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># From FTD console, enter expert mode for Linux shell</span>
+<span class="token-command">expert</span>
+
+<span class="token-comment"># Enter ASA-like diagnostic CLI</span>
+<span class="token-command">system</span> support diagnostic-cli
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CLISH COMMANDS (Firepower)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> version                          <span class="token-comment"># FTD version</span>
+<span class="token-command">show</span> managers                         <span class="token-comment"># FMC connection status</span>
+<span class="token-command">show</span> network                          <span class="token-comment"># Management interface config</span>
+<span class="token-command">show</span> access-control-config            <span class="token-comment"># Access policy summary</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DIAGNOSTIC CLI (LINA - ASA-like)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># After 'system support diagnostic-cli':</span>
+<span class="token-command">show</span> conn                             <span class="token-comment"># Active connections</span>
+<span class="token-command">show</span> xlate                            <span class="token-comment"># NAT translations</span>
+<span class="token-command">show</span> asp drop                         <span class="token-comment"># Accelerated Security Path drops</span>
+<span class="token-command">show</span> capture                          <span class="token-comment"># Packet captures</span>
+
+<span class="token-comment"># Packet tracer works in diagnostic CLI</span>
+<span class="token-command">packet-tracer</span> input INSIDE tcp 10.1.1.100 12345 8.8.8.8 443
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SNORT/IPS DEBUGGING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># In expert mode:</span>
+<span class="token-command">sudo</span> cat /var/log/messages | grep -i snort
+<span class="token-command">sudo</span> pmtool status                    <span class="token-comment"># Process status</span>
+<span class="token-command">sudo</span> /ngfw/bin/sf_troubleshoot.pl     <span class="token-comment"># Generate troubleshoot file</span></code></pre>
+                </div>
+                
+                <h2>AnyConnect VPN</h2>
+                
+                <p>Cisco AnyConnect is the enterprise VPN solution for both ASA and FTD, providing secure remote access with posture assessment and endpoint security.</p>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">ASA AnyConnect Configuration Example</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! ANYCONNECT SSL VPN CONFIGURATION</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">! Enable WebVPN on outside interface</span>
+webvpn
+ enable outside
+ anyconnect image disk0:/anyconnect-win-4.10.07061-webdeploy-k9.pkg 1
+ anyconnect enable
+ tunnel-group-list enable
+
+<span class="token-comment">! IP Pool for VPN users</span>
+ip local pool VPN-POOL 10.100.100.1-10.100.100.254 mask 255.255.255.0
+
+<span class="token-comment">! Group Policy</span>
+group-policy GP-ANYCONNECT internal
+group-policy GP-ANYCONNECT attributes
+ vpn-tunnel-protocol ssl-client
+ split-tunnel-policy tunnelspecified
+ split-tunnel-network-list value SPLIT-ACL
+ dns-server value 10.1.1.10 10.1.1.11
+ default-domain value company.com
+ address-pools value VPN-POOL
+
+<span class="token-comment">! Split tunnel ACL (what goes through VPN)</span>
+access-list SPLIT-ACL standard permit 10.0.0.0 255.0.0.0
+access-list SPLIT-ACL standard permit 172.16.0.0 255.240.0.0
+access-list SPLIT-ACL standard permit 192.168.0.0 255.255.0.0
+
+<span class="token-comment">! Tunnel Group (Connection Profile)</span>
+tunnel-group VPN-USERS type remote-access
+tunnel-group VPN-USERS general-attributes
+ address-pool VPN-POOL
+ default-group-policy GP-ANYCONNECT
+ authentication-server-group RADIUS LOCAL
+tunnel-group VPN-USERS webvpn-attributes
+ group-alias "Corporate VPN" enable
+
+<span class="token-comment">! NAT exemption for VPN traffic</span>
+nat (inside,outside) source static INTERNAL INTERNAL destination static VPN-POOL VPN-POOL no-proxy-arp route-lookup</code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - AnyConnect Security</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Use certificate authentication</strong> in addition to username/password (two-factor)</li>
+                            <li><strong>Enable posture assessment</strong> to check endpoint compliance before connecting</li>
+                            <li><strong>Implement always-on VPN</strong> for corporate devices to ensure protection</li>
+                            <li><strong>Use split tunneling carefully</strong> - full tunnel is more secure but increases bandwidth</li>
+                            <li><strong>Integrate with ISE</strong> for dynamic access policies based on user/device</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Migration: ASA to FTD</h2>
+                
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Assessment</h4>
+                            <p>Analyze current ASA configuration. Use Cisco Firewall Migration Tool to identify compatibility issues. Document all ACLs, NAT rules, VPN configs.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Prepare FMC</h4>
+                            <p>Deploy FMC (appliance or VM). Import ASA configuration using migration tool. This creates equivalent FTD objects and policies.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Validate & Enhance</h4>
+                            <p>Review migrated policies. Add NGFW features: application control, IPS policies, URL filtering. Test in lab if possible.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>Reimage or Replace</h4>
+                            <p>For supported hardware, reimage from ASA to FTD. For older hardware, replace with new FTD-capable appliance. Register to FMC.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <h4>Deploy & Monitor</h4>
+                            <p>Push policies from FMC. Monitor closely for issues. Start with IPS in detection mode, then enable blocking after tuning.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Migration Considerations</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Not all features migrate 1:1:</strong> Some ASA features work differently or don't exist in FTD</li>
+                            <li><strong>VPN changes:</strong> AnyConnect works on both, but configuration method changes</li>
+                            <li><strong>Multiple context mode:</strong> ASA multi-context doesn't directly map to FTD</li>
+                            <li><strong>Performance:</strong> IPS inspection adds overhead - size accordingly</li>
+                            <li><strong>Management change:</strong> Teams used to CLI must adapt to FMC GUI workflow</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>Common Cisco firewall operations:</strong></p>
+                        <ul>
+                            <li><strong>ACL/Policy changes:</strong> Add/modify access rules through ASDM or FMC</li>
+                            <li><strong>VPN support:</strong> Troubleshoot AnyConnect connections, check session status</li>
+                            <li><strong>Connection issues:</strong> Use packet-tracer and captures for troubleshooting</li>
+                            <li><strong>HA monitoring:</strong> Verify failover status, test failover if needed</li>
+                            <li><strong>IPS tuning (FTD):</strong> Review intrusion events, adjust policies</li>
+                            <li><strong>Upgrades:</strong> Plan and execute software upgrades during maintenance windows</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "What's the difference between ASA and FTD?"</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>ASA:</strong> Traditional stateful firewall (L3/L4). Uses ACLs based on IP/port. No built-in application awareness or IPS. Managed via CLI or ASDM GUI. Still widely deployed for VPN.</li>
+                            <li><strong>FTD:</strong> Next-gen firewall combining ASA's stateful engine with Firepower's NGFW capabilities. Has application visibility, integrated IPS (Snort), URL filtering, malware protection. Managed via FMC for full features.</li>
+                        </ul>
+                        <p><strong>Key point:</strong> "FTD is essentially ASA + FirePOWER combined into a unified image. If you know ASA, the underlying connection handling is similar, but policy management and NGFW features are completely different."</p>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="2-4-palo-alto.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Palo Alto Networks</span>
+                        </div>
+                    </a>
+                    <a href="2-6-fortigate.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Fortinet FortiGate</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

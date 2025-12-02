@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GCP Security Services - Complete guide to Google Cloud security tools and best practices">
+    <title>GCP Security Services | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">☁️</span>Cloud Security</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="14-1-cloud-security.html" class="nav-link"><span class="nav-link-number">14.1</span> Fundamentals</a>
+                        <a href="14-2-aws-security.html" class="nav-link"><span class="nav-link-number">14.2</span> AWS Security</a>
+                        <a href="14-3-azure-security.html" class="nav-link"><span class="nav-link-number">14.3</span> Azure Security</a>
+                        <a href="14-4-gcp-security.html" class="nav-link active"><span class="nav-link-number">14.4</span> GCP Security</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Cloud Security</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">GCP Security</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>GCP Security Services</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Google Cloud Platform provides a comprehensive security portfolio including Security Command Center, Chronicle SIEM, and BeyondCorp Enterprise for Zero Trust access.</p>
+                        <ul>
+                            <li>Security Command Center (SCC)</li>
+                            <li>Chronicle SIEM</li>
+                            <li>VPC security controls</li>
+                            <li>Identity and Access Management</li>
+                            <li>Cloud Armor WAF/DDoS</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>GCP Security Service Overview</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Function</th>
+                                <th>AWS/Azure Equivalent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Security Command Center</strong></td>
+                                <td>CSPM, threat detection</td>
+                                <td>AWS Security Hub / Azure Defender</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Chronicle</strong></td>
+                                <td>Cloud-native SIEM</td>
+                                <td>- / Microsoft Sentinel</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cloud Armor</strong></td>
+                                <td>WAF and DDoS protection</td>
+                                <td>AWS WAF+Shield / Azure WAF+DDoS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>VPC Firewall Rules</strong></td>
+                                <td>Network security</td>
+                                <td>Security Groups / NSGs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cloud IAM</strong></td>
+                                <td>Identity and access</td>
+                                <td>AWS IAM / Entra ID</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BeyondCorp Enterprise</strong></td>
+                                <td>Zero Trust access</td>
+                                <td>- / Entra ID Conditional Access</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Secret Manager</strong></td>
+                                <td>Secrets management</td>
+                                <td>Secrets Manager / Key Vault</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cloud Audit Logs</strong></td>
+                                <td>API audit logging</td>
+                                <td>CloudTrail / Activity Log</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Security Command Center</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Security Command Center Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SECURITY COMMAND CENTER (SCC)                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ SCC STANDARD (Free)                                                  │    │
+│  │ • Security Health Analytics                                         │    │
+│  │ • Web Security Scanner                                              │    │
+│  │ • Anomaly Detection                                                 │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ SCC PREMIUM (Paid)                                                   │    │
+│  │                                                                      │    │
+│  │ ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐         │    │
+│  │ │ Event Threat    │ │ Container       │ │ Virtual Machine │         │    │
+│  │ │ Detection       │ │ Threat Detection│ │ Threat Detection│         │    │
+│  │ │                 │ │                 │ │                 │         │    │
+│  │ │ • Malware       │ │ • Suspicious    │ │ • Crypto mining │         │    │
+│  │ │ • Cryptomining  │ │   containers    │ │ • Malware       │         │    │
+│  │ │ • Data exfil    │ │ • Reverse shell │ │ • Reverse shell │         │    │
+│  │ └─────────────────┘ └─────────────────┘ └─────────────────┘         │    │
+│  │                                                                      │    │
+│  │ ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐         │    │
+│  │ │ Security Health │ │ Web Security    │ │ Compliance      │         │    │
+│  │ │ Analytics       │ │ Scanner         │ │ Reports         │         │    │
+│  │ │                 │ │                 │ │                 │         │    │
+│  │ │ • Misconfig     │ │ • XSS           │ │ • CIS           │         │    │
+│  │ │ • Public access │ │ • Outdated libs │ │ • PCI DSS       │         │    │
+│  │ │ • IAM issues    │ │ • Mixed content │ │ • ISO 27001     │         │    │
+│  │ └─────────────────┘ └─────────────────┘ └─────────────────┘         │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>VPC Security Controls</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Control</th>
+                                <th>Function</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>VPC Firewall Rules</strong></td>
+                                <td>Stateful L3/L4 filtering</td>
+                                <td>Control traffic to/from VMs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hierarchical Firewall</strong></td>
+                                <td>Org-wide firewall policies</td>
+                                <td>Enforce rules across projects</td>
+                            </tr>
+                            <tr>
+                                <td><strong>VPC Service Controls</strong></td>
+                                <td>Data exfiltration prevention</td>
+                                <td>Protect sensitive APIs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Private Google Access</strong></td>
+                                <td>Access Google APIs privately</td>
+                                <td>No public IP needed</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cloud NAT</strong></td>
+                                <td>Outbound NAT for private VMs</td>
+                                <td>Internet without public IPs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>VPC Flow Logs</strong></td>
+                                <td>Network traffic logging</td>
+                                <td>Forensics, monitoring</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>gcloud Security Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">GCP Security CLI Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SECURITY COMMAND CENTER</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># List findings</span>
+<span class="token-command">gcloud</span> scc findings list organizations/ORG_ID --source=SOURCE_ID
+
+<span class="token-comment"># List assets</span>
+<span class="token-command">gcloud</span> scc assets list organizations/ORG_ID
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># VPC FIREWALL RULES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># List firewall rules</span>
+<span class="token-command">gcloud</span> compute firewall-rules list
+
+<span class="token-comment"># Create firewall rule (block IP)</span>
+<span class="token-command">gcloud</span> compute firewall-rules create block-malicious \
+    --direction=INGRESS --priority=100 --action=DENY \
+    --rules=all --source-ranges=1.2.3.4/32
+
+<span class="token-comment"># Allow SSH from specific range</span>
+<span class="token-command">gcloud</span> compute firewall-rules create allow-ssh \
+    --direction=INGRESS --priority=1000 --action=ALLOW \
+    --rules=tcp:22 --source-ranges=10.0.0.0/8 --target-tags=allow-ssh
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># IAM</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># List IAM bindings</span>
+<span class="token-command">gcloud</span> projects get-iam-policy PROJECT_ID
+
+<span class="token-comment"># Add IAM binding</span>
+<span class="token-command">gcloud</span> projects add-iam-policy-binding PROJECT_ID \
+    --member="user:email@example.com" --role="roles/viewer"
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># AUDIT LOGS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># View recent audit logs</span>
+<span class="token-command">gcloud</span> logging read "logName:cloudaudit.googleapis.com" --limit=50
+
+<span class="token-comment"># Filter by resource type</span>
+<span class="token-command">gcloud</span> logging read "resource.type=gce_instance" --limit=50
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SECRET MANAGER</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># List secrets</span>
+<span class="token-command">gcloud</span> secrets list
+
+<span class="token-comment"># Access secret version</span>
+<span class="token-command">gcloud</span> secrets versions access latest --secret=my-secret</code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ GCP Security Quick Wins</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Enable SCC:</strong> At minimum Standard tier for free scanning</li>
+                            <li><strong>Organization policies:</strong> Enforce constraints org-wide</li>
+                            <li><strong>Service accounts:</strong> Use least privilege, avoid user-managed keys</li>
+                            <li><strong>VPC Service Controls:</strong> Protect sensitive data from exfiltration</li>
+                            <li><strong>Enable audit logs:</strong> Data Access logs for sensitive projects</li>
+                            <li><strong>Use IAM Recommender:</strong> Remove excess permissions</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How does GCP's security model differ from AWS and Azure?"</p>
+                        <p><strong>Answer:</strong> "GCP's security is built around organization hierarchy and resource inheritance. IAM policies cascade down from Organization → Folders → Projects → Resources, which is more flexible than AWS's flat account model. GCP has VPC Service Controls for data exfiltration prevention - a unique feature for creating security perimeters around sensitive APIs. BeyondCorp Enterprise provides native Zero Trust access without VPN. Chronicle, Google's SIEM, offers petabyte-scale logging with 1-year hot retention included. The main difference is GCP's focus on organization-wide policies and Google's strength in data analytics for security."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="14-3-azure-security.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Azure Security Services</span>
+                        </div>
+                    </a>
+                    <a href="15-2-interview-questions.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Interview Questions</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

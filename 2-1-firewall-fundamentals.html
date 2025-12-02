@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Firewall Fundamentals - Complete guide to firewall technologies, types, generations, and placement in enterprise networks">
+    <title>Firewall Fundamentals | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 1: Networking Fundamentals (collapsed) -->
+                <div class="nav-section">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🌐</span>
+                            Networking Fundamentals
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="1-1-osi-model.html" class="nav-link"><span class="nav-link-number">1.1</span> OSI Model Deep Dive</a>
+                        <a href="1-2-tcp-ip-protocols.html" class="nav-link"><span class="nav-link-number">1.2</span> TCP/IP Stack & Protocols</a>
+                    </div>
+                </div>
+                
+                <!-- Section 2: Firewalls (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🛡️</span>
+                            Firewalls
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="2-1-firewall-fundamentals.html" class="nav-link active"><span class="nav-link-number">2.1</span> Firewall Fundamentals</a>
+                        <a href="2-2-firewall-types.html" class="nav-link"><span class="nav-link-number">2.2</span> Firewall Types Deep Dive</a>
+                        <a href="2-3-rule-design.html" class="nav-link"><span class="nav-link-number">2.3</span> Firewall Rule Design</a>
+                        <a href="2-4-palo-alto.html" class="nav-link"><span class="nav-link-number">2.4</span> Palo Alto Networks</a>
+                        <a href="2-5-cisco-firepower.html" class="nav-link"><span class="nav-link-number">2.5</span> Cisco Firepower/ASA</a>
+                        <a href="2-6-fortigate.html" class="nav-link"><span class="nav-link-number">2.6</span> Fortinet FortiGate</a>
+                        <a href="2-7-checkpoint.html" class="nav-link"><span class="nav-link-number">2.7</span> Check Point</a>
+                        <a href="2-8-cloud-firewalls.html" class="nav-link"><span class="nav-link-number">2.8</span> Cloud Firewalls</a>
+                        <a href="2-9-firewall-ha.html" class="nav-link"><span class="nav-link-number">2.9</span> High Availability</a>
+                        <a href="2-10-logging-monitoring.html" class="nav-link"><span class="nav-link-number">2.10</span> Logging & Monitoring</a>
+                        <a href="2-11-troubleshooting.html" class="nav-link"><span class="nav-link-number">2.11</span> Troubleshooting</a>
+                        <a href="2-12-security-assessment.html" class="nav-link"><span class="nav-link-number">2.12</span> Security Assessment</a>
+                    </div>
+                </div>
+                
+                <!-- Section 3: Proxy Servers -->
+                <div class="nav-section">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🔄</span>
+                            Proxy Servers
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="3-1-proxy-fundamentals.html" class="nav-link"><span class="nav-link-number">3.1</span> Proxy Fundamentals</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Firewalls</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Fundamentals</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>Firewall Fundamentals</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Firewalls are the cornerstone of network security, acting as the first line of defense between trusted internal networks and untrusted external networks. This guide covers everything from basic concepts to enterprise deployment strategies.</p>
+                        <ul>
+                            <li>What is a firewall and how it evolved over generations</li>
+                            <li>Packet filtering vs stateful inspection vs application-aware</li>
+                            <li>Firewall placement in network architecture</li>
+                            <li>North-South vs East-West traffic protection</li>
+                            <li>Hardware, software, and virtual firewall options</li>
+                            <li>Throughput considerations and sizing</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>What is a Firewall?</h2>
+                
+                <p>A firewall is a network security device that monitors and controls incoming and outgoing network traffic based on predetermined security rules. It establishes a barrier between a trusted internal network and untrusted external networks, such as the Internet.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Basic Firewall Concept</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         FIREWALL TRAFFIC FLOW                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   UNTRUSTED                    FIREWALL                      TRUSTED        │
+│   (Internet)                                               (Internal LAN)   │
+│                                                                              │
+│  ┌─────────┐              ┌─────────────────┐              ┌─────────┐      │
+│  │         │   Traffic    │                 │   Allowed    │         │      │
+│  │ External│ ──────────► │   INSPECTION    │ ───────────► │ Internal│      │
+│  │ Users   │              │   & FILTERING   │              │ Servers │      │
+│  │         │              │                 │              │         │      │
+│  └─────────┘              │  ┌───────────┐  │              └─────────┘      │
+│                           │  │ Security  │  │                               │
+│  ┌─────────┐              │  │  Policy   │  │              ┌─────────┐      │
+│  │         │   Malicious  │  │  Rules    │  │   Blocked    │         │      │
+│  │Attackers│ ──────────► │  └───────────┘  │ ─────X─────► │ Assets  │      │
+│  │         │              │                 │              │         │      │
+│  └─────────┘              └─────────────────┘              └─────────┘      │
+│                                    │                                         │
+│                                    ▼                                         │
+│                           ┌─────────────┐                                    │
+│                           │   LOGGING   │                                    │
+│                           │   & ALERTS  │                                    │
+│                           └─────────────┘                                    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Firewall Generations</h2>
+                
+                <p>Firewall technology has evolved significantly since its inception in the late 1980s. Understanding this evolution helps you appreciate the capabilities of modern Next-Generation Firewalls (NGFWs).</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Evolution of Firewall Technology</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    FIREWALL GENERATIONS TIMELINE                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  1st Gen (1988)          2nd Gen (1990s)         3rd Gen (Late 1990s)       │
+│  ┌───────────────┐       ┌───────────────┐       ┌───────────────┐          │
+│  │ PACKET FILTER │  ──►  │   STATEFUL    │  ──►  │ APPLICATION   │          │
+│  │               │       │  INSPECTION   │       │    LAYER      │          │
+│  │ • Layer 3-4   │       │               │       │               │          │
+│  │ • IP/Port     │       │ • Connection  │       │ • Deep Packet │          │
+│  │ • Stateless   │       │   Tracking    │       │   Inspection  │          │
+│  │ • Fast        │       │ • State Table │       │ • Protocol    │          │
+│  │ • Limited     │       │ • Context     │       │   Validation  │          │
+│  └───────────────┘       └───────────────┘       └───────────────┘          │
+│                                                          │                   │
+│                                                          ▼                   │
+│                          4th Gen (2000s)           5th Gen (2010s+)         │
+│                       ┌───────────────────┐    ┌─────────────────────┐      │
+│                       │       UTM         │    │        NGFW         │      │
+│                       │                   │    │                     │      │
+│                       │ • All-in-One      │    │ • App Awareness     │      │
+│                       │ • FW + AV + IPS   │    │ • User Identity     │      │
+│                       │ • VPN + Filtering │    │ • SSL Inspection    │      │
+│                       │ • Single Vendor   │    │ • Threat Intel      │      │
+│                       │ • SMB Focus       │    │ • Cloud Integration │      │
+│                       └───────────────────┘    │ • Machine Learning  │      │
+│                                                └─────────────────────┘      │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h3>1st Generation: Packet Filtering Firewalls</h3>
+                
+                <p>The first firewalls examined packets in isolation, making decisions based solely on source/destination IP addresses and port numbers. They were fast but couldn't understand the context of a connection.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Characteristic</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>OSI Layer</strong></td>
+                                <td>Layer 3 (Network) and Layer 4 (Transport)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Decision Criteria</strong></td>
+                                <td>Source/Destination IP, Source/Destination Port, Protocol</td>
+                            </tr>
+                            <tr>
+                                <td><strong>State Awareness</strong></td>
+                                <td>None - each packet evaluated independently</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Performance</strong></td>
+                                <td>Very fast - minimal processing overhead</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Limitations</strong></td>
+                                <td>Cannot detect application-layer attacks, vulnerable to IP spoofing</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Modern Example</strong></td>
+                                <td>Router ACLs, iptables without connection tracking</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Linux iptables - Packet Filter Example</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># Simple packet filtering rules (stateless)</span>
+<span class="token-comment"># Allow incoming HTTP traffic</span>
+<span class="token-command">iptables</span> <span class="token-flag">-A</span> INPUT <span class="token-flag">-p</span> tcp <span class="token-flag">--dport</span> <span class="token-number">80</span> <span class="token-flag">-j</span> ACCEPT
+
+<span class="token-comment"># Allow incoming HTTPS traffic</span>
+<span class="token-command">iptables</span> <span class="token-flag">-A</span> INPUT <span class="token-flag">-p</span> tcp <span class="token-flag">--dport</span> <span class="token-number">443</span> <span class="token-flag">-j</span> ACCEPT
+
+<span class="token-comment"># Block all other incoming traffic</span>
+<span class="token-command">iptables</span> <span class="token-flag">-A</span> INPUT <span class="token-flag">-j</span> DROP
+
+<span class="token-comment"># View current rules</span>
+<span class="token-command">iptables</span> <span class="token-flag">-L</span> <span class="token-flag">-n</span> <span class="token-flag">-v</span></code></pre>
+                </div>
+                
+                <h3>2nd Generation: Stateful Inspection Firewalls</h3>
+                
+                <p>Stateful firewalls track the state of network connections (TCP streams, UDP communication) and make decisions based on the context of the traffic, not just individual packets.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Stateful Inspection - Connection Tracking</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    STATEFUL FIREWALL - STATE TABLE                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  When client initiates connection:                                           │
+│                                                                              │
+│  CLIENT (192.168.1.10:54321) ──── SYN ────► SERVER (203.0.113.5:443)        │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                        STATE TABLE ENTRY                             │    │
+│  ├─────────────────────────────────────────────────────────────────────┤    │
+│  │  Source IP      │ 192.168.1.10                                      │    │
+│  │  Source Port    │ 54321                                             │    │
+│  │  Dest IP        │ 203.0.113.5                                       │    │
+│  │  Dest Port      │ 443                                               │    │
+│  │  Protocol       │ TCP                                               │    │
+│  │  State          │ SYN_SENT → ESTABLISHED → TIME_WAIT → CLOSED       │    │
+│  │  Timeout        │ 3600 seconds (TCP established)                    │    │
+│  │  Bytes In       │ 15,234                                            │    │
+│  │  Bytes Out      │ 1,523,456                                         │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  BENEFIT: Return traffic (SYN-ACK, ACK, data) is automatically allowed      │
+│           because firewall knows it's part of an established connection.     │
+│                                                                              │
+│  WITHOUT STATEFUL: You'd need explicit rules for return traffic,            │
+│                    opening potential security holes.                         │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice</div>
+                    <div class="callout-content">
+                        <p><strong>Always use stateful inspection</strong> for perimeter firewalls. Modern firewalls are stateful by default, but understanding the difference is crucial for:</p>
+                        <ul>
+                            <li>Troubleshooting connection issues (check state tables)</li>
+                            <li>Understanding why return traffic is allowed</li>
+                            <li>Sizing firewalls (state table capacity is a limiting factor)</li>
+                            <li>Detecting asymmetric routing issues</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3>3rd Generation: Application Layer Firewalls</h3>
+                
+                <p>Application layer firewalls (also called proxy firewalls) can understand and inspect the actual application protocols like HTTP, FTP, and SMTP. They can detect and block malicious content within allowed protocols.</p>
+                
+                <h3>4th & 5th Generation: NGFW (Next-Generation Firewalls)</h3>
+                
+                <p>NGFWs combine traditional firewall capabilities with advanced features like application awareness, user identity integration, SSL/TLS inspection, and integrated threat prevention.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Traditional Firewall</th>
+                                <th>NGFW</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Application Identification</strong></td>
+                                <td>Port-based only (port 80 = HTTP)</td>
+                                <td>Deep inspection (identifies Zoom, Slack, etc. regardless of port)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>User Identity</strong></td>
+                                <td>IP-based policies only</td>
+                                <td>Integrates with AD/LDAP for user-based policies</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SSL Inspection</strong></td>
+                                <td>Cannot see encrypted traffic</td>
+                                <td>Decrypts, inspects, re-encrypts (MITM)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IPS</strong></td>
+                                <td>Separate device</td>
+                                <td>Integrated</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Threat Intelligence</strong></td>
+                                <td>Manual updates</td>
+                                <td>Real-time cloud-based updates</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sandboxing</strong></td>
+                                <td>Not available</td>
+                                <td>Cloud or on-prem sandbox for unknown files</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "What makes a Next-Generation Firewall different from a traditional firewall?"</p>
+                        <p><strong>Answer:</strong> NGFWs have three key differentiators:</p>
+                        <ol>
+                            <li><strong>Application Awareness (App-ID):</strong> Identifies applications regardless of port, protocol, or encryption. A traditional firewall sees "port 443" while an NGFW sees "Dropbox file sharing."</li>
+                            <li><strong>User Identity (User-ID):</strong> Maps IP addresses to usernames via AD/LDAP integration, enabling policies like "Allow Sales team to access Salesforce."</li>
+                            <li><strong>Content Inspection (Content-ID):</strong> Inspects actual payload for threats, including decrypting SSL traffic, scanning for malware, and applying URL filtering.</li>
+                        </ol>
+                        <p><strong>Bonus point:</strong> Mention specific vendor terminology like Palo Alto's "App-ID, User-ID, Content-ID" or Fortinet's "Security Fabric."</p>
+                    </div>
+                </div>
+                
+                <h2>Firewall Deployment Types</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Firewall Form Factors</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       FIREWALL DEPLOYMENT OPTIONS                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    HARDWARE APPLIANCE                                │    │
+│  ├─────────────────────────────────────────────────────────────────────┤    │
+│  │  • Dedicated physical device                                         │    │
+│  │  • Purpose-built hardware with custom ASICs                          │    │
+│  │  • Highest performance and throughput                                │    │
+│  │  • Examples: Palo Alto PA-series, Fortinet FortiGate, Cisco FPR     │    │
+│  │  • Best for: Data center edge, high-traffic environments            │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    SOFTWARE / HOST-BASED                             │    │
+│  ├─────────────────────────────────────────────────────────────────────┤    │
+│  │  • Runs on standard server hardware or endpoints                     │    │
+│  │  • Lower cost, flexible deployment                                   │    │
+│  │  • Examples: Windows Firewall, iptables, pfSense                    │    │
+│  │  • Best for: Host protection, small offices, labs                   │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    VIRTUAL APPLIANCE                                 │    │
+│  ├─────────────────────────────────────────────────────────────────────┤    │
+│  │  • VM running on hypervisor (VMware, Hyper-V, KVM)                  │    │
+│  │  • Same features as hardware, virtualized                           │    │
+│  │  • Examples: PA-VM, FortiGate-VM, Cisco FTDv                        │    │
+│  │  • Best for: Private cloud, virtualized data centers                │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    CLOUD-NATIVE                                      │    │
+│  ├─────────────────────────────────────────────────────────────────────┤    │
+│  │  • Built into cloud platform                                         │    │
+│  │  • Auto-scaling, pay-per-use                                         │    │
+│  │  • Examples: AWS Security Groups, Azure NSG, GCP Firewall Rules     │    │
+│  │  • Best for: Cloud-native workloads                                 │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    FIREWALL-AS-A-SERVICE (FWaaS)                     │    │
+│  ├─────────────────────────────────────────────────────────────────────┤    │
+│  │  • Cloud-delivered firewall service                                  │    │
+│  │  • Part of SASE architecture                                         │    │
+│  │  • Examples: Zscaler, Palo Alto Prisma Access, Cloudflare           │    │
+│  │  • Best for: Distributed workforce, branch offices                  │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Firewall Placement in Enterprise Networks</h2>
+                
+                <p>Strategic firewall placement is critical for effective network security. Modern enterprises deploy firewalls at multiple points to implement defense-in-depth.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Enterprise Firewall Placement</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ENTERPRISE NETWORK ARCHITECTURE                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│                              INTERNET                                        │
+│                                  │                                           │
+│                                  ▼                                           │
+│                         ┌───────────────┐                                    │
+│                         │   ISP ROUTER  │                                    │
+│                         └───────┬───────┘                                    │
+│                                 │                                            │
+│                                 ▼                                            │
+│    ┌────────────────────────────────────────────────────────────────┐       │
+│    │              PERIMETER FIREWALL (North-South)                   │       │
+│    │    • Primary line of defense                                    │       │
+│    │    • Filters all Internet traffic                               │       │
+│    │    • IPS, URL Filtering, Threat Prevention                      │       │
+│    │    Examples: Palo Alto PA-5400, FortiGate 1800F                │       │
+│    └────────────────────────────────┬───────────────────────────────┘       │
+│                                     │                                        │
+│              ┌──────────────────────┼──────────────────────┐                │
+│              │                      │                      │                 │
+│              ▼                      ▼                      ▼                 │
+│    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐        │
+│    │      DMZ        │    │   INTERNAL FW   │    │   GUEST WIFI    │        │
+│    │                 │    │  (East-West)    │    │    SEGMENT      │        │
+│    │ • Web Servers   │    │                 │    │                 │        │
+│    │ • Mail Gateway  │    │ Segments:       │    │ Isolated from   │        │
+│    │ • Reverse Proxy │    │ • Servers       │    │ corporate LAN   │        │
+│    │                 │    │ • Workstations  │    │                 │        │
+│    │ ┌─────────────┐ │    │ • IoT/OT        │    │                 │        │
+│    │ │ WAF/Proxy   │ │    │                 │    │                 │        │
+│    │ └─────────────┘ │    │                 │    │                 │        │
+│    └─────────────────┘    └────────┬────────┘    └─────────────────┘        │
+│                                    │                                         │
+│                    ┌───────────────┼───────────────┐                        │
+│                    │               │               │                         │
+│                    ▼               ▼               ▼                         │
+│           ┌──────────────┐ ┌──────────────┐ ┌──────────────┐                │
+│           │   SERVERS    │ │ WORKSTATIONS │ │   IOT/OT     │                │
+│           │              │ │              │ │              │                │
+│           │ • App Servers│ │ • Desktops   │ │ • Cameras    │                │
+│           │ • Databases  │ │ • Laptops    │ │ • Printers   │                │
+│           │ • File Shares│ │ • VDI        │ │ • HVAC       │                │
+│           └──────────────┘ └──────────────┘ └──────────────┘                │
+│                                                                              │
+│    ═══════════════════════════════════════════════════════════════════      │
+│                                                                              │
+│    NORTH-SOUTH TRAFFIC: Between internal network and Internet               │
+│    • Handled by perimeter firewall                                          │
+│    • Focus: Threat prevention, access control                               │
+│                                                                              │
+│    EAST-WEST TRAFFIC: Between internal segments                             │
+│    • Handled by internal/segmentation firewall                              │
+│    • Focus: Lateral movement prevention, micro-segmentation                 │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>North-South vs East-West Traffic</h2>
+                
+                <p>Understanding traffic flow patterns is essential for effective firewall placement and policy design.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>North-South Traffic</th>
+                                <th>East-West Traffic</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Direction</strong></td>
+                                <td>Between internal network and external (Internet)</td>
+                                <td>Between internal segments/servers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Volume</strong></td>
+                                <td>~20% of total traffic (decreasing)</td>
+                                <td>~80% of total traffic (increasing)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security Focus</strong></td>
+                                <td>Block external threats, prevent data exfiltration</td>
+                                <td>Prevent lateral movement, contain breaches</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Firewall Type</strong></td>
+                                <td>Perimeter NGFW</td>
+                                <td>Internal/Segmentation FW, Micro-segmentation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Example Policies</strong></td>
+                                <td>"Block all inbound except HTTPS to web servers"</td>
+                                <td>"Only web tier can talk to app tier on port 8080"</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Security Warning</div>
+                    <div class="callout-content">
+                        <p><strong>Don't neglect East-West security!</strong></p>
+                        <p>Most organizations focus heavily on perimeter (North-South) security but leave internal traffic unchecked. This allows attackers who breach the perimeter to move laterally with ease.</p>
+                        <p><strong>Key insight:</strong> The majority of modern attacks involve lateral movement. APTs and ransomware typically compromise one system, then spread internally. Without East-West controls, a single compromised workstation can lead to full domain compromise.</p>
+                    </div>
+                </div>
+                
+                <h2>Firewall Throughput and Sizing</h2>
+                
+                <p>Selecting the right firewall size requires understanding various performance metrics and how they relate to your traffic patterns.</p>
+                
+                <h3>Key Performance Metrics</h3>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Description</th>
+                                <th>Considerations</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Firewall Throughput</strong></td>
+                                <td>Maximum bandwidth with basic L3/L4 filtering</td>
+                                <td>Lab conditions, rarely achieved in production</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Threat Prevention Throughput</strong></td>
+                                <td>Bandwidth with IPS, AV, URL filtering enabled</td>
+                                <td>More realistic, 30-60% of firewall throughput</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SSL Inspection Throughput</strong></td>
+                                <td>Bandwidth when decrypting/inspecting HTTPS</td>
+                                <td>Most intensive; 10-30% of base throughput</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Concurrent Sessions</strong></td>
+                                <td>Maximum simultaneous connections tracked</td>
+                                <td>Critical for large networks; state table exhaustion</td>
+                            </tr>
+                            <tr>
+                                <td><strong>New Sessions/Second</strong></td>
+                                <td>Rate of new connection establishment</td>
+                                <td>Important for bursty traffic, web servers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IPSec VPN Throughput</strong></td>
+                                <td>Bandwidth for encrypted VPN traffic</td>
+                                <td>Relevant for site-to-site and remote access</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-critical">
+                    <div class="callout-title">🔴 Critical Sizing Consideration</div>
+                    <div class="callout-content">
+                        <p><strong>Vendor datasheets show IDEAL conditions.</strong> Real-world performance is typically 40-60% of published numbers. When sizing:</p>
+                        <ol>
+                            <li>Calculate your required throughput with ALL features enabled</li>
+                            <li>Add 30-50% headroom for growth</li>
+                            <li>Account for SSL inspection (currently 80-90% of web traffic is HTTPS)</li>
+                            <li>Consider peak vs average traffic</li>
+                        </ol>
+                        <p><strong>Rule of thumb:</strong> If you need 2 Gbps of threat prevention throughput, look at firewalls rated for 4-5 Gbps.</p>
+                    </div>
+                </div>
+                
+                <!-- Day-to-Day Tasks -->
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>As a Security Engineer managing firewalls, your typical tasks include:</strong></p>
+                        <ul>
+                            <li><strong>Rule Management:</strong> Creating, modifying, and reviewing firewall rules</li>
+                            <li><strong>Log Analysis:</strong> Reviewing traffic logs for anomalies and incidents</li>
+                            <li><strong>Policy Optimization:</strong> Identifying unused rules, consolidating redundant rules</li>
+                            <li><strong>Threat Monitoring:</strong> Reviewing IPS alerts and threat logs</li>
+                            <li><strong>Health Monitoring:</strong> Checking CPU, memory, session counts</li>
+                            <li><strong>Change Management:</strong> Documenting and approving rule changes</li>
+                            <li><strong>Compliance Audits:</strong> Generating reports for PCI-DSS, HIPAA, etc.</li>
+                            <li><strong>Troubleshooting:</strong> Investigating connectivity issues</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Firewall Vendor Overview</h2>
+                
+                <p>Here's a brief comparison of major enterprise firewall vendors. Detailed deep-dives for each vendor are available in subsequent sections.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Vendor</th>
+                                <th>Key Products</th>
+                                <th>Strengths</th>
+                                <th>Management</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Palo Alto Networks</strong></td>
+                                <td>PA-Series, VM-Series, Prisma Access</td>
+                                <td>App-ID leadership, clean UI, strong SD-WAN</td>
+                                <td>Panorama</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fortinet</strong></td>
+                                <td>FortiGate</td>
+                                <td>Best price/performance, custom ASICs, Security Fabric</td>
+                                <td>FortiManager</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cisco</strong></td>
+                                <td>Firepower, ASA, Meraki MX</td>
+                                <td>Deep network integration, Talos threat intel</td>
+                                <td>FMC, Cisco Defense Orchestrator</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Check Point</strong></td>
+                                <td>Quantum Security Gateways</td>
+                                <td>Consistent security, strong threat prevention</td>
+                                <td>SmartConsole, R81</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Juniper</strong></td>
+                                <td>SRX Series</td>
+                                <td>High performance, Junos OS reliability</td>
+                                <td>Junos Space</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "Describe your experience with firewall technologies."</p>
+                        <p><strong>Framework for answering:</strong></p>
+                        <ol>
+                            <li><strong>Vendors:</strong> Name specific products (e.g., "Palo Alto PA-5260," "Fortinet 600E")</li>
+                            <li><strong>Scale:</strong> Mention size of environment (e.g., "managing 40 firewalls across 3 data centers")</li>
+                            <li><strong>Features used:</strong> App-ID, SSL decryption, IPS, User-ID integration</li>
+                            <li><strong>Specific tasks:</strong> Rule optimization, HA configuration, migration projects</li>
+                            <li><strong>Challenges solved:</strong> "Reduced rule base from 2000 to 500 rules while maintaining security"</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <h2>Quick CLI Reference</h2>
+                
+                <p>Here are essential commands across major firewall platforms. Detailed CLI references are in the vendor-specific sections.</p>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Multi-Vendor - Basic Status Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PALO ALTO NETWORKS</span>
+<span class="token-comment"># ══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> system info                     <span class="token-comment"># System information</span>
+<span class="token-command">show</span> session all                     <span class="token-comment"># All active sessions</span>
+<span class="token-command">show</span> session info                    <span class="token-comment"># Session statistics</span>
+<span class="token-command">show</span> running resource-monitor        <span class="token-comment"># CPU/Memory usage</span>
+<span class="token-command">show</span> high-availability state         <span class="token-comment"># HA status</span>
+
+<span class="token-comment"># ══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CISCO FIREPOWER / ASA</span>
+<span class="token-comment"># ══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> version                         <span class="token-comment"># System version</span>
+<span class="token-command">show</span> conn count                      <span class="token-comment"># Connection count</span>
+<span class="token-command">show</span> cpu usage                       <span class="token-comment"># CPU utilization</span>
+<span class="token-command">show</span> failover                        <span class="token-comment"># HA status</span>
+<span class="token-command">show</span> access-list                     <span class="token-comment"># ACL rules and hit counts</span>
+
+<span class="token-comment"># ══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># FORTINET FORTIGATE</span>
+<span class="token-comment"># ══════════════════════════════════════════════════════════════</span>
+<span class="token-command">get</span> system status                    <span class="token-comment"># System information</span>
+<span class="token-command">get</span> system performance status        <span class="token-comment"># CPU/Memory/Sessions</span>
+<span class="token-command">diagnose</span> sys session stat            <span class="token-comment"># Session statistics</span>
+<span class="token-command">get</span> system ha status                 <span class="token-comment"># HA status</span>
+<span class="token-command">diagnose</span> firewall packet distribution <span class="token-comment"># Packet stats</span>
+
+<span class="token-comment"># ══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CHECK POINT</span>
+<span class="token-comment"># ══════════════════════════════════════════════════════════════</span>
+<span class="token-command">cpstat</span> os                            <span class="token-comment"># OS statistics</span>
+<span class="token-command">fw</span> stat                              <span class="token-comment"># Policy status</span>
+<span class="token-command">cphaprob</span> state                       <span class="token-comment"># HA status</span>
+<span class="token-command">fw</span> ctl pstat                         <span class="token-comment"># Packet statistics</span>
+<span class="token-command">cpview</span>                               <span class="token-comment"># Interactive monitoring</span></code></pre>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="1-10-protocol-reference.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Protocol Security Reference</span>
+                        </div>
+                    </a>
+                    <a href="2-2-firewall-types.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Firewall Types Deep Dive</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

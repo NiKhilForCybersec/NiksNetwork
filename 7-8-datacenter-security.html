@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Data Center Network Security - Complete guide to DC security architecture and microsegmentation">
+    <title>Data Center Network Security | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🏗️</span>Architecture</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="7-7-nac.html" class="nav-link"><span class="nav-link-number">7.7</span> NAC</a>
+                        <a href="7-8-datacenter-security.html" class="nav-link active"><span class="nav-link-number">7.8</span> Data Center</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Architecture</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Data Center</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Data Center Network Security</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Data center networks require specialized security controls to protect critical infrastructure. Modern DC security emphasizes microsegmentation and east-west traffic inspection.</p>
+                        <ul>
+                            <li>Data center network architecture</li>
+                            <li>North-South vs East-West traffic</li>
+                            <li>Microsegmentation</li>
+                            <li>DC firewall design</li>
+                            <li>Software-defined security</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Data Center Network Architecture</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Modern DC Spine-Leaf Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    DATA CENTER NETWORK ARCHITECTURE                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│                              INTERNET                                        │
+│                                  │                                           │
+│                                  ▼                                           │
+│                    ┌─────────────────────────────┐                          │
+│                    │     EDGE / BORDER           │                          │
+│                    │   DDoS, Edge FW, IPS        │                          │
+│                    └─────────────┬───────────────┘                          │
+│                                  │                                           │
+│  ═══════════════════════════════════════════════════════════ NORTH-SOUTH   │
+│                                  │                           (Perimeter)    │
+│                                  ▼                                           │
+│              ┌───────────────────────────────────────┐                      │
+│              │           SPINE LAYER                 │                      │
+│              │   ┌─────┐   ┌─────┐   ┌─────┐        │                      │
+│              │   │Spine│   │Spine│   │Spine│        │                      │
+│              │   │  1  │   │  2  │   │  3  │        │                      │
+│              │   └──┬──┘   └──┬──┘   └──┬──┘        │                      │
+│              └──────┼────────┼────────┼─────────────┘                      │
+│                     │        │        │                                     │
+│    ┌────────────────┼────────┼────────┼────────────────┐                   │
+│    │                ▼        ▼        ▼                │                   │
+│    │  ┌─────┐   ┌─────┐   ┌─────┐   ┌─────┐          │                   │
+│    │  │Leaf │   │Leaf │   │Leaf │   │Leaf │          │    LEAF LAYER     │
+│    │  │  1  │   │  2  │   │  3  │   │  4  │          │                   │
+│    │  └──┬──┘   └──┬──┘   └──┬──┘   └──┬──┘          │                   │
+│    └─────┼────────┼────────┼────────┼────────────────┘                   │
+│          │        │        │        │                                      │
+│  ════════╪════════╪════════╪════════╪══════════════════ EAST-WEST         │
+│          │        │        │        │                   (Lateral)          │
+│          ▼        ▼        ▼        ▼                                      │
+│       ┌─────┐  ┌─────┐  ┌─────┐  ┌─────┐                                  │
+│       │ Web │  │ App │  │ DB  │  │ Mgmt│   SERVER TIERS                   │
+│       │Tier │  │Tier │  │Tier │  │Tier │                                  │
+│       └─────┘  └─────┘  └─────┘  └─────┘                                  │
+│                                                                              │
+│  TRADITIONAL: North-South firewall only                                    │
+│  MODERN: East-West microsegmentation + North-South                         │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Microsegmentation</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Microsegmentation vs Traditional</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    MICROSEGMENTATION                                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  TRADITIONAL (Zone-based)              MICROSEGMENTATION                    │
+│  ─────────────────────────             ─────────────────────                │
+│                                                                              │
+│  ┌────────────────────────┐           ┌────────────────────────┐           │
+│  │   WEB ZONE             │           │   WEB ZONE             │           │
+│  │                        │           │                        │           │
+│  │  ┌────┐ ┌────┐ ┌────┐ │           │  ┌────┐ ┌────┐ ┌────┐ │           │
+│  │  │Web1│ │Web2│ │Web3│ │           │  │Web1│ │Web2│ │Web3│ │           │
+│  │  └────┘ └────┘ └────┘ │           │  └─┬──┘ └─┬──┘ └─┬──┘ │           │
+│  │   All can talk to all │           │    │      │      │    │           │
+│  └────────────┬───────────┘           │    │      │      │    │           │
+│               │ FW                    │    ▼      ▼      ▼    │           │
+│               ▼                       │  Policy: Can only talk│           │
+│  ┌────────────────────────┐           │  to App tier port 8080│           │
+│  │   APP ZONE             │           └────────────┬───────────┘           │
+│  │                        │                        │                       │
+│  │  ┌────┐ ┌────┐ ┌────┐ │           ┌────────────┼───────────┐           │
+│  │  │App1│ │App2│ │App3│ │           │   APP ZONE │           │           │
+│  │  └────┘ └────┘ └────┘ │           │  ┌────┐ ┌─┴──┐ ┌────┐ │           │
+│  │   All can talk to all │           │  │App1│ │App2│ │App3│ │           │
+│  └────────────────────────┘           │  └─┬──┘ └─┬──┘ └─┬──┘ │           │
+│                                       │    │      │      │    │           │
+│  ✗ If Web1 compromised,              │    ▼      ▼      ▼    │           │
+│    attacker can pivot to             │  Policy: App1 can only│           │
+│    Web2, Web3, then Apps             │  talk to DB1          │           │
+│                                       └────────────┬───────────┘           │
+│                                                    │                       │
+│                                       ✓ Each workload isolated             │
+│                                       ✓ Lateral movement blocked           │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>DC Security Controls</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Control</th>
+                                <th>Location</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Edge Firewall</strong></td>
+                                <td>Border/DMZ</td>
+                                <td>North-South filtering, NAT</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DC Firewall</strong></td>
+                                <td>Between tiers</td>
+                                <td>Zone-based segmentation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Distributed FW</strong></td>
+                                <td>Hypervisor/Host</td>
+                                <td>Microsegmentation (NSX, ACI)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IDS/IPS</strong></td>
+                                <td>Inline or TAP</td>
+                                <td>Threat detection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Load Balancer</strong></td>
+                                <td>App tier front</td>
+                                <td>Traffic distribution, SSL offload</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WAF</strong></td>
+                                <td>Web tier front</td>
+                                <td>Application protection</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Microsegmentation Solutions</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Solution</th>
+                                <th>Vendor</th>
+                                <th>Approach</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>NSX</strong></td>
+                                <td>VMware</td>
+                                <td>Hypervisor-based, distributed FW</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ACI</strong></td>
+                                <td>Cisco</td>
+                                <td>Network fabric + policy</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Illumio</strong></td>
+                                <td>Illumio</td>
+                                <td>Agent-based, workload-centric</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Guardicore</strong></td>
+                                <td>Akamai</td>
+                                <td>Agent-based visualization + policy</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure NSG</strong></td>
+                                <td>Microsoft</td>
+                                <td>Cloud-native network security groups</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS Security Groups</strong></td>
+                                <td>AWS</td>
+                                <td>Instance-level firewall</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>DC Firewall Design</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Data Center Firewall Zones</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># TYPICAL DC SECURITY ZONES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+ZONE: Internet-Edge
+  Purpose: Public-facing services, DDoS mitigation
+  Traffic: Inbound from internet
+  Controls: Edge FW, DDoS appliance, IPS
+
+ZONE: DMZ
+  Purpose: Public-facing servers (web, DNS, email gateway)
+  Traffic: Internet → DMZ allowed, DMZ → Internal restricted
+  Controls: WAF, strict ACLs
+
+ZONE: Web-Tier
+  Purpose: Application front-ends
+  Traffic: DMZ/LB → Web allowed
+  Controls: Host firewall, microsegmentation
+
+ZONE: App-Tier
+  Purpose: Application servers, middleware
+  Traffic: Web → App on specific ports only
+  Controls: Microsegmentation, IDS monitoring
+
+ZONE: DB-Tier
+  Purpose: Database servers
+  Traffic: App → DB on DB ports only (1433, 3306, 5432)
+  Controls: Microsegmentation, encryption, audit logging
+
+ZONE: Management
+  Purpose: Admin access, monitoring, backup
+  Traffic: Jump server only, no direct access
+  Controls: PAM, MFA, session recording
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># RULE OF THUMB</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Traffic flows: Internet → DMZ → Web → App → DB</span>
+<span class="token-comment"># Never allow: Internet → DB (skip tiers)</span>
+<span class="token-comment"># Never allow: DB → Internet (except patching)</span></code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ DC Network Security Best Practices</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Segment everything:</strong> Don't trust east-west traffic</li>
+                            <li><strong>Default deny:</strong> Whitelist only required flows</li>
+                            <li><strong>Encrypt in transit:</strong> TLS between tiers</li>
+                            <li><strong>Monitor east-west:</strong> Deploy NDR for internal traffic</li>
+                            <li><strong>Isolate management:</strong> Separate management plane</li>
+                            <li><strong>Automate policy:</strong> Use SDN for consistent enforcement</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you secure a data center network?"</p>
+                        <p><strong>Answer:</strong> "I'd implement defense in depth with focus on both north-south and east-west traffic. For north-south: edge firewalls with DDoS protection, DMZ for public services, and tiered zones (web, app, DB) with firewalls between them. For east-west: microsegmentation using NSX or similar to enforce workload-level policies - each server can only talk to specific servers on specific ports. This limits lateral movement if one server is compromised. I'd deploy IDS/IPS and NDR to monitor internal traffic, since that's where attackers move after initial breach. Management traffic would be on a separate isolated network with jump servers and PAM. All inter-tier communication would be encrypted with TLS. The key principle is zero trust internally - don't assume traffic inside the DC is safe."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="7-7-nac.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">NAC</span>
+                        </div>
+                    </a>
+                    <a href="8-1-lb-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Load Balancer Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Azure Security Services - Complete guide to Microsoft Defender for Cloud, Sentinel, and Azure security tools">
+    <title>Azure Security Services | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">☁️</span>Cloud Security</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="14-1-cloud-security.html" class="nav-link"><span class="nav-link-number">14.1</span> Fundamentals</a>
+                        <a href="14-2-aws-security.html" class="nav-link"><span class="nav-link-number">14.2</span> AWS Security</a>
+                        <a href="14-3-azure-security.html" class="nav-link active"><span class="nav-link-number">14.3</span> Azure Security</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Cloud Security</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Azure Security</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Azure Security Services</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Azure provides a comprehensive security ecosystem through Microsoft Defender for Cloud (formerly Azure Security Center), Microsoft Sentinel (SIEM), and various identity and network security services.</p>
+                        <ul>
+                            <li>Microsoft Defender for Cloud</li>
+                            <li>Microsoft Sentinel overview</li>
+                            <li>Azure network security</li>
+                            <li>Entra ID (Azure AD) security</li>
+                            <li>Key Vault and secrets management</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Azure Security Service Overview</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Function</th>
+                                <th>AWS Equivalent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Defender for Cloud</strong></td>
+                                <td>CSPM, workload protection</td>
+                                <td>Security Hub + GuardDuty</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Microsoft Sentinel</strong></td>
+                                <td>Cloud-native SIEM/SOAR</td>
+                                <td>No direct equivalent (3rd party)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Entra ID</strong></td>
+                                <td>Identity and access management</td>
+                                <td>IAM + Cognito</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure Firewall</strong></td>
+                                <td>Managed network firewall</td>
+                                <td>Network Firewall</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NSG / ASG</strong></td>
+                                <td>Network security groups</td>
+                                <td>Security Groups</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Key Vault</strong></td>
+                                <td>Secrets, keys, certificates</td>
+                                <td>Secrets Manager + KMS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DDoS Protection</strong></td>
+                                <td>DDoS mitigation</td>
+                                <td>Shield</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Microsoft Defender for Cloud</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Defender for Cloud Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    MICROSOFT DEFENDER FOR CLOUD                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ CSPM (Cloud Security Posture Management) - FREE                      │    │
+│  │                                                                      │    │
+│  │ • Secure Score                    • Regulatory compliance           │    │
+│  │ • Security recommendations        • Asset inventory                 │    │
+│  │ • Azure Security Benchmark        • Multi-cloud (AWS, GCP)         │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ CWPP (Cloud Workload Protection) - PAID PLANS                       │    │
+│  │                                                                      │    │
+│  │ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐    │    │
+│  │ │ Defender    │ │ Defender    │ │ Defender    │ │ Defender    │    │    │
+│  │ │ for Servers │ │ for Storage │ │ for SQL     │ │ for         │    │    │
+│  │ │             │ │             │ │             │ │ Containers  │    │    │
+│  │ │ • EDR (MDE) │ │ • Malware   │ │ • Vuln scan │ │ • Image     │    │    │
+│  │ │ • Vuln scan │ │   scanning  │ │ • Anomaly   │ │   scanning  │    │    │
+│  │ │ • FIM       │ │ • Anomaly   │ │   detection │ │ • Runtime   │    │    │
+│  │ │ • JIT access│ │   detection │ │             │ │   protection│    │    │
+│  │ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘    │    │
+│  │                                                                      │    │
+│  │ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐    │    │
+│  │ │ Defender    │ │ Defender    │ │ Defender    │ │ Defender    │    │    │
+│  │ │ for App     │ │ for Key     │ │ for DNS     │ │ for Resource│    │    │
+│  │ │ Service     │ │ Vault       │ │             │ │ Manager     │    │    │
+│  │ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘    │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  SECURE SCORE: 76%  ████████████████░░░░░░                                 │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Network Security</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Layer</th>
+                                <th>Function</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>NSG (Network Security Group)</strong></td>
+                                <td>Subnet/NIC</td>
+                                <td>Stateful L3/L4 filtering (like AWS SG)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ASG (Application Security Group)</strong></td>
+                                <td>Logical grouping</td>
+                                <td>Group VMs for NSG rules by role</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure Firewall</strong></td>
+                                <td>VNet perimeter</td>
+                                <td>Managed L3-L7 firewall, FQDN filtering</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure WAF</strong></td>
+                                <td>Application Gateway / Front Door</td>
+                                <td>L7 web application protection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Private Link</strong></td>
+                                <td>Private connectivity</td>
+                                <td>Access Azure services over private IP</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Service Endpoints</strong></td>
+                                <td>VNet to PaaS</td>
+                                <td>Optimized route to Azure services</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Azure CLI Security Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Azure CLI Security Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DEFENDER FOR CLOUD</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Get secure score</span>
+<span class="token-command">az</span> security secure-score list
+
+<span class="token-comment"># List security alerts</span>
+<span class="token-command">az</span> security alert list
+
+<span class="token-comment"># Get security recommendations</span>
+<span class="token-command">az</span> security assessment list
+
+<span class="token-comment"># Enable Defender plan</span>
+<span class="token-command">az</span> security pricing create --name VirtualMachines --tier Standard
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># NETWORK SECURITY GROUPS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># List NSGs</span>
+<span class="token-command">az</span> network nsg list -o table
+
+<span class="token-comment"># Show NSG rules</span>
+<span class="token-command">az</span> network nsg rule list --nsg-name MyNSG --resource-group MyRG -o table
+
+<span class="token-comment"># Add rule to block IP</span>
+<span class="token-command">az</span> network nsg rule create --nsg-name MyNSG --resource-group MyRG \
+    --name BlockMaliciousIP --priority 100 --access Deny \
+    --source-address-prefixes 1.2.3.4 --destination-port-ranges '*'
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># KEY VAULT</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># List secrets</span>
+<span class="token-command">az</span> keyvault secret list --vault-name MyVault
+
+<span class="token-comment"># Get secret value</span>
+<span class="token-command">az</span> keyvault secret show --vault-name MyVault --name MySecret
+
+<span class="token-comment"># Enable soft delete (recommended)</span>
+<span class="token-command">az</span> keyvault update --name MyVault --enable-soft-delete true
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ACTIVITY LOG (AUDIT)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Recent activity</span>
+<span class="token-command">az</span> monitor activity-log list --max-events 50
+
+<span class="token-comment"># Filter by resource group</span>
+<span class="token-command">az</span> monitor activity-log list --resource-group MyRG --start-time 2024-01-01</code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Azure Security Quick Wins</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Enable Defender for Cloud:</strong> Free tier for CSPM, paid for workload protection</li>
+                            <li><strong>Implement Conditional Access:</strong> MFA, device compliance, location-based</li>
+                            <li><strong>Use Managed Identities:</strong> Avoid storing credentials in code</li>
+                            <li><strong>Enable diagnostic logging:</strong> Send to Log Analytics workspace</li>
+                            <li><strong>Lock down NSGs:</strong> Deny by default, allow specific traffic</li>
+                            <li><strong>Use Private Link:</strong> Keep traffic on Microsoft backbone</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How does Azure's security model differ from AWS?"</p>
+                        <p><strong>Answer:</strong> "Azure's security is tightly integrated with the Microsoft ecosystem, especially around identity. Entra ID (Azure AD) provides enterprise-grade identity with features like Conditional Access and Privileged Identity Management built-in. Microsoft Defender for Cloud combines CSPM and workload protection in one service (vs. AWS's separate Security Hub and GuardDuty). Azure also has Microsoft Sentinel as a native cloud SIEM, while AWS relies on third-party solutions. The network model is similar - NSGs are like Security Groups, Azure Firewall is like Network Firewall. A key advantage of Azure is the integration with Microsoft 365 and Defender XDR for end-to-end visibility."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="14-2-aws-security.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">AWS Security Services</span>
+                        </div>
+                    </a>
+                    <a href="15-2-interview-questions.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Interview Questions</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Check Point Firewalls - Complete guide to Check Point architecture, SmartConsole, policy management, and CLI commands">
+    <title>Check Point Firewalls | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 2: Firewalls (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🛡️</span>
+                            Firewalls
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="2-1-firewall-fundamentals.html" class="nav-link"><span class="nav-link-number">2.1</span> Firewall Fundamentals</a>
+                        <a href="2-2-firewall-types.html" class="nav-link"><span class="nav-link-number">2.2</span> Firewall Types Deep Dive</a>
+                        <a href="2-3-rule-design.html" class="nav-link"><span class="nav-link-number">2.3</span> Firewall Rule Design</a>
+                        <a href="2-4-palo-alto.html" class="nav-link"><span class="nav-link-number">2.4</span> Palo Alto Networks</a>
+                        <a href="2-5-cisco-firepower.html" class="nav-link"><span class="nav-link-number">2.5</span> Cisco Firepower/ASA</a>
+                        <a href="2-6-fortigate.html" class="nav-link"><span class="nav-link-number">2.6</span> Fortinet FortiGate</a>
+                        <a href="2-7-checkpoint.html" class="nav-link active"><span class="nav-link-number">2.7</span> Check Point</a>
+                        <a href="2-8-cloud-firewalls.html" class="nav-link"><span class="nav-link-number">2.8</span> Cloud Firewalls</a>
+                        <a href="2-9-firewall-ha.html" class="nav-link"><span class="nav-link-number">2.9</span> High Availability</a>
+                        <a href="2-10-logging-monitoring.html" class="nav-link"><span class="nav-link-number">2.10</span> Logging & Monitoring</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Firewalls</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Check Point</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>Check Point Firewalls</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Check Point is one of the original enterprise firewall vendors and pioneered the stateful inspection firewall. Check Point uses a unique three-tier architecture separating management, logging, and enforcement. Understanding Check Point is essential for enterprise security roles.</p>
+                        <ul>
+                            <li>Check Point three-tier architecture</li>
+                            <li>Security Management Server vs Security Gateway</li>
+                            <li>SmartConsole and policy management</li>
+                            <li>Software Blades architecture</li>
+                            <li>Policy layers and rule base</li>
+                            <li>Essential CLI commands (Expert/Clish)</li>
+                            <li>Troubleshooting techniques</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Check Point Architecture</h2>
+                
+                <p>Check Point uses a unique three-tier architecture that separates management, logging, and security enforcement into distinct components.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Check Point Three-Tier Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    CHECK POINT THREE-TIER ARCHITECTURE                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  TIER 1: SMARTCONSOLE (GUI Client)                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                      SmartConsole                                    │    │
+│  │                  (Windows Application)                               │    │
+│  │                                                                      │    │
+│  │  • Policy creation and editing                                      │    │
+│  │  • Object management                                                │    │
+│  │  • Log viewing and analysis                                         │    │
+│  │  • Monitoring and reporting                                         │    │
+│  │  • VPN configuration                                                │    │
+│  └───────────────────────────┬─────────────────────────────────────────┘    │
+│                              │ SIC (Secure Internal Communication)          │
+│                              ▼                                              │
+│  TIER 2: SECURITY MANAGEMENT SERVER (SMS)                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                  Security Management Server                          │    │
+│  │                  (Dedicated Server/VM)                               │    │
+│  │                                                                      │    │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                 │    │
+│  │  │  Policy     │  │   Object    │  │    User     │                 │    │
+│  │  │  Database   │  │   Database  │  │   Database  │                 │    │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘                 │    │
+│  │                                                                      │    │
+│  │  • Stores all policies and objects                                  │    │
+│  │  • Compiles and pushes policies to gateways                        │    │
+│  │  • Can also collect logs (or use dedicated Log Server)             │    │
+│  └───────────────────────────┬─────────────────────────────────────────┘    │
+│                              │ Policy Install (SIC)                         │
+│              ┌───────────────┼───────────────┐                              │
+│              ▼               ▼               ▼                              │
+│  TIER 3: SECURITY GATEWAYS (Enforcement Points)                             │
+│  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐                   │
+│  │   Gateway 1   │  │   Gateway 2   │  │   Gateway 3   │                   │
+│  │  (HQ - FW)    │  │  (Branch)     │  │  (DMZ)        │                   │
+│  │               │  │               │  │               │                   │
+│  │ • Enforces    │  │ • Enforces    │  │ • Enforces    │                   │
+│  │   policy      │  │   policy      │  │   policy      │                   │
+│  │ • Inspects    │  │ • Inspects    │  │ • Inspects    │                   │
+│  │   traffic     │  │   traffic     │  │   traffic     │                   │
+│  └───────────────┘  └───────────────┘  └───────────────┘                   │
+│                                                                              │
+│  OPTIONAL: Dedicated Log Server (SmartLog/SmartEvent)                       │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  Log Server - Receives and stores logs from all gateways            │    │
+│  │             - Correlation and reporting                             │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h3>Component Comparison</h3>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Role</th>
+                                <th>Deployment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>SmartConsole</strong></td>
+                                <td>GUI client for administration</td>
+                                <td>Admin workstations (Windows)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security Management Server (SMS)</strong></td>
+                                <td>Policy database, compiles/pushes policies</td>
+                                <td>Dedicated server or VM</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security Gateway (SGW)</strong></td>
+                                <td>Enforces policies, inspects traffic</td>
+                                <td>Appliance, VM, or cloud</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Log Server</strong></td>
+                                <td>Centralized log collection</td>
+                                <td>Optional dedicated server</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SmartEvent</strong></td>
+                                <td>SIEM-like correlation and reporting</td>
+                                <td>Optional add-on</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Software Blades</h2>
+                
+                <p>Check Point uses a modular "Software Blades" architecture. Each blade provides specific security functionality and can be enabled/disabled independently.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Check Point Software Blades</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    CHECK POINT SOFTWARE BLADES                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  NETWORK SECURITY BLADES (Gateway)                                          │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
+│  │  Firewall   │ │     VPN     │ │    IPS      │ │ Application │           │
+│  │             │ │  (IPSec/    │ │             │ │  Control    │           │
+│  │  (Core)     │ │   SSL)      │ │             │ │             │           │
+│  └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘           │
+│                                                                              │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
+│  │    URL      │ │  Anti-Bot   │ │  Anti-Virus │ │  Threat     │           │
+│  │  Filtering  │ │             │ │             │ │  Emulation  │           │
+│  │             │ │             │ │             │ │  (Sandbox)  │           │
+│  └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘           │
+│                                                                              │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
+│  │  Content    │ │    DLP      │ │  Identity   │ │   Mobile    │           │
+│  │  Awareness  │ │             │ │  Awareness  │ │   Access    │           │
+│  │             │ │             │ │             │ │             │           │
+│  └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘           │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  MANAGEMENT BLADES (SMS)                                                    │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
+│  │  Network    │ │   Logging   │ │   Smart     │ │   Smart     │           │
+│  │  Policy     │ │   & Status  │ │   Event     │ │  Workflow   │           │
+│  │  Mgmt       │ │             │ │             │ │             │           │
+│  └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘           │
+│                                                                              │
+│  LICENSING:                                                                 │
+│  • Blades are licensed per gateway                                         │
+│  • NGTP (Next Gen Threat Prevention) bundle includes common blades        │
+│  • NGTX adds Threat Emulation (sandbox)                                   │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Policy Layers</h2>
+                
+                <p>Check Point R80+ introduced Policy Layers, allowing modular policy design. Different teams can manage different layers, and layers are processed in order.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Check Point Policy Layers</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    POLICY LAYERS                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Traffic arrives at gateway                                                 │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ LAYER 1: Network Security (Managed by Network Team)                  │    │
+│  │                                                                      │    │
+│  │ Rule 1: Block known bad IPs                     → Drop               │    │
+│  │ Rule 2: Allow DNS to DNS servers                → Accept             │    │
+│  │ Rule 3: Block direct internet from servers      → Drop               │    │
+│  │ ...                                                                  │    │
+│  │ Default: Continue to next layer                                     │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│         │ (If not dropped, continue)                                        │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ LAYER 2: Application Security (Managed by AppSec Team)              │    │
+│  │                                                                      │    │
+│  │ Rule 1: Block high-risk apps (Tor, BitTorrent)  → Drop               │    │
+│  │ Rule 2: Allow business apps                      → Accept             │    │
+│  │ Rule 3: Inspect social media                     → Accept + Inspect   │    │
+│  │ ...                                                                  │    │
+│  │ Default: Continue to next layer                                     │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ LAYER 3: Compliance (Managed by Compliance Team)                     │    │
+│  │                                                                      │    │
+│  │ Rule 1: Log all PCI traffic                      → Accept + Log      │    │
+│  │ Rule 2: Block uploads to personal cloud          → Drop               │    │
+│  │ ...                                                                  │    │
+│  │ Default: Drop (cleanup rule)                                        │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  BENEFITS:                                                                  │
+│  • Separation of duties (different teams manage different layers)          │
+│  • Modular policies (add/remove layers as needed)                          │
+│  • Ordered layers (shared layers can be reused across policies)            │
+│  • Inline layers (sub-policies within rules)                               │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Essential CLI Commands</h2>
+                
+                <p>Check Point has two CLI modes: Clish (simplified) and Expert (full Linux shell with CP commands).</p>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Check Point CLI - Gateway Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># MODE SWITCHING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">expert</span>                                <span class="token-comment"># Enter Expert mode (full shell)</span>
+<span class="token-command">clish</span>                                 <span class="token-comment"># Return to Clish mode</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SYSTEM STATUS (Clish)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> version all                      <span class="token-comment"># Version info</span>
+<span class="token-command">show</span> asset system                     <span class="token-comment"># Hardware info</span>
+<span class="token-command">cpstat</span> os                             <span class="token-comment"># OS statistics</span>
+<span class="token-command">cpstat</span> fw                             <span class="token-comment"># Firewall statistics</span>
+<span class="token-command">cpview</span>                                <span class="token-comment"># Interactive system monitor</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># HIGH AVAILABILITY (Clish)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">cphaprob</span> state                        <span class="token-comment"># HA state (active/standby)</span>
+<span class="token-command">cphaprob</span> list                         <span class="token-comment"># HA problem list</span>
+<span class="token-command">cphaprob</span> -a if                        <span class="token-comment"># HA interface status</span>
+<span class="token-command">clusterXL_admin</span> down                 <span class="token-comment"># Fail over to peer</span>
+<span class="token-command">clusterXL_admin</span> up                   <span class="token-comment"># Return to active</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># FIREWALL STATUS (Expert)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">fw</span> stat                               <span class="token-comment"># Policy status, version</span>
+<span class="token-command">fw</span> ver                                <span class="token-comment"># Firewall version</span>
+<span class="token-command">fw</span> ctl pstat                          <span class="token-comment"># Kernel table stats</span>
+<span class="token-command">fw</span> ctl zdebug drop                    <span class="token-comment"># Show dropped packets</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CONNECTIONS (Expert)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">fw</span> tab -t connections -s              <span class="token-comment"># Connection count</span>
+<span class="token-command">fw</span> tab -t connections -f              <span class="token-comment"># All connections (verbose!)</span>
+<span class="token-command">fw</span> tab -t connections -f -k 10.1.1.100 <span class="token-comment"># Filter by IP</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># NETWORK (Expert/Clish)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">netstat</span> -rn                           <span class="token-comment"># Routing table</span>
+<span class="token-command">arp</span> -a                                <span class="token-comment"># ARP table</span>
+<span class="token-command">ifconfig</span> -a                           <span class="token-comment"># Interface config</span>
+<span class="token-command">show</span> interface all                    <span class="token-comment"># Clish interface view</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># VPN (Expert)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">vpn</span> tu                                <span class="token-comment"># VPN tunnel utility (interactive)</span>
+<span class="token-command">vpn</span> shell                             <span class="token-comment"># VPN shell for debugging</span>
+<span class="token-command">cpstat</span> vpn -f all                     <span class="token-comment"># VPN statistics</span>
+<span class="token-command">vpn</span> debug ikeon                       <span class="token-comment"># Enable IKE debug</span>
+<span class="token-command">vpn</span> debug ikeoff                      <span class="token-comment"># Disable IKE debug</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PACKET CAPTURE (Expert)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">tcpdump</span> -i eth1 host 10.1.1.100       <span class="token-comment"># Standard tcpdump</span>
+<span class="token-command">fw</span> monitor -e "accept src=10.1.1.100 or dst=10.1.1.100;"
+<span class="token-comment"># fw monitor shows traffic at multiple inspection points</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># POLICY (Expert)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">fw</span> fetch localhost                    <span class="token-comment"># Reload policy locally</span>
+<span class="token-command">fwm</span> load -p                           <span class="token-comment"># Install policy (from SMS)</span></code></pre>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Check Point CLI - Management Server Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># MANAGEMENT SERVER STATUS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">cpwd_admin</span> list                       <span class="token-comment"># Check Point processes status</span>
+<span class="token-command">api</span> status                            <span class="token-comment"># Management API status</span>
+<span class="token-command">cp_conf</span> sic state                     <span class="token-comment"># SIC status</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># MGMT_CLI (API from command line)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">mgmt_cli</span> login user admin -r true     <span class="token-comment"># Login to API</span>
+<span class="token-command">mgmt_cli</span> show hosts limit 50          <span class="token-comment"># Show host objects</span>
+<span class="token-command">mgmt_cli</span> show networks limit 50       <span class="token-comment"># Show network objects</span>
+<span class="token-command">mgmt_cli</span> show access-rules layer "Network"
+<span class="token-command">mgmt_cli</span> publish                      <span class="token-comment"># Publish changes</span>
+<span class="token-command">mgmt_cli</span> logout                       <span class="token-comment"># Logout</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DATABASE OPERATIONS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">mdsstat</span>                               <span class="token-comment"># Multi-domain server status</span>
+<span class="token-command">cprestart</span>                             <span class="token-comment"># Restart Check Point services</span>
+<span class="token-command">cpstop</span> / <span class="token-command">cpstart</span>                     <span class="token-comment"># Stop/Start CP services</span></code></pre>
+                </div>
+                
+                <h2>Secure Internal Communication (SIC)</h2>
+                
+                <p>SIC is Check Point's certificate-based authentication and encryption for communication between all Check Point components.</p>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - SIC Troubleshooting</div>
+                    <div class="callout-content">
+                        <p><strong>SIC issues are common during deployment. Check these:</strong></p>
+                        <ul>
+                            <li><strong>One-time password:</strong> Must match between SMS object and gateway initialization</li>
+                            <li><strong>Time sync:</strong> NTP must be configured, time difference causes SIC failure</li>
+                            <li><strong>DNS resolution:</strong> Gateway must resolve SMS hostname</li>
+                            <li><strong>Network connectivity:</strong> Port 18191 must be open between SMS and gateway</li>
+                        </ul>
+                        <p><strong>Reset SIC on gateway:</strong> <code>cpconfig</code> → Reset SIC → Reinitialize from SmartConsole</p>
+                    </div>
+                </div>
+                
+                <h2>Troubleshooting Workflow</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Check Point Troubleshooting Flowchart</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    CHECK POINT TROUBLESHOOTING                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ISSUE: Traffic not passing through firewall                                │
+│                                                                              │
+│  STEP 1: Check if traffic hits gateway                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ tcpdump -i eth1 host <source_ip>                                    │    │
+│  │                                                                      │    │
+│  │ • If no packets: Problem is before gateway (routing, upstream)      │    │
+│  │ • If packets seen: Continue to Step 2                               │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  STEP 2: Check if firewall is dropping                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ fw ctl zdebug drop | grep <source_ip>                               │    │
+│  │                                                                      │    │
+│  │ • Shows drops with reason code                                      │    │
+│  │ • Common reasons: No matching rule, anti-spoofing, RPF              │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  STEP 3: Check SmartLog for policy hit                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ SmartConsole → Logs & Monitor → Search by source IP                 │    │
+│  │                                                                      │    │
+│  │ • Check which rule matched                                          │    │
+│  │ • Check action (Accept/Drop/Reject)                                 │    │
+│  │ • Check which blade blocked (IPS, Anti-Bot, etc.)                   │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  STEP 4: fw monitor for detailed analysis                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ fw monitor -e "accept src=10.1.1.100 or dst=10.1.1.100;"            │    │
+│  │                                                                      │    │
+│  │ Shows packet at inspection points:                                  │    │
+│  │ • i = inbound pre-policy                                           │    │
+│  │ • I = inbound post-policy                                          │    │
+│  │ • o = outbound pre-policy                                          │    │
+│  │ • O = outbound post-policy                                         │    │
+│  │                                                                      │    │
+│  │ If you see "i" but not "I" → dropped by policy                      │    │
+│  │ If you see "I" but not "o" → routing issue                          │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>Common Check Point operations:</strong></p>
+                        <ul>
+                            <li><strong>Policy changes:</strong> Create/modify rules in SmartConsole, publish, install policy</li>
+                            <li><strong>Log analysis:</strong> Search SmartLog for traffic, investigate blocks</li>
+                            <li><strong>HA management:</strong> Monitor cluster state, perform failovers</li>
+                            <li><strong>VPN support:</strong> Troubleshoot site-to-site and remote access VPN</li>
+                            <li><strong>Hotfix installation:</strong> Apply hotfixes during maintenance windows</li>
+                            <li><strong>Backup:</strong> Regular policy and configuration backups</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "Explain Check Point's three-tier architecture."</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>SmartConsole:</strong> The GUI client installed on admin workstations. Used for policy creation, log viewing, and monitoring.</li>
+                            <li><strong>Security Management Server (SMS):</strong> Central server that stores all policies and objects. Compiles policies and pushes them to gateways. Can also collect logs.</li>
+                            <li><strong>Security Gateway:</strong> The enforcement point. Receives compiled policy from SMS and enforces it on traffic. This is where actual inspection happens.</li>
+                        </ul>
+                        <p><strong>Key benefit:</strong> "This separation allows centralized management of multiple gateways, role-based access, and better scalability. Changes made in SmartConsole are stored on SMS and only take effect when policy is installed to gateways."</p>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="2-6-fortigate.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Fortinet FortiGate</span>
+                        </div>
+                    </a>
+                    <a href="2-8-cloud-firewalls.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Cloud Firewalls</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

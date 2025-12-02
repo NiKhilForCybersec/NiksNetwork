@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Routing Fundamentals - Complete guide to static routing, dynamic routing protocols, and routing security">
+    <title>Routing Fundamentals | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🌐</span>
+                            Networking Basics
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="1-1-osi-model.html" class="nav-link"><span class="nav-link-number">1.1</span> OSI Model</a>
+                        <a href="1-2-tcpip.html" class="nav-link"><span class="nav-link-number">1.2</span> TCP/IP Networking</a>
+                        <a href="1-3-ip-addressing.html" class="nav-link"><span class="nav-link-number">1.3</span> IP Addressing</a>
+                        <a href="1-4-dns.html" class="nav-link"><span class="nav-link-number">1.4</span> DNS</a>
+                        <a href="1-5-routing.html" class="nav-link active"><span class="nav-link-number">1.5</span> Routing Fundamentals</a>
+                        <a href="1-6-switching.html" class="nav-link"><span class="nav-link-number">1.6</span> Switching & VLANs</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Networking Basics</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Routing Fundamentals</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Routing Fundamentals</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Routing determines how packets travel from source to destination across networks. Understanding routing is essential for network segmentation, firewall placement, and troubleshooting connectivity issues.</p>
+                        <ul>
+                            <li>How routing works</li>
+                            <li>Static vs dynamic routing</li>
+                            <li>Routing protocols (OSPF, BGP, EIGRP)</li>
+                            <li>Routing table interpretation</li>
+                            <li>Routing security considerations</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Routing Concepts</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Routing Decision Process</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ROUTING DECISION PROCESS                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Packet arrives at router with destination: 10.20.30.40                     │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    ROUTING TABLE LOOKUP                              │    │
+│  ├─────────────────────────────────────────────────────────────────────┤    │
+│  │  Destination        Mask              Next Hop         Interface    │    │
+│  │  ─────────────────────────────────────────────────────────────────  │    │
+│  │  10.20.30.0         /24               10.0.0.2         eth1    ◄──  │    │
+│  │  10.20.0.0          /16               10.0.0.3         eth2         │    │
+│  │  10.0.0.0           /8                10.0.0.4         eth3         │    │
+│  │  0.0.0.0            /0                10.0.0.1         eth0         │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  LONGEST PREFIX MATCH (Most Specific Route Wins)                            │
+│  ──────────────────────────────────────────────                             │
+│  • /24 matches 10.20.30.x   ← SELECTED (most specific)                      │
+│  • /16 matches 10.20.x.x                                                    │
+│  • /8 matches 10.x.x.x                                                      │
+│  • /0 matches everything (default route)                                    │
+│                                                                              │
+│  ROUTE SELECTION PRIORITY                                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  1. Longest prefix match (most specific)                            │    │
+│  │  2. Administrative distance (route source trustworthiness)          │    │
+│  │  3. Metric (cost/distance within same protocol)                     │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Static vs Dynamic Routing</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Static Routing</th>
+                                <th>Dynamic Routing</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Configuration</strong></td>
+                                <td>Manually configured</td>
+                                <td>Automatically learned</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Scalability</strong></td>
+                                <td>Poor (manual updates)</td>
+                                <td>Good (automatic updates)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Failover</strong></td>
+                                <td>Manual intervention</td>
+                                <td>Automatic rerouting</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Resource Usage</strong></td>
+                                <td>Minimal CPU/memory</td>
+                                <td>Higher CPU/memory/bandwidth</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security</strong></td>
+                                <td>More secure (no protocol)</td>
+                                <td>Requires authentication</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use Case</strong></td>
+                                <td>Small networks, stub networks, default routes</td>
+                                <td>Large networks, redundant paths</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Dynamic Routing Protocols</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Protocol</th>
+                                <th>Type</th>
+                                <th>Algorithm</th>
+                                <th>Use Case</th>
+                                <th>AD</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>OSPF</strong></td>
+                                <td>IGP (Link-State)</td>
+                                <td>Dijkstra SPF</td>
+                                <td>Enterprise internal</td>
+                                <td>110</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EIGRP</strong></td>
+                                <td>IGP (Hybrid)</td>
+                                <td>DUAL</td>
+                                <td>Cisco environments</td>
+                                <td>90</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BGP</strong></td>
+                                <td>EGP (Path-Vector)</td>
+                                <td>Best path selection</td>
+                                <td>Internet, ISP, multi-homed</td>
+                                <td>20 (eBGP)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>RIP</strong></td>
+                                <td>IGP (Distance-Vector)</td>
+                                <td>Bellman-Ford</td>
+                                <td>Legacy, small networks</td>
+                                <td>120</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IS-IS</strong></td>
+                                <td>IGP (Link-State)</td>
+                                <td>Dijkstra SPF</td>
+                                <td>ISP backbone</td>
+                                <td>115</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <p><strong>Administrative Distance (AD):</strong> Lower = more trusted. Connected routes = 0, Static = 1.</p>
+                
+                <h2>Routing Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Routing Table Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># WINDOWS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># View routing table</span>
+<span class="token-function">route</span> print
+<span class="token-function">netstat</span> -rn
+
+<span class="token-comment"># Add static route</span>
+<span class="token-function">route</span> add 10.20.0.0 mask 255.255.0.0 192.168.1.1
+<span class="token-function">route</span> add 10.20.0.0 mask 255.255.0.0 192.168.1.1 -p  <span class="token-comment"># Persistent</span>
+
+<span class="token-comment"># Delete route</span>
+<span class="token-function">route</span> delete 10.20.0.0
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LINUX</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># View routing table</span>
+<span class="token-function">ip</span> route
+<span class="token-function">ip</span> route show
+<span class="token-function">netstat</span> -rn
+<span class="token-function">route</span> -n
+
+<span class="token-comment"># Add static route</span>
+<span class="token-function">ip</span> route add 10.20.0.0/16 via 192.168.1.1
+<span class="token-function">ip</span> route add 10.20.0.0/16 via 192.168.1.1 dev eth0
+
+<span class="token-comment"># Add default route</span>
+<span class="token-function">ip</span> route add default via 192.168.1.1
+
+<span class="token-comment"># Delete route</span>
+<span class="token-function">ip</span> route del 10.20.0.0/16
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CISCO IOS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># View routing table</span>
+<span class="token-function">show</span> ip route
+<span class="token-function">show</span> ip route ospf
+<span class="token-function">show</span> ip route bgp
+
+<span class="token-comment"># Add static route</span>
+<span class="token-function">ip</span> route 10.20.0.0 255.255.0.0 192.168.1.1
+
+<span class="token-comment"># View OSPF neighbors</span>
+<span class="token-function">show</span> ip ospf neighbor
+
+<span class="token-comment"># View BGP neighbors</span>
+<span class="token-function">show</span> ip bgp summary
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># TRACEROUTE (Path Discovery)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Windows</span>
+<span class="token-function">tracert</span> 8.8.8.8
+<span class="token-function">tracert</span> -d 8.8.8.8  <span class="token-comment"># No DNS resolution</span>
+
+<span class="token-comment"># Linux/Mac</span>
+<span class="token-function">traceroute</span> 8.8.8.8
+<span class="token-function">traceroute</span> -n 8.8.8.8  <span class="token-comment"># No DNS resolution</span>
+<span class="token-function">mtr</span> 8.8.8.8  <span class="token-comment"># Continuous traceroute</span></code></pre>
+                </div>
+                
+                <h2>Routing Security</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Threat</th>
+                                <th>Description</th>
+                                <th>Mitigation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Route Injection</strong></td>
+                                <td>Attacker advertises fake routes</td>
+                                <td>Authentication (MD5), route filtering</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BGP Hijacking</strong></td>
+                                <td>Advertising someone else's prefixes</td>
+                                <td>RPKI, BGP monitoring, prefix filtering</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Route Leaks</strong></td>
+                                <td>Inadvertent route propagation</td>
+                                <td>Strict import/export policies</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DoS via Routing</strong></td>
+                                <td>Overwhelming routing protocol</td>
+                                <td>Rate limiting, authentication</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - Routing Security</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Authentication:</strong> Enable MD5 authentication on OSPF/EIGRP/BGP</li>
+                            <li><strong>Prefix filtering:</strong> Only accept/advertise expected prefixes</li>
+                            <li><strong>Route summarization:</strong> Reduce attack surface and table size</li>
+                            <li><strong>Logging:</strong> Log routing protocol events</li>
+                            <li><strong>Control plane protection:</strong> Rate limit routing traffic</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "What's the difference between OSPF and BGP?"</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>OSPF (Open Shortest Path First):</strong> Interior Gateway Protocol (IGP) used within a single organization. Uses link-state algorithm to find shortest path. Fast convergence. Used for internal enterprise routing.</li>
+                            <li><strong>BGP (Border Gateway Protocol):</strong> Exterior Gateway Protocol (EGP) used between organizations/ISPs. Path-vector protocol that considers policies, not just shortest path. The routing protocol of the internet. Used for internet connectivity and multi-homed environments.</li>
+                        </ul>
+                        <p><strong>Security note:</strong> "Both should use authentication - MD5 for OSPF areas, TCP MD5 for BGP sessions."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="1-4-dns.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">DNS</span>
+                        </div>
+                    </a>
+                    <a href="1-6-switching.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Switching & VLANs</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

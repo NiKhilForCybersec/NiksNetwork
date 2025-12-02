@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="IP Addressing & Subnetting - Complete guide to IPv4, IPv6, CIDR notation, subnetting, and private IP ranges">
+    <title>IP Addressing & Subnetting | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 1: Networking (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🌐</span>
+                            Networking Basics
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="1-1-osi-model.html" class="nav-link"><span class="nav-link-number">1.1</span> OSI Model</a>
+                        <a href="1-2-tcpip.html" class="nav-link"><span class="nav-link-number">1.2</span> TCP/IP Networking</a>
+                        <a href="1-3-ip-addressing.html" class="nav-link active"><span class="nav-link-number">1.3</span> IP Addressing & Subnetting</a>
+                        <a href="1-4-dns.html" class="nav-link"><span class="nav-link-number">1.4</span> DNS</a>
+                        <a href="1-5-routing.html" class="nav-link"><span class="nav-link-number">1.5</span> Routing Fundamentals</a>
+                        <a href="1-6-switching.html" class="nav-link"><span class="nav-link-number">1.6</span> Switching & VLANs</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Networking Basics</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">IP Addressing & Subnetting</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>IP Addressing & Subnetting</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>IP addressing is fundamental to network communication. Understanding subnetting is essential for designing secure networks, segmenting traffic, and configuring firewall rules.</p>
+                        <ul>
+                            <li>IPv4 address structure and classes</li>
+                            <li>Private vs public IP ranges</li>
+                            <li>CIDR notation and subnet masks</li>
+                            <li>Subnetting calculations</li>
+                            <li>IPv6 basics</li>
+                            <li>NAT (Network Address Translation)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>IPv4 Address Structure</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">IPv4 Address Format</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    IPv4 ADDRESS STRUCTURE                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  IPv4 Address: 192.168.1.100                                                │
+│                                                                              │
+│  DOTTED DECIMAL NOTATION                                                    │
+│  ┌─────────┬─────────┬─────────┬─────────┐                                  │
+│  │   192   │   168   │    1    │   100   │   ◄── Each octet: 0-255         │
+│  └─────────┴─────────┴─────────┴─────────┘                                  │
+│                                                                              │
+│  BINARY REPRESENTATION (32 bits total)                                      │
+│  ┌──────────┬──────────┬──────────┬──────────┐                              │
+│  │ 11000000 │ 10101000 │ 00000001 │ 01100100 │                              │
+│  └──────────┴──────────┴──────────┴──────────┘                              │
+│    8 bits     8 bits     8 bits     8 bits                                  │
+│                                                                              │
+│  WITH SUBNET MASK /24 (255.255.255.0)                                       │
+│  ┌──────────────────────────┬─────────────┐                                 │
+│  │      NETWORK PORTION     │    HOST     │                                 │
+│  │       192.168.1          │    .100     │                                 │
+│  │       (24 bits)          │  (8 bits)   │                                 │
+│  └──────────────────────────┴─────────────┘                                 │
+│                                                                              │
+│  Network ID:    192.168.1.0    (all host bits = 0)                          │
+│  Broadcast:     192.168.1.255  (all host bits = 1)                          │
+│  Usable Hosts:  192.168.1.1 - 192.168.1.254 (254 hosts)                     │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Private IP Ranges (RFC 1918)</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Range</th>
+                                <th>CIDR</th>
+                                <th>Addresses</th>
+                                <th>Common Use</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Class A</strong></td>
+                                <td>10.0.0.0 - 10.255.255.255</td>
+                                <td>10.0.0.0/8</td>
+                                <td>16,777,216</td>
+                                <td>Large enterprise, data centers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Class B</strong></td>
+                                <td>172.16.0.0 - 172.31.255.255</td>
+                                <td>172.16.0.0/12</td>
+                                <td>1,048,576</td>
+                                <td>Medium enterprise, cloud VPCs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Class C</strong></td>
+                                <td>192.168.0.0 - 192.168.255.255</td>
+                                <td>192.168.0.0/16</td>
+                                <td>65,536</td>
+                                <td>Home networks, small offices</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Other Special Ranges</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>127.0.0.0/8:</strong> Loopback (localhost)</li>
+                            <li><strong>169.254.0.0/16:</strong> Link-local (APIPA)</li>
+                            <li><strong>100.64.0.0/10:</strong> Carrier-grade NAT (CGNAT)</li>
+                            <li><strong>0.0.0.0:</strong> Default route / any address</li>
+                            <li><strong>255.255.255.255:</strong> Limited broadcast</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>CIDR Notation Reference</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>CIDR</th>
+                                <th>Subnet Mask</th>
+                                <th>Hosts</th>
+                                <th>Wildcard</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>/32</strong></td>
+                                <td>255.255.255.255</td>
+                                <td>1</td>
+                                <td>0.0.0.0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>/30</strong></td>
+                                <td>255.255.255.252</td>
+                                <td>2</td>
+                                <td>0.0.0.3</td>
+                            </tr>
+                            <tr>
+                                <td><strong>/29</strong></td>
+                                <td>255.255.255.248</td>
+                                <td>6</td>
+                                <td>0.0.0.7</td>
+                            </tr>
+                            <tr>
+                                <td><strong>/28</strong></td>
+                                <td>255.255.255.240</td>
+                                <td>14</td>
+                                <td>0.0.0.15</td>
+                            </tr>
+                            <tr>
+                                <td><strong>/27</strong></td>
+                                <td>255.255.255.224</td>
+                                <td>30</td>
+                                <td>0.0.0.31</td>
+                            </tr>
+                            <tr>
+                                <td><strong>/26</strong></td>
+                                <td>255.255.255.192</td>
+                                <td>62</td>
+                                <td>0.0.0.63</td>
+                            </tr>
+                            <tr>
+                                <td><strong>/25</strong></td>
+                                <td>255.255.255.128</td>
+                                <td>126</td>
+                                <td>0.0.0.127</td>
+                            </tr>
+                            <tr>
+                                <td><strong>/24</strong></td>
+                                <td>255.255.255.0</td>
+                                <td>254</td>
+                                <td>0.0.0.255</td>
+                            </tr>
+                            <tr>
+                                <td><strong>/23</strong></td>
+                                <td>255.255.254.0</td>
+                                <td>510</td>
+                                <td>0.0.1.255</td>
+                            </tr>
+                            <tr>
+                                <td><strong>/22</strong></td>
+                                <td>255.255.252.0</td>
+                                <td>1,022</td>
+                                <td>0.0.3.255</td>
+                            </tr>
+                            <tr>
+                                <td><strong>/16</strong></td>
+                                <td>255.255.0.0</td>
+                                <td>65,534</td>
+                                <td>0.0.255.255</td>
+                            </tr>
+                            <tr>
+                                <td><strong>/8</strong></td>
+                                <td>255.0.0.0</td>
+                                <td>16,777,214</td>
+                                <td>0.255.255.255</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Subnetting Example</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Subnetting 10.0.0.0/24 into /26 Subnets</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SUBNETTING EXAMPLE                                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Original Network: 10.0.0.0/24                                              │
+│  Requirement: Need 4 subnets with ~60 hosts each                            │
+│  Solution: Borrow 2 bits from host portion → /26 (64 addresses each)        │
+│                                                                              │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │ SUBNET 1: 10.0.0.0/26                                                 │  │
+│  │ Network:   10.0.0.0                                                   │  │
+│  │ Usable:    10.0.0.1 - 10.0.0.62                                       │  │
+│  │ Broadcast: 10.0.0.63                                                  │  │
+│  │ Use Case:  Web Servers                                                │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│                                                                              │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │ SUBNET 2: 10.0.0.64/26                                                │  │
+│  │ Network:   10.0.0.64                                                  │  │
+│  │ Usable:    10.0.0.65 - 10.0.0.126                                     │  │
+│  │ Broadcast: 10.0.0.127                                                 │  │
+│  │ Use Case:  Database Servers                                           │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│                                                                              │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │ SUBNET 3: 10.0.0.128/26                                               │  │
+│  │ Network:   10.0.0.128                                                 │  │
+│  │ Usable:    10.0.0.129 - 10.0.0.190                                    │  │
+│  │ Broadcast: 10.0.0.191                                                 │  │
+│  │ Use Case:  Application Servers                                        │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│                                                                              │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │ SUBNET 4: 10.0.0.192/26                                               │  │
+│  │ Network:   10.0.0.192                                                 │  │
+│  │ Usable:    10.0.0.193 - 10.0.0.254                                    │  │
+│  │ Broadcast: 10.0.0.255                                                 │  │
+│  │ Use Case:  Management/Admin                                           │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│                                                                              │
+│  FORMULA:                                                                   │
+│  • Subnets = 2^(borrowed bits) = 2^2 = 4 subnets                           │
+│  • Hosts per subnet = 2^(host bits) - 2 = 2^6 - 2 = 62 usable              │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>NAT (Network Address Translation)</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">NAT Types</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    NAT TYPES                                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  STATIC NAT (1:1 Mapping)                                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                      │    │
+│  │  Internal: 192.168.1.10  ◄───────────►  Public: 203.0.113.10        │    │
+│  │                                                                      │    │
+│  │  Used for: Servers that need consistent public IP                   │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  DYNAMIC NAT (Pool Mapping)                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                                       ┌─────────────────────┐       │    │
+│  │  192.168.1.10 ─┐                      │ Public IP Pool      │       │    │
+│  │  192.168.1.11 ──┼───► NAT Device ───► │ 203.0.113.10-20     │       │    │
+│  │  192.168.1.12 ─┘                      └─────────────────────┘       │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  PAT / NAT OVERLOAD (Many:1 - Most Common)                                  │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                      │    │
+│  │  192.168.1.10:50001 ─┐                                              │    │
+│  │  192.168.1.11:50002 ──┼───► NAT ───► 203.0.113.1 (single public IP) │    │
+│  │  192.168.1.12:50003 ─┘       │       Different source ports         │    │
+│  │                               │                                      │    │
+│  │  NAT Table:                   │                                      │    │
+│  │  192.168.1.10:50001 ◄──► 203.0.113.1:40001                          │    │
+│  │  192.168.1.11:50002 ◄──► 203.0.113.1:40002                          │    │
+│  │  192.168.1.12:50003 ◄──► 203.0.113.1:40003                          │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>IPv6 Basics</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>IPv4</th>
+                                <th>IPv6</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Address Size</strong></td>
+                                <td>32 bits</td>
+                                <td>128 bits</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Format</strong></td>
+                                <td>Dotted decimal (192.168.1.1)</td>
+                                <td>Hexadecimal (2001:db8::1)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Address Space</strong></td>
+                                <td>~4.3 billion</td>
+                                <td>~340 undecillion</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NAT Required</strong></td>
+                                <td>Yes (commonly)</td>
+                                <td>No (enough addresses)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Autoconfiguration</strong></td>
+                                <td>DHCP</td>
+                                <td>SLAAC or DHCPv6</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>Common IP addressing tasks:</strong></p>
+                        <ul>
+                            <li><strong>Firewall rules:</strong> Specify source/destination networks correctly</li>
+                            <li><strong>Network design:</strong> Plan IP schemes for segmentation</li>
+                            <li><strong>Troubleshooting:</strong> Verify IP is in correct subnet</li>
+                            <li><strong>Cloud VPCs:</strong> Design non-overlapping CIDR blocks</li>
+                            <li><strong>VPN setup:</strong> Ensure no subnet conflicts between sites</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "Given 10.0.0.0/22, how many hosts can you have?"</p>
+                        <p><strong>Quick Calculation:</strong></p>
+                        <ol>
+                            <li>/22 means 22 network bits, 10 host bits (32-22=10)</li>
+                            <li>2^10 = 1,024 total addresses</li>
+                            <li>1,024 - 2 = 1,022 usable hosts (minus network and broadcast)</li>
+                        </ol>
+                        <p><strong>Shortcut:</strong> For /24: 254 hosts. Each bit you borrow (/25, /26...) halves it. Each bit you add (/23, /22...) doubles it. /22 = 254 × 4 = ~1,016 hosts.</p>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="1-2-tcpip.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">TCP/IP Networking</span>
+                        </div>
+                    </a>
+                    <a href="1-4-dns.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">DNS</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

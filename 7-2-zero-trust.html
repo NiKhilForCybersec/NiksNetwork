@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Zero Trust Network Architecture - Complete guide to ZTNA principles, implementation strategies, and maturity models">
+    <title>Zero Trust Network Architecture | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 7: SASE & Zero Trust (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">☁️</span>
+                            SASE & Zero Trust
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="7-1-sase.html" class="nav-link"><span class="nav-link-number">7.1</span> SASE Architecture</a>
+                        <a href="7-2-zero-trust.html" class="nav-link active"><span class="nav-link-number">7.2</span> Zero Trust Architecture</a>
+                        <a href="7-3-zscaler-platform.html" class="nav-link"><span class="nav-link-number">7.3</span> Zscaler Platform</a>
+                        <a href="7-4-prisma-access.html" class="nav-link"><span class="nav-link-number">7.4</span> Palo Alto Prisma</a>
+                        <a href="7-5-netskope.html" class="nav-link"><span class="nav-link-number">7.5</span> Netskope</a>
+                        <a href="7-6-sdwan-security.html" class="nav-link"><span class="nav-link-number">7.6</span> SD-WAN Security</a>
+                        <a href="7-7-casb.html" class="nav-link"><span class="nav-link-number">7.7</span> CASB</a>
+                        <a href="7-8-zero-trust-implementation.html" class="nav-link"><span class="nav-link-number">7.8</span> Implementing Zero Trust</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">SASE & Zero Trust</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Zero Trust Architecture</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>Zero Trust Network Architecture (ZTNA)</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Zero Trust is a security model that eliminates implicit trust and requires continuous verification of every user, device, and connection. This paradigm shift from traditional perimeter-based security is essential for modern distributed environments.</p>
+                        <ul>
+                            <li>Core Zero Trust principles and philosophy</li>
+                            <li>"Never trust, always verify" in practice</li>
+                            <li>The five pillars of Zero Trust</li>
+                            <li>Zero Trust vs traditional network security</li>
+                            <li>Implementation frameworks (NIST, Forrester, Gartner)</li>
+                            <li>Maturity models and roadmap</li>
+                            <li>Real-world implementation strategies</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>What is Zero Trust?</h2>
+                
+                <p>Zero Trust is a security model based on the principle of <strong>"never trust, always verify."</strong> It assumes that threats exist both outside and inside the network, and no user, device, or connection should be implicitly trusted regardless of their location.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Traditional Security vs Zero Trust</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│              TRADITIONAL (PERIMETER) SECURITY MODEL                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│           UNTRUSTED                    │              TRUSTED                │
+│          (Internet)                    │         (Internal Network)          │
+│                                        │                                     │
+│    ┌──────────┐                  ┌─────┴─────┐                              │
+│    │ Attacker │ ──── X ─────────►│ FIREWALL  │                              │
+│    └──────────┘     BLOCKED      └─────┬─────┘                              │
+│                                        │                                     │
+│    ┌──────────┐                        │         ┌──────────────────────┐   │
+│    │  Users   │ ───────────────────────┼────────►│  FREE ACCESS TO      │   │
+│    └──────────┘    VPN CONNECTED       │         │  EVERYTHING INSIDE   │   │
+│                                        │         │  (Flat network)       │   │
+│                                        │         └──────────────────────┘   │
+│                                                                              │
+│    PROBLEM: Once inside, attackers move laterally with ease                 │
+│             "Hard shell, soft center"                                        │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         ZERO TRUST SECURITY MODEL                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│    EVERY ACCESS REQUEST IS VERIFIED - REGARDLESS OF LOCATION                │
+│                                                                              │
+│    ┌──────────────────────────────────────────────────────────────────┐     │
+│    │                    POLICY DECISION POINT                          │     │
+│    │                                                                   │     │
+│    │  VERIFY:                                                          │     │
+│    │  ✓ User Identity (MFA)                                           │     │
+│    │  ✓ Device Health (Compliant?)                                    │     │
+│    │  ✓ Context (Location, Time, Behavior)                            │     │
+│    │  ✓ Resource Sensitivity                                          │     │
+│    │  ✓ Least Privilege Access                                        │     │
+│    └──────────────────────────────────────────────────────────────────┘     │
+│              │                    │                    │                     │
+│              ▼                    ▼                    ▼                     │
+│    ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐            │
+│    │    App A        │  │    App B        │  │    Database     │            │
+│    │                 │  │                 │  │                 │            │
+│    │  User can only  │  │  User denied -  │  │  User denied -  │            │
+│    │  access this    │  │  no business    │  │  not authorized │            │
+│    │  (verified)     │  │  need           │  │                 │            │
+│    └─────────────────┘  └─────────────────┘  └─────────────────┘            │
+│                                                                              │
+│    BENEFIT: Even if attacker compromises one user, access is limited        │
+│             Each resource access is independently verified                   │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Core Zero Trust Principles</h2>
+                
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Never Trust, Always Verify</h4>
+                            <p>Every access request must be authenticated, authorized, and encrypted before granting access. There is no implicit trust based on network location, IP address, or previous access.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Assume Breach</h4>
+                            <p>Operate as if attackers are already inside your network. Minimize blast radius through segmentation, verify end-to-end encryption, and use analytics to detect anomalies.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Verify Explicitly</h4>
+                            <p>Authenticate and authorize based on all available data points: user identity, device health, location, service/workload, data classification, and anomalies.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>Least Privilege Access</h4>
+                            <p>Limit user access with Just-In-Time (JIT) and Just-Enough-Access (JEA). Users get only the minimum permissions needed for their specific task, only when needed.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <h2>The Five Pillars of Zero Trust</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Zero Trust Pillars (NIST Framework)</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      ZERO TRUST - FIVE PILLARS                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐ │
+│  │           │  │           │  │           │  │           │  │           │ │
+│  │ IDENTITY  │  │  DEVICE   │  │  NETWORK  │  │APPLICATION│  │   DATA    │ │
+│  │           │  │           │  │           │  │           │  │           │ │
+│  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘ │
+│        │              │              │              │              │        │
+│        ▼              ▼              ▼              ▼              ▼        │
+│  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐ │
+│  │• MFA      │  │• Health   │  │• Micro-   │  │• Secure   │  │• Classify │ │
+│  │• SSO      │  │  checks   │  │  segment- │  │  access   │  │• Encrypt  │ │
+│  │• Identity │  │• Inventory│  │  ation    │  │• Runtime  │  │• DLP      │ │
+│  │  govern-  │  │• Compliance│  │• ZTNA    │  │  protect- │  │• Rights   │ │
+│  │  ance     │  │• EDR/XDR  │  │• SDP      │  │  ion      │  │  mgmt     │ │
+│  │• Risk-    │  │• Patch    │  │• Encrypt  │  │• API      │  │• Backup   │ │
+│  │  based    │  │  mgmt     │  │  traffic  │  │  security │  │           │ │
+│  │  access   │  │           │  │           │  │           │  │           │ │
+│  └───────────┘  └───────────┘  └───────────┘  └───────────┘  └───────────┘ │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│                    VISIBILITY & ANALYTICS                                    │
+│        ┌────────────────────────────────────────────────────────┐           │
+│        │  • SIEM/SOAR integration                               │           │
+│        │  • User and Entity Behavior Analytics (UEBA)           │           │
+│        │  • Continuous monitoring and threat detection          │           │
+│        │  • Security posture assessment                         │           │
+│        └────────────────────────────────────────────────────────┘           │
+│                                                                              │
+│                    AUTOMATION & ORCHESTRATION                                │
+│        ┌────────────────────────────────────────────────────────┐           │
+│        │  • Automated response to threats                       │           │
+│        │  • Policy enforcement automation                       │           │
+│        │  • Integration between security tools                  │           │
+│        └────────────────────────────────────────────────────────┘           │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h3>Pillar 1: Identity</h3>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Capability</th>
+                                <th>Description</th>
+                                <th>Technologies</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Strong Authentication</strong></td>
+                                <td>MFA required for all access, phishing-resistant methods preferred</td>
+                                <td>Okta, Azure AD, Duo, FIDO2/WebAuthn</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Single Sign-On</strong></td>
+                                <td>Centralized authentication for all applications</td>
+                                <td>SAML, OIDC, Azure AD, Okta</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Identity Governance</strong></td>
+                                <td>Lifecycle management, access reviews, certification</td>
+                                <td>SailPoint, Saviynt, Azure AD PIM</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Risk-Based Access</strong></td>
+                                <td>Adaptive authentication based on risk score</td>
+                                <td>Azure AD Conditional Access, Okta Adaptive MFA</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h3>Pillar 2: Device</h3>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Capability</th>
+                                <th>Description</th>
+                                <th>Technologies</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Device Inventory</strong></td>
+                                <td>Complete visibility into all devices accessing resources</td>
+                                <td>Intune, JAMF, ServiceNow CMDB</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Health Checks</strong></td>
+                                <td>Verify device compliance before granting access</td>
+                                <td>NAC, MDM/UEM, Conditional Access</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Endpoint Protection</strong></td>
+                                <td>EDR/XDR for threat detection and response</td>
+                                <td>CrowdStrike, Microsoft Defender, SentinelOne</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Patch Management</strong></td>
+                                <td>Ensure devices are updated and patched</td>
+                                <td>WSUS, Intune, Tanium</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h3>Pillar 3: Network</h3>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Capability</th>
+                                <th>Description</th>
+                                <th>Technologies</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Micro-segmentation</strong></td>
+                                <td>Granular network segmentation at workload level</td>
+                                <td>VMware NSX, Illumio, Guardicore</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Software-Defined Perimeter</strong></td>
+                                <td>Hide infrastructure from unauthorized users</td>
+                                <td>Zscaler ZPA, Appgate, Perimeter 81</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Encrypted Traffic</strong></td>
+                                <td>Encrypt all traffic, even internal</td>
+                                <td>mTLS, WireGuard, IPSec</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ZTNA</strong></td>
+                                <td>Replace VPN with application-specific access</td>
+                                <td>Zscaler, Palo Alto Prisma, Netskope</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - VPN vs ZTNA</div>
+                    <div class="callout-content">
+                        <p><strong>Traditional VPN limitations:</strong></p>
+                        <ul>
+                            <li>Grants network-level access (user gets access to entire subnet)</li>
+                            <li>Static access policies (once connected, always connected)</li>
+                            <li>Complex to scale with thousands of users</li>
+                            <li>Attack surface exposure (VPN concentrator as target)</li>
+                        </ul>
+                        <p><strong>ZTNA advantages:</strong></p>
+                        <ul>
+                            <li>Application-level access (user only sees specific apps they need)</li>
+                            <li>Dynamic, context-aware policies</li>
+                            <li>Cloud-native scaling</li>
+                            <li>Reduced attack surface (apps not exposed to internet)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Zero Trust Maturity Model</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Zero Trust Maturity Levels</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ZERO TRUST MATURITY MODEL                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  LEVEL 1: TRADITIONAL                                                       │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  • Perimeter-based security                                         │    │
+│  │  • Basic password authentication                                    │    │
+│  │  • Limited visibility into assets                                   │    │
+│  │  • Manual security processes                                        │    │
+│  │  • Flat internal network                                            │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  LEVEL 2: INITIAL                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  • MFA for critical systems                                         │    │
+│  │  • Basic device inventory                                           │    │
+│  │  • Some network segmentation (VLANs)                                │    │
+│  │  • SIEM for logging                                                 │    │
+│  │  • SSO for some applications                                        │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  LEVEL 3: ADVANCED                                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  • MFA everywhere, risk-based authentication                        │    │
+│  │  • Device health verification for access                            │    │
+│  │  • Micro-segmentation for critical workloads                        │    │
+│  │  • Conditional access policies                                      │    │
+│  │  • EDR/XDR deployed                                                 │    │
+│  │  • Data classification in progress                                  │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  LEVEL 4: OPTIMAL                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  • Continuous verification of all access                            │    │
+│  │  • Full micro-segmentation                                          │    │
+│  │  • Automated threat response                                        │    │
+│  │  • Real-time risk scoring                                           │    │
+│  │  • Dynamic policies based on behavior                               │    │
+│  │  • End-to-end encryption everywhere                                 │    │
+│  │  • Integrated security analytics                                    │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Implementation Roadmap</h2>
+                
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Phase 1: Foundation (Months 1-3)</h4>
+                            <p><strong>Focus: Identity & Visibility</strong></p>
+                            <ul>
+                                <li>Implement MFA for all users (start with privileged accounts)</li>
+                                <li>Deploy SSO for all applications</li>
+                                <li>Create asset inventory (users, devices, applications, data)</li>
+                                <li>Map data flows and access patterns</li>
+                                <li>Establish baseline security metrics</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Phase 2: Device Security (Months 4-6)</h4>
+                            <p><strong>Focus: Device Trust & Endpoint Protection</strong></p>
+                            <ul>
+                                <li>Deploy EDR/XDR to all endpoints</li>
+                                <li>Implement device compliance policies</li>
+                                <li>Create conditional access based on device health</li>
+                                <li>Establish patch management baseline</li>
+                                <li>Begin pilot of ZTNA for select applications</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Phase 3: Network Segmentation (Months 7-12)</h4>
+                            <p><strong>Focus: Micro-segmentation & ZTNA</strong></p>
+                            <ul>
+                                <li>Implement micro-segmentation for critical workloads</li>
+                                <li>Expand ZTNA to replace traditional VPN</li>
+                                <li>Deploy east-west firewalling</li>
+                                <li>Encrypt internal traffic</li>
+                                <li>Implement network visibility and analytics</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>Phase 4: Data & Continuous Improvement (Ongoing)</h4>
+                            <p><strong>Focus: Data Protection & Automation</strong></p>
+                            <ul>
+                                <li>Classify sensitive data</li>
+                                <li>Implement DLP policies</li>
+                                <li>Deploy automated threat response</li>
+                                <li>Implement UEBA for anomaly detection</li>
+                                <li>Continuous policy refinement based on analytics</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Common Implementation Mistakes</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Trying to do everything at once:</strong> Zero Trust is a journey, not a destination. Start with quick wins (MFA) and build incrementally.</li>
+                            <li><strong>Ignoring user experience:</strong> If security is too cumbersome, users will find workarounds. Balance security with usability.</li>
+                            <li><strong>Focusing only on network:</strong> Zero Trust is about identity, devices, applications, and data - not just network segmentation.</li>
+                            <li><strong>Underestimating legacy systems:</strong> Plan for systems that can't support modern authentication.</li>
+                            <li><strong>Not measuring progress:</strong> Establish metrics to track maturity improvement.</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Zero Trust Technologies</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Purpose</th>
+                                <th>Example Solutions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Identity Provider (IdP)</strong></td>
+                                <td>Centralized authentication, SSO, MFA</td>
+                                <td>Okta, Azure AD, Ping Identity</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ZTNA / SDP</strong></td>
+                                <td>Secure application access without VPN</td>
+                                <td>Zscaler ZPA, Palo Alto Prisma, Cloudflare Access</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Micro-segmentation</strong></td>
+                                <td>Granular workload isolation</td>
+                                <td>Illumio, VMware NSX, Guardicore</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CASB</strong></td>
+                                <td>Cloud application security</td>
+                                <td>Netskope, McAfee MVISION, Microsoft Defender for Cloud Apps</td>
+                            </tr>
+                            <tr>
+                                <td><strong>UEM/MDM</strong></td>
+                                <td>Device management and compliance</td>
+                                <td>Intune, JAMF, VMware Workspace ONE</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EDR/XDR</strong></td>
+                                <td>Endpoint threat detection and response</td>
+                                <td>CrowdStrike, Microsoft Defender, SentinelOne</td>
+                            </tr>
+                            <tr>
+                                <td><strong>PAM</strong></td>
+                                <td>Privileged access management</td>
+                                <td>CyberArk, BeyondTrust, HashiCorp Vault</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Day-to-Day Tasks -->
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks in Zero Trust Environment</div>
+                    <div class="callout-content">
+                        <p><strong>As a Security Engineer in a Zero Trust environment:</strong></p>
+                        <ul>
+                            <li><strong>Access reviews:</strong> Verify that access policies are appropriate and up-to-date</li>
+                            <li><strong>Policy tuning:</strong> Adjust conditional access rules based on user feedback and false positives</li>
+                            <li><strong>Device compliance:</strong> Monitor device health dashboards, remediate non-compliant devices</li>
+                            <li><strong>Incident response:</strong> Investigate access anomalies flagged by UEBA</li>
+                            <li><strong>Segmentation:</strong> Update micro-segmentation rules for new applications</li>
+                            <li><strong>Reporting:</strong> Generate compliance reports showing Zero Trust posture</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "Explain Zero Trust and how you would implement it."</p>
+                        <p><strong>Framework for answering:</strong></p>
+                        <ol>
+                            <li><strong>Define it:</strong> "Zero Trust is a security model based on 'never trust, always verify' - every access request is authenticated and authorized regardless of location."</li>
+                            <li><strong>Contrast with traditional:</strong> "Unlike perimeter security where being on the network grants trust, Zero Trust assumes breach and verifies every transaction."</li>
+                            <li><strong>Name the pillars:</strong> "It's built on five pillars: identity, device, network, application, and data."</li>
+                            <li><strong>Implementation approach:</strong> "I would start with quick wins - MFA everywhere and SSO - then progressively add device compliance checks, migrate from VPN to ZTNA, and implement micro-segmentation."</li>
+                            <li><strong>Specific technologies:</strong> Mention solutions you've worked with or know (Okta, Zscaler, etc.)</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="7-1-sase.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">SASE Architecture</span>
+                        </div>
+                    </a>
+                    <a href="7-3-zscaler-platform.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Zscaler Platform</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

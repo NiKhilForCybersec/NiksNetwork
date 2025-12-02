@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Network Security Interview Questions - 100+ questions with detailed answers covering firewalls, VPNs, WAF, IDS/IPS, and more">
+    <title>Interview Questions | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 15: Resources (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">📚</span>
+                            Resources & Reference
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="15-1-glossary.html" class="nav-link"><span class="nav-link-number">15.1</span> Glossary</a>
+                        <a href="15-2-interview-questions.html" class="nav-link active"><span class="nav-link-number">15.2</span> Interview Questions</a>
+                        <a href="15-3-scenarios.html" class="nav-link"><span class="nav-link-number">15.3</span> Scenario Walkthroughs</a>
+                        <a href="15-4-cheat-sheets.html" class="nav-link"><span class="nav-link-number">15.4</span> Command Cheat Sheets</a>
+                        <a href="15-5-templates.html" class="nav-link"><span class="nav-link-number">15.5</span> Configuration Templates</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Resources</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Interview Questions</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>Network Security Interview Questions</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 Interview Preparation Guide</div>
+                    <div class="overview-content">
+                        <p>This comprehensive collection of interview questions covers all major network security topics. Questions range from fundamental concepts to advanced troubleshooting scenarios, suitable for L1 SOC Analyst through Senior Security Engineer roles.</p>
+                        <ul>
+                            <li>100+ questions with detailed answers</li>
+                            <li>Organized by topic area</li>
+                            <li>Real-world scenario questions</li>
+                            <li>Tips for structuring your answers</li>
+                            <li>Common follow-up questions</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Networking Fundamentals</h2>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q1: Explain the OSI model and where different security devices operate.</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong> The OSI model has 7 layers. Security devices operate at different layers:</p>
+                        <ul>
+                            <li><strong>Layer 7 (Application):</strong> WAF, Proxy servers, Application firewalls - inspect HTTP/HTTPS content</li>
+                            <li><strong>Layer 4 (Transport):</strong> Stateful firewalls, IDS/IPS - track TCP/UDP connections</li>
+                            <li><strong>Layer 3 (Network):</strong> Router ACLs, packet filter firewalls, VPN gateways - filter by IP</li>
+                            <li><strong>Layer 2 (Data Link):</strong> Switches with port security, 802.1X NAC - MAC-based controls</li>
+                        </ul>
+                        <p><strong>Key point:</strong> NGFWs operate across layers 3-7, providing deep packet inspection.</p>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q2: What's the difference between TCP and UDP? When would you use each?</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>TCP:</strong> Connection-oriented, reliable delivery, ordered packets, error checking. Uses 3-way handshake (SYN, SYN-ACK, ACK). Used for HTTP, HTTPS, SSH, FTP - where data integrity matters.</li>
+                            <li><strong>UDP:</strong> Connectionless, no delivery guarantee, faster, lower overhead. Used for DNS, NTP, VoIP, streaming - where speed matters more than guaranteed delivery.</li>
+                        </ul>
+                        <p><strong>Security implication:</strong> UDP is easier to spoof (no handshake verification), making it popular for DDoS amplification attacks (DNS, NTP). TCP SYN floods target the handshake mechanism.</p>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q3: Explain the TCP three-way handshake and how SYN flood attacks exploit it.</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong></p>
+                        <p><strong>Three-way handshake:</strong></p>
+                        <ol>
+                            <li>Client sends SYN (synchronize) packet</li>
+                            <li>Server responds with SYN-ACK</li>
+                            <li>Client sends ACK - connection established</li>
+                        </ol>
+                        <p><strong>SYN Flood Attack:</strong> Attacker sends thousands of SYN packets with spoofed source IPs. Server allocates resources for each half-open connection waiting for the ACK that never comes. This exhausts server's connection table.</p>
+                        <p><strong>Mitigations:</strong> SYN cookies (don't allocate resources until handshake completes), rate limiting, firewall rules, dedicated DDoS protection.</p>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q4: What is ARP and how can it be exploited?</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong></p>
+                        <p><strong>ARP (Address Resolution Protocol):</strong> Maps IP addresses to MAC addresses on a local network. When a device needs to communicate, it broadcasts "Who has IP X?" and the owner responds with its MAC address.</p>
+                        <p><strong>ARP Spoofing/Poisoning:</strong> Attacker sends fake ARP replies, associating their MAC with another IP (like the gateway). Traffic intended for the gateway goes to the attacker instead - enabling man-in-the-middle attacks.</p>
+                        <p><strong>Mitigations:</strong></p>
+                        <ul>
+                            <li>Dynamic ARP Inspection (DAI) on switches</li>
+                            <li>Static ARP entries for critical systems</li>
+                            <li>DHCP Snooping (validates ARP against DHCP bindings)</li>
+                            <li>Network segmentation (VLANs)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q5: Explain VLAN hopping and how to prevent it.</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong></p>
+                        <p><strong>VLAN Hopping:</strong> Technique to access traffic on other VLANs that should be isolated. Two main methods:</p>
+                        <ol>
+                            <li><strong>Switch Spoofing:</strong> Attacker's device negotiates a trunk link with the switch using DTP, gaining access to all VLANs</li>
+                            <li><strong>Double Tagging:</strong> Attacker sends frame with two 802.1Q tags. First tag matches native VLAN (stripped by first switch), second tag directs to target VLAN</li>
+                        </ol>
+                        <p><strong>Prevention:</strong></p>
+                        <ul>
+                            <li>Disable DTP on all access ports: <code>switchport nonegotiate</code></li>
+                            <li>Set native VLAN to unused VLAN (not VLAN 1)</li>
+                            <li>Explicitly configure access ports: <code>switchport mode access</code></li>
+                            <li>Tag native VLAN on trunks: <code>vlan dot1q tag native</code></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Firewall Questions</h2>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q6: What is the difference between a stateless and stateful firewall?</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong></p>
+                        <p><strong>Stateless (Packet Filter):</strong></p>
+                        <ul>
+                            <li>Examines each packet independently</li>
+                            <li>Decides based only on source/dest IP and port</li>
+                            <li>No memory of previous packets</li>
+                            <li>Fast but limited security</li>
+                            <li>Requires explicit rules for return traffic</li>
+                        </ul>
+                        <p><strong>Stateful:</strong></p>
+                        <ul>
+                            <li>Tracks connection state (NEW, ESTABLISHED, RELATED)</li>
+                            <li>Maintains state table of active connections</li>
+                            <li>Automatically allows return traffic for established connections</li>
+                            <li>Can detect out-of-state packets (potential attacks)</li>
+                            <li>More secure but requires more resources</li>
+                        </ul>
+                        <p><strong>Example:</strong> With stateful, you create one rule "allow outbound HTTPS" and return traffic is automatically permitted. Stateless would need rules in both directions.</p>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q7: What makes a Next-Generation Firewall (NGFW) different from traditional firewalls?</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong> NGFWs have three key capabilities beyond traditional firewalls:</p>
+                        <ol>
+                            <li><strong>Application Awareness:</strong> Identifies applications regardless of port (detects Skype on port 443, not just "HTTPS"). Uses deep packet inspection and behavioral analysis.</li>
+                            <li><strong>User Identity Integration:</strong> Maps traffic to users via AD/LDAP integration. Enables policies like "Allow Marketing group to use social media."</li>
+                            <li><strong>Integrated Threat Prevention:</strong> Built-in IPS, antimalware, URL filtering, sandboxing - not separate devices.</li>
+                        </ol>
+                        <p><strong>Additional NGFW features:</strong> SSL/TLS decryption, threat intelligence feeds, cloud-based analysis, integration with SIEM/SOAR.</p>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q8: How do you design firewall rules following best practices?</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong></p>
+                        <ol>
+                            <li><strong>Default deny:</strong> Block everything by default, explicitly allow required traffic</li>
+                            <li><strong>Least privilege:</strong> Allow only the minimum necessary access</li>
+                            <li><strong>Specific before general:</strong> More specific rules first, catch-all rules last</li>
+                            <li><strong>Document everything:</strong> Each rule should have description, owner, business justification</li>
+                            <li><strong>Regular review:</strong> Audit rules quarterly, remove unused rules</li>
+                            <li><strong>Use groups:</strong> Group similar sources/destinations for easier management</li>
+                            <li><strong>Avoid "any any":</strong> Be specific about sources, destinations, and services</li>
+                            <li><strong>Enable logging:</strong> Log denies and critical allows for visibility</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q9: A user reports they can't access a web application. How do you troubleshoot if it's a firewall issue?</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong> Systematic approach:</p>
+                        <ol>
+                            <li><strong>Verify the symptom:</strong> What exactly fails? Connection timeout? Refused? Error page?</li>
+                            <li><strong>Check connectivity basics:</strong> Can you ping the server? Traceroute shows path?</li>
+                            <li><strong>Check firewall logs:</strong> Search for traffic from user's IP to app's IP/port. Look for deny entries.</li>
+                            <li><strong>Policy lookup:</strong> Use firewall's policy test feature (Palo Alto: "test security-policy-match")</li>
+                            <li><strong>Packet capture:</strong> Capture on firewall to see if traffic arrives and what happens</li>
+                            <li><strong>Check NAT:</strong> If NAT involved, verify correct translation</li>
+                            <li><strong>Session table:</strong> See if session is being created/dropped</li>
+                        </ol>
+                        <p><strong>Commands (Palo Alto):</strong></p>
+                        <ul>
+                            <li><code>show session all filter source 10.1.1.100 destination 192.168.1.50</code></li>
+                            <li><code>test security-policy-match source 10.1.1.100 destination 192.168.1.50 protocol 6 destination-port 443</code></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q10: Explain SSL/TLS inspection on firewalls. What are the security and privacy considerations?</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong></p>
+                        <p><strong>How it works:</strong></p>
+                        <ol>
+                            <li>Firewall terminates the client's SSL connection (acts as server)</li>
+                            <li>Decrypts and inspects the traffic</li>
+                            <li>Creates new SSL connection to actual server (acts as client)</li>
+                            <li>This is essentially a controlled man-in-the-middle</li>
+                        </ol>
+                        <p><strong>Requirements:</strong></p>
+                        <ul>
+                            <li>CA certificate deployed to all endpoints (they trust firewall-signed certs)</li>
+                            <li>Significant CPU resources on firewall</li>
+                            <li>Certificate handling for sites with pinned certs</li>
+                        </ul>
+                        <p><strong>Considerations:</strong></p>
+                        <ul>
+                            <li><strong>Security benefit:</strong> Can detect malware, C2, data exfiltration in HTTPS</li>
+                            <li><strong>Privacy:</strong> Must exclude sensitive categories (healthcare, banking, HR systems)</li>
+                            <li><strong>Legal:</strong> May need employee notification depending on jurisdiction</li>
+                            <li><strong>Performance:</strong> Reduces throughput significantly (often 80%+ reduction)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>VPN Questions</h2>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q11: What is the difference between IKE Phase 1 and Phase 2?</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong></p>
+                        <p><strong>Phase 1 (ISAKMP SA):</strong></p>
+                        <ul>
+                            <li>Establishes secure, authenticated channel between VPN peers</li>
+                            <li>Negotiates encryption, hash, DH group, authentication method</li>
+                            <li>Creates management tunnel to protect Phase 2 negotiation</li>
+                            <li>Uses Main Mode (6 messages, secure) or Aggressive Mode (3 messages, faster but less secure)</li>
+                            <li>Longer lifetime (8 hours typical)</li>
+                        </ul>
+                        <p><strong>Phase 2 (IPSec SA):</strong></p>
+                        <ul>
+                            <li>Negotiates parameters for actual data encryption</li>
+                            <li>Defines "interesting traffic" (proxy IDs/selectors)</li>
+                            <li>Creates the tunnel that encrypts user traffic</li>
+                            <li>Multiple Phase 2 tunnels can use one Phase 1</li>
+                            <li>Shorter lifetime (1 hour typical)</li>
+                            <li>Optional PFS (new DH exchange for each rekey)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q12: A VPN tunnel is not coming up. Walk me through your troubleshooting process.</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong> Systematic approach:</p>
+                        <ol>
+                            <li><strong>Verify basic connectivity:</strong>
+                                <ul>
+                                    <li>Can peers reach each other? (ping remote public IP)</li>
+                                    <li>Is UDP 500 and 4500 open? (check intervening firewalls)</li>
+                                </ul>
+                            </li>
+                            <li><strong>Check Phase 1:</strong>
+                                <ul>
+                                    <li>Do proposals match exactly? (encryption, hash, DH group, lifetime)</li>
+                                    <li>Is authentication correct? (PSK matches, certificates valid)</li>
+                                    <li>Check for "no proposal chosen" errors</li>
+                                </ul>
+                            </li>
+                            <li><strong>Check Phase 2:</strong>
+                                <ul>
+                                    <li>Do proxy IDs match? (common cause - mismatch in network definitions)</li>
+                                    <li>Do transform sets match?</li>
+                                    <li>Is PFS configured the same on both sides?</li>
+                                </ul>
+                            </li>
+                            <li><strong>Common issues:</strong>
+                                <ul>
+                                    <li>NAT-T issues if behind NAT (need UDP 4500)</li>
+                                    <li>Asymmetric routing</li>
+                                    <li>MTU/fragmentation problems</li>
+                                </ul>
+                            </li>
+                        </ol>
+                        <p><strong>Debug commands:</strong> <code>show vpn ike-sa</code>, <code>show vpn ipsec-sa</code>, enable IKE debugging</p>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q13: What is Perfect Forward Secrecy (PFS) and why is it important?</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong></p>
+                        <p><strong>Definition:</strong> PFS ensures that if a long-term key (like Phase 1 key) is compromised, attackers cannot decrypt previously captured traffic.</p>
+                        <p><strong>How it works:</strong> With PFS enabled, each Phase 2 rekey performs a new Diffie-Hellman exchange, generating fresh keys independent of Phase 1 keys.</p>
+                        <p><strong>Without PFS:</strong> Phase 2 keys are derived from Phase 1 keys. If Phase 1 is compromised, attacker can calculate all Phase 2 keys and decrypt historical captures.</p>
+                        <p><strong>With PFS:</strong> Each Phase 2 has its own DH exchange. Compromising one session doesn't affect others.</p>
+                        <p><strong>Best practice:</strong> Always enable PFS using DH Group 14 or higher. The small performance overhead is worth the significant security benefit.</p>
+                    </div>
+                </div>
+                
+                <h2>WAF & Web Security Questions</h2>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q14: What is the difference between a WAF and a network firewall?</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong></p>
+                        <p><strong>Network Firewall:</strong></p>
+                        <ul>
+                            <li>Operates at Layers 3-4 (or 3-7 for NGFW)</li>
+                            <li>Controls traffic based on IP, port, protocol</li>
+                            <li>Protects network perimeter</li>
+                            <li>Stops unauthorized access</li>
+                        </ul>
+                        <p><strong>WAF (Web Application Firewall):</strong></p>
+                        <ul>
+                            <li>Operates at Layer 7 (Application layer)</li>
+                            <li>Understands HTTP/HTTPS protocol deeply</li>
+                            <li>Inspects request content, headers, parameters, body</li>
+                            <li>Protects against application attacks: SQL injection, XSS, CSRF</li>
+                            <li>Typically deployed in front of web servers</li>
+                        </ul>
+                        <p><strong>Key difference:</strong> Network firewall might allow HTTPS (port 443), but can't see the SQL injection in the request body. WAF can inspect the decrypted content and block the attack.</p>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q15: Explain SQL injection and how a WAF detects it.</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong></p>
+                        <p><strong>SQL Injection:</strong> Attacker inserts malicious SQL code into input fields that get executed by the database.</p>
+                        <p><strong>Example:</strong> Login form with username field:</p>
+                        <ul>
+                            <li>Normal: <code>john_doe</code></li>
+                            <li>Attack: <code>' OR '1'='1' --</code></li>
+                            <li>Query becomes: <code>SELECT * FROM users WHERE username='' OR '1'='1' --'</code></li>
+                            <li>This returns all users, bypassing authentication</li>
+                        </ul>
+                        <p><strong>WAF Detection Methods:</strong></p>
+                        <ol>
+                            <li><strong>Signature-based:</strong> Looks for patterns like <code>' OR</code>, <code>UNION SELECT</code>, <code>; DROP TABLE</code></li>
+                            <li><strong>Anomaly-based:</strong> Detects unusual characters in parameters (single quotes, semicolons where not expected)</li>
+                            <li><strong>Positive security model:</strong> Only allows known-good input patterns</li>
+                        </ol>
+                        <p><strong>WAF action:</strong> Block request, log attempt, optionally return custom error page</p>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q16: How do you handle false positives in a WAF?</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong></p>
+                        <ol>
+                            <li><strong>Identify the false positive:</strong>
+                                <ul>
+                                    <li>Review blocked request details in WAF logs</li>
+                                    <li>Determine which rule triggered</li>
+                                    <li>Understand why legitimate traffic matched</li>
+                                </ul>
+                            </li>
+                            <li><strong>Options for remediation:</strong>
+                                <ul>
+                                    <li><strong>Create exception:</strong> Whitelist specific URL/parameter combination</li>
+                                    <li><strong>Adjust rule:</strong> Modify detection sensitivity if configurable</li>
+                                    <li><strong>Disable rule:</strong> Last resort - document why and compensating controls</li>
+                                </ul>
+                            </li>
+                            <li><strong>Best practices:</strong>
+                                <ul>
+                                    <li>Start in detection/monitor mode before blocking</li>
+                                    <li>Test with real traffic to tune before production</li>
+                                    <li>Create narrow exceptions (specific URL + parameter, not broad)</li>
+                                    <li>Document all exceptions with business justification</li>
+                                    <li>Review exceptions periodically</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <h2>IDS/IPS Questions</h2>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q17: What is the difference between IDS and IPS?</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong></p>
+                        <p><strong>IDS (Intrusion Detection System):</strong></p>
+                        <ul>
+                            <li>Passive monitoring - copies of traffic (span port or TAP)</li>
+                            <li>Detects and alerts on suspicious activity</li>
+                            <li>Does NOT block traffic</li>
+                            <li>No impact if fails (traffic continues to flow)</li>
+                            <li>Used for visibility and forensics</li>
+                        </ul>
+                        <p><strong>IPS (Intrusion Prevention System):</strong></p>
+                        <ul>
+                            <li>Inline deployment - traffic passes through it</li>
+                            <li>Detects AND blocks malicious traffic</li>
+                            <li>Can drop packets, reset connections, block IPs</li>
+                            <li>Higher risk - misconfiguration can cause outages</li>
+                            <li>Requires careful tuning to avoid false positives</li>
+                        </ul>
+                        <p><strong>Modern reality:</strong> Most deployments use IPS (inline), but start in IDS/detection mode while tuning, then enable blocking once confidence is high.</p>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q18: Explain signature-based vs anomaly-based detection.</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong></p>
+                        <p><strong>Signature-based:</strong></p>
+                        <ul>
+                            <li>Matches traffic against known attack patterns (signatures)</li>
+                            <li>Very accurate for known threats (low false positives)</li>
+                            <li>Cannot detect zero-day/novel attacks</li>
+                            <li>Requires regular signature updates</li>
+                            <li>Example: Looking for <code>/etc/passwd</code> in web requests</li>
+                        </ul>
+                        <p><strong>Anomaly-based:</strong></p>
+                        <ul>
+                            <li>Learns normal behavior baseline</li>
+                            <li>Alerts on deviations from normal</li>
+                            <li>Can detect unknown/zero-day attacks</li>
+                            <li>Higher false positive rate</li>
+                            <li>Requires training period</li>
+                            <li>Example: User suddenly downloading 10GB when normal is 100MB</li>
+                        </ul>
+                        <p><strong>Best practice:</strong> Use both in combination. Signatures for known threats, anomaly detection for unusual behavior.</p>
+                    </div>
+                </div>
+                
+                <h2>Architecture & Design Questions</h2>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q19: Explain the difference between North-South and East-West traffic security.</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong></p>
+                        <p><strong>North-South Traffic:</strong></p>
+                        <ul>
+                            <li>Traffic between internal network and external (Internet)</li>
+                            <li>Traditional perimeter security focus</li>
+                            <li>Protected by edge firewalls, proxies, WAFs</li>
+                            <li>Represents minority of total traffic (~20%)</li>
+                        </ul>
+                        <p><strong>East-West Traffic:</strong></p>
+                        <ul>
+                            <li>Traffic between internal systems/segments</li>
+                            <li>Server-to-server, VM-to-VM communication</li>
+                            <li>Represents majority of data center traffic (~80%)</li>
+                            <li>Often unmonitored/uncontrolled in traditional networks</li>
+                            <li>Critical for preventing lateral movement</li>
+                        </ul>
+                        <p><strong>Modern approach:</strong> Zero Trust assumes breach; implement micro-segmentation and internal firewalls to control East-West traffic. If an attacker compromises one server, they shouldn't freely access others.</p>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q20: Design a DMZ architecture for a company hosting public web applications.</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong> Classic three-tier DMZ with dual firewalls:</p>
+                        <p><strong>Architecture:</strong></p>
+                        <ol>
+                            <li><strong>External Firewall:</strong> Between Internet and DMZ
+                                <ul>
+                                    <li>Allows: HTTPS (443) to WAF/Load Balancer</li>
+                                    <li>Denies: All other inbound</li>
+                                </ul>
+                            </li>
+                            <li><strong>DMZ Zone:</strong>
+                                <ul>
+                                    <li>WAF (inspects HTTP traffic)</li>
+                                    <li>Load Balancer</li>
+                                    <li>Web Servers (front-end only)</li>
+                                    <li>Reverse Proxy</li>
+                                </ul>
+                            </li>
+                            <li><strong>Internal Firewall:</strong> Between DMZ and Internal
+                                <ul>
+                                    <li>Allows: Web servers → App servers on specific ports (8080)</li>
+                                    <li>Allows: App servers → Database on port 1433/3306</li>
+                                    <li>Denies: Direct DMZ → Database</li>
+                                </ul>
+                            </li>
+                            <li><strong>Internal Zones:</strong>
+                                <ul>
+                                    <li>App Server tier</li>
+                                    <li>Database tier (most protected)</li>
+                                </ul>
+                            </li>
+                        </ol>
+                        <p><strong>Key principles:</strong> Defense in depth, each tier only talks to adjacent tier, database never directly exposed to DMZ.</p>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q21: What is Zero Trust Architecture and how would you implement it?</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong></p>
+                        <p><strong>Core principle:</strong> "Never trust, always verify." Assumes breach has already occurred; verify every access request regardless of location.</p>
+                        <p><strong>Key concepts:</strong></p>
+                        <ul>
+                            <li><strong>No implicit trust:</strong> Being on corporate network doesn't grant access</li>
+                            <li><strong>Verify explicitly:</strong> Authenticate and authorize every request</li>
+                            <li><strong>Least privilege:</strong> Minimum access needed for the task</li>
+                            <li><strong>Assume breach:</strong> Segment access to limit blast radius</li>
+                        </ul>
+                        <p><strong>Implementation pillars:</strong></p>
+                        <ol>
+                            <li><strong>Identity:</strong> Strong authentication (MFA), identity-based policies</li>
+                            <li><strong>Device:</strong> Device health verification, MDM compliance</li>
+                            <li><strong>Network:</strong> Micro-segmentation, software-defined perimeter</li>
+                            <li><strong>Application:</strong> Application-level authentication, API security</li>
+                            <li><strong>Data:</strong> Classification, encryption, DLP</li>
+                        </ol>
+                        <p><strong>Technologies:</strong> ZTNA solutions (Zscaler ZPA, Prisma Access), identity providers, micro-segmentation (VMware NSX), CASB</p>
+                    </div>
+                </div>
+                
+                <h2>Scenario-Based Questions</h2>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q22: You notice unusual outbound traffic from a server to an external IP on port 443. Walk me through your investigation.</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong> This could be legitimate or C2 traffic. Investigation steps:</p>
+                        <ol>
+                            <li><strong>Gather information:</strong>
+                                <ul>
+                                    <li>What server is this? What's its normal function?</li>
+                                    <li>What's the destination IP? (WHOIS, threat intel lookup)</li>
+                                    <li>How much data? How long has it been happening?</li>
+                                </ul>
+                            </li>
+                            <li><strong>Check threat intelligence:</strong>
+                                <ul>
+                                    <li>Is the IP known malicious? (VirusTotal, threat feeds)</li>
+                                    <li>Is it a known cloud service? (AWS, Azure ranges)</li>
+                                </ul>
+                            </li>
+                            <li><strong>Analyze the traffic:</strong>
+                                <ul>
+                                    <li>If SSL decryption enabled: What's the actual content?</li>
+                                    <li>Certificate details: Who issued it? What domain?</li>
+                                    <li>Traffic pattern: Beaconing? Regular intervals = suspicious</li>
+                                </ul>
+                            </li>
+                            <li><strong>Check the server:</strong>
+                                <ul>
+                                    <li>What process is making the connection?</li>
+                                    <li>Any new/unusual processes?</li>
+                                    <li>Check for persistence mechanisms</li>
+                                </ul>
+                            </li>
+                            <li><strong>Contain if malicious:</strong>
+                                <ul>
+                                    <li>Block the IP at firewall</li>
+                                    <li>Isolate the server</li>
+                                    <li>Initiate incident response</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">Q23: Your company is moving to the cloud. How would you design network security for AWS workloads?</div>
+                    <div class="callout-content">
+                        <p><strong>Answer:</strong> Defense-in-depth approach for AWS:</p>
+                        <ol>
+                            <li><strong>VPC Design:</strong>
+                                <ul>
+                                    <li>Separate VPCs for different environments (prod/dev/staging)</li>
+                                    <li>Public subnets for load balancers, private for applications</li>
+                                    <li>Dedicated subnet for databases (no Internet access)</li>
+                                </ul>
+                            </li>
+                            <li><strong>Network ACLs (Stateless):</strong>
+                                <ul>
+                                    <li>Subnet-level filtering</li>
+                                    <li>Broad allow/deny (backup layer)</li>
+                                </ul>
+                            </li>
+                            <li><strong>Security Groups (Stateful):</strong>
+                                <ul>
+                                    <li>Instance-level micro-segmentation</li>
+                                    <li>Reference other SGs (web SG → app SG → db SG)</li>
+                                    <li>Principle of least privilege</li>
+                                </ul>
+                            </li>
+                            <li><strong>AWS Network Firewall / Third-party NGFW:</strong>
+                                <ul>
+                                    <li>For IPS, advanced threat prevention</li>
+                                    <li>Centralized egress filtering</li>
+                                </ul>
+                            </li>
+                            <li><strong>AWS WAF:</strong>
+                                <ul>
+                                    <li>Protect public-facing applications</li>
+                                    <li>OWASP managed rules</li>
+                                </ul>
+                            </li>
+                            <li><strong>Connectivity:</strong>
+                                <ul>
+                                    <li>VPN or Direct Connect to on-prem</li>
+                                    <li>Transit Gateway for multi-VPC</li>
+                                    <li>PrivateLink for AWS services</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <h2>Quick-Fire Questions</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Question</th>
+                                <th>Answer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>What port does HTTPS use?</td>
+                                <td>443 (TCP)</td>
+                            </tr>
+                            <tr>
+                                <td>What port does DNS use?</td>
+                                <td>53 (UDP for queries, TCP for zone transfers)</td>
+                            </tr>
+                            <tr>
+                                <td>What port does SSH use?</td>
+                                <td>22 (TCP)</td>
+                            </tr>
+                            <tr>
+                                <td>What protocol number is TCP?</td>
+                                <td>6</td>
+                            </tr>
+                            <tr>
+                                <td>What protocol number is UDP?</td>
+                                <td>17</td>
+                            </tr>
+                            <tr>
+                                <td>What protocol number is ICMP?</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>What protocol number is ESP (IPSec)?</td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <td>What ports does IPSec IKE use?</td>
+                                <td>UDP 500 (IKE), UDP 4500 (NAT-T)</td>
+                            </tr>
+                            <tr>
+                                <td>What is the private IP range for 10.x.x.x?</td>
+                                <td>10.0.0.0 - 10.255.255.255 (/8)</td>
+                            </tr>
+                            <tr>
+                                <td>What is a /24 subnet mask?</td>
+                                <td>255.255.255.0 (256 addresses, 254 usable)</td>
+                            </tr>
+                            <tr>
+                                <td>What does SIEM stand for?</td>
+                                <td>Security Information and Event Management</td>
+                            </tr>
+                            <tr>
+                                <td>What does SOAR stand for?</td>
+                                <td>Security Orchestration, Automation and Response</td>
+                            </tr>
+                            <tr>
+                                <td>What is the default VLAN on most switches?</td>
+                                <td>VLAN 1 (should be avoided for security)</td>
+                            </tr>
+                            <tr>
+                                <td>What layer does a switch operate at?</td>
+                                <td>Layer 2 (Layer 3 for L3 switches)</td>
+                            </tr>
+                            <tr>
+                                <td>What layer does a router operate at?</td>
+                                <td>Layer 3</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="15-1-glossary.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Glossary</span>
+                        </div>
+                    </a>
+                    <a href="15-3-scenarios.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Scenario Walkthroughs</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

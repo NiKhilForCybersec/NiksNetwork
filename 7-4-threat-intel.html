@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Threat Intelligence - Complete guide to threat intel sources, IOCs, and integration">
+    <title>Threat Intelligence | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🏗️</span>Architecture</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="7-1-network-segmentation.html" class="nav-link"><span class="nav-link-number">7.1</span> Segmentation</a>
+                        <a href="7-2-zero-trust.html" class="nav-link"><span class="nav-link-number">7.2</span> Zero Trust</a>
+                        <a href="7-3-zscaler-platform.html" class="nav-link"><span class="nav-link-number">7.3</span> Zscaler</a>
+                        <a href="7-4-threat-intel.html" class="nav-link active"><span class="nav-link-number">7.4</span> Threat Intelligence</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Architecture</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Threat Intelligence</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Threat Intelligence</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Threat Intelligence (TI) provides context about threats: who is attacking, why, and how. It transforms raw data into actionable intelligence that improves detection and response.</p>
+                        <ul>
+                            <li>Types of threat intelligence</li>
+                            <li>Indicators of Compromise (IOCs)</li>
+                            <li>TI sources and feeds</li>
+                            <li>MITRE ATT&CK framework</li>
+                            <li>Integration with security tools</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Threat Intelligence Pyramid</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Intelligence Types (Pyramid of Pain)</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    PYRAMID OF PAIN                                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│                          /\                                                  │
+│                         /  \     TTPs (Tactics, Techniques, Procedures)     │
+│                        /    \    HARD to change - Most valuable             │
+│                       /──────\                                              │
+│                      /        \  Tools                                      │
+│                     /          \ Attackers' software                        │
+│                    /────────────\                                           │
+│                   /              \ Network/Host Artifacts                   │
+│                  /                \ Registry keys, user agents              │
+│                 /──────────────────\                                        │
+│                /                    \ Domain Names                          │
+│               /                      \ C2 domains                           │
+│              /────────────────────────\                                     │
+│             /                          \ IP Addresses                       │
+│            /                            \ Easy to change                    │
+│           /──────────────────────────────\                                  │
+│          /                                \ Hash Values (MD5, SHA)          │
+│         /                                  \ TRIVIAL to change              │
+│        /────────────────────────────────────\                               │
+│                                                                              │
+│  Higher = More valuable, harder for attacker to change                      │
+│  Lower  = Easy to detect but easy for attacker to evade                    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Indicator of Compromise (IOC) Types</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>IOC Type</th>
+                                <th>Example</th>
+                                <th>Detection Method</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>File Hash</strong></td>
+                                <td>d41d8cd98f00b204e9800998ecf8427e</td>
+                                <td>EDR, AV, YARA</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IP Address</strong></td>
+                                <td>185.220.101.1 (Tor exit)</td>
+                                <td>Firewall, IDS, SIEM</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Domain</strong></td>
+                                <td>malware.evil.com</td>
+                                <td>DNS, Proxy, Firewall</td>
+                            </tr>
+                            <tr>
+                                <td><strong>URL</strong></td>
+                                <td>http://evil.com/payload.exe</td>
+                                <td>Proxy, WAF</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Email Address</strong></td>
+                                <td>phisher@spoofed.com</td>
+                                <td>Email gateway</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Registry Key</strong></td>
+                                <td>HKLM\Software\Malware</td>
+                                <td>EDR, HIDS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>File Path</strong></td>
+                                <td>C:\Windows\Temp\malware.exe</td>
+                                <td>EDR, FIM</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Mutex</strong></td>
+                                <td>Global\MalwareMutex</td>
+                                <td>EDR, sandbox</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Threat Intelligence Sources</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Source Type</th>
+                                <th>Examples</th>
+                                <th>Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Open Source (OSINT)</strong></td>
+                                <td>AlienVault OTX, Abuse.ch, VirusTotal</td>
+                                <td>Free</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Commercial Feeds</strong></td>
+                                <td>Recorded Future, Mandiant, CrowdStrike</td>
+                                <td>$$$$</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Government/ISACs</strong></td>
+                                <td>CISA, FS-ISAC, MS-ISAC</td>
+                                <td>Free/Membership</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Vendor Feeds</strong></td>
+                                <td>Microsoft, Palo Alto Unit 42</td>
+                                <td>Included with product</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Internal</strong></td>
+                                <td>Your own incident data</td>
+                                <td>Free (your data)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>MITRE ATT&CK Framework</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">MITRE ATT&CK Tactics</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># MITRE ATT&CK ENTERPRISE TACTICS (Attack Lifecycle)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+1. Reconnaissance        <span class="token-comment"># Gathering information</span>
+2. Resource Development  <span class="token-comment"># Setting up infrastructure</span>
+3. Initial Access        <span class="token-comment"># Getting in (phishing, exploit)</span>
+4. Execution             <span class="token-comment"># Running malicious code</span>
+5. Persistence           <span class="token-comment"># Maintaining access</span>
+6. Privilege Escalation  <span class="token-comment"># Getting higher privileges</span>
+7. Defense Evasion       <span class="token-comment"># Avoiding detection</span>
+8. Credential Access     <span class="token-comment"># Stealing credentials</span>
+9. Discovery             <span class="token-comment"># Learning the environment</span>
+10. Lateral Movement     <span class="token-comment"># Moving through network</span>
+11. Collection           <span class="token-comment"># Gathering target data</span>
+12. Command and Control  <span class="token-comment"># Communicating with implants</span>
+13. Exfiltration         <span class="token-comment"># Stealing data out</span>
+14. Impact               <span class="token-comment"># Destruction, ransomware</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># EXAMPLE TECHNIQUE: T1059.001 - PowerShell</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+Tactic: Execution
+Technique: Command and Scripting Interpreter
+Sub-technique: PowerShell
+
+Detection:
+- Monitor PowerShell execution (Event ID 4104)
+- Look for encoded commands (-enc, -e)
+- Watch for download cradles (IEX, Invoke-Expression)
+
+<span class="token-comment"># Example detection query</span>
+process.name:"powershell.exe" AND 
+process.command_line:(*-enc* OR *-encoded* OR *IEX* OR *downloadstring*)</code></pre>
+                </div>
+                
+                <h2>Integration Points</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tool</th>
+                                <th>Integration Method</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>SIEM</strong></td>
+                                <td>Threat feed ingestion, IOC matching</td>
+                                <td>Correlate logs with known threats</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Firewall</strong></td>
+                                <td>External dynamic lists (EDL)</td>
+                                <td>Block malicious IPs/domains</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EDR</strong></td>
+                                <td>IOC watchlists, custom rules</td>
+                                <td>Hunt for IOCs on endpoints</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Email Gateway</strong></td>
+                                <td>Sender/URL blocklists</td>
+                                <td>Block phishing campaigns</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DNS</strong></td>
+                                <td>Response Policy Zones (RPZ)</td>
+                                <td>Sinkhole malicious domains</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SOAR</strong></td>
+                                <td>Enrichment playbooks</td>
+                                <td>Auto-enrich alerts with TI</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Threat Intel Best Practices</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Quality over quantity:</strong> Too many feeds create noise</li>
+                            <li><strong>Age matters:</strong> IOCs have a shelf life (especially IPs)</li>
+                            <li><strong>Context is king:</strong> Know what the IOC means</li>
+                            <li><strong>Automate integration:</strong> Manual IOC entry doesn't scale</li>
+                            <li><strong>Track effectiveness:</strong> Measure how often TI leads to detections</li>
+                            <li><strong>Share back:</strong> Contribute to community feeds</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How do you operationalize threat intelligence?"</p>
+                        <p><strong>Answer:</strong> "I'd start by identifying relevant threat actors for our industry - financial sector faces different threats than healthcare. Then I'd select 2-3 high-quality feeds (one open source like AlienVault OTX, one commercial if budget allows). For integration, I'd configure automatic ingestion into our SIEM for IOC matching against logs, set up external dynamic lists on firewalls for blocking, and create watchlists in our EDR. For strategic intel, I'd map threat reports to MITRE ATT&CK to identify gaps in our detection coverage. I'd also track metrics - how many alerts came from TI matches, and were they true positives?"</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="7-3-zscaler-platform.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Zscaler Platform</span>
+                        </div>
+                    </a>
+                    <a href="8-1-lb-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Load Balancer Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

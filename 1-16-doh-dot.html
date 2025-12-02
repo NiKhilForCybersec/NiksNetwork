@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DNS over HTTPS and DNS over TLS - Complete guide to encrypted DNS protocols and security implications">
+    <title>DNS over HTTPS/TLS | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌐</span>Networking</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="1-15-network-taps.html" class="nav-link"><span class="nav-link-number">1.15</span> Network TAPs</a>
+                        <a href="1-16-doh-dot.html" class="nav-link active"><span class="nav-link-number">1.16</span> DoH/DoT</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Networking</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">DoH/DoT</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>DNS over HTTPS / DNS over TLS</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Encrypted DNS protocols (DoH and DoT) protect DNS queries from eavesdropping but create challenges for enterprise security monitoring. Understanding these protocols is essential for modern network security.</p>
+                        <ul>
+                            <li>Traditional DNS vs encrypted DNS</li>
+                            <li>DoH vs DoT comparison</li>
+                            <li>Security benefits and risks</li>
+                            <li>Enterprise deployment strategies</li>
+                            <li>Detection and policy enforcement</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>DNS Protocol Comparison</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">DNS Encryption Options</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    DNS PROTOCOL COMPARISON                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  TRADITIONAL DNS (Port 53 UDP/TCP)                                          │
+│  ─────────────────────────────────                                          │
+│                                                                              │
+│    Client ──── DNS Query (plaintext) ────► DNS Server                      │
+│           ◄─── DNS Response (plaintext) ───                                │
+│                                                                              │
+│    ⚠️ Anyone on path can see queries                                        │
+│    ⚠️ ISP can log/modify responses                                          │
+│    ⚠️ Easy to intercept and manipulate                                      │
+│                                                                              │
+│  DNS OVER TLS - DoT (Port 853 TCP)                                         │
+│  ─────────────────────────────────                                          │
+│                                                                              │
+│    Client ══════ TLS Tunnel ══════► DNS Server                             │
+│           ◄═════════════════════════                                        │
+│           (Encrypted DNS on port 853)                                       │
+│                                                                              │
+│    ✓ Encrypted - ISP can't see queries                                     │
+│    ✓ Authenticated - prevents spoofing                                     │
+│    ⚠️ Dedicated port - easy to block/detect                                │
+│                                                                              │
+│  DNS OVER HTTPS - DoH (Port 443 TCP)                                       │
+│  ────────────────────────────────────                                       │
+│                                                                              │
+│    Client ══════ HTTPS (TLS) ══════► DoH Server                            │
+│           ◄═════════════════════════                                        │
+│           (DNS queries as HTTPS traffic)                                    │
+│                                                                              │
+│    ✓ Encrypted - ISP can't see queries                                     │
+│    ✓ Blends with HTTPS - hard to block                                     │
+│    ⚠️ Bypasses enterprise DNS controls                                     │
+│    ⚠️ Harder to monitor/filter                                             │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>DoH vs DoT Comparison</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>DoT</th>
+                                <th>DoH</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Port</strong></td>
+                                <td>853/TCP</td>
+                                <td>443/TCP (HTTPS)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Protocol</strong></td>
+                                <td>DNS over TLS</td>
+                                <td>DNS over HTTPS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Blockable</strong></td>
+                                <td>Easy (block port 853)</td>
+                                <td>Hard (same as HTTPS)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Detectable</strong></td>
+                                <td>Yes (dedicated port)</td>
+                                <td>Difficult (looks like HTTPS)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Performance</strong></td>
+                                <td>Slightly faster</td>
+                                <td>HTTP overhead</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Enterprise Use</strong></td>
+                                <td>Preferred (controllable)</td>
+                                <td>Problematic (bypasses controls)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Security Implications</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Enterprise Security Challenges</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    DOH SECURITY CHALLENGES                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  BENEFITS (Privacy):                                                        │
+│  ───────────────────                                                        │
+│  ✓ Prevents ISP snooping on DNS queries                                    │
+│  ✓ Prevents DNS spoofing/hijacking                                         │
+│  ✓ Protects user privacy from network observers                            │
+│                                                                              │
+│  RISKS (Enterprise Security):                                              │
+│  ────────────────────────────                                               │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ BYPASSES ENTERPRISE DNS CONTROLS                                     │   │
+│  │                                                                      │   │
+│  │  Browser ─────────────────────────────► Public DoH (Cloudflare)    │   │
+│  │     │                                                               │   │
+│  │     X    Enterprise DNS/Proxy bypassed!                            │   │
+│  │     │                                                               │   │
+│  │  [Firewall] [DNS Filter] [Proxy]                                   │   │
+│  │                                                                      │   │
+│  │  Problems:                                                          │   │
+│  │  • URL filtering bypassed (can't see DNS queries)                  │   │
+│  │  • Malware C2 can use DoH to hide                                  │   │
+│  │  • Data exfiltration via DNS tunneling hidden                      │   │
+│  │  • Threat intel DNS feeds ineffective                              │   │
+│  │  • Split-horizon DNS broken                                        │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│  MALWARE USING DOH:                                                        │
+│  • Godlua - First malware using DoH for C2                                │
+│  • PsiXBot - Banking trojan with DoH                                      │
+│  • Anchor - TrickBot module using DoH                                     │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Enterprise DoH/DoT Strategy</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Enterprise Deployment Options</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># OPTION 1: BLOCK PUBLIC DOH/DOT</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Block DoT port</span>
+iptables -A OUTPUT -p tcp --dport 853 -j DROP
+
+<span class="token-comment"># Block known DoH providers (by IP/domain)</span>
+<span class="token-comment"># Cloudflare DoH: 1.1.1.1, 1.0.0.1</span>
+<span class="token-comment"># Google DoH: 8.8.8.8, 8.8.4.4</span>
+<span class="token-comment"># Quad9 DoH: 9.9.9.9</span>
+
+<span class="token-comment"># Block DoH domains at DNS/proxy</span>
+<span class="token-comment"># cloudflare-dns.com</span>
+<span class="token-comment"># dns.google</span>
+<span class="token-comment"># dns.quad9.net</span>
+<span class="token-comment"># doh.opendns.com</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># OPTION 2: DEPLOY INTERNAL DOH/DOT</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Deploy internal DoH/DoT resolver</span>
+<span class="token-comment"># - Provides encrypted DNS internally</span>
+<span class="token-comment"># - Maintains visibility and control</span>
+<span class="token-comment"># - Block external DoH/DoT</span>
+
+<span class="token-comment"># Example: dnsdist with DoH/DoT</span>
+<span class="token-comment"># Or: Pi-hole with cloudflared</span>
+<span class="token-comment"># Or: Cisco Umbrella internal resolver</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># OPTION 3: BROWSER CONFIGURATION (GPO)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Chrome - Disable DoH via policy</span>
+<span class="token-comment"># HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome</span>
+<span class="token-comment"># DnsOverHttpsMode = "off"</span>
+
+<span class="token-comment"># Firefox - Disable DoH via policy</span>
+<span class="token-comment"># HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Mozilla\Firefox</span>
+<span class="token-comment"># DNSOverHTTPS\Enabled = false</span>
+
+<span class="token-comment"># Edge - Disable DoH via policy</span>
+<span class="token-comment"># HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge</span>
+<span class="token-comment"># DnsOverHttpsMode = "off"</span></code></pre>
+                </div>
+                
+                <h2>Detection Methods</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">DoH/DoT Detection</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DETECT DOT (Port 853)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Firewall log query for DoT</span>
+<span class="token-comment"># Splunk:</span>
+index=firewall dest_port=853
+| stats count by src_ip, dest_ip
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DETECT DOH (Harder - blends with HTTPS)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Method 1: Block/alert known DoH provider IPs</span>
+<span class="token-comment"># Cloudflare: 1.1.1.1, 1.0.0.1, 104.16.248.249, 104.16.249.249</span>
+<span class="token-comment"># Google: 8.8.8.8, 8.8.4.4, 142.250.x.x</span>
+
+<span class="token-comment"># Method 2: TLS fingerprinting</span>
+<span class="token-comment"># DoH clients have specific JA3 signatures</span>
+
+<span class="token-comment"># Method 3: Traffic analysis</span>
+<span class="token-comment"># DoH has characteristic patterns:</span>
+<span class="token-comment"># - Small request/response sizes</span>
+<span class="token-comment"># - Specific timing patterns</span>
+<span class="token-comment"># - POST to /dns-query path</span>
+
+<span class="token-comment"># Zeek detection</span>
+<span class="token-comment"># Look for connections to known DoH endpoints</span>
+cat conn.log | zeek-cut id.orig_h id.resp_h id.resp_p | \
+  grep -E "1.1.1.1|8.8.8.8|9.9.9.9" | grep 443
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># THREAT HUNTING FOR DOH C2</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Look for:</span>
+<span class="token-comment"># - Unusual DoH usage patterns</span>
+<span class="token-comment"># - DoH to non-standard providers</span>
+<span class="token-comment"># - High volume of DoH queries</span>
+<span class="token-comment"># - DoH from servers (not user workstations)</span></code></pre>
+                </div>
+                
+                <h2>Public DoH/DoT Providers</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Provider</th>
+                                <th>DoH Endpoint</th>
+                                <th>DoT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Cloudflare</strong></td>
+                                <td>https://cloudflare-dns.com/dns-query</td>
+                                <td>1.1.1.1:853</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Google</strong></td>
+                                <td>https://dns.google/dns-query</td>
+                                <td>dns.google:853</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Quad9</strong></td>
+                                <td>https://dns.quad9.net/dns-query</td>
+                                <td>dns.quad9.net:853</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cisco OpenDNS</strong></td>
+                                <td>https://doh.opendns.com/dns-query</td>
+                                <td>dns.opendns.com:853</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NextDNS</strong></td>
+                                <td>https://dns.nextdns.io</td>
+                                <td>*.dns.nextdns.io:853</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Enterprise Considerations</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Split-horizon DNS:</strong> DoH breaks internal DNS resolution</li>
+                            <li><strong>Security monitoring:</strong> Can't see DNS queries for threat detection</li>
+                            <li><strong>URL filtering:</strong> Category-based filtering may be bypassed</li>
+                            <li><strong>Compliance:</strong> May violate logging/monitoring requirements</li>
+                            <li><strong>Malware:</strong> Increasingly using DoH for C2 communication</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "What are the security implications of DNS over HTTPS?"</p>
+                        <p><strong>Answer:</strong> "DoH encrypts DNS queries, which has both benefits and risks. For privacy, it prevents ISPs and network observers from seeing what domains users are querying. However, for enterprise security, it creates significant challenges. DoH can bypass corporate DNS controls - URL filtering, threat intelligence feeds, and split-horizon DNS all rely on seeing DNS queries. Malware is increasingly using DoH for command and control because it blends with normal HTTPS traffic and is hard to block. Our strategy should be multi-layered: deploy internal DoH/DoT resolvers so users get encryption benefits while we maintain visibility, block external DoH providers at the firewall and proxy, use browser policies to disable DoH to external providers, and implement detection for DoH traffic to known providers or suspicious patterns. This balances user privacy with enterprise security needs."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="1-15-network-taps.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Network TAPs</span>
+                        </div>
+                    </a>
+                    <a href="2-1-firewall-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Firewall Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

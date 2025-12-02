@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VPN Fundamentals - Complete guide to VPN types, protocols, site-to-site vs remote access, and security considerations">
+    <title>VPN Fundamentals | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 6: VPN (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🔐</span>
+                            VPN Technologies
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="6-1-vpn-fundamentals.html" class="nav-link active"><span class="nav-link-number">6.1</span> VPN Fundamentals</a>
+                        <a href="6-2-ipsec.html" class="nav-link"><span class="nav-link-number">6.2</span> IPSec Deep Dive</a>
+                        <a href="6-3-ssl-vpn.html" class="nav-link"><span class="nav-link-number">6.3</span> SSL VPN</a>
+                        <a href="6-4-wireguard.html" class="nav-link"><span class="nav-link-number">6.4</span> WireGuard</a>
+                        <a href="6-5-site-to-site.html" class="nav-link"><span class="nav-link-number">6.5</span> Site-to-Site VPN</a>
+                        <a href="6-6-remote-access.html" class="nav-link"><span class="nav-link-number">6.6</span> Remote Access VPN</a>
+                        <a href="6-7-vpn-ha.html" class="nav-link"><span class="nav-link-number">6.7</span> VPN High Availability</a>
+                        <a href="6-8-vpn-troubleshooting.html" class="nav-link"><span class="nav-link-number">6.8</span> VPN Troubleshooting</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">VPN Technologies</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Fundamentals</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>VPN Fundamentals</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>A Virtual Private Network (VPN) creates a secure, encrypted tunnel over an untrusted network (typically the internet). VPNs are fundamental to enterprise networking, enabling secure connectivity between sites and for remote workers.</p>
+                        <ul>
+                            <li>What is a VPN and why it matters</li>
+                            <li>Site-to-Site vs Remote Access VPN</li>
+                            <li>VPN protocols comparison (IPSec, SSL, WireGuard)</li>
+                            <li>Split tunnel vs full tunnel</li>
+                            <li>Authentication methods</li>
+                            <li>Encryption and security considerations</li>
+                            <li>Common VPN solutions</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>What is a VPN?</h2>
+                
+                <p>A VPN extends a private network across a public network, enabling users to send and receive data as if their devices were directly connected to the private network. The connection is encrypted, providing confidentiality and integrity.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">VPN Concept - Secure Tunnel Over Internet</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    VPN - SECURE TUNNEL CONCEPT                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  WITHOUT VPN:                                                               │
+│  ┌────────────┐                              ┌────────────┐                 │
+│  │   User     │ ─── Unencrypted Traffic ───► │  Server    │                 │
+│  │            │     (Anyone can see)         │            │                 │
+│  └────────────┘            ↑                 └────────────┘                 │
+│                            │                                                │
+│                    ┌───────────────┐                                        │
+│                    │   ATTACKER    │                                        │
+│                    │  Can sniff,   │                                        │
+│                    │  modify data  │                                        │
+│                    └───────────────┘                                        │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  WITH VPN:                                                                  │
+│  ┌────────────┐                              ┌────────────┐                 │
+│  │   User     │                              │  VPN       │                 │
+│  │ + VPN      │ ══════ Encrypted ══════════► │  Gateway   │                 │
+│  │   Client   │       Tunnel                 │            │                 │
+│  └────────────┘         ↑                    └─────┬──────┘                 │
+│                         │                          │                        │
+│                 ┌───────────────┐                  │                        │
+│                 │   ATTACKER    │                  │ Internal               │
+│                 │  Sees only    │                  │ Network                │
+│                 │  encrypted    │                  ▼                        │
+│                 │  gibberish    │          ┌────────────┐                   │
+│                 └───────────────┘          │  Server    │                   │
+│                                            │            │                   │
+│                                            └────────────┘                   │
+│                                                                              │
+│  KEY BENEFITS:                                                              │
+│  ✓ Confidentiality - Data encrypted, unreadable to eavesdroppers          │
+│  ✓ Integrity - Data tampering detected                                    │
+│  ✓ Authentication - Verify identity of both ends                          │
+│  ✓ Privacy - Hides user's real IP address                                 │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>VPN Types</h2>
+                
+                <h3>Site-to-Site VPN</h3>
+                
+                <p>Connects two or more networks together (e.g., headquarters to branch office). The VPN tunnel is established between network devices (firewalls, routers), not individual users.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Site-to-Site VPN</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SITE-TO-SITE VPN                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│    HEADQUARTERS                                      BRANCH OFFICE           │
+│  ┌──────────────────┐                           ┌──────────────────┐        │
+│  │ Internal Network │                           │ Internal Network │        │
+│  │  10.1.0.0/16     │                           │  10.2.0.0/16     │        │
+│  │                  │                           │                  │        │
+│  │ ┌────┐ ┌────┐   │                           │ ┌────┐ ┌────┐   │        │
+│  │ │ PC │ │ PC │   │                           │ │ PC │ │ PC │   │        │
+│  │ └────┘ └────┘   │                           │ └────┘ └────┘   │        │
+│  │        │        │                           │        │        │        │
+│  └────────┼────────┘                           └────────┼────────┘        │
+│           │                                             │                  │
+│           ▼                                             ▼                  │
+│  ┌────────────────┐                           ┌────────────────┐          │
+│  │   VPN Gateway  │ ══════ IPSec Tunnel ═════ │  VPN Gateway   │          │
+│  │   (Firewall)   │        (Encrypted)        │   (Firewall)   │          │
+│  │                │                           │                │          │
+│  │ Public IP:     │         INTERNET          │ Public IP:     │          │
+│  │ 203.0.113.10   │                           │ 203.0.113.20   │          │
+│  └────────────────┘                           └────────────────┘          │
+│                                                                              │
+│  CHARACTERISTICS:                                                           │
+│  • Always-on connection between sites                                      │
+│  • Transparent to users (they don't initiate VPN)                         │
+│  • Typically uses IPSec protocol                                          │
+│  • Can be policy-based or route-based                                     │
+│  • Configured on network devices, not endpoints                           │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h3>Remote Access VPN</h3>
+                
+                <p>Allows individual users to connect to the corporate network from anywhere. Users run VPN client software on their devices.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Remote Access VPN</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    REMOTE ACCESS VPN                                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  REMOTE USERS                                      CORPORATE NETWORK         │
+│                                                                              │
+│  ┌───────────┐                                                              │
+│  │  Laptop   │ ══╗                                                          │
+│  │ + VPN     │   ║                                                          │
+│  │   Client  │   ║                                                          │
+│  └───────────┘   ║                                                          │
+│                  ║                                ┌────────────────┐        │
+│  ┌───────────┐   ║    INTERNET      ┌──────────┐ │ Internal       │        │
+│  │  Mobile   │ ══╬═════════════════►│   VPN    │─┤ Resources      │        │
+│  │ + VPN     │   ║                  │  Gateway │ │                │        │
+│  │   App     │   ║                  │          │ │ • File Servers │        │
+│  └───────────┘   ║                  └──────────┘ │ • Applications │        │
+│                  ║                        │      │ • Databases    │        │
+│  ┌───────────┐   ║                        │      │ • Intranet     │        │
+│  │  Home PC  │ ══╝                        │      └────────────────┘        │
+│  │ + VPN     │                            │                                 │
+│  │   Client  │                    Authentication:                           │
+│  └───────────┘                    • Username/Password                       │
+│                                   • MFA (required)                          │
+│                                   • Certificate                             │
+│                                                                              │
+│  COMMON SOLUTIONS:                                                          │
+│  • Cisco AnyConnect                                                        │
+│  • Palo Alto GlobalProtect                                                 │
+│  • Fortinet FortiClient                                                    │
+│  • OpenVPN                                                                 │
+│  • WireGuard                                                               │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>VPN Protocol Comparison</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Protocol</th>
+                                <th>Type</th>
+                                <th>Encryption</th>
+                                <th>Ports</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>IPSec</strong></td>
+                                <td>L3 (Network)</td>
+                                <td>AES, 3DES</td>
+                                <td>UDP 500, 4500, ESP (50)</td>
+                                <td>Site-to-site, enterprise</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SSL/TLS VPN</strong></td>
+                                <td>L4-L7</td>
+                                <td>TLS 1.2/1.3</td>
+                                <td>TCP 443</td>
+                                <td>Remote access, restrictive networks</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WireGuard</strong></td>
+                                <td>L3 (Network)</td>
+                                <td>ChaCha20, Curve25519</td>
+                                <td>UDP 51820</td>
+                                <td>Modern, high-performance</td>
+                            </tr>
+                            <tr>
+                                <td><strong>OpenVPN</strong></td>
+                                <td>L2/L3</td>
+                                <td>OpenSSL (AES)</td>
+                                <td>UDP/TCP 1194 (or any)</td>
+                                <td>Flexible, open source</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IKEv2</strong></td>
+                                <td>L3 (with IPSec)</td>
+                                <td>AES</td>
+                                <td>UDP 500, 4500</td>
+                                <td>Mobile devices, fast reconnect</td>
+                            </tr>
+                            <tr>
+                                <td><strong>L2TP/IPSec</strong></td>
+                                <td>L2 over IPSec</td>
+                                <td>IPSec (AES)</td>
+                                <td>UDP 500, 4500, 1701</td>
+                                <td>Legacy, built-in OS support</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Deprecated Protocols - Avoid</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>PPTP:</strong> Broken encryption, easily cracked. Never use.</li>
+                            <li><strong>L2TP without IPSec:</strong> No encryption. Always pair with IPSec.</li>
+                            <li><strong>IPSec with 3DES:</strong> Deprecated. Use AES-256 instead.</li>
+                            <li><strong>IPSec with MD5/SHA-1:</strong> Weak hashing. Use SHA-256 or higher.</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Split Tunnel vs Full Tunnel</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Split Tunnel vs Full Tunnel</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SPLIT TUNNEL vs FULL TUNNEL                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  FULL TUNNEL (More Secure)                                                  │
+│  ═════════════════════════                                                  │
+│                                                                              │
+│  ┌───────────┐    ALL TRAFFIC                   ┌────────────────┐         │
+│  │   User    │ ══════════════════════════════► │  VPN Gateway   │         │
+│  │           │    goes through VPN              │                │         │
+│  └───────────┘                                  └───────┬────────┘         │
+│       │                                                 │                   │
+│       │ Cannot access                                   │                   │
+│       │ internet directly                               ▼                   │
+│       X                                         ┌────────────────┐         │
+│                                                 │  Corporate     │         │
+│                                                 │  + Internet    │         │
+│                                                 │  (via corp)    │         │
+│                                                 └────────────────┘         │
+│                                                                              │
+│  Pros: All traffic inspected, data protected                               │
+│  Cons: Higher bandwidth on VPN, latency for internet                       │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  SPLIT TUNNEL (Better Performance)                                          │
+│  ══════════════════════════════════                                         │
+│                                                                              │
+│  ┌───────────┐    Corporate traffic only        ┌────────────────┐         │
+│  │   User    │ ══════════════════════════════► │  VPN Gateway   │         │
+│  │           │    goes through VPN              │  (10.0.0.0/8)  │         │
+│  └─────┬─────┘                                  └────────────────┘         │
+│        │                                                                    │
+│        │ Internet traffic                                                   │
+│        │ goes directly                                                      │
+│        ▼                                                                    │
+│  ┌────────────┐                                                            │
+│  │  Internet  │                                                            │
+│  │  (Direct)  │                                                            │
+│  └────────────┘                                                            │
+│                                                                              │
+│  Pros: Better performance, lower VPN bandwidth                             │
+│  Cons: Internet traffic not protected/inspected                            │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Consideration</th>
+                                <th>Full Tunnel</th>
+                                <th>Split Tunnel</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Security</strong></td>
+                                <td>Higher (all traffic inspected)</td>
+                                <td>Lower (internet bypasses security)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Performance</strong></td>
+                                <td>Lower (more traffic through VPN)</td>
+                                <td>Higher (only corp traffic through VPN)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bandwidth Cost</strong></td>
+                                <td>Higher</td>
+                                <td>Lower</td>
+                            </tr>
+                            <tr>
+                                <td><strong>User Experience</strong></td>
+                                <td>Slower internet</td>
+                                <td>Faster internet</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Compliance</strong></td>
+                                <td>Often required</td>
+                                <td>May not meet requirements</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - Split Tunnel Security</div>
+                    <div class="callout-content">
+                        <p>If using split tunnel, implement compensating controls:</p>
+                        <ul>
+                            <li>Deploy endpoint protection (EDR) on all devices</li>
+                            <li>Use DNS filtering (block malicious domains)</li>
+                            <li>Implement SASE/cloud security for internet traffic</li>
+                            <li>Require device compliance before VPN connection</li>
+                            <li>Consider split tunnel only for trusted, managed devices</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>VPN Authentication Methods</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Description</th>
+                                <th>Security Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Pre-Shared Key (PSK)</strong></td>
+                                <td>Same password on both ends</td>
+                                <td>Low (for site-to-site only)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Username/Password</strong></td>
+                                <td>AD/LDAP/RADIUS authentication</td>
+                                <td>Medium (add MFA)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MFA</strong></td>
+                                <td>Second factor (OTP, push, hardware)</td>
+                                <td>High</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Certificate</strong></td>
+                                <td>Client/machine certificates</td>
+                                <td>High</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SAML/SSO</strong></td>
+                                <td>Integration with identity provider</td>
+                                <td>High (with MFA)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-critical">
+                    <div class="callout-title">🔴 Critical - Always Use MFA</div>
+                    <div class="callout-content">
+                        <p><strong>VPN without MFA is a major security risk.</strong> Stolen credentials (phishing, breaches) give attackers direct network access. MFA is essential for all remote access VPN deployments.</p>
+                    </div>
+                </div>
+                
+                <h2>Common VPN Solutions</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Solution</th>
+                                <th>Type</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Cisco AnyConnect</strong></td>
+                                <td>Commercial</td>
+                                <td>Enterprise, ASA/FTD integration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Palo Alto GlobalProtect</strong></td>
+                                <td>Commercial</td>
+                                <td>NGFW integration, always-on</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fortinet FortiClient</strong></td>
+                                <td>Commercial</td>
+                                <td>FortiGate integration, endpoint security</td>
+                            </tr>
+                            <tr>
+                                <td><strong>OpenVPN</strong></td>
+                                <td>Open Source</td>
+                                <td>Flexible, cross-platform</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WireGuard</strong></td>
+                                <td>Open Source</td>
+                                <td>Simple, fast, modern</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS Client VPN</strong></td>
+                                <td>Cloud</td>
+                                <td>AWS connectivity</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure VPN Gateway</strong></td>
+                                <td>Cloud</td>
+                                <td>Azure connectivity</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>Common VPN operations:</strong></p>
+                        <ul>
+                            <li><strong>User support:</strong> Troubleshoot connection issues, reset credentials</li>
+                            <li><strong>Monitoring:</strong> Check tunnel status, connection counts, bandwidth</li>
+                            <li><strong>Certificate management:</strong> Renew certificates before expiry</li>
+                            <li><strong>Access management:</strong> Add/remove users, adjust group policies</li>
+                            <li><strong>Troubleshooting:</strong> Phase 1/2 failures, NAT issues, routing</li>
+                            <li><strong>Capacity planning:</strong> Monitor concurrent connections, plan for growth</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "What's the difference between site-to-site and remote access VPN?"</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>Site-to-Site:</strong> Connects two networks together (e.g., HQ to branch). Tunnel is between network devices (firewalls). Always-on, transparent to users. Uses IPSec typically.</li>
+                            <li><strong>Remote Access:</strong> Connects individual users to the network. Tunnel is from user's device to VPN gateway. User initiates connection. Uses SSL VPN or IPSec with client software.</li>
+                        </ul>
+                        <p><strong>When to use:</strong> "Site-to-site for connecting offices or data centers. Remote access for employees working from home or traveling."</p>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="5-8-integration.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">SIEM Integration</span>
+                        </div>
+                    </a>
+                    <a href="6-2-ipsec.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">IPSec Deep Dive</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

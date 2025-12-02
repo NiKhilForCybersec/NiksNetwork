@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Squid Proxy - Complete guide to Squid proxy server configuration and security">
+    <title>Squid Proxy | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌐</span>Web Proxy</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="3-1-proxy-fundamentals.html" class="nav-link"><span class="nav-link-number">3.1</span> Fundamentals</a>
+                        <a href="3-2-ssl-inspection.html" class="nav-link"><span class="nav-link-number">3.2</span> SSL Inspection</a>
+                        <a href="3-3-url-filtering.html" class="nav-link"><span class="nav-link-number">3.3</span> URL Filtering</a>
+                        <a href="3-4-squid.html" class="nav-link active"><span class="nav-link-number">3.4</span> Squid</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Web Proxy</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Squid</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Squid Proxy</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Squid is a widely-used open-source caching proxy for HTTP, HTTPS, and FTP. It's commonly deployed for web filtering, caching, and security in enterprise environments.</p>
+                        <ul>
+                            <li>Squid architecture and modes</li>
+                            <li>ACL configuration</li>
+                            <li>SSL/HTTPS interception</li>
+                            <li>Authentication methods</li>
+                            <li>Logging and monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Squid Proxy Modes</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mode</th>
+                                <th>Description</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Forward Proxy</strong></td>
+                                <td>Client configured to use proxy</td>
+                                <td>Corporate web filtering</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Transparent</strong></td>
+                                <td>Intercept without client config</td>
+                                <td>Network-level filtering</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Reverse Proxy</strong></td>
+                                <td>Proxy for backend servers</td>
+                                <td>Caching, load balancing</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SSL Bump</strong></td>
+                                <td>HTTPS interception/inspection</td>
+                                <td>Deep content filtering</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Basic Configuration</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">squid.conf - Basic Setup</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># NETWORK SETTINGS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+http_port 3128                          <span class="token-comment"># Standard proxy port</span>
+http_port 3129 intercept                <span class="token-comment"># Transparent mode</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ACCESS CONTROL LISTS (ACLs)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Network definitions</span>
+acl localnet src 10.0.0.0/8
+acl localnet src 172.16.0.0/12
+acl localnet src 192.168.0.0/16
+
+<span class="token-comment"># Safe ports</span>
+acl SSL_ports port 443
+acl Safe_ports port 80          <span class="token-comment"># HTTP</span>
+acl Safe_ports port 443         <span class="token-comment"># HTTPS</span>
+acl Safe_ports port 21          <span class="token-comment"># FTP</span>
+acl Safe_ports port 1025-65535  <span class="token-comment"># High ports</span>
+
+<span class="token-comment"># Method definitions</span>
+acl CONNECT method CONNECT
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ACCESS RULES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Deny non-safe ports</span>
+http_access deny !Safe_ports
+http_access deny CONNECT !SSL_ports
+
+<span class="token-comment"># Allow localhost</span>
+http_access allow localhost manager
+http_access deny manager
+
+<span class="token-comment"># Allow local networks</span>
+http_access allow localnet
+http_access allow localhost
+
+<span class="token-comment"># Deny everything else</span>
+http_access deny all
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CACHE SETTINGS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+cache_dir ufs /var/spool/squid 10000 16 256
+maximum_object_size 100 MB
+cache_mem 512 MB
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LOGGING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+access_log /var/log/squid/access.log squid
+cache_log /var/log/squid/cache.log</code></pre>
+                </div>
+                
+                <h2>URL Filtering with ACLs</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">URL Filtering ACLs</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BLOCKED SITES (by domain)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+acl blocked_sites dstdomain .facebook.com
+acl blocked_sites dstdomain .twitter.com
+acl blocked_sites dstdomain .instagram.com
+
+<span class="token-comment"># Or use a file</span>
+acl blocked_sites dstdomain "/etc/squid/blocked_sites.txt"
+
+<span class="token-comment"># Block by URL regex</span>
+acl blocked_urls url_regex -i porn
+acl blocked_urls url_regex -i gambling
+acl blocked_urls url_regex -i torrent
+
+<span class="token-comment"># Block by file extension</span>
+acl blocked_extensions urlpath_regex -i \.exe$
+acl blocked_extensions urlpath_regex -i \.torrent$
+acl blocked_extensions urlpath_regex -i \.mp3$
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># APPLY RULES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+http_access deny blocked_sites
+http_access deny blocked_urls
+http_access deny blocked_extensions
+
+<span class="token-comment"># Time-based access (allow social media during lunch)</span>
+acl lunch_time time MTWHF 12:00-13:00
+http_access allow blocked_sites lunch_time</code></pre>
+                </div>
+                
+                <h2>SSL Bump (HTTPS Inspection)</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">SSL Bump Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SSL BUMP CONFIGURATION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># HTTPS port with SSL bump</span>
+https_port 3130 intercept ssl-bump \
+    cert=/etc/squid/ssl/squid-ca.pem \
+    generate-host-certificates=on \
+    dynamic_cert_mem_cache_size=4MB
+
+<span class="token-comment"># SSL bump ACLs</span>
+acl step1 at_step SslBump1
+acl step2 at_step SslBump2
+acl step3 at_step SslBump3
+
+<span class="token-comment"># Sites to NOT inspect (banking, healthcare)</span>
+acl no_ssl_bump ssl::server_name .bank.com
+acl no_ssl_bump ssl::server_name .healthcare.com
+
+<span class="token-comment"># SSL bump actions</span>
+ssl_bump peek step1 all                  <span class="token-comment"># Peek at SNI</span>
+ssl_bump splice no_ssl_bump              <span class="token-comment"># Don't inspect sensitive sites</span>
+ssl_bump bump all                        <span class="token-comment"># Inspect everything else</span>
+
+<span class="token-comment"># SSL certificate settings</span>
+sslcrtd_program /usr/lib/squid/security_file_certgen \
+    -s /var/lib/squid/ssl_db -M 4MB
+sslcrtd_children 5</code></pre>
+                </div>
+                
+                <h2>Management Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Squid Management</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># Check configuration</span>
+<span class="token-command">squid</span> -k parse
+
+<span class="token-comment"># Reload configuration</span>
+<span class="token-command">squid</span> -k reconfigure
+
+<span class="token-comment"># Rotate logs</span>
+<span class="token-command">squid</span> -k rotate
+
+<span class="token-comment"># View real-time access log</span>
+<span class="token-command">tail</span> -f /var/log/squid/access.log
+
+<span class="token-comment"># Cache manager (stats)</span>
+<span class="token-command">squidclient</span> -h localhost mgr:info
+<span class="token-command">squidclient</span> -h localhost mgr:utilization
+
+<span class="token-comment"># Clear cache</span>
+<span class="token-command">squid</span> -k shutdown
+<span class="token-command">rm</span> -rf /var/spool/squid/*
+<span class="token-command">squid</span> -z
+<span class="token-command">systemctl</span> start squid</code></pre>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ SSL Bump Considerations</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>CA Certificate:</strong> Must be deployed to all clients</li>
+                            <li><strong>Privacy:</strong> Users should be informed of inspection</li>
+                            <li><strong>Exemptions:</strong> Banking, healthcare, personal sites</li>
+                            <li><strong>Certificate pinning:</strong> Some apps will fail (bypass needed)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How does Squid's SSL bump work?"</p>
+                        <p><strong>Answer:</strong> "SSL bump allows Squid to inspect HTTPS traffic by acting as a man-in-the-middle. When a client connects, Squid first 'peeks' at the SNI (Server Name Indication) to see the destination. It then either 'splices' (passes through without inspection) or 'bumps' (generates a dynamic certificate signed by Squid's CA). The client sees a certificate from Squid's CA, so that CA must be trusted by all clients. Sensitive sites like banking should be spliced, not bumped, for both privacy and to avoid breaking certificate pinning."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="3-3-url-filtering.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">URL Filtering</span>
+                        </div>
+                    </a>
+                    <a href="4-1-waf-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">WAF Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

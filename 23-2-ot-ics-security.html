@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OT/ICS Network Security - Complete guide to securing industrial control systems and operational technology networks">
+    <title>OT/ICS Network Security | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">📡</span>IoT/OT</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="23-1-iot-security.html" class="nav-link"><span class="nav-link-number">23.1</span> IoT Security</a>
+                        <a href="23-2-ot-ics-security.html" class="nav-link active"><span class="nav-link-number">23.2</span> OT/ICS Security</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">IoT/OT</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">OT/ICS Security</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>OT/ICS Network Security</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Operational Technology (OT) and Industrial Control Systems (ICS) require specialized security approaches. These systems control physical processes in critical infrastructure - power grids, water treatment, manufacturing - where a breach can have real-world consequences.</p>
+                        <ul>
+                            <li>IT vs OT security differences</li>
+                            <li>Purdue Model and network segmentation</li>
+                            <li>ICS protocols and vulnerabilities</li>
+                            <li>OT-specific security controls</li>
+                            <li>Notable ICS attacks</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>IT vs OT Security</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>IT Security</th>
+                                <th>OT Security</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Priority</strong></td>
+                                <td>Confidentiality → Integrity → Availability</td>
+                                <td>Availability → Integrity → Confidentiality</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Downtime</strong></td>
+                                <td>Tolerable (maintenance windows)</td>
+                                <td>Often unacceptable (24/7 operations)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Patching</strong></td>
+                                <td>Regular updates</td>
+                                <td>Rarely patched (stability concerns)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lifespan</strong></td>
+                                <td>3-5 years</td>
+                                <td>15-25+ years</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Protocols</strong></td>
+                                <td>TCP/IP, HTTP, etc.</td>
+                                <td>Modbus, DNP3, OPC, etc.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Impact</strong></td>
+                                <td>Data loss, financial</td>
+                                <td>Physical damage, safety, environmental</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Purdue Model</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Purdue Enterprise Reference Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    PURDUE MODEL - ICS NETWORK SEGMENTATION                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  LEVEL 5: ENTERPRISE NETWORK                                                │
+│  ───────────────────────────                                                │
+│  │ Corporate IT, Internet, Email, ERP                                      │
+│  │ Standard IT security applies                                            │
+│  └─────────────────────────────────────────────────────────────────────────│
+│                              │                                              │
+│                         [FIREWALL] ◄── DMZ                                 │
+│                              │                                              │
+│  LEVEL 4: BUSINESS PLANNING                                                │
+│  ──────────────────────────                                                 │
+│  │ IT/OT boundary                                                          │
+│  │ Historians, reporting, production scheduling                            │
+│  └─────────────────────────────────────────────────────────────────────────│
+│                              │                                              │
+│              [INDUSTRIAL DMZ / DATA DIODE]                                 │
+│                              │                                              │
+│  LEVEL 3: SITE OPERATIONS                                                  │
+│  ────────────────────────                                                   │
+│  │ SCADA servers, HMI servers, Engineering workstations                   │
+│  │ Patch management, AV servers for OT                                    │
+│  └─────────────────────────────────────────────────────────────────────────│
+│                              │                                              │
+│                         [FIREWALL]                                          │
+│                              │                                              │
+│  LEVEL 2: AREA SUPERVISORY CONTROL                                         │
+│  ─────────────────────────────────                                          │
+│  │ HMIs, SCADA clients, Local historians                                  │
+│  │ Operator workstations                                                  │
+│  └─────────────────────────────────────────────────────────────────────────│
+│                              │                                              │
+│  LEVEL 1: BASIC CONTROL                                                    │
+│  ──────────────────────                                                     │
+│  │ PLCs, RTUs, DCS controllers                                            │
+│  │ Safety systems (SIS)                                                   │
+│  └─────────────────────────────────────────────────────────────────────────│
+│                              │                                              │
+│  LEVEL 0: PHYSICAL PROCESS                                                 │
+│  ─────────────────────────                                                  │
+│  │ Sensors, actuators, pumps, valves, motors                             │
+│  │ The actual physical equipment                                          │
+│  └─────────────────────────────────────────────────────────────────────────│
+│                                                                              │
+│  KEY PRINCIPLE: Traffic should only flow between adjacent levels           │
+│  Level 5 should NEVER directly communicate with Level 0/1/2               │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>ICS Protocols</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Protocol</th>
+                                <th>Use</th>
+                                <th>Security Issues</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Modbus</strong></td>
+                                <td>PLC communication (port 502)</td>
+                                <td>No authentication, no encryption</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DNP3</strong></td>
+                                <td>Utilities, SCADA (port 20000)</td>
+                                <td>Optional auth (Secure Auth v5)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>OPC UA</strong></td>
+                                <td>Industrial data exchange</td>
+                                <td>Better security, but complex config</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EtherNet/IP</strong></td>
+                                <td>Industrial Ethernet (port 44818)</td>
+                                <td>Limited security features</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BACnet</strong></td>
+                                <td>Building automation</td>
+                                <td>Minimal authentication</td>
+                            </tr>
+                            <tr>
+                                <td><strong>S7comm</strong></td>
+                                <td>Siemens PLCs (port 102)</td>
+                                <td>No native security</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>OT Security Controls</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">OT Security Architecture</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># OT NETWORK SECURITY CONTROLS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+NETWORK SEGMENTATION:
+─────────────────────
+☐ Implement Purdue Model zones
+☐ Industrial DMZ between IT and OT
+☐ Firewalls between each Purdue level
+☐ Separate safety systems (SIS) network
+☐ No direct IT-to-Level-0/1/2 connectivity
+
+ACCESS CONTROL:
+───────────────
+☐ Jump servers for remote access (no direct RDP/SSH)
+☐ MFA for all OT access
+☐ Role-based access per Purdue level
+☐ Vendor access through secure remote access solution
+☐ Physical access controls for Level 0/1
+
+DATA DIODES:
+────────────
+☐ Unidirectional gateways for historian data
+☐ OT → IT data flow only (no return path)
+☐ Hardware-enforced one-way communication
+☐ Vendors: Waterfall, Owl, Hirschmann
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># OT-SPECIFIC MONITORING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+PASSIVE MONITORING (Recommended):
+─────────────────────────────────
+☐ OT-aware IDS (Claroty, Dragos, Nozomi)
+☐ Monitor ICS protocols (Modbus, DNP3, S7)
+☐ Detect unauthorized changes to PLCs
+☐ Asset inventory and anomaly detection
+☐ No active scanning (can crash PLCs!)
+
+LOGGING:
+────────
+☐ Collect logs from SCADA/HMI servers
+☐ Network traffic metadata (NetFlow)
+☐ Authentication logs
+☐ Configuration change logs
+☐ Send to separate OT SIEM or IT SIEM with OT zone</code></pre>
+                </div>
+                
+                <h2>Notable ICS Attacks</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Attack</th>
+                                <th>Year</th>
+                                <th>Target</th>
+                                <th>Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Stuxnet</strong></td>
+                                <td>2010</td>
+                                <td>Iran nuclear</td>
+                                <td>Destroyed centrifuges</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ukraine Grid</strong></td>
+                                <td>2015/2016</td>
+                                <td>Power grid</td>
+                                <td>225,000 without power</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TRITON/TRISIS</strong></td>
+                                <td>2017</td>
+                                <td>Safety systems</td>
+                                <td>Targeted SIS controllers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Oldsmar Water</strong></td>
+                                <td>2021</td>
+                                <td>Water treatment</td>
+                                <td>Tried to poison water</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Colonial Pipeline</strong></td>
+                                <td>2021</td>
+                                <td>Pipeline (IT→OT)</td>
+                                <td>Fuel shortage, $4.4M ransom</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-critical">
+                    <div class="callout-title">🚨 OT Security Mistakes</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Flat network:</strong> No segmentation between IT and OT</li>
+                            <li><strong>Direct internet access:</strong> PLCs/HMIs exposed to internet</li>
+                            <li><strong>Default credentials:</strong> Many ICS devices never changed</li>
+                            <li><strong>Active scanning:</strong> Vulnerability scans can crash PLCs</li>
+                            <li><strong>No monitoring:</strong> Attacks go undetected for months</li>
+                            <li><strong>Uncontrolled vendor access:</strong> Direct VPN to OT network</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>OT Security Vendors</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Vendor</th>
+                                <th>Focus</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Claroty</strong></td>
+                                <td>OT visibility, threat detection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dragos</strong></td>
+                                <td>ICS threat intelligence, detection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nozomi Networks</strong></td>
+                                <td>OT/IoT visibility, anomaly detection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fortinet (FortiGate)</strong></td>
+                                <td>OT-aware firewalls</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Waterfall Security</strong></td>
+                                <td>Unidirectional gateways (data diodes)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tenable.ot</strong></td>
+                                <td>OT vulnerability management</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you secure an OT/ICS network?"</p>
+                        <p><strong>Answer:</strong> "OT security differs from IT because availability is paramount - you can't just patch or reboot systems controlling physical processes. I'd implement the Purdue Model for network segmentation, with strict firewall rules between levels. An industrial DMZ separates IT from OT, ideally with data diodes for one-way data flow to historians. Remote access goes through jump servers with MFA, never direct VPN to OT. For monitoring, I'd deploy passive OT-aware solutions like Claroty or Dragos that understand ICS protocols and can detect anomalies without active scanning, which can crash PLCs. No vulnerability scanning on OT networks - instead, passive asset inventory. Critical safety systems (SIS) get their own isolated network. Default credentials must be changed, but patching requires extensive testing in lab environments first. The key principle is defense in depth while prioritizing operational availability."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="23-1-iot-security.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">IoT Security</span>
+                        </div>
+                    </a>
+                    <a href="15-2-interview-questions.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Interview Questions</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AWS Security Services - Complete guide to GuardDuty, Security Hub, Inspector, and other AWS security tools">
+    <title>AWS Security Services | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">☁️</span>Cloud Security</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="14-1-cloud-security.html" class="nav-link"><span class="nav-link-number">14.1</span> Fundamentals</a>
+                        <a href="14-2-aws-security.html" class="nav-link active"><span class="nav-link-number">14.2</span> AWS Security</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Cloud Security</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">AWS Security</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>AWS Security Services</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>AWS provides a comprehensive suite of security services for threat detection, compliance, and security posture management. Understanding these services is essential for securing AWS environments.</p>
+                        <ul>
+                            <li>GuardDuty threat detection</li>
+                            <li>Security Hub posture management</li>
+                            <li>Inspector vulnerability scanning</li>
+                            <li>CloudTrail audit logging</li>
+                            <li>IAM security best practices</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>AWS Security Service Overview</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Function</th>
+                                <th>Key Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>GuardDuty</strong></td>
+                                <td>Threat detection</td>
+                                <td>Detect malicious activity, compromised instances</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security Hub</strong></td>
+                                <td>Security posture</td>
+                                <td>Aggregate findings, compliance checks</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Inspector</strong></td>
+                                <td>Vulnerability scanning</td>
+                                <td>EC2, ECR, Lambda vulnerability assessment</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Macie</strong></td>
+                                <td>Data discovery</td>
+                                <td>Find sensitive data in S3</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CloudTrail</strong></td>
+                                <td>API audit logging</td>
+                                <td>Who did what, when</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Config</strong></td>
+                                <td>Configuration tracking</td>
+                                <td>Resource compliance, change tracking</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IAM Access Analyzer</strong></td>
+                                <td>Access analysis</td>
+                                <td>Find unintended public/cross-account access</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>GuardDuty Finding Types</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Example Findings</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>EC2</strong></td>
+                                <td>CryptoCurrency mining, DDoS participation, C2 communication</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IAM</strong></td>
+                                <td>Anomalous API calls, credential exfiltration, policy changes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>S3</strong></td>
+                                <td>Unusual data access, anonymous access, suspicious IP</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kubernetes</strong></td>
+                                <td>Anonymous API calls, privileged containers, suspicious exec</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Malware</strong></td>
+                                <td>Malware detected on EC2, malicious file upload to S3</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Security Hub Standards</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Security Hub Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    AWS SECURITY HUB                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  FINDING SOURCES                           SECURITY HUB                     │
+│  ┌─────────────────┐                   ┌───────────────────────────────┐    │
+│  │ GuardDuty       │──────────────────►│                               │    │
+│  └─────────────────┘                   │  AGGREGATED FINDINGS          │    │
+│  ┌─────────────────┐                   │                               │    │
+│  │ Inspector       │──────────────────►│  ┌─────────────────────────┐  │    │
+│  └─────────────────┘                   │  │ AWS Foundational        │  │    │
+│  ┌─────────────────┐                   │  │ Security Best Practices │  │    │
+│  │ Macie           │──────────────────►│  └─────────────────────────┘  │    │
+│  └─────────────────┘                   │                               │    │
+│  ┌─────────────────┐                   │  ┌─────────────────────────┐  │    │
+│  │ IAM Access      │──────────────────►│  │ CIS AWS Foundations     │  │    │
+│  │ Analyzer        │                   │  │ Benchmark               │  │    │
+│  └─────────────────┘                   │  └─────────────────────────┘  │    │
+│  ┌─────────────────┐                   │                               │    │
+│  │ Firewall Manager│──────────────────►│  ┌─────────────────────────┐  │    │
+│  └─────────────────┘                   │  │ PCI DSS                 │  │    │
+│  ┌─────────────────┐                   │  └─────────────────────────┘  │    │
+│  │ 3rd Party       │──────────────────►│                               │    │
+│  │ (Crowdstrike)   │                   │  Security Score: 85%         │    │
+│  └─────────────────┘                   └───────────────────────────────┘    │
+│                                                     │                       │
+│                                                     ▼                       │
+│                                        ┌───────────────────────────────┐    │
+│                                        │ Custom Actions / EventBridge │    │
+│                                        │ → Lambda → SIEM / Ticket     │    │
+│                                        └───────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Key AWS CLI Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">AWS Security CLI Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># GUARDDUTY</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># List detectors</span>
+<span class="token-command">aws</span> guardduty list-detectors
+
+<span class="token-comment"># Get findings</span>
+<span class="token-command">aws</span> guardduty list-findings --detector-id &lt;id&gt;
+<span class="token-command">aws</span> guardduty get-findings --detector-id &lt;id&gt; --finding-ids &lt;id1&gt; &lt;id2&gt;
+
+<span class="token-comment"># Archive findings</span>
+<span class="token-command">aws</span> guardduty archive-findings --detector-id &lt;id&gt; --finding-ids &lt;id&gt;
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SECURITY HUB</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Get findings</span>
+<span class="token-command">aws</span> securityhub get-findings --filters '{"SeverityLabel":[{"Value":"CRITICAL","Comparison":"EQUALS"}]}'
+
+<span class="token-comment"># Get security score</span>
+<span class="token-command">aws</span> securityhub get-security-control-definition --security-control-id &lt;id&gt;
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CLOUDTRAIL</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Lookup events</span>
+<span class="token-command">aws</span> cloudtrail lookup-events --lookup-attributes AttributeKey=Username,AttributeValue=admin
+
+<span class="token-comment"># Recent console logins</span>
+<span class="token-command">aws</span> cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=ConsoleLogin
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># IAM ACCESS ANALYZER</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># List findings</span>
+<span class="token-command">aws</span> accessanalyzer list-findings --analyzer-arn &lt;arn&gt;
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># INSPECTOR</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># List findings</span>
+<span class="token-command">aws</span> inspector2 list-findings --filter-criteria '{"severity":[{"comparison":"EQUALS","value":"CRITICAL"}]}'</code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ AWS Security Quick Wins</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Enable GuardDuty:</strong> One-click threat detection across all regions</li>
+                            <li><strong>Enable Security Hub:</strong> Aggregate findings, track compliance</li>
+                            <li><strong>Enable CloudTrail:</strong> All regions, all accounts, S3 + CloudWatch</li>
+                            <li><strong>Block public S3:</strong> Account-level public access block</li>
+                            <li><strong>Enable MFA:</strong> Root account and all IAM users</li>
+                            <li><strong>Use IAM roles:</strong> Avoid long-term access keys</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you set up security monitoring in AWS?"</p>
+                        <p><strong>Answer:</strong> "I'd start with the foundational services: Enable CloudTrail in all regions for API audit logging, with logs sent to a centralized S3 bucket and CloudWatch for alerting. Enable GuardDuty for threat detection - it analyzes CloudTrail, VPC Flow Logs, and DNS logs automatically. Enable Security Hub to aggregate findings and run compliance checks against CIS and AWS best practices. For vulnerability management, enable Inspector for EC2 and container scanning. Finally, set up EventBridge rules to send critical findings to our SIEM or create tickets automatically. All of these should be enabled organization-wide using AWS Organizations."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="14-1-cloud-security.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Cloud Security Fundamentals</span>
+                        </div>
+                    </a>
+                    <a href="15-2-interview-questions.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Interview Questions</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

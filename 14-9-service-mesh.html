@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Service Mesh Security - Complete guide to Istio, Linkerd, mTLS, and microservices network security">
+    <title>Service Mesh Security | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">☁️</span>Cloud Security</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="14-8-azure-networking.html" class="nav-link"><span class="nav-link-number">14.8</span> Azure Networking</a>
+                        <a href="14-9-service-mesh.html" class="nav-link active"><span class="nav-link-number">14.9</span> Service Mesh Security</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Cloud Security</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Service Mesh Security</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Service Mesh Security</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Service meshes provide network-level security for microservices, including mTLS encryption, authorization policies, and observability. They implement zero trust principles at the application network layer.</p>
+                        <ul>
+                            <li>Service mesh architecture and concepts</li>
+                            <li>mTLS and certificate management</li>
+                            <li>Authorization policies</li>
+                            <li>Istio and Linkerd security features</li>
+                            <li>Observability and security monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>What is a Service Mesh?</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Service Mesh Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SERVICE MESH ARCHITECTURE                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  WITHOUT SERVICE MESH:                                                      │
+│  ─────────────────────                                                      │
+│                                                                              │
+│    Service A ──────────── Plaintext ────────────► Service B                │
+│    (No encryption, no auth, no observability)                              │
+│                                                                              │
+│  WITH SERVICE MESH:                                                         │
+│  ─────────────────                                                          │
+│                                                                              │
+│  ┌─────────────────┐                           ┌─────────────────┐         │
+│  │   Pod A         │                           │   Pod B         │         │
+│  │                 │                           │                 │         │
+│  │ ┌─────────────┐ │                           │ ┌─────────────┐ │         │
+│  │ │ Service A   │ │                           │ │ Service B   │ │         │
+│  │ └──────┬──────┘ │                           │ └──────▲──────┘ │         │
+│  │        │        │                           │        │        │         │
+│  │        ▼        │                           │        │        │         │
+│  │ ┌─────────────┐ │        mTLS               │ ┌─────────────┐ │         │
+│  │ │ Sidecar     │ │◄══════════════════════════│ │ Sidecar     │ │         │
+│  │ │ Proxy       │ │   (encrypted, authed)     │ │ Proxy       │ │         │
+│  │ │ (Envoy)     │ │                           │ │ (Envoy)     │ │         │
+│  │ └─────────────┘ │                           │ └─────────────┘ │         │
+│  └─────────────────┘                           └─────────────────┘         │
+│                                                                              │
+│  CONTROL PLANE (Istiod / Linkerd Control Plane)                           │
+│  ─────────────────────────────────────────────                              │
+│  • Certificate Authority (issues certs to proxies)                         │
+│  • Configuration distribution                                              │
+│  • Policy management                                                       │
+│  • Telemetry collection                                                    │
+│                                                                              │
+│  SECURITY FEATURES:                                                        │
+│  • Automatic mTLS between services                                         │
+│  • Service-to-service authorization                                        │
+│  • Traffic encryption                                                      │
+│  • Identity-based access control                                           │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Service Mesh Security Features</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Description</th>
+                                <th>Benefit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>mTLS</strong></td>
+                                <td>Automatic mutual TLS between services</td>
+                                <td>Encrypted traffic, mutual authentication</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Identity</strong></td>
+                                <td>Cryptographic service identity (SPIFFE)</td>
+                                <td>Know who's calling, not just where from</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Authorization</strong></td>
+                                <td>Service-to-service access policies</td>
+                                <td>Only allowed services can communicate</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cert Rotation</strong></td>
+                                <td>Automatic certificate rotation</td>
+                                <td>Short-lived certs, no manual management</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Observability</strong></td>
+                                <td>Metrics, traces, logs from proxy</td>
+                                <td>Security monitoring and debugging</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rate Limiting</strong></td>
+                                <td>Limit requests per service</td>
+                                <td>DoS protection</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Istio Security Configuration</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Istio - mTLS and Authorization</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ENABLE STRICT mTLS (mesh-wide)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: istio-system
+spec:
+  mtls:
+    mode: STRICT    <span class="token-comment"># Only mTLS allowed, no plaintext</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># AUTHORIZATION POLICY - Default Deny</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all
+  namespace: production
+spec:
+  {}  <span class="token-comment"># Empty spec = deny all</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># AUTHORIZATION POLICY - Allow specific service</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-frontend-to-api
+  namespace: production
+spec:
+  selector:
+    matchLabels:
+      app: api-service
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/production/sa/frontend"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+        paths: ["/api/*"]
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># AUTHORIZATION POLICY - JWT Validation</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: jwt-auth
+  namespace: production
+spec:
+  selector:
+    matchLabels:
+      app: api-service
+  jwtRules:
+  - issuer: "https://auth.company.com"
+    jwksUri: "https://auth.company.com/.well-known/jwks.json"
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: require-jwt
+  namespace: production
+spec:
+  selector:
+    matchLabels:
+      app: api-service
+  rules:
+  - from:
+    - source:
+        requestPrincipals: ["https://auth.company.com/*"]</code></pre>
+                </div>
+                
+                <h2>Service Mesh Comparison</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Istio</th>
+                                <th>Linkerd</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Proxy</strong></td>
+                                <td>Envoy</td>
+                                <td>Linkerd2-proxy (Rust)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>mTLS</strong></td>
+                                <td>Yes, automatic</td>
+                                <td>Yes, automatic</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Complexity</strong></td>
+                                <td>Higher (more features)</td>
+                                <td>Lower (simpler)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Resource Usage</strong></td>
+                                <td>Higher</td>
+                                <td>Lower</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Multi-cluster</strong></td>
+                                <td>Yes</td>
+                                <td>Yes (multi-cluster)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Auth Policies</strong></td>
+                                <td>Rich, L7 policies</td>
+                                <td>Server-side policies</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Best For</strong></td>
+                                <td>Complex requirements</td>
+                                <td>Simplicity, low overhead</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Zero Trust with Service Mesh</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Service Mesh Zero Trust Model</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ZERO TRUST SERVICE MESH                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  TRADITIONAL (Perimeter Security):                                          │
+│  ─────────────────────────────────                                          │
+│  • Trust everything inside the network                                      │
+│  • Firewall at edge only                                                    │
+│  • Once inside, lateral movement is easy                                    │
+│                                                                              │
+│  ZERO TRUST (Service Mesh):                                                │
+│  ─────────────────────────                                                  │
+│  • Never trust, always verify                                              │
+│  • Every service call is authenticated                                     │
+│  • Every service call is authorized                                        │
+│  • Every service call is encrypted                                         │
+│                                                                              │
+│  IMPLEMENTATION:                                                            │
+│                                                                              │
+│  1. IDENTITY (Who are you?)                                                │
+│     • SPIFFE ID: spiffe://cluster/ns/prod/sa/frontend                     │
+│     • Certificate-based identity                                           │
+│     • Not IP-based (IPs change in K8s)                                     │
+│                                                                              │
+│  2. AUTHENTICATION (Prove it)                                              │
+│     • mTLS - both sides present certificates                               │
+│     • Certificates issued by mesh CA                                       │
+│     • Short-lived (hours, not years)                                       │
+│                                                                              │
+│  3. AUTHORIZATION (What can you do?)                                       │
+│     • Policy: frontend → api (GET /api/*)                                 │
+│     • Default deny all                                                     │
+│     • Explicit allow for each communication                                │
+│                                                                              │
+│  4. ENCRYPTION (Protect the data)                                          │
+│     • All traffic encrypted with TLS 1.3                                   │
+│     • Even inside "trusted" network                                        │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Service Mesh Security Best Practices</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Strict mTLS:</strong> Enable STRICT mode, not PERMISSIVE</li>
+                            <li><strong>Default deny:</strong> Start with deny-all authorization policy</li>
+                            <li><strong>Least privilege:</strong> Only allow required service-to-service calls</li>
+                            <li><strong>Use service accounts:</strong> Each service gets unique identity</li>
+                            <li><strong>Monitor:</strong> Watch for policy violations in logs</li>
+                            <li><strong>Rotate certs:</strong> Use short-lived certificates (default is good)</li>
+                            <li><strong>Egress control:</strong> Control and monitor outbound traffic</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How does a service mesh improve microservices security?"</p>
+                        <p><strong>Answer:</strong> "A service mesh implements zero trust networking for microservices. It injects a sidecar proxy alongside each service that handles all network traffic. This enables several security features: First, automatic mTLS - every service-to-service call is encrypted and mutually authenticated without code changes. Each service gets a cryptographic identity (SPIFFE), not just an IP address. Second, authorization policies - you define which services can talk to which, with default deny. Even if an attacker compromises one service, they can't reach others without proper identity and authorization. Third, observability - the proxy generates metrics and traces, so you see all traffic patterns and can detect anomalies. The key benefit is shifting security from the perimeter to every service-to-service connection, implementing zero trust principles."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="14-8-azure-networking.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Azure Networking</span>
+                        </div>
+                    </a>
+                    <a href="23-1-iot-security.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">IoT Network Security</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

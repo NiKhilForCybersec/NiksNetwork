@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="IDS/IPS Fundamentals - Complete guide to intrusion detection and prevention systems, signature vs anomaly detection, and deployment strategies">
+    <title>IDS/IPS Fundamentals | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 5: IDS/IPS (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🚨</span>
+                            IDS/IPS Systems
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="5-1-ids-ips-fundamentals.html" class="nav-link active"><span class="nav-link-number">5.1</span> IDS/IPS Fundamentals</a>
+                        <a href="5-2-snort.html" class="nav-link"><span class="nav-link-number">5.2</span> Snort</a>
+                        <a href="5-3-suricata.html" class="nav-link"><span class="nav-link-number">5.3</span> Suricata</a>
+                        <a href="5-4-zeek.html" class="nav-link"><span class="nav-link-number">5.4</span> Zeek (Bro)</a>
+                        <a href="5-5-commercial.html" class="nav-link"><span class="nav-link-number">5.5</span> Commercial Solutions</a>
+                        <a href="5-6-hids.html" class="nav-link"><span class="nav-link-number">5.6</span> Host-Based IDS</a>
+                        <a href="5-7-tuning.html" class="nav-link"><span class="nav-link-number">5.7</span> Tuning & False Positives</a>
+                        <a href="5-8-integration.html" class="nav-link"><span class="nav-link-number">5.8</span> SIEM Integration</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">IDS/IPS Systems</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Fundamentals</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>IDS/IPS Fundamentals</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Intrusion Detection Systems (IDS) and Intrusion Prevention Systems (IPS) are critical components of network security, providing visibility into threats and the ability to block malicious traffic. This guide covers the fundamentals of IDS/IPS technology.</p>
+                        <ul>
+                            <li>IDS vs IPS - key differences and use cases</li>
+                            <li>Network-based vs Host-based deployment</li>
+                            <li>Signature-based vs Anomaly-based detection</li>
+                            <li>Inline vs passive deployment modes</li>
+                            <li>Common detection techniques</li>
+                            <li>Alert management and tuning</li>
+                            <li>Integration with SIEM and SOAR</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>IDS vs IPS</h2>
+                
+                <p>While often discussed together, IDS and IPS serve different purposes and have different deployment requirements.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">IDS vs IPS Deployment</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    IDS vs IPS DEPLOYMENT                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  INTRUSION DETECTION SYSTEM (IDS) - PASSIVE                                 │
+│  ════════════════════════════════════════════                               │
+│                                                                              │
+│       Internet                                                               │
+│          │                                                                   │
+│          ▼                                                                   │
+│    ┌──────────┐                                                             │
+│    │ Firewall │─────────────────────────────► Internal Network             │
+│    └──────────┘                                                             │
+│          │                                                                   │
+│          │ Mirror Port / TAP                                                │
+│          │ (Copy of traffic)                                                │
+│          ▼                                                                   │
+│    ┌──────────┐                                                             │
+│    │   IDS    │───► Alerts to SIEM                                         │
+│    │          │     (Does NOT block traffic)                               │
+│    └──────────┘                                                             │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  INTRUSION PREVENTION SYSTEM (IPS) - INLINE                                 │
+│  ═══════════════════════════════════════════                                │
+│                                                                              │
+│       Internet                                                               │
+│          │                                                                   │
+│          ▼                                                                   │
+│    ┌──────────┐                                                             │
+│    │ Firewall │                                                             │
+│    └────┬─────┘                                                             │
+│         │                                                                    │
+│         ▼                                                                    │
+│    ┌──────────┐                                                             │
+│    │   IPS    │─────► Alerts + BLOCKS malicious traffic                    │
+│    │ (Inline) │                                                             │
+│    └────┬─────┘                                                             │
+│         │                                                                    │
+│         ▼                                                                    │
+│    Internal Network                                                          │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>IDS (Detection)</th>
+                                <th>IPS (Prevention)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Deployment</strong></td>
+                                <td>Passive (mirror/TAP)</td>
+                                <td>Inline (traffic passes through)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Action</strong></td>
+                                <td>Detect and alert only</td>
+                                <td>Detect, alert, and block</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network Impact</strong></td>
+                                <td>None - failure doesn't affect traffic</td>
+                                <td>Potential single point of failure</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Latency</strong></td>
+                                <td>None added</td>
+                                <td>Some latency added (varies by vendor)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>False Positive Impact</strong></td>
+                                <td>Alert fatigue</td>
+                                <td>Legitimate traffic blocked</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tuning Requirements</strong></td>
+                                <td>Less critical (impacts alerts)</td>
+                                <td>Critical (impacts availability)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use Case</strong></td>
+                                <td>Visibility, forensics, passive monitoring</td>
+                                <td>Active protection, automated response</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - IDS to IPS Migration</div>
+                    <div class="callout-content">
+                        <p><strong>Don't deploy IPS in blocking mode immediately!</strong></p>
+                        <ol>
+                            <li><strong>Phase 1 - Detection mode:</strong> Deploy inline but only alerting (IDS mode)</li>
+                            <li><strong>Phase 2 - Tune rules:</strong> Review alerts, eliminate false positives, adjust thresholds</li>
+                            <li><strong>Phase 3 - Selective blocking:</strong> Enable blocking for high-confidence signatures</li>
+                            <li><strong>Phase 4 - Full prevention:</strong> Gradually expand blocking coverage</li>
+                        </ol>
+                        <p>This approach prevents business disruption from false positives while building confidence in the detection accuracy.</p>
+                    </div>
+                </div>
+                
+                <h2>Detection Methods</h2>
+                
+                <h3>Signature-Based Detection</h3>
+                
+                <p>Signature-based detection matches traffic against known patterns of malicious activity. It's highly accurate for known threats but cannot detect novel attacks.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Signature-Based Detection</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SIGNATURE-BASED DETECTION                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  INCOMING PACKET:                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ GET /../../../../etc/passwd HTTP/1.1                                │    │
+│  │ Host: vulnerable-server.com                                         │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    SIGNATURE DATABASE                                │    │
+│  ├─────────────────────────────────────────────────────────────────────┤    │
+│  │  SID:1001 | Pattern: "../../../"          | Severity: High         │    │
+│  │  SID:1002 | Pattern: "/etc/passwd"        | Severity: High         │ ◄──┤ MATCH!
+│  │  SID:1003 | Pattern: "UNION SELECT"       | Severity: High         │    │
+│  │  SID:1004 | Pattern: "<script>"           | Severity: Medium       │    │
+│  │  ...                                                                 │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ ALERT: Directory Traversal Attempt Detected                         │    │
+│  │ SID: 1001, 1002                                                     │    │
+│  │ Source: 203.0.113.50                                                │    │
+│  │ Destination: 10.1.1.100                                             │    │
+│  │ Action: [DROP] (if IPS) / [ALERT] (if IDS)                         │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  PROS:                              CONS:                                   │
+│  ✓ Highly accurate for known        ✗ Cannot detect zero-day attacks       │
+│    threats                          ✗ Requires regular signature updates   │
+│  ✓ Low false positive rate          ✗ Evasion possible (encoding, etc.)    │
+│  ✓ Fast processing                  ✗ Growing signature database impacts   │
+│  ✓ Easy to understand alerts            performance                        │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h3>Anomaly-Based Detection</h3>
+                
+                <p>Anomaly-based detection establishes a baseline of "normal" behavior and alerts on deviations. It can detect unknown attacks but produces more false positives.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Anomaly-Based Detection</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ANOMALY-BASED DETECTION                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  LEARNING PHASE (Establish Baseline):                                       │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  Normal Behavior Profile:                                           │    │
+│  │  • User jsmith typically logs in 9am-5pm EST                        │    │
+│  │  • Average data download: 50MB/day                                  │    │
+│  │  • Typical destinations: internal servers, O365, Salesforce         │    │
+│  │  • Protocol distribution: 80% HTTPS, 15% DNS, 5% other             │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  DETECTION PHASE:                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  Current Activity:                                                   │    │
+│  │  • User jsmith logging in at 3am from new location                  │ ◄──┤ ANOMALY
+│  │  • Downloading 10GB of data                                         │ ◄──┤ ANOMALY
+│  │  • Connecting to unusual external IPs                               │ ◄──┤ ANOMALY
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ ALERT: Anomalous User Behavior Detected                             │    │
+│  │ User: jsmith                                                        │    │
+│  │ Anomaly Score: 87/100 (High)                                        │    │
+│  │ Factors: Unusual time, high data volume, new destinations          │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  PROS:                              CONS:                                   │
+│  ✓ Can detect unknown/zero-day      ✗ Higher false positive rate           │
+│    attacks                          ✗ Requires training period              │
+│  ✓ Detects insider threats          ✗ Legitimate behavior changes cause    │
+│  ✓ Behavioral context                   alerts (new project, travel)       │
+│                                     ✗ More complex to tune                  │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>NIDS vs HIDS</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>NIDS (Network-Based)</th>
+                                <th>HIDS (Host-Based)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Deployment</strong></td>
+                                <td>Network segment (TAP/SPAN)</td>
+                                <td>Individual hosts (agent)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Visibility</strong></td>
+                                <td>All network traffic in segment</td>
+                                <td>Host activity, files, processes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Encrypted Traffic</strong></td>
+                                <td>Cannot inspect (without decryption)</td>
+                                <td>Can see decrypted content on host</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Scalability</strong></td>
+                                <td>Fewer sensors needed</td>
+                                <td>Agent on every host</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Examples</strong></td>
+                                <td>Snort, Suricata, Zeek</td>
+                                <td>OSSEC, Wazuh, Tripwire</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Best For</strong></td>
+                                <td>Perimeter, network attacks</td>
+                                <td>Insider threats, file integrity, endpoint</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Snort Rule Structure</h2>
+                
+                <p>Understanding Snort rule syntax is valuable for any security professional, as it's the foundation for many IDS/IPS products.</p>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Snort Rule Syntax</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SNORT RULE STRUCTURE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># action protocol src_ip src_port -> dst_ip dst_port (options)</span>
+
+<span class="token-comment"># Example: Detect SQL Injection attempt</span>
+<span class="token-keyword">alert</span> tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS \
+  (msg:"SQL Injection Attempt"; \
+   flow:to_server,established; \
+   content:"UNION"; nocase; \
+   content:"SELECT"; nocase; distance:0; \
+   classtype:web-application-attack; \
+   sid:1000001; rev:1;)
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># RULE COMPONENTS EXPLAINED</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ACTION:    alert, log, pass, drop, reject</span>
+<span class="token-comment"># PROTOCOL:  tcp, udp, icmp, ip</span>
+<span class="token-comment"># DIRECTION: -> (unidirectional) or <> (bidirectional)</span>
+
+<span class="token-comment"># Common OPTIONS:</span>
+<span class="token-comment"># msg:       Alert message</span>
+<span class="token-comment"># content:   Pattern to match (can be hex: |00 01 02|)</span>
+<span class="token-comment"># nocase:    Case-insensitive match</span>
+<span class="token-comment"># flow:      Traffic direction (to_server, from_server, established)</span>
+<span class="token-comment"># pcre:      Perl-compatible regex</span>
+<span class="token-comment"># sid:       Signature ID (unique)</span>
+<span class="token-comment"># rev:       Revision number</span>
+<span class="token-comment"># classtype: Attack category</span>
+<span class="token-comment"># priority:  1 (high) to 4 (low)</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># MORE EXAMPLES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Detect ICMP Ping</span>
+<span class="token-keyword">alert</span> icmp $EXTERNAL_NET any -> $HOME_NET any \
+  (msg:"ICMP Ping"; itype:8; sid:1000002; rev:1;)
+
+<span class="token-comment"># Detect SSH Brute Force (threshold)</span>
+<span class="token-keyword">alert</span> tcp $EXTERNAL_NET any -> $HOME_NET 22 \
+  (msg:"SSH Brute Force Attempt"; \
+   flow:to_server; \
+   threshold:type threshold, track by_src, count 5, seconds 60; \
+   classtype:attempted-admin; \
+   sid:1000003; rev:1;)
+
+<span class="token-comment"># Detect EXE download</span>
+<span class="token-keyword">alert</span> tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any \
+  (msg:"EXE Download Detected"; \
+   flow:from_server,established; \
+   content:"MZ"; offset:0; depth:2; \
+   classtype:policy-violation; \
+   sid:1000004; rev:1;)</code></pre>
+                </div>
+                
+                <h2>IDS/IPS Deployment Architecture</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Enterprise IDS/IPS Deployment</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ENTERPRISE IDS/IPS ARCHITECTURE                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│                              INTERNET                                        │
+│                                  │                                           │
+│                                  ▼                                           │
+│                         ┌───────────────┐                                    │
+│                         │   ISP ROUTER  │                                    │
+│                         └───────┬───────┘                                    │
+│                                 │                                            │
+│                                 ▼                                            │
+│    ┌──────────────────────────────────────────────────────────────────┐     │
+│    │                    PERIMETER IPS (Inline)                         │     │
+│    │    • Block known attacks before firewall                         │     │
+│    │    • DDoS protection, known malware                              │     │
+│    └────────────────────────────┬─────────────────────────────────────┘     │
+│                                 │                                            │
+│                                 ▼                                            │
+│    ┌──────────────────────────────────────────────────────────────────┐     │
+│    │                      PERIMETER FIREWALL                           │     │
+│    └────────────────────────────┬─────────────────────────────────────┘     │
+│                                 │                                            │
+│              ┌──────────────────┼──────────────────┐                        │
+│              │                  │                  │                         │
+│              ▼                  ▼                  ▼                         │
+│    ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐            │
+│    │      DMZ        │  │    INTERNAL     │  │   DATA CENTER   │            │
+│    │                 │  │                 │  │                 │            │
+│    │  ┌───────────┐  │  │                 │  │  ┌───────────┐  │            │
+│    │  │NIDS Sensor│◄─┼──┼─────────────────┼──┼──│NIDS Sensor│  │            │
+│    │  │ (Mirror)  │  │  │                 │  │  │ (TAP)     │  │            │
+│    │  └───────────┘  │  │                 │  │  └───────────┘  │            │
+│    │                 │  │                 │  │                 │            │
+│    │  Web Servers    │  │  Workstations   │  │  Servers        │            │
+│    │  (HIDS agents)  │  │  (EDR/HIDS)     │  │  (HIDS agents)  │            │
+│    └─────────────────┘  └─────────────────┘  └─────────────────┘            │
+│              │                  │                  │                         │
+│              └──────────────────┼──────────────────┘                        │
+│                                 │                                            │
+│                                 ▼                                            │
+│    ┌──────────────────────────────────────────────────────────────────┐     │
+│    │                    CENTRAL SIEM / SOC                             │     │
+│    │                                                                   │     │
+│    │  • Aggregates all IDS/IPS alerts                                 │     │
+│    │  • Correlation with other security events                        │     │
+│    │  • Alert triage and investigation                                │     │
+│    │  • Automated response via SOAR                                   │     │
+│    └──────────────────────────────────────────────────────────────────┘     │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Common IDS/IPS Challenges</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Encrypted traffic:</strong> HTTPS makes up 80-90% of web traffic. Without SSL inspection, IDS can only see metadata.</li>
+                            <li><strong>Alert fatigue:</strong> Untuned IDS can generate thousands of alerts daily. Prioritization is critical.</li>
+                            <li><strong>Evasion techniques:</strong> Attackers fragment, encode, and obfuscate traffic to bypass signatures.</li>
+                            <li><strong>Performance impact:</strong> Deep packet inspection adds latency. Size appropriately for traffic volume.</li>
+                            <li><strong>Asymmetric routing:</strong> IDS must see both directions of traffic. Asymmetric paths cause missed alerts.</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>Common IDS/IPS operations tasks:</strong></p>
+                        <ul>
+                            <li><strong>Alert triage:</strong> Review high-priority alerts, investigate true positives</li>
+                            <li><strong>Signature updates:</strong> Apply new signatures, test impact</li>
+                            <li><strong>Tuning:</strong> Suppress false positives, adjust thresholds</li>
+                            <li><strong>Health monitoring:</strong> Check sensor status, packet drop rates</li>
+                            <li><strong>Reporting:</strong> Generate threat reports, compliance evidence</li>
+                            <li><strong>Incident response:</strong> Deep dive on confirmed attacks</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "What's the difference between IDS and IPS, and when would you use each?"</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>IDS:</strong> Passive monitoring, detects and alerts but doesn't block. Deploy when you need visibility without risking availability (initial deployments, sensitive networks, forensics).</li>
+                            <li><strong>IPS:</strong> Inline, actively blocks threats. Deploy after tuning to minimize false positives (perimeter protection, known attack vectors).</li>
+                        </ul>
+                        <p><strong>Best practice:</strong> "Start with IDS mode to establish baseline and tune rules. Gradually transition to IPS once you're confident in detection accuracy. Many organizations use both - IPS at perimeter for known threats, IDS internally for visibility."</p>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="4-8-waf-troubleshooting.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">WAF Troubleshooting</span>
+                        </div>
+                    </a>
+                    <a href="5-2-snort.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Snort</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

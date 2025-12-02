@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OSI Model Deep Dive - Understanding all 7 layers with security relevance, attack vectors, and security controls">
+    <title>OSI Model Deep Dive | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation (same as index.html) -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 1: Networking Fundamentals -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🌐</span>
+                            Networking Fundamentals
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="1-1-osi-model.html" class="nav-link active"><span class="nav-link-number">1.1</span> OSI Model Deep Dive</a>
+                        <a href="1-2-tcp-ip-protocols.html" class="nav-link"><span class="nav-link-number">1.2</span> TCP/IP Stack & Protocols</a>
+                        <a href="1-3-addressing-subnetting.html" class="nav-link"><span class="nav-link-number">1.3</span> Network Addressing</a>
+                        <a href="1-4-routing.html" class="nav-link"><span class="nav-link-number">1.4</span> Routing Fundamentals</a>
+                        <a href="1-5-switching-vlans.html" class="nav-link"><span class="nav-link-number">1.5</span> Switching & VLANs</a>
+                        <a href="1-6-segmentation.html" class="nav-link"><span class="nav-link-number">1.6</span> Network Segmentation</a>
+                        <a href="1-7-dns-security.html" class="nav-link"><span class="nav-link-number">1.7</span> DNS Security</a>
+                        <a href="1-8-dhcp-security.html" class="nav-link"><span class="nav-link-number">1.8</span> DHCP Security</a>
+                        <a href="1-9-traffic-analysis.html" class="nav-link"><span class="nav-link-number">1.9</span> Traffic Analysis</a>
+                        <a href="1-10-protocol-reference.html" class="nav-link"><span class="nav-link-number">1.10</span> Protocol Reference</a>
+                    </div>
+                </div>
+                
+                <!-- Section 2: Firewalls (collapsed) -->
+                <div class="nav-section">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🛡️</span>
+                            Firewalls
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="2-1-firewall-fundamentals.html" class="nav-link"><span class="nav-link-number">2.1</span> Firewall Fundamentals</a>
+                        <a href="2-2-firewall-types.html" class="nav-link"><span class="nav-link-number">2.2</span> Firewall Types</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Networking Fundamentals</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">OSI Model</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>OSI Model Deep Dive</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>The OSI (Open Systems Interconnection) model is the foundational framework for understanding how data flows through a network. For security professionals, understanding each layer is critical for identifying attack vectors and implementing appropriate security controls.</p>
+                        <ul>
+                            <li>All 7 OSI layers with detailed security relevance</li>
+                            <li>Attack vectors specific to each layer</li>
+                            <li>Security controls and countermeasures</li>
+                            <li>Protocol mapping and real-world examples</li>
+                            <li>Interview preparation tips and common questions</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>The OSI Model Overview</h2>
+                
+                <p>The OSI model divides network communication into seven distinct layers, each with specific responsibilities. Understanding this model is essential for troubleshooting network issues, implementing security controls, and discussing network architecture with clarity.</p>
+                
+                <!-- ASCII Diagram -->
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">OSI Model with Security Context</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           OSI MODEL - SECURITY VIEW                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  LAYER   │      NAME        │   PROTOCOLS    │  SECURITY DEVICES/CONTROLS   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│    7     │   Application    │  HTTP, HTTPS,  │  WAF, Proxy, DLP,            │
+│          │                  │  FTP, SMTP,    │  Application Firewall,       │
+│          │                  │  DNS, SSH      │  Content Filtering           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│    6     │   Presentation   │  SSL/TLS,      │  Encryption, PKI,            │
+│          │                  │  JPEG, MPEG,   │  Certificate Management,     │
+│          │                  │  ASCII, EBCDIC │  Data Formatting Security    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│    5     │   Session        │  NetBIOS,      │  Session Management,         │
+│          │                  │  RPC, PPTP,    │  Authentication Controls,    │
+│          │                  │  SIP           │  Session Timeout             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│    4     │   Transport      │  TCP, UDP,     │  Stateful Firewall,          │
+│          │                  │  SCTP          │  IDS/IPS, Port Filtering,    │
+│          │                  │                │  Rate Limiting               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│    3     │   Network        │  IP, ICMP,     │  Router ACLs, L3 Firewall,   │
+│          │                  │  IGMP, IPSec,  │  VPN, Anti-Spoofing,         │
+│          │                  │  ARP, RARP     │  Route Filtering             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│    2     │   Data Link      │  Ethernet,     │  Switch Port Security,       │
+│          │                  │  PPP, HDLC,    │  VLAN Segmentation,          │
+│          │                  │  802.11 (WiFi) │  MAC Filtering, 802.1X       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│    1     │   Physical       │  RS-232,       │  Physical Access Control,    │
+│          │                  │  RJ-45, Fiber, │  Cable Security,             │
+│          │                  │  Radio Waves   │  Secure Facilities           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    ▲                                                                      ▲
+    │         DATA ENCAPSULATION (Sending)                                 │
+    │    ┌──────────────────────────────────────────────────────────┐     │
+    │    │  Application Data → Segment → Packet → Frame → Bits      │     │
+    │    └──────────────────────────────────────────────────────────┘     │
+    │                                                                      │
+    │         DATA DECAPSULATION (Receiving)                               │
+    │    ┌──────────────────────────────────────────────────────────┐     │
+    │    │  Bits → Frame → Packet → Segment → Application Data      │     │
+    │    └──────────────────────────────────────────────────────────┘     │
+    ▼                                                                      ▼
+</pre>
+                </div>
+                
+                <h2>Layer 7: Application Layer</h2>
+                
+                <p>The Application Layer is the closest to the end-user and provides network services directly to applications. It's also the most targeted layer for attacks because it handles user data and authentication.</p>
+                
+                <h3>Security Relevance</h3>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Protocol</th>
+                                <th>Port</th>
+                                <th>Common Attacks</th>
+                                <th>Security Controls</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>HTTP/HTTPS</code></td>
+                                <td>80/443</td>
+                                <td>SQL Injection, XSS, CSRF, Directory Traversal</td>
+                                <td>WAF, Input Validation, HTTPS Enforcement</td>
+                            </tr>
+                            <tr>
+                                <td><code>DNS</code></td>
+                                <td>53</td>
+                                <td>DNS Spoofing, Cache Poisoning, Tunneling</td>
+                                <td>DNSSEC, DNS Filtering, Sinkholing</td>
+                            </tr>
+                            <tr>
+                                <td><code>SMTP</code></td>
+                                <td>25/587</td>
+                                <td>Email Spoofing, Phishing, Spam</td>
+                                <td>SPF, DKIM, DMARC, Email Gateway</td>
+                            </tr>
+                            <tr>
+                                <td><code>SSH</code></td>
+                                <td>22</td>
+                                <td>Brute Force, Key Theft</td>
+                                <td>Key-based Auth, Fail2ban, Bastion Hosts</td>
+                            </tr>
+                            <tr>
+                                <td><code>FTP</code></td>
+                                <td>21</td>
+                                <td>Credential Sniffing, Bounce Attacks</td>
+                                <td>SFTP/FTPS, IP Restrictions</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Interview Tip Callout -->
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "At which OSI layer does a WAF operate?"</p>
+                        <p><strong>Answer:</strong> A Web Application Firewall (WAF) operates primarily at <strong>Layer 7 (Application Layer)</strong> because it inspects HTTP/HTTPS traffic and understands application-level protocols. It can detect and block attacks like SQL injection, XSS, and CSRF by analyzing the content of web requests. Some WAFs also have visibility into Layer 6 for SSL/TLS decryption.</p>
+                    </div>
+                </div>
+                
+                <h2>Layer 6: Presentation Layer</h2>
+                
+                <p>The Presentation Layer handles data translation, encryption, and compression. It ensures that data from the Application Layer can be read by the receiving system, regardless of differences in data representation.</p>
+                
+                <h3>Security Functions</h3>
+                
+                <ul>
+                    <li><strong>Encryption/Decryption:</strong> SSL/TLS operates here, providing confidentiality</li>
+                    <li><strong>Data Formatting:</strong> Ensures consistent data representation (ASCII, EBCDIC, Unicode)</li>
+                    <li><strong>Compression:</strong> Reduces data size while maintaining integrity</li>
+                </ul>
+                
+                <!-- Code Block Example -->
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">OpenSSL - Checking TLS Certificate</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># Check SSL/TLS certificate of a website</span>
+<span class="token-command">openssl</span> <span class="token-function">s_client</span> <span class="token-flag">-connect</span> <span class="token-string">example.com:443</span> <span class="token-flag">-servername</span> <span class="token-string">example.com</span>
+
+<span class="token-comment"># View certificate details</span>
+<span class="token-command">openssl</span> <span class="token-function">s_client</span> <span class="token-flag">-connect</span> <span class="token-string">example.com:443</span> | <span class="token-command">openssl</span> <span class="token-function">x509</span> <span class="token-flag">-noout</span> <span class="token-flag">-text</span>
+
+<span class="token-comment"># Check certificate expiration</span>
+<span class="token-command">openssl</span> <span class="token-function">s_client</span> <span class="token-flag">-connect</span> <span class="token-string">example.com:443</span> 2>/dev/null | <span class="token-command">openssl</span> <span class="token-function">x509</span> <span class="token-flag">-noout</span> <span class="token-flag">-dates</span></code></pre>
+                </div>
+                
+                <h2>Layer 5: Session Layer</h2>
+                
+                <p>The Session Layer establishes, manages, and terminates sessions between applications. It handles authentication, reconnection, and checkpointing during data transfer.</p>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Security Warning</div>
+                    <div class="callout-content">
+                        <p>Session hijacking attacks target this layer. Attackers can steal session tokens, cookies, or session IDs to impersonate legitimate users. Always implement:</p>
+                        <ul>
+                            <li>Session timeout policies</li>
+                            <li>Secure session token generation (cryptographically random)</li>
+                            <li>Session binding to IP/User-Agent</li>
+                            <li>HTTPS-only session cookies</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Layer 4: Transport Layer</h2>
+                
+                <p>The Transport Layer provides end-to-end communication services, including segmentation, flow control, and error recovery. TCP and UDP are the primary protocols at this layer.</p>
+                
+                <!-- ASCII Diagram: TCP vs UDP -->
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">TCP vs UDP Security Comparison</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        TCP (Transmission Control Protocol)                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  ✓ Connection-oriented (3-way handshake)                                    │
+│  ✓ Reliable delivery with acknowledgments                                   │
+│  ✓ Ordered packet delivery                                                  │
+│  ✓ Flow control and congestion control                                      │
+│                                                                              │
+│  SECURITY IMPLICATIONS:                                                      │
+│  • SYN Flood attacks possible (target handshake)                            │
+│  • TCP session hijacking (sequence number prediction)                        │
+│  • RST attacks can terminate sessions                                        │
+│  • Stateful firewalls can track connections                                  │
+│                                                                              │
+│  COMMON ATTACKS: SYN Flood, TCP Reset, Session Hijacking, ACK Flood         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        UDP (User Datagram Protocol)                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  ✗ Connectionless (no handshake)                                            │
+│  ✗ Unreliable (no acknowledgments)                                          │
+│  ✗ No ordering guarantee                                                    │
+│  ✓ Low overhead, faster than TCP                                            │
+│                                                                              │
+│  SECURITY IMPLICATIONS:                                                      │
+│  • Easy to spoof source IP (no handshake verification)                      │
+│  • Used in amplification/reflection attacks                                  │
+│  • Harder for stateful firewalls to track                                   │
+│  • DNS, NTP, SNMP often abused for DDoS                                     │
+│                                                                              │
+│  COMMON ATTACKS: UDP Flood, DNS Amplification, NTP Amplification            │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h3>TCP Three-Way Handshake</h3>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">TCP Three-Way Handshake with Packet Details</div>
+<pre>
+     CLIENT                                                 SERVER
+        │                                                      │
+        │  ─────────── SYN (SEQ=100) ─────────────────────►   │
+        │              Flags: SYN                              │
+        │              Seq: 100                                │
+        │                                                      │
+        │  ◄──────── SYN-ACK (SEQ=300, ACK=101) ────────────  │
+        │              Flags: SYN, ACK                         │
+        │              Seq: 300, Ack: 101                      │
+        │                                                      │
+        │  ─────────── ACK (SEQ=101, ACK=301) ─────────────►   │
+        │              Flags: ACK                              │
+        │              Seq: 101, Ack: 301                      │
+        │                                                      │
+        │  ═══════════ CONNECTION ESTABLISHED ═══════════════  │
+        │                                                      │
+        
+   ATTACK VECTOR: SYN Flood
+   ┌────────────────────────────────────────────────────────────┐
+   │  Attacker sends thousands of SYN packets with             │
+   │  spoofed source IPs. Server allocates resources           │
+   │  for half-open connections, exhausting memory.            │
+   │                                                            │
+   │  MITIGATION: SYN Cookies, Rate Limiting, Firewall Rules   │
+   └────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <!-- Best Practice Callout -->
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice</div>
+                    <div class="callout-content">
+                        <p><strong>Firewall Rule Design at Layer 4:</strong></p>
+                        <p>When creating firewall rules, always specify both port AND protocol. A rule allowing "port 443" without specifying TCP could inadvertently allow UDP traffic on port 443, which might be exploited.</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span class="code-lang">Palo Alto CLI</span>
+                                <button class="code-copy-btn">📋 Copy</button>
+                            </div>
+                            <pre><code><span class="token-comment"># Good: Specify protocol and port</span>
+set rulebase security rules HTTPS-Allow from any to untrust source any destination any application ssl service application-default action allow
+
+<span class="token-comment"># Check session table for TCP connections</span>
+show session all filter protocol 6 destination-port 443</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <h2>Layer 3: Network Layer</h2>
+                
+                <p>The Network Layer handles logical addressing (IP addresses) and routing. It determines the best path for data to travel across networks and is where routers operate.</p>
+                
+                <h3>Security Controls at Layer 3</h3>
+                
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Router Access Control Lists (ACLs)</h4>
+                            <p>Filter traffic based on source/destination IP addresses. Standard ACLs filter by source only; Extended ACLs can filter by source, destination, protocol, and port.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Anti-Spoofing (uRPF)</h4>
+                            <p>Unicast Reverse Path Forwarding validates that source IP addresses are reachable through the interface they arrived on, preventing IP spoofing.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>IPSec VPN</h4>
+                            <p>Provides encryption and authentication at Layer 3, enabling secure site-to-site and remote access connections.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>Route Filtering</h4>
+                            <p>Prevent route injection attacks by filtering which routes are accepted from BGP/OSPF peers. Use prefix lists and route maps.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cisco ACL Example -->
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco IOS - Extended ACL Example</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! Create an extended ACL to allow HTTPS and deny all other traffic</span>
+<span class="token-keyword">ip access-list extended</span> WEB-TRAFFIC
+ <span class="token-keyword">permit</span> tcp <span class="token-variable">192.168.1.0 0.0.0.255</span> any <span class="token-keyword">eq</span> <span class="token-number">443</span>
+ <span class="token-keyword">permit</span> tcp <span class="token-variable">192.168.1.0 0.0.0.255</span> any <span class="token-keyword">eq</span> <span class="token-number">80</span>
+ <span class="token-keyword">deny</span> ip any any <span class="token-keyword">log</span>
+
+<span class="token-comment">! Apply ACL to interface (inbound)</span>
+<span class="token-keyword">interface</span> GigabitEthernet0/1
+ ip access-group WEB-TRAFFIC in
+
+<span class="token-comment">! Verify ACL hits</span>
+<span class="token-command">show</span> access-lists WEB-TRAFFIC</code></pre>
+                </div>
+                
+                <h2>Layer 2: Data Link Layer</h2>
+                
+                <p>The Data Link Layer provides node-to-node data transfer and handles MAC addressing, framing, and error detection. Switches operate at this layer.</p>
+                
+                <h3>Layer 2 Attack Vectors</h3>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Attack</th>
+                                <th>Description</th>
+                                <th>Mitigation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>MAC Flooding</strong></td>
+                                <td>Overwhelm switch MAC table to force hub-like behavior</td>
+                                <td>Port Security, MAC Limiting</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ARP Spoofing</strong></td>
+                                <td>Send fake ARP replies to redirect traffic</td>
+                                <td>Dynamic ARP Inspection (DAI)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>VLAN Hopping</strong></td>
+                                <td>Access other VLANs via switch spoofing or double tagging</td>
+                                <td>Disable DTP, Native VLAN hardening</td>
+                            </tr>
+                            <tr>
+                                <td><strong>STP Attacks</strong></td>
+                                <td>Manipulate Spanning Tree to become root bridge</td>
+                                <td>BPDU Guard, Root Guard</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DHCP Starvation</strong></td>
+                                <td>Exhaust DHCP pool with fake requests</td>
+                                <td>DHCP Snooping, Port Security</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco IOS - Port Security Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! Enable port security on access port</span>
+<span class="token-keyword">interface</span> GigabitEthernet0/1
+ <span class="token-keyword">switchport mode</span> access
+ <span class="token-keyword">switchport access</span> vlan 10
+ <span class="token-keyword">switchport port-security</span>
+ <span class="token-keyword">switchport port-security maximum</span> <span class="token-number">2</span>
+ <span class="token-keyword">switchport port-security violation</span> restrict
+ <span class="token-keyword">switchport port-security mac-address</span> sticky
+
+<span class="token-comment">! Enable DHCP Snooping</span>
+<span class="token-keyword">ip dhcp snooping</span>
+<span class="token-keyword">ip dhcp snooping</span> vlan 10,20,30
+
+<span class="token-comment">! Trust uplink to DHCP server</span>
+<span class="token-keyword">interface</span> GigabitEthernet0/24
+ <span class="token-keyword">ip dhcp snooping trust</span>
+
+<span class="token-comment">! Enable Dynamic ARP Inspection</span>
+<span class="token-keyword">ip arp inspection</span> vlan 10,20,30</code></pre>
+                </div>
+                
+                <h2>Layer 1: Physical Layer</h2>
+                
+                <p>The Physical Layer deals with the actual physical connection between devices—cables, connectors, electrical signals, and radio waves. While often overlooked, physical security is fundamental.</p>
+                
+                <div class="callout callout-critical">
+                    <div class="callout-title">🔴 Critical Security Note</div>
+                    <div class="callout-content">
+                        <p><strong>Physical security is the foundation of all security.</strong> If an attacker has physical access to your network infrastructure, all other security controls can potentially be bypassed.</p>
+                        <ul>
+                            <li>Secure server rooms with badge access and logging</li>
+                            <li>Lock network closets and cable management areas</li>
+                            <li>Use tamper-evident seals on critical equipment</li>
+                            <li>Implement CCTV monitoring for sensitive areas</li>
+                            <li>Disable unused switch ports</li>
+                            <li>Use fiber optics where possible (harder to tap than copper)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Day-to-Day Tasks -->
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>As a Security Engineer, here's how you'll use OSI model knowledge daily:</strong></p>
+                        <ul>
+                            <li><strong>Troubleshooting:</strong> Systematically work through layers to isolate issues</li>
+                            <li><strong>Security Architecture:</strong> Design defense-in-depth with controls at multiple layers</li>
+                            <li><strong>Incident Response:</strong> Identify which layer an attack is targeting</li>
+                            <li><strong>Vendor Communication:</strong> Speak the same language as network and security teams</li>
+                            <li><strong>Documentation:</strong> Clearly describe where security controls operate</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Security Devices by OSI Layer</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Security Device Mapping to OSI Layers</div>
+<pre>
+┌───────────────────────────────────────────────────────────────────────────────┐
+│                    WHERE SECURITY DEVICES OPERATE                              │
+├───────────────────────────────────────────────────────────────────────────────┤
+│                                                                                │
+│  Layer 7  ──►  WAF, Proxy, DLP, CASB, Email Gateway, Content Filter           │
+│                                                                                │
+│  Layer 6  ──►  SSL/TLS Inspection, Encryption Appliances                      │
+│                                                                                │
+│  Layer 5  ──►  Session Management (integrated into L7 devices)                │
+│                                                                                │
+│  Layer 4  ──►  Stateful Firewall, IDS/IPS, Load Balancer (L4)                 │
+│                                                                                │
+│  Layer 3  ──►  Router ACLs, VPN Gateway, Packet Filter Firewall               │
+│                                                                                │
+│  Layer 2  ──►  Switch (Port Security, VLAN), 802.1X (NAC)                     │
+│                                                                                │
+│  Layer 1  ──►  Physical Access Controls, Network TAPs, Cable Locks            │
+│                                                                                │
+├───────────────────────────────────────────────────────────────────────────────┤
+│                                                                                │
+│  NGFW (Next-Gen Firewall)     ──►  Layers 3-7 (Deep Packet Inspection)        │
+│  UTM (Unified Threat Mgmt)    ──►  Layers 3-7 (All-in-one appliance)          │
+│  SIEM                         ──►  All Layers (Log collection & correlation)  │
+│                                                                                │
+└───────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Quick Reference: Remembering the OSI Layers</h2>
+                
+                <p>Use this mnemonic to remember the layers from bottom to top:</p>
+                
+                <div class="callout callout-info">
+                    <div class="callout-title">💡 Memory Trick</div>
+                    <div class="callout-content">
+                        <p><strong>"Please Do Not Throw Sausage Pizza Away"</strong></p>
+                        <ul>
+                            <li><strong>P</strong>hysical (Layer 1)</li>
+                            <li><strong>D</strong>ata Link (Layer 2)</li>
+                            <li><strong>N</strong>etwork (Layer 3)</li>
+                            <li><strong>T</strong>ransport (Layer 4)</li>
+                            <li><strong>S</strong>ession (Layer 5)</li>
+                            <li><strong>P</strong>resentation (Layer 6)</li>
+                            <li><strong>A</strong>pplication (Layer 7)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Final Interview Tip -->
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "What's the difference between a Layer 3 firewall and a Layer 7 firewall?"</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>Layer 3 Firewall:</strong> Makes decisions based on IP addresses and ports only. Fast but limited visibility. Example: Router ACLs, packet filter firewalls.</li>
+                            <li><strong>Layer 7 Firewall:</strong> Can inspect application-level data (HTTP headers, SQL queries, etc.). Slower but much more granular control. Can identify applications regardless of port. Example: Next-Gen Firewalls (Palo Alto, Fortinet).</li>
+                        </ul>
+                        <p><strong>Follow-up:</strong> "Modern NGFWs actually operate across Layers 3-7, combining packet filtering, stateful inspection, and deep packet inspection for comprehensive security."</p>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="index.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Home</span>
+                        </div>
+                    </a>
+                    <a href="1-2-tcp-ip-protocols.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">TCP/IP Stack & Protocols</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

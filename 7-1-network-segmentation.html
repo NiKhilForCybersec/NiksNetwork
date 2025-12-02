@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Network Segmentation - Complete guide to network zones, VLANs, microsegmentation, and security architecture">
+    <title>Network Segmentation | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🏗️</span>Architecture</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="7-1-network-segmentation.html" class="nav-link active"><span class="nav-link-number">7.1</span> Segmentation</a>
+                        <a href="7-2-zero-trust.html" class="nav-link"><span class="nav-link-number">7.2</span> Zero Trust</a>
+                        <a href="7-3-zscaler-platform.html" class="nav-link"><span class="nav-link-number">7.3</span> Zscaler</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Architecture</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Segmentation</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Network Segmentation</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Network segmentation divides a network into smaller segments to contain threats, limit lateral movement, and enforce security policies. It's a fundamental security control for defense in depth.</p>
+                        <ul>
+                            <li>Why segmentation matters</li>
+                            <li>Segmentation approaches</li>
+                            <li>Common network zones</li>
+                            <li>Microsegmentation</li>
+                            <li>Implementation strategies</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Why Segmentation?</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Flat Network vs Segmented Network</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    FLAT NETWORK (BAD)                                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│    ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐             │
+│    │ User │  │ User │  │ DB   │  │ Web  │  │ Dev  │  │ IoT  │             │
+│    │ PC   │──│ PC   │──│Server│──│Server│──│Server│──│Device│             │
+│    └──────┘  └──────┘  └──────┘  └──────┘  └──────┘  └──────┘             │
+│        │                                                                     │
+│        └─── Attacker compromises one PC → Can reach EVERYTHING              │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SEGMENTED NETWORK (GOOD)                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐           │
+│  │ USER ZONE       │   │ DMZ             │   │ DATA ZONE       │           │
+│  │ ┌────┐ ┌────┐   │   │ ┌────┐          │   │ ┌────┐          │           │
+│  │ │User│ │User│   │   │ │Web │          │   │ │ DB │          │           │
+│  │ └────┘ └────┘   │   │ └────┘          │   │ └────┘          │           │
+│  └────────┬────────┘   └────────┬────────┘   └────────┬────────┘           │
+│           │                     │                     │                     │
+│           └──────────┬──────────┴──────────┬──────────┘                     │
+│                      │                     │                                 │
+│               ┌──────┴──────┐       ┌──────┴──────┐                         │
+│               │  FIREWALL   │       │  FIREWALL   │                         │
+│               └─────────────┘       └─────────────┘                         │
+│                                                                              │
+│  Attacker compromises user PC → BLOCKED from reaching DB directly           │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Common Network Zones</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Zone</th>
+                                <th>Purpose</th>
+                                <th>Examples</th>
+                                <th>Trust Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Internet</strong></td>
+                                <td>Untrusted external network</td>
+                                <td>Public internet</td>
+                                <td>None</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DMZ</strong></td>
+                                <td>Public-facing services</td>
+                                <td>Web servers, email gateways</td>
+                                <td>Low</td>
+                            </tr>
+                            <tr>
+                                <td><strong>User/Workstation</strong></td>
+                                <td>End-user devices</td>
+                                <td>Laptops, desktops</td>
+                                <td>Medium</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Server/Application</strong></td>
+                                <td>Internal applications</td>
+                                <td>App servers, internal tools</td>
+                                <td>Medium-High</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Database/Data</strong></td>
+                                <td>Sensitive data storage</td>
+                                <td>Databases, file servers</td>
+                                <td>High</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Management</strong></td>
+                                <td>Network/security management</td>
+                                <td>Jump boxes, SIEM, firewalls</td>
+                                <td>Highest</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IoT/OT</strong></td>
+                                <td>Operational technology</td>
+                                <td>Cameras, HVAC, industrial</td>
+                                <td>Isolated</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Segmentation Approaches</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Approach</th>
+                                <th>Technology</th>
+                                <th>Granularity</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Physical</strong></td>
+                                <td>Separate hardware/cables</td>
+                                <td>Coarse</td>
+                                <td>Air-gapped networks</td>
+                            </tr>
+                            <tr>
+                                <td><strong>VLANs</strong></td>
+                                <td>Layer 2 separation</td>
+                                <td>Medium</td>
+                                <td>Traditional segmentation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Firewall Zones</strong></td>
+                                <td>Layer 3/4 policies</td>
+                                <td>Medium</td>
+                                <td>Zone-based enforcement</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Microsegmentation</strong></td>
+                                <td>Host-based, SDN</td>
+                                <td>Fine (per-workload)</td>
+                                <td>Data center, cloud</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Zero Trust</strong></td>
+                                <td>Identity-based</td>
+                                <td>Finest (per-request)</td>
+                                <td>Modern architecture</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Microsegmentation</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Microsegmentation Concept</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    MICROSEGMENTATION                                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  TRADITIONAL (Zone-based)              MICROSEGMENTATION (Per-workload)     │
+│  ┌─────────────────────────┐           ┌─────────────────────────┐          │
+│  │ SERVER ZONE             │           │ SERVER ZONE             │          │
+│  │                         │           │                         │          │
+│  │  ┌───┐ ┌───┐ ┌───┐     │           │  ┌───┐ ┌───┐ ┌───┐     │          │
+│  │  │Web│─│App│─│ DB│     │           │  │Web│ │App│ │ DB│     │          │
+│  │  └───┘ └───┘ └───┘     │           │  └─┬─┘ └─┬─┘ └─┬─┘     │          │
+│  │    ▲                    │           │    │     │     │       │          │
+│  │    │ All servers can    │           │    │     │     │       │          │
+│  │    │ talk to each other │           │  ┌─┴─────┴─────┴─┐     │          │
+│  │                         │           │  │   Policies:   │     │          │
+│  └─────────────────────────┘           │  │ Web→App:443 ✓ │     │          │
+│                                        │  │ App→DB:3306 ✓ │     │          │
+│                                        │  │ Web→DB: ✗     │     │          │
+│                                        │  │ App→Web: ✗    │     │          │
+│                                        │  └───────────────┘     │          │
+│                                        └─────────────────────────┘          │
+│                                                                              │
+│  Technologies: VMware NSX, Illumio, Guardicore, Cisco ACI                   │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - Segmentation</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Start with data classification:</strong> Know what you're protecting</li>
+                            <li><strong>Map traffic flows:</strong> Understand legitimate communication patterns</li>
+                            <li><strong>Default deny:</strong> Block all, allow only required traffic</li>
+                            <li><strong>Segment by risk:</strong> High-value assets in separate segments</li>
+                            <li><strong>Monitor east-west:</strong> Log traffic between segments</li>
+                            <li><strong>Limit management access:</strong> Jump boxes, PAM for admin access</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you design network segmentation for an enterprise?"</p>
+                        <p><strong>Answer:</strong> "I'd start by identifying critical assets and data classification. Then create zones based on function and trust level: DMZ for public-facing services, user zone for workstations, application zone for internal apps, and a highly restricted data zone for databases. VLANs provide Layer 2 separation, firewalls enforce policies between zones. For the data center, I'd add microsegmentation to control east-west traffic between workloads. Management network should be isolated with jump boxes. The goal is limiting blast radius - if an attacker compromises one segment, they can't easily move laterally."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="6-3-ssl-vpn.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">SSL VPN</span>
+                        </div>
+                    </a>
+                    <a href="7-2-zero-trust.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Zero Trust</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

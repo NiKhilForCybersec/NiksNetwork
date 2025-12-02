@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SSL/TLS Hardening - Complete guide to TLS configuration, cipher suites, and certificate security">
+    <title>SSL/TLS Hardening | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌍</span>Web Proxy</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="3-4-squid.html" class="nav-link"><span class="nav-link-number">3.4</span> Squid Proxy</a>
+                        <a href="3-5-tls-hardening.html" class="nav-link active"><span class="nav-link-number">3.5</span> SSL/TLS Hardening</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Web Proxy</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">SSL/TLS Hardening</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>SSL/TLS Hardening</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>TLS configuration is critical for secure communications. Weak TLS settings expose traffic to interception and downgrade attacks. Modern TLS hardening focuses on strong protocols, cipher suites, and proper certificate management.</p>
+                        <ul>
+                            <li>TLS versions and when to use them</li>
+                            <li>Cipher suite selection and ordering</li>
+                            <li>Certificate best practices</li>
+                            <li>Common TLS vulnerabilities</li>
+                            <li>Testing and validation</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>TLS Version Comparison</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Version</th>
+                                <th>Status</th>
+                                <th>Recommendation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>SSL 2.0</strong></td>
+                                <td style="color: var(--accent-red);">Deprecated</td>
+                                <td>DISABLE - Broken, insecure</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SSL 3.0</strong></td>
+                                <td style="color: var(--accent-red);">Deprecated</td>
+                                <td>DISABLE - POODLE vulnerability</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TLS 1.0</strong></td>
+                                <td style="color: var(--accent-red);">Deprecated</td>
+                                <td>DISABLE - BEAST, PCI non-compliant</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TLS 1.1</strong></td>
+                                <td style="color: var(--accent-orange);">Legacy</td>
+                                <td>DISABLE - Weak, deprecated by browsers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TLS 1.2</strong></td>
+                                <td style="color: var(--accent-green);">Supported</td>
+                                <td>ENABLE - Minimum for modern security</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TLS 1.3</strong></td>
+                                <td style="color: var(--accent-green);">Current</td>
+                                <td>ENABLE - Preferred, most secure</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Recommended Cipher Suites</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">TLS 1.3 Cipher Suites</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># TLS 1.3 CIPHER SUITES (All are strong, no weak options)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+TLS_AES_256_GCM_SHA384          <span class="token-comment"># AES-256, recommended</span>
+TLS_CHACHA20_POLY1305_SHA256    <span class="token-comment"># Good for mobile/ARM</span>
+TLS_AES_128_GCM_SHA256          <span class="token-comment"># AES-128, acceptable</span>
+
+<span class="token-comment"># TLS 1.3 removed:</span>
+<span class="token-comment"># - RSA key exchange (forward secrecy required)</span>
+<span class="token-comment"># - CBC mode ciphers</span>
+<span class="token-comment"># - Weak ciphers (3DES, RC4, etc.)</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># TLS 1.2 RECOMMENDED CIPHER SUITES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># ECDHE + AESGCM (Best)</span>
+TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CIPHERS TO DISABLE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># DO NOT USE:</span>
+<span class="token-comment"># - RC4 (broken)</span>
+<span class="token-comment"># - 3DES (weak, Sweet32)</span>
+<span class="token-comment"># - DES (broken)</span>
+<span class="token-comment"># - NULL (no encryption)</span>
+<span class="token-comment"># - EXPORT (intentionally weak)</span>
+<span class="token-comment"># - MD5 (broken hash)</span>
+<span class="token-comment"># - RSA key exchange without ECDHE (no forward secrecy)</span></code></pre>
+                </div>
+                
+                <h2>Server Configuration Examples</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">NGINX - TLS Hardening</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># NGINX TLS HARDENING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+server {
+    listen 443 ssl http2;
+    server_name example.com;
+    
+    <span class="token-comment"># Certificate</span>
+    ssl_certificate /etc/nginx/ssl/cert.pem;
+    ssl_certificate_key /etc/nginx/ssl/key.pem;
+    
+    <span class="token-comment"># Protocols - TLS 1.2 and 1.3 only</span>
+    ssl_protocols TLSv1.2 TLSv1.3;
+    
+    <span class="token-comment"># Cipher suites</span>
+    ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256';
+    ssl_prefer_server_ciphers on;
+    
+    <span class="token-comment"># ECDH curve</span>
+    ssl_ecdh_curve secp384r1;
+    
+    <span class="token-comment"># Session settings</span>
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:SSL:50m;
+    ssl_session_tickets off;
+    
+    <span class="token-comment"># OCSP Stapling</span>
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    ssl_trusted_certificate /etc/nginx/ssl/chain.pem;
+    resolver 8.8.8.8 8.8.4.4 valid=300s;
+    
+    <span class="token-comment"># Security headers</span>
+    add_header Strict-Transport-Security "max-age=63072000" always;
+}</code></pre>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Apache - TLS Hardening</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># APACHE TLS HARDENING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Enable SSL module</span>
+SSLEngine on
+
+<span class="token-comment"># Certificate</span>
+SSLCertificateFile /etc/ssl/certs/cert.pem
+SSLCertificateKeyFile /etc/ssl/private/key.pem
+SSLCertificateChainFile /etc/ssl/certs/chain.pem
+
+<span class="token-comment"># Protocols</span>
+SSLProtocol -all +TLSv1.2 +TLSv1.3
+
+<span class="token-comment"># Cipher suites</span>
+SSLCipherSuite ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256
+SSLHonorCipherOrder on
+
+<span class="token-comment"># Disable compression (CRIME attack)</span>
+SSLCompression off
+
+<span class="token-comment"># OCSP Stapling</span>
+SSLUseStapling on
+SSLStaplingCache "shmcb:logs/stapling-cache(150000)"
+
+<span class="token-comment"># HSTS Header</span>
+Header always set Strict-Transport-Security "max-age=63072000"</code></pre>
+                </div>
+                
+                <h2>Common TLS Vulnerabilities</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Vulnerability</th>
+                                <th>Affected</th>
+                                <th>Mitigation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>POODLE</strong></td>
+                                <td>SSL 3.0</td>
+                                <td>Disable SSL 3.0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BEAST</strong></td>
+                                <td>TLS 1.0 + CBC</td>
+                                <td>Use TLS 1.2+, prefer GCM</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CRIME/BREACH</strong></td>
+                                <td>TLS compression</td>
+                                <td>Disable compression</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Heartbleed</strong></td>
+                                <td>OpenSSL bug</td>
+                                <td>Patch OpenSSL, rotate certs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DROWN</strong></td>
+                                <td>SSLv2</td>
+                                <td>Disable SSLv2 everywhere</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sweet32</strong></td>
+                                <td>3DES, Blowfish</td>
+                                <td>Disable 64-bit block ciphers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ROBOT</strong></td>
+                                <td>RSA encryption</td>
+                                <td>Disable RSA key exchange</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Testing TLS Configuration</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">TLS Testing Tools</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># TESTING TLS CONFIGURATION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># testssl.sh (comprehensive)</span>
+<span class="token-command">./testssl.sh</span> https://example.com
+
+<span class="token-comment"># SSL Labs (online)</span>
+<span class="token-comment"># https://www.ssllabs.com/ssltest/</span>
+
+<span class="token-comment"># Nmap SSL enumeration</span>
+<span class="token-command">nmap</span> --script ssl-enum-ciphers -p 443 example.com
+
+<span class="token-comment"># OpenSSL client test</span>
+<span class="token-command">openssl</span> s_client -connect example.com:443 -tls1_3
+<span class="token-command">openssl</span> s_client -connect example.com:443 -tls1_2
+<span class="token-command">openssl</span> s_client -connect example.com:443 -tls1_1  <span class="token-comment"># Should fail</span>
+
+<span class="token-comment"># Check certificate details</span>
+<span class="token-command">openssl</span> s_client -connect example.com:443 </dev/null 2>/dev/null | \
+  openssl x509 -noout -dates -subject -issuer
+
+<span class="token-comment"># Check supported ciphers</span>
+<span class="token-command">nmap</span> --script ssl-enum-ciphers -p 443 example.com | grep -E "TLS|cipher"</code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ TLS Best Practices</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>TLS 1.2 minimum:</strong> Disable TLS 1.0/1.1 and all SSL</li>
+                            <li><strong>Prefer TLS 1.3:</strong> Best security, faster handshake</li>
+                            <li><strong>Forward secrecy:</strong> Use ECDHE key exchange</li>
+                            <li><strong>AEAD ciphers:</strong> Prefer GCM and ChaCha20-Poly1305</li>
+                            <li><strong>HSTS:</strong> Enable HTTP Strict Transport Security</li>
+                            <li><strong>OCSP Stapling:</strong> Faster certificate validation</li>
+                            <li><strong>Short key lifetimes:</strong> Rotate certificates regularly</li>
+                            <li><strong>Test regularly:</strong> Use SSL Labs, testssl.sh</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you harden TLS on a web server?"</p>
+                        <p><strong>Answer:</strong> "I'd configure for TLS 1.2 minimum, preferring TLS 1.3. For cipher suites, I'd use only ECDHE for key exchange - that provides forward secrecy, so even if the private key is compromised later, past sessions can't be decrypted. For bulk encryption, GCM ciphers like AES-256-GCM or ChaCha20-Poly1305 - these are authenticated encryption so protect against padding oracle attacks. I'd disable all weak options: SSL 2/3, TLS 1.0/1.1, RC4, 3DES, and non-ECDHE key exchange. Enable HSTS to force HTTPS, OCSP stapling for performance, and disable TLS compression to prevent CRIME attacks. I'd validate with SSL Labs - target an A+ rating. For certificates, use 2048-bit RSA minimum or ECDSA P-256, and automate renewal with Let's Encrypt or similar."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="3-4-squid.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Squid Proxy</span>
+                        </div>
+                    </a>
+                    <a href="4-1-waf-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">WAF Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

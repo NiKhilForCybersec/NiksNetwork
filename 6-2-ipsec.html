@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="IPSec Deep Dive - Complete guide to IPSec VPN including IKE phases, ESP, AH, encryption algorithms, and troubleshooting">
+    <title>IPSec Deep Dive | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 6: VPN Technologies (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🔐</span>
+                            VPN Technologies
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="6-1-vpn-fundamentals.html" class="nav-link"><span class="nav-link-number">6.1</span> VPN Fundamentals</a>
+                        <a href="6-2-ipsec.html" class="nav-link active"><span class="nav-link-number">6.2</span> IPSec Deep Dive</a>
+                        <a href="6-3-site-to-site.html" class="nav-link"><span class="nav-link-number">6.3</span> Site-to-Site VPN</a>
+                        <a href="6-4-ssl-vpn.html" class="nav-link"><span class="nav-link-number">6.4</span> SSL/TLS VPN</a>
+                        <a href="6-5-remote-access.html" class="nav-link"><span class="nav-link-number">6.5</span> Remote Access VPN</a>
+                        <a href="6-6-wireguard.html" class="nav-link"><span class="nav-link-number">6.6</span> WireGuard</a>
+                        <a href="6-7-openvpn.html" class="nav-link"><span class="nav-link-number">6.7</span> OpenVPN</a>
+                        <a href="6-8-cloud-vpn.html" class="nav-link"><span class="nav-link-number">6.8</span> Cloud VPN Solutions</a>
+                        <a href="6-9-concentrators.html" class="nav-link"><span class="nav-link-number">6.9</span> VPN Concentrators</a>
+                        <a href="6-10-vpn-troubleshooting.html" class="nav-link"><span class="nav-link-number">6.10</span> VPN Troubleshooting</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">VPN Technologies</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">IPSec Deep Dive</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>IPSec Deep Dive</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>IPSec (Internet Protocol Security) is the industry standard for securing IP communications through authentication and encryption. Understanding IPSec internals is essential for configuring, troubleshooting, and securing VPN connections.</p>
+                        <ul>
+                            <li>IPSec architecture and components</li>
+                            <li>IKE Phase 1 (Main Mode vs Aggressive Mode)</li>
+                            <li>IKE Phase 2 (Quick Mode)</li>
+                            <li>ESP vs AH protocols</li>
+                            <li>Tunnel mode vs Transport mode</li>
+                            <li>Encryption and hashing algorithms</li>
+                            <li>Diffie-Hellman key exchange</li>
+                            <li>Perfect Forward Secrecy (PFS)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>IPSec Architecture Overview</h2>
+                
+                <p>IPSec is a suite of protocols that provides security at the network layer (Layer 3). It can protect any IP traffic, regardless of the application, making it ideal for site-to-site VPNs and remote access solutions.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">IPSec Protocol Suite Components</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         IPSEC PROTOCOL SUITE                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    IKE (Internet Key Exchange)                       │    │
+│  │                    Establishes Security Associations                 │    │
+│  ├─────────────────────────────────────────────────────────────────────┤    │
+│  │  IKEv1                           │  IKEv2                            │    │
+│  │  • Phase 1: ISAKMP SA            │  • IKE_SA_INIT                    │    │
+│  │  • Phase 2: IPSec SA             │  • IKE_AUTH                       │    │
+│  │  • 6-9 messages (Main Mode)      │  • 4 messages (simplified)        │    │
+│  │  • Legacy, widely deployed       │  • Modern, recommended            │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │              DATA PROTECTION PROTOCOLS                                │   │
+│  ├─────────────────────────────┬────────────────────────────────────────┤   │
+│  │           ESP               │              AH                         │   │
+│  │  (Encapsulating Security    │   (Authentication Header)              │   │
+│  │       Payload)              │                                         │   │
+│  │                             │                                         │   │
+│  │  ✓ Encryption               │   ✗ No Encryption                      │   │
+│  │  ✓ Authentication           │   ✓ Authentication                     │   │
+│  │  ✓ Integrity                │   ✓ Integrity                          │   │
+│  │  ✓ Anti-replay              │   ✓ Anti-replay                        │   │
+│  │                             │                                         │   │
+│  │  Protocol: 50               │   Protocol: 51                         │   │
+│  │  RECOMMENDED                │   RARELY USED                          │   │
+│  └─────────────────────────────┴────────────────────────────────────────┘   │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    MODES OF OPERATION                                │    │
+│  ├────────────────────────────────┬────────────────────────────────────┤    │
+│  │        TUNNEL MODE             │       TRANSPORT MODE               │    │
+│  │                                │                                     │    │
+│  │  • Entire IP packet encrypted  │  • Only payload encrypted          │    │
+│  │  • New IP header added         │  • Original IP header preserved    │    │
+│  │  • Used for: Site-to-Site VPN  │  • Used for: Host-to-Host          │    │
+│  │  • Gateway to Gateway          │  • End-to-End encryption           │    │
+│  └────────────────────────────────┴────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>IKE Phase 1 - Establishing the Management Tunnel</h2>
+                
+                <p>IKE Phase 1 establishes a secure, authenticated channel (ISAKMP SA) between two peers. This channel is used to negotiate the IPSec (Phase 2) parameters securely.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">IKE Phase 1 - Main Mode (6 Messages)</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    IKE PHASE 1 - MAIN MODE                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│     INITIATOR                                              RESPONDER        │
+│    (Site A FW)                                            (Site B FW)       │
+│         │                                                      │            │
+│         │  ══════════════ Message 1 ════════════════════►     │            │
+│         │     SA Proposal (encryption, hash, DH group,         │            │
+│         │     authentication method, lifetime)                 │            │
+│         │                                                      │            │
+│         │  ◄═════════════ Message 2 ═════════════════════     │            │
+│         │     SA Selection (chosen parameters)                 │            │
+│         │                                                      │            │
+│   ┌─────┴─────────────────────────────────────────────────────┴─────┐      │
+│   │           NEGOTIATION COMPLETE - Parameters Agreed              │      │
+│   └─────┬─────────────────────────────────────────────────────┬─────┘      │
+│         │                                                      │            │
+│         │  ══════════════ Message 3 ════════════════════►     │            │
+│         │     Key Exchange (DH public value, nonce)            │            │
+│         │                                                      │            │
+│         │  ◄═════════════ Message 4 ═════════════════════     │            │
+│         │     Key Exchange (DH public value, nonce)            │            │
+│         │                                                      │            │
+│   ┌─────┴─────────────────────────────────────────────────────┴─────┐      │
+│   │        KEY MATERIAL GENERATED - Shared Secret Established       │      │
+│   └─────┬─────────────────────────────────────────────────────┬─────┘      │
+│         │                                                      │            │
+│         │  ══════════════ Message 5 ════════════════════►     │   ◄───┐   │
+│         │     Identity + Authentication (ENCRYPTED)            │       │   │
+│         │                                                      │       │   │
+│         │  ◄═════════════ Message 6 ═════════════════════     │  ENCRYPTED│
+│         │     Identity + Authentication (ENCRYPTED)            │       │   │
+│         │                                                      │   ◄───┘   │
+│   ┌─────┴─────────────────────────────────────────────────────┴─────┐      │
+│   │              ISAKMP SA ESTABLISHED (Phase 1 Complete)           │      │
+│   └─────────────────────────────────────────────────────────────────┘      │
+│                                                                              │
+│  PHASE 1 PARAMETERS TO CONFIGURE:                                           │
+│  • Encryption: AES-256, AES-128, 3DES (deprecated)                         │
+│  • Hash: SHA-256, SHA-384, SHA-512, MD5/SHA-1 (deprecated)                 │
+│  • DH Group: 14 (2048-bit), 19/20 (ECC), 21 (ECC 521-bit)                 │
+│  • Authentication: Pre-shared Key (PSK) or Certificates (PKI)              │
+│  • Lifetime: 28800 seconds (8 hours) typical                               │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h3>Main Mode vs Aggressive Mode</h3>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Main Mode</th>
+                                <th>Aggressive Mode</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Messages</strong></td>
+                                <td>6 messages</td>
+                                <td>3 messages</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Identity Protection</strong></td>
+                                <td>Yes - identity encrypted in messages 5-6</td>
+                                <td>No - identity sent in clear text</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Speed</strong></td>
+                                <td>Slower (more round trips)</td>
+                                <td>Faster</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security</strong></td>
+                                <td>More secure</td>
+                                <td>Less secure (vulnerable to attacks)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use Case</strong></td>
+                                <td>Standard site-to-site VPNs</td>
+                                <td>Legacy, dynamic IP scenarios (avoid if possible)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Recommendation</strong></td>
+                                <td>✅ Preferred</td>
+                                <td>⚠️ Avoid (use IKEv2 instead)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Security Warning</div>
+                    <div class="callout-content">
+                        <p><strong>Avoid Aggressive Mode with Pre-Shared Keys!</strong></p>
+                        <p>In Aggressive Mode, the identity (often the PSK hash) is sent unencrypted. Attackers can capture this and perform offline dictionary attacks against weak pre-shared keys. If you must use PSK, use Main Mode or (better) migrate to IKEv2.</p>
+                    </div>
+                </div>
+                
+                <h2>IKE Phase 2 - Establishing the Data Tunnel</h2>
+                
+                <p>Phase 2 (Quick Mode) negotiates the IPSec Security Associations that will protect the actual user traffic. Multiple Phase 2 tunnels can exist within a single Phase 1 SA.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">IKE Phase 2 - Quick Mode (3 Messages)</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    IKE PHASE 2 - QUICK MODE                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│     All messages encrypted with Phase 1 keys                                │
+│                                                                              │
+│     INITIATOR                                              RESPONDER        │
+│         │                                                      │            │
+│         │  ══════════════ Message 1 ════════════════════►     │            │
+│         │     • SA Proposal (ESP/AH, encryption, hash)         │            │
+│         │     • Proxy IDs (source/destination networks)        │            │
+│         │     • Nonce                                          │            │
+│         │     • [Optional: DH for PFS]                         │            │
+│         │                                                      │            │
+│         │  ◄═════════════ Message 2 ═════════════════════     │            │
+│         │     • SA Selection                                   │            │
+│         │     • Proxy IDs                                      │            │
+│         │     • Nonce                                          │            │
+│         │     • [Optional: DH for PFS]                         │            │
+│         │                                                      │            │
+│         │  ══════════════ Message 3 ════════════════════►     │            │
+│         │     • Hash (confirmation)                            │            │
+│         │                                                      │            │
+│   ┌─────┴─────────────────────────────────────────────────────┴─────┐      │
+│   │              IPSEC SA ESTABLISHED (Phase 2 Complete)            │      │
+│   │         Traffic can now flow through encrypted tunnel           │      │
+│   └─────────────────────────────────────────────────────────────────┘      │
+│                                                                              │
+│  PHASE 2 PARAMETERS:                                                        │
+│  • Protocol: ESP (recommended) or AH                                        │
+│  • Encryption: AES-256-GCM, AES-256-CBC, AES-128-GCM                       │
+│  • Hash/Integrity: SHA-256, SHA-384, SHA-512                               │
+│  • PFS: Enable with DH group 14, 19, or 20                                 │
+│  • Lifetime: 3600 seconds (1 hour) or by traffic volume                    │
+│  • Proxy IDs: Networks/hosts that trigger the tunnel                       │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "What is the difference between IKE Phase 1 and Phase 2?"</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>Phase 1</strong> establishes a secure, authenticated management channel (ISAKMP SA) between two VPN peers. It's used to protect the Phase 2 negotiation. Think of it as the "secure phone line" for negotiation.</li>
+                            <li><strong>Phase 2</strong> establishes the actual IPSec SAs that encrypt user traffic. Multiple Phase 2 tunnels (for different networks) can use the same Phase 1 SA. This is the "actual encrypted tunnel" for data.</li>
+                        </ul>
+                        <p><strong>Analogy:</strong> Phase 1 is like establishing a secure channel to exchange secret codes. Phase 2 is using those codes to encrypt the actual messages.</p>
+                    </div>
+                </div>
+                
+                <h2>ESP vs AH</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">ESP Packet Structure (Tunnel Mode)</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ESP PACKET - TUNNEL MODE                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ORIGINAL IP PACKET:                                                        │
+│  ┌────────────────┬─────────────────────────────────────────────────────┐   │
+│  │ Original IP    │           Original Payload (TCP/UDP + Data)         │   │
+│  │    Header      │                                                      │   │
+│  └────────────────┴─────────────────────────────────────────────────────┘   │
+│                                     │                                        │
+│                                     ▼                                        │
+│  ESP ENCAPSULATED (TUNNEL MODE):                                            │
+│  ┌────────────┬────────────┬────────────────────────────────────┬────────┐ │
+│  │  NEW IP    │    ESP     │      ENCRYPTED PAYLOAD             │  ESP   │ │
+│  │  Header    │   Header   │  ┌────────────┬────────────────┬───┤  Auth  │ │
+│  │            │            │  │ Original   │ Original       │Pad│        │ │
+│  │ Src: GW-A  │ SPI        │  │ IP Header  │ Payload        │   │ ICV    │ │
+│  │ Dst: GW-B  │ Seq Num    │  │            │                │   │        │ │
+│  │ Proto: 50  │            │  └────────────┴────────────────┴───┘        │ │
+│  └────────────┴────────────┴────────────────────────────────────┴────────┘ │
+│                             ◄─────────────────────────────────────►         │
+│                                        ENCRYPTED                            │
+│                             ◄──────────────────────────────────────────────►│
+│                                      AUTHENTICATED (ICV)                    │
+│                                                                              │
+│  COMPONENTS:                                                                │
+│  • New IP Header: Uses VPN gateway IPs (hides internal addressing)         │
+│  • ESP Header: Contains SPI (identifies SA) and Sequence Number            │
+│  • Encrypted Payload: Original packet + padding                            │
+│  • ESP Auth (ICV): Integrity Check Value - ensures no tampering            │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Encryption and Hashing Algorithms</h2>
+                
+                <h3>Recommended Algorithms (2024+)</h3>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Function</th>
+                                <th>Recommended</th>
+                                <th>Acceptable</th>
+                                <th>Deprecated/Avoid</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Encryption</strong></td>
+                                <td>AES-256-GCM, AES-256-CBC</td>
+                                <td>AES-128-GCM, AES-128-CBC</td>
+                                <td>3DES, DES, RC4</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Integrity/Hash</strong></td>
+                                <td>SHA-384, SHA-512</td>
+                                <td>SHA-256</td>
+                                <td>SHA-1, MD5</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DH Group (Phase 1)</strong></td>
+                                <td>Group 20 (ECDH 384-bit), Group 21</td>
+                                <td>Group 14 (2048-bit), Group 19</td>
+                                <td>Groups 1, 2, 5 (1024-bit or less)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>PFS Group (Phase 2)</strong></td>
+                                <td>Same as Phase 1 DH</td>
+                                <td>Group 14, 19, 20</td>
+                                <td>None, Groups 1, 2, 5</td>
+                            </tr>
+                            <tr>
+                                <td><strong>PRF (IKEv2)</strong></td>
+                                <td>SHA-384, SHA-512</td>
+                                <td>SHA-256</td>
+                                <td>SHA-1, MD5</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - Modern IPSec Configuration</div>
+                    <div class="callout-content">
+                        <p><strong>Recommended IKEv2 Configuration:</strong></p>
+                        <ul>
+                            <li><strong>Phase 1:</strong> AES-256-GCM, SHA-384, DH Group 20 (ECDH), Lifetime 8 hours</li>
+                            <li><strong>Phase 2:</strong> AES-256-GCM, SHA-384, PFS Group 20, Lifetime 1 hour</li>
+                            <li><strong>Authentication:</strong> Certificates (PKI) preferred over PSK</li>
+                            <li><strong>Dead Peer Detection:</strong> Enable with 30-second intervals</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Diffie-Hellman Key Exchange</h2>
+                
+                <p>Diffie-Hellman allows two parties to establish a shared secret over an insecure channel without ever transmitting the secret itself. This is the mathematical magic that makes IPSec possible.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Diffie-Hellman Key Exchange (Simplified)</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    DIFFIE-HELLMAN KEY EXCHANGE                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│     ALICE (Site A)                                    BOB (Site B)          │
+│                                                                              │
+│     Private Key: a = 6                               Private Key: b = 15    │
+│     (secret, never shared)                           (secret, never shared) │
+│                                                                              │
+│                      Agreed Public Values:                                   │
+│                      • Prime (p) = 23                                        │
+│                      • Generator (g) = 5                                     │
+│                                                                              │
+│     Calculate Public Value:                          Calculate Public Value:│
+│     A = g^a mod p                                    B = g^b mod p          │
+│     A = 5^6 mod 23 = 8                               B = 5^15 mod 23 = 19   │
+│         │                                                      │            │
+│         │  ═══════════════════════════════════════════════►   │            │
+│         │            Exchange Public Values                    │            │
+│         │  ◄═══════════════════════════════════════════════   │            │
+│         │                                                      │            │
+│     Calculate Shared Secret:                         Calculate Shared Secret│
+│     s = B^a mod p                                    s = A^b mod p          │
+│     s = 19^6 mod 23 = 2                              s = 8^15 mod 23 = 2    │
+│                                                                              │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │           SHARED SECRET = 2 (Both sides computed same value!)       │   │
+│   │                                                                      │   │
+│   │  Even if attacker intercepts: p=23, g=5, A=8, B=19                  │   │
+│   │  They cannot compute the shared secret without a or b               │   │
+│   │  (This is the Discrete Logarithm Problem - computationally hard)    │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│  REAL-WORLD DH GROUPS:                                                      │
+│  • Group 14: 2048-bit MODP (minimum recommended)                           │
+│  • Group 19: 256-bit ECC (ECDH)                                            │
+│  • Group 20: 384-bit ECC (ECDH) - recommended                              │
+│  • Group 21: 521-bit ECC (ECDH) - highest security                         │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Perfect Forward Secrecy (PFS)</h2>
+                
+                <p>PFS ensures that if a long-term key is compromised, previously captured encrypted traffic cannot be decrypted. Each session uses fresh DH key exchange.</p>
+                
+                <div class="callout callout-critical">
+                    <div class="callout-title">🔴 Critical Security Feature</div>
+                    <div class="callout-content">
+                        <p><strong>Always enable PFS for IPSec Phase 2!</strong></p>
+                        <p><strong>Without PFS:</strong> If an attacker captures encrypted VPN traffic and later obtains the Phase 1 keys, they can derive all Phase 2 keys and decrypt historical traffic.</p>
+                        <p><strong>With PFS:</strong> Each Phase 2 rekey performs a new DH exchange. Compromising Phase 1 keys doesn't help decrypt past sessions.</p>
+                        <p><strong>Recommendation:</strong> Use PFS with DH Group 14 or higher. The small performance impact is worth the significant security benefit.</p>
+                    </div>
+                </div>
+                
+                <h2>Configuration Examples</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Palo Alto Networks - IKEv2 VPN Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># IKE Crypto Profile (Phase 1)</span>
+<span class="token-keyword">set</span> network ike crypto-profiles ike-crypto-profiles IKEv2-Secure
+<span class="token-keyword">set</span> network ike crypto-profiles ike-crypto-profiles IKEv2-Secure hash sha384
+<span class="token-keyword">set</span> network ike crypto-profiles ike-crypto-profiles IKEv2-Secure dh-group group20
+<span class="token-keyword">set</span> network ike crypto-profiles ike-crypto-profiles IKEv2-Secure encryption aes-256-gcm
+<span class="token-keyword">set</span> network ike crypto-profiles ike-crypto-profiles IKEv2-Secure lifetime hours 8
+
+<span class="token-comment"># IPSec Crypto Profile (Phase 2)</span>
+<span class="token-keyword">set</span> network ike crypto-profiles ipsec-crypto-profiles IPSec-Secure
+<span class="token-keyword">set</span> network ike crypto-profiles ipsec-crypto-profiles IPSec-Secure esp encryption aes-256-gcm
+<span class="token-keyword">set</span> network ike crypto-profiles ipsec-crypto-profiles IPSec-Secure esp authentication sha384
+<span class="token-keyword">set</span> network ike crypto-profiles ipsec-crypto-profiles IPSec-Secure dh-group group20
+<span class="token-keyword">set</span> network ike crypto-profiles ipsec-crypto-profiles IPSec-Secure lifetime hours 1
+
+<span class="token-comment"># IKE Gateway</span>
+<span class="token-keyword">set</span> network ike gateway IKE-Gateway-SiteB
+<span class="token-keyword">set</span> network ike gateway IKE-Gateway-SiteB protocol ikev2-only
+<span class="token-keyword">set</span> network ike gateway IKE-Gateway-SiteB peer-address ip 203.0.113.10
+<span class="token-keyword">set</span> network ike gateway IKE-Gateway-SiteB authentication pre-shared-key key "ComplexP@ssw0rd!"
+<span class="token-keyword">set</span> network ike gateway IKE-Gateway-SiteB protocol-common fragmentation enable yes
+<span class="token-keyword">set</span> network ike gateway IKE-Gateway-SiteB protocol ikev2 dpd enable yes
+<span class="token-keyword">set</span> network ike gateway IKE-Gateway-SiteB protocol ikev2 dpd interval 30
+
+<span class="token-comment"># IPSec Tunnel</span>
+<span class="token-keyword">set</span> network tunnel ipsec IPSec-Tunnel-SiteB
+<span class="token-keyword">set</span> network tunnel ipsec IPSec-Tunnel-SiteB auto-key ike-gateway IKE-Gateway-SiteB
+<span class="token-keyword">set</span> network tunnel ipsec IPSec-Tunnel-SiteB auto-key ipsec-crypto-profile IPSec-Secure
+<span class="token-keyword">set</span> network tunnel ipsec IPSec-Tunnel-SiteB tunnel-interface tunnel.1
+
+<span class="token-comment"># Verify tunnel status</span>
+<span class="token-command">show</span> vpn ike-sa
+<span class="token-command">show</span> vpn ipsec-sa
+<span class="token-command">show</span> vpn flow</code></pre>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco ASA - IKEv2 Site-to-Site VPN</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! IKEv2 Policy (Phase 1)</span>
+<span class="token-keyword">crypto ikev2 policy</span> 10
+ <span class="token-keyword">encryption</span> aes-gcm-256
+ <span class="token-keyword">integrity</span> sha384
+ <span class="token-keyword">group</span> 20
+ <span class="token-keyword">prf</span> sha384
+ <span class="token-keyword">lifetime seconds</span> 28800
+
+<span class="token-comment">! IPSec Transform Set (Phase 2)</span>
+<span class="token-keyword">crypto ipsec ikev2 ipsec-proposal</span> AES256-GCM
+ <span class="token-keyword">protocol esp encryption</span> aes-gcm-256
+ <span class="token-keyword">protocol esp integrity</span> sha-384
+
+<span class="token-comment">! Tunnel Group (VPN Peer)</span>
+<span class="token-keyword">tunnel-group</span> 203.0.113.10 type ipsec-l2l
+<span class="token-keyword">tunnel-group</span> 203.0.113.10 ipsec-attributes
+ <span class="token-keyword">ikev2 remote-authentication</span> pre-shared-key ComplexP@ssw0rd!
+ <span class="token-keyword">ikev2 local-authentication</span> pre-shared-key ComplexP@ssw0rd!
+
+<span class="token-comment">! Crypto Map</span>
+<span class="token-keyword">crypto map</span> CRYPTO-MAP 10 match address VPN-TRAFFIC
+<span class="token-keyword">crypto map</span> CRYPTO-MAP 10 set peer 203.0.113.10
+<span class="token-keyword">crypto map</span> CRYPTO-MAP 10 set ikev2 ipsec-proposal AES256-GCM
+<span class="token-keyword">crypto map</span> CRYPTO-MAP 10 set pfs group20
+
+<span class="token-comment">! Apply to interface</span>
+<span class="token-keyword">crypto map</span> CRYPTO-MAP interface outside
+
+<span class="token-comment">! Verify</span>
+<span class="token-command">show</span> crypto ikev2 sa
+<span class="token-command">show</span> crypto ipsec sa</code></pre>
+                </div>
+                
+                <!-- Day-to-Day Tasks -->
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>IPSec VPN management tasks you'll perform regularly:</strong></p>
+                        <ul>
+                            <li><strong>Monitoring:</strong> Check tunnel status, rekey events, DPD failures</li>
+                            <li><strong>Troubleshooting:</strong> Debug Phase 1/Phase 2 failures, proxy ID mismatches</li>
+                            <li><strong>Configuration:</strong> Add new site-to-site tunnels, update encryption policies</li>
+                            <li><strong>Key Rotation:</strong> Update pre-shared keys on schedule (quarterly recommended)</li>
+                            <li><strong>Certificate Management:</strong> Renew certificates before expiration</li>
+                            <li><strong>Capacity Planning:</strong> Monitor tunnel counts, throughput, CPU on VPN devices</li>
+                            <li><strong>Documentation:</strong> Maintain tunnel inventory with peer IPs, networks, contacts</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "How would you troubleshoot a VPN tunnel that won't come up?"</p>
+                        <p><strong>Systematic Answer:</strong></p>
+                        <ol>
+                            <li><strong>Check Phase 1:</strong> Do the proposals match? (encryption, hash, DH group, lifetime)</li>
+                            <li><strong>Verify connectivity:</strong> Can peers reach each other on UDP 500/4500?</li>
+                            <li><strong>Authentication:</strong> Is the PSK/certificate correct on both sides?</li>
+                            <li><strong>Check Phase 2:</strong> Do proxy IDs/interesting traffic definitions match exactly?</li>
+                            <li><strong>Review logs:</strong> Enable IKE debugging to see specific error messages</li>
+                            <li><strong>Common issues:</strong> NAT-T problems, asymmetric routing, firewall blocking</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="6-1-vpn-fundamentals.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">VPN Fundamentals</span>
+                        </div>
+                    </a>
+                    <a href="6-3-site-to-site.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Site-to-Site VPN</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

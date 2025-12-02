@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OWASP Top 10 - Complete guide to web application security risks and WAF protection">
+    <title>OWASP Top 10 | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🛡️</span>WAF</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="4-1-waf-fundamentals.html" class="nav-link"><span class="nav-link-number">4.1</span> Fundamentals</a>
+                        <a href="4-2-owasp-top10.html" class="nav-link active"><span class="nav-link-number">4.2</span> OWASP Top 10</a>
+                        <a href="4-3-aws-waf.html" class="nav-link"><span class="nav-link-number">4.3</span> AWS WAF</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">WAF</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">OWASP Top 10</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>OWASP Top 10</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>The OWASP Top 10 is the most recognized list of critical web application security risks. Understanding these vulnerabilities is essential for WAF configuration and web security.</p>
+                        <ul>
+                            <li>OWASP Top 10 2021 vulnerabilities</li>
+                            <li>Attack examples</li>
+                            <li>WAF detection methods</li>
+                            <li>Mitigation strategies</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>OWASP Top 10 (2021)</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Vulnerability</th>
+                                <th>Description</th>
+                                <th>WAF Protection</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>A01</strong></td>
+                                <td>Broken Access Control</td>
+                                <td>Users act outside their permissions</td>
+                                <td>Limited (application logic)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>A02</strong></td>
+                                <td>Cryptographic Failures</td>
+                                <td>Weak crypto, exposed data</td>
+                                <td>Limited (detect unencrypted PII)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>A03</strong></td>
+                                <td>Injection</td>
+                                <td>SQL, NoSQL, OS, LDAP injection</td>
+                                <td>Strong (signature-based)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>A04</strong></td>
+                                <td>Insecure Design</td>
+                                <td>Missing security controls</td>
+                                <td>Limited (design flaw)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>A05</strong></td>
+                                <td>Security Misconfiguration</td>
+                                <td>Default configs, verbose errors</td>
+                                <td>Moderate (block error disclosure)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>A06</strong></td>
+                                <td>Vulnerable Components</td>
+                                <td>Outdated libraries, frameworks</td>
+                                <td>Moderate (known CVE patterns)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>A07</strong></td>
+                                <td>Auth Failures</td>
+                                <td>Credential stuffing, weak auth</td>
+                                <td>Moderate (rate limiting)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>A08</strong></td>
+                                <td>Software/Data Integrity</td>
+                                <td>Insecure CI/CD, untrusted updates</td>
+                                <td>Limited</td>
+                            </tr>
+                            <tr>
+                                <td><strong>A09</strong></td>
+                                <td>Logging Failures</td>
+                                <td>Insufficient logging/monitoring</td>
+                                <td>N/A (detection, not prevention)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>A10</strong></td>
+                                <td>SSRF</td>
+                                <td>Server-Side Request Forgery</td>
+                                <td>Moderate (block internal IPs)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>A03: Injection Attacks</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">SQL Injection Example</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SQL INJECTION ATTACK                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  NORMAL LOGIN:                                                              │
+│  Username: admin                                                            │
+│  Password: password123                                                      │
+│                                                                              │
+│  Query: SELECT * FROM users WHERE user='admin' AND pass='password123'       │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│                                                                              │
+│  SQL INJECTION ATTACK:                                                      │
+│  Username: admin' OR '1'='1' --                                             │
+│  Password: anything                                                         │
+│                                                                              │
+│  Query: SELECT * FROM users WHERE user='admin' OR '1'='1' --' AND pass=...  │
+│                                           ▲                                  │
+│                                           │                                  │
+│                               Always TRUE, comment ignores rest             │
+│                                                                              │
+│  WAF DETECTION:                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ Pattern: OR '1'='1'                                                 │    │
+│  │ Pattern: --  (SQL comment)                                          │    │
+│  │ Pattern: UNION SELECT                                               │    │
+│  │ Pattern: ; DROP TABLE                                               │    │
+│  │ Action: BLOCK + Alert                                               │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Common Attack Patterns</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Attack Pattern Examples</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SQL INJECTION PATTERNS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+' OR '1'='1
+' OR 1=1 --
+'; DROP TABLE users; --
+' UNION SELECT username, password FROM users --
+1' AND (SELECT COUNT(*) FROM users) > 0 --
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CROSS-SITE SCRIPTING (XSS)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+&lt;script&gt;alert('XSS')&lt;/script&gt;
+&lt;img src=x onerror=alert('XSS')&gt;
+&lt;body onload=alert('XSS')&gt;
+javascript:alert('XSS')
+&lt;svg/onload=alert('XSS')&gt;
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PATH TRAVERSAL</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+../../../etc/passwd
+....//....//....//etc/passwd
+..%2F..%2F..%2Fetc/passwd
+/etc/passwd%00.jpg
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># COMMAND INJECTION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+; cat /etc/passwd
+| whoami
+`id`
+$(cat /etc/passwd)
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SSRF</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+http://169.254.169.254/latest/meta-data/  (AWS metadata)
+http://127.0.0.1:22
+http://localhost/admin
+http://[::1]/admin</code></pre>
+                </div>
+                
+                <div class="callout callout-critical">
+                    <div class="callout-title">🚨 Critical - WAF Limitations</div>
+                    <div class="callout-content">
+                        <p>WAF cannot protect against all OWASP Top 10 vulnerabilities:</p>
+                        <ul>
+                            <li><strong>A01 Broken Access Control:</strong> Application logic issue - WAF can't know valid permissions</li>
+                            <li><strong>A04 Insecure Design:</strong> Fundamental design flaw - needs code changes</li>
+                            <li><strong>A08 Integrity Failures:</strong> CI/CD pipeline issue - not in HTTP traffic</li>
+                        </ul>
+                        <p>WAF is a layer of defense, not a replacement for secure coding!</p>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "What is the OWASP Top 10 and how does a WAF help?"</p>
+                        <p><strong>Answer:</strong> "OWASP Top 10 is a list of the most critical web application security risks, updated every few years. A WAF provides strong protection against injection attacks (A03) using signatures, moderate protection against things like authentication attacks via rate limiting (A07), and SSRF (A10) by blocking internal IPs. However, WAF has limited protection for logic-based vulnerabilities like broken access control (A01) or insecure design (A04) - those require secure coding practices. WAF is defense-in-depth, not a silver bullet."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="4-1-waf-fundamentals.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">WAF Fundamentals</span>
+                        </div>
+                    </a>
+                    <a href="4-3-aws-waf.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">AWS WAF</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

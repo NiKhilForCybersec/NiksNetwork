@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AWS WAF - Complete guide to AWS Web Application Firewall, rules, and managed rule groups">
+    <title>AWS WAF | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🛡️</span>WAF</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="4-1-waf-fundamentals.html" class="nav-link"><span class="nav-link-number">4.1</span> Fundamentals</a>
+                        <a href="4-2-owasp-top10.html" class="nav-link"><span class="nav-link-number">4.2</span> OWASP Top 10</a>
+                        <a href="4-3-aws-waf.html" class="nav-link active"><span class="nav-link-number">4.3</span> AWS WAF</a>
+                        <a href="4-4-azure-waf.html" class="nav-link"><span class="nav-link-number">4.4</span> Azure WAF</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">WAF</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">AWS WAF</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>AWS WAF</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>AWS WAF is a cloud-native web application firewall that protects applications behind CloudFront, ALB, API Gateway, and AppSync from common web exploits.</p>
+                        <ul>
+                            <li>AWS WAF architecture</li>
+                            <li>Web ACLs, rules, and rule groups</li>
+                            <li>Managed rule groups</li>
+                            <li>Custom rules</li>
+                            <li>Logging and monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>AWS WAF Architecture</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">AWS WAF Components</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    AWS WAF ARCHITECTURE                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│                              WEB ACL                                        │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │ Name: Production-WebACL                                               │   │
+│  │ Default Action: ALLOW                                                 │   │
+│  │                                                                       │   │
+│  │ RULES (Evaluated in Priority Order)                                  │   │
+│  │ ┌────────────────────────────────────────────────────────────────┐   │   │
+│  │ │ Priority 1: AWS-AWSManagedRulesCommonRuleSet      [BLOCK]     │   │   │
+│  │ │ Priority 2: AWS-AWSManagedRulesSQLiRuleSet        [BLOCK]     │   │   │
+│  │ │ Priority 3: AWS-AWSManagedRulesKnownBadInputs     [BLOCK]     │   │   │
+│  │ │ Priority 4: RateLimitRule (1000 req/5min)         [BLOCK]     │   │   │
+│  │ │ Priority 5: GeoBlockRule (Block CN, RU)           [BLOCK]     │   │   │
+│  │ │ Priority 6: Custom-AllowListedIPs                 [ALLOW]     │   │   │
+│  │ └────────────────────────────────────────────────────────────────┘   │   │
+│  │                                                                       │   │
+│  │ Associated Resources:                                                │   │
+│  │ • CloudFront Distribution: d1234567890.cloudfront.net               │   │
+│  │ • ALB: prod-app-alb                                                  │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│  TRAFFIC FLOW:                                                              │
+│  Request → CloudFront/ALB → AWS WAF (Web ACL) → Origin/Target              │
+│                                  │                                          │
+│                         Rules evaluated top-down                            │
+│                         First match wins                                    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Managed Rule Groups</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rule Group</th>
+                                <th>Protection</th>
+                                <th>WCU</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>AWSManagedRulesCommonRuleSet</strong></td>
+                                <td>OWASP Top 10, general protection</td>
+                                <td>700</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWSManagedRulesSQLiRuleSet</strong></td>
+                                <td>SQL injection attacks</td>
+                                <td>200</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWSManagedRulesKnownBadInputsRuleSet</strong></td>
+                                <td>Known bad patterns, Log4j</td>
+                                <td>200</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWSManagedRulesLinuxRuleSet</strong></td>
+                                <td>Linux-specific attacks, LFI</td>
+                                <td>200</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWSManagedRulesAmazonIpReputationList</strong></td>
+                                <td>Known malicious IPs</td>
+                                <td>25</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWSManagedRulesBotControlRuleSet</strong></td>
+                                <td>Bot detection and control</td>
+                                <td>50</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <p><strong>WCU (Web ACL Capacity Units):</strong> Each Web ACL has 1,500 WCU limit. Plan rule groups to stay within budget.</p>
+                
+                <h2>Custom Rules</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">AWS WAF Custom Rules (JSON)</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">// Rate Limiting Rule - Block IPs exceeding 1000 requests per 5 minutes</span>
+{
+  "Name": "RateLimitRule",
+  "Priority": 1,
+  "Statement": {
+    "RateBasedStatement": {
+      "Limit": 1000,
+      "AggregateKeyType": "IP"
+    }
+  },
+  "Action": { "Block": {} },
+  "VisibilityConfig": {
+    "SampledRequestsEnabled": true,
+    "CloudWatchMetricsEnabled": true,
+    "MetricName": "RateLimitRule"
+  }
+}
+
+<span class="token-comment">// Geo-blocking Rule - Block specific countries</span>
+{
+  "Name": "GeoBlockRule",
+  "Priority": 2,
+  "Statement": {
+    "GeoMatchStatement": {
+      "CountryCodes": ["CN", "RU", "KP"]
+    }
+  },
+  "Action": { "Block": {} }
+}
+
+<span class="token-comment">// IP Allow List - Allow specific IPs</span>
+{
+  "Name": "AllowListedIPs",
+  "Priority": 0,
+  "Statement": {
+    "IPSetReferenceStatement": {
+      "ARN": "arn:aws:wafv2:us-east-1:123456789:regional/ipset/AllowList/abc123"
+    }
+  },
+  "Action": { "Allow": {} }
+}
+
+<span class="token-comment">// Block specific User-Agent</span>
+{
+  "Name": "BlockBadUserAgent",
+  "Priority": 3,
+  "Statement": {
+    "ByteMatchStatement": {
+      "SearchString": "BadBot",
+      "FieldToMatch": { "SingleHeader": { "Name": "User-Agent" } },
+      "TextTransformations": [{ "Priority": 0, "Type": "LOWERCASE" }],
+      "PositionalConstraint": "CONTAINS"
+    }
+  },
+  "Action": { "Block": {} }
+}</code></pre>
+                </div>
+                
+                <h2>AWS CLI Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">AWS WAF CLI Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># List Web ACLs</span>
+<span class="token-command">aws</span> wafv2 list-web-acls --scope REGIONAL --region us-east-1
+
+<span class="token-comment"># Get Web ACL details</span>
+<span class="token-command">aws</span> wafv2 get-web-acl --name MyWebACL --scope REGIONAL --id abc123 --region us-east-1
+
+<span class="token-comment"># List available managed rule groups</span>
+<span class="token-command">aws</span> wafv2 list-available-managed-rule-groups --scope REGIONAL --region us-east-1
+
+<span class="token-comment"># Get sampled requests (for debugging)</span>
+<span class="token-command">aws</span> wafv2 get-sampled-requests --web-acl-arn &lt;arn&gt; --rule-metric-name &lt;metric&gt; \
+    --scope REGIONAL --time-window StartTime=2024-01-01,EndTime=2024-01-02 --max-items 100
+
+<span class="token-comment"># Create IP Set</span>
+<span class="token-command">aws</span> wafv2 create-ip-set --name BlockedIPs --scope REGIONAL \
+    --ip-address-version IPV4 --addresses "1.2.3.4/32" "5.6.7.8/32"</code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - AWS WAF</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Start with Count mode:</strong> Test rules before blocking</li>
+                            <li><strong>Use managed rules:</strong> AWS-managed rules for baseline protection</li>
+                            <li><strong>Enable logging:</strong> Send to S3, CloudWatch, or Kinesis Firehose</li>
+                            <li><strong>Monitor WCU usage:</strong> Stay within 1,500 WCU limit</li>
+                            <li><strong>Rate limiting:</strong> Protect against DDoS and brute force</li>
+                            <li><strong>IP reputation:</strong> Enable Amazon IP Reputation list</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you implement AWS WAF for a web application?"</p>
+                        <p><strong>Answer:</strong> "I'd create a Web ACL and associate it with our ALB or CloudFront distribution. For baseline protection, I'd add AWS Managed Rules - CommonRuleSet for OWASP Top 10, SQLiRuleSet for SQL injection, and KnownBadInputsRuleSet for things like Log4j. I'd add a rate-based rule to prevent DDoS (e.g., 1000 requests per 5 minutes per IP). Initially, I'd set rules to Count mode to analyze traffic before switching to Block. I'd enable logging to S3 for analysis and set up CloudWatch alarms for high block rates."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="4-2-owasp-top10.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">OWASP Top 10</span>
+                        </div>
+                    </a>
+                    <a href="4-4-azure-waf.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Azure WAF</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Firewall High Availability - Complete guide to Active/Passive, Active/Active, clustering, and failover configurations">
+    <title>Firewall High Availability | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🛡️</span>Firewalls</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="2-1-firewall-fundamentals.html" class="nav-link"><span class="nav-link-number">2.1</span> Fundamentals</a>
+                        <a href="2-4-palo-alto.html" class="nav-link"><span class="nav-link-number">2.4</span> Palo Alto</a>
+                        <a href="2-5-cisco-firepower.html" class="nav-link"><span class="nav-link-number">2.5</span> Cisco</a>
+                        <a href="2-6-fortigate.html" class="nav-link"><span class="nav-link-number">2.6</span> FortiGate</a>
+                        <a href="2-7-checkpoint.html" class="nav-link"><span class="nav-link-number">2.7</span> Check Point</a>
+                        <a href="2-8-cloud-firewalls.html" class="nav-link"><span class="nav-link-number">2.8</span> Cloud Firewalls</a>
+                        <a href="2-9-firewall-ha.html" class="nav-link active"><span class="nav-link-number">2.9</span> High Availability</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Firewalls</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">High Availability</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Firewall High Availability</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>High Availability (HA) ensures firewall services remain operational during hardware failures, software issues, or maintenance. Understanding HA configurations is critical for enterprise network design.</p>
+                        <ul>
+                            <li>HA concepts and modes</li>
+                            <li>Active/Passive vs Active/Active</li>
+                            <li>Session synchronization</li>
+                            <li>Failover mechanisms</li>
+                            <li>Vendor-specific HA configurations</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>HA Modes</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Active/Passive HA</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ACTIVE/PASSIVE HA                                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  NORMAL OPERATION                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                      │    │
+│  │              ┌─────────────────────┐                                │    │
+│  │              │   ACTIVE FIREWALL   │ ◄── Handles ALL traffic       │    │
+│  │              │   (Primary)         │                                │    │
+│  │  Traffic ───►│   192.168.1.1       │───► Internal                  │    │
+│  │              └──────────┬──────────┘     Network                    │    │
+│  │                         │                                            │    │
+│  │                    HA Link (Heartbeat + Session Sync)                │    │
+│  │                         │                                            │    │
+│  │              ┌──────────┴──────────┐                                │    │
+│  │              │  PASSIVE FIREWALL   │ ◄── Standby, monitors         │    │
+│  │              │  (Secondary)        │     primary health            │    │
+│  │              │  192.168.1.2        │                                │    │
+│  │              └─────────────────────┘                                │    │
+│  │                                                                      │    │
+│  │  Virtual IP: 192.168.1.254 (floats to active unit)                  │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  AFTER FAILOVER                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                      │    │
+│  │              ┌─────────────────────┐                                │    │
+│  │              │   FAILED FIREWALL   │ ◄── Down or unhealthy         │    │
+│  │              │   (Primary)         │                                │    │
+│  │              │   ✗ OFFLINE         │                                │    │
+│  │              └──────────┬──────────┘                                │    │
+│  │                         │                                            │    │
+│  │                    HA Link                                           │    │
+│  │                         │                                            │    │
+│  │              ┌──────────┴──────────┐                                │    │
+│  │              │  NOW ACTIVE         │ ◄── Takes over virtual IP     │    │
+│  │  Traffic ───►│  (Secondary)        │───► Sessions continue         │    │
+│  │              │  192.168.1.254 ✓    │                                │    │
+│  │              └─────────────────────┘                                │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Active/Active HA</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ACTIVE/ACTIVE HA                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                      │    │
+│  │                    ┌─────────────────────┐                          │    │
+│  │        ┌──────────►│  FIREWALL A         │──────────┐               │    │
+│  │        │           │  (Active for VD1)   │          │               │    │
+│  │        │           │                     │          │               │    │
+│  │        │           └──────────┬──────────┘          │               │    │
+│  │        │                      │                      │               │    │
+│  │  Load  │              Session Sync                   │  Internal     │    │
+│  │ Balancer                      │                      │  Network      │    │
+│  │        │                      │                      │               │    │
+│  │        │           ┌──────────┴──────────┐          │               │    │
+│  │        └──────────►│  FIREWALL B         │──────────┘               │    │
+│  │                    │  (Active for VD2)   │                          │    │
+│  │                    │                     │                          │    │
+│  │                    └─────────────────────┘                          │    │
+│  │                                                                      │    │
+│  │  Both firewalls actively process traffic                            │    │
+│  │  Sessions synced so either can take over                           │    │
+│  │  Load balanced for better throughput                                │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>HA Mode Comparison</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Active/Passive</th>
+                                <th>Active/Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Throughput</strong></td>
+                                <td>Single unit capacity</td>
+                                <td>Combined capacity</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Complexity</strong></td>
+                                <td>Simpler to configure</td>
+                                <td>More complex (routing, load balancing)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Resource Usage</strong></td>
+                                <td>Passive unit mostly idle</td>
+                                <td>Both units fully utilized</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Failover Time</strong></td>
+                                <td>Seconds (session sync dependent)</td>
+                                <td>Faster (traffic redistributed)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cost Efficiency</strong></td>
+                                <td>Lower (passive unit underutilized)</td>
+                                <td>Higher (full use of both units)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Common Use</strong></td>
+                                <td>Most enterprise deployments</td>
+                                <td>High-throughput data centers</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Vendor HA Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">HA Commands by Vendor</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PALO ALTO HA</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> high-availability state           <span class="token-comment"># HA state</span>
+<span class="token-command">show</span> high-availability all             <span class="token-comment"># Full HA info</span>
+<span class="token-command">request</span> high-availability state suspend <span class="token-comment"># Suspend (failover)</span>
+<span class="token-command">request</span> high-availability state functional <span class="token-comment"># Resume</span>
+<span class="token-command">request</span> high-availability sync-to-remote running-config <span class="token-comment"># Sync config</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># FORTINET HA</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">get</span> system ha status                   <span class="token-comment"># HA status</span>
+<span class="token-command">diagnose</span> sys ha status                 <span class="token-comment"># Detailed status</span>
+<span class="token-command">execute</span> ha manage 1                    <span class="token-comment"># Connect to secondary</span>
+<span class="token-command">diagnose</span> sys ha checksum cluster       <span class="token-comment"># Config sync check</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CHECK POINT HA (ClusterXL)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">cphaprob</span> state                         <span class="token-comment"># HA state</span>
+<span class="token-command">cphaprob</span> list                          <span class="token-comment"># Problem list</span>
+<span class="token-command">cphaprob</span> -a if                         <span class="token-comment"># Interface status</span>
+<span class="token-command">clusterXL_admin</span> down                   <span class="token-comment"># Failover to peer</span>
+<span class="token-command">clusterXL_admin</span> up                     <span class="token-comment"># Resume</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CISCO ASA HA</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> failover                          <span class="token-comment"># Failover status</span>
+<span class="token-command">show</span> failover state                    <span class="token-comment"># State details</span>
+<span class="token-command">failover</span> active                        <span class="token-comment"># Force active</span>
+<span class="token-command">no</span> failover active                     <span class="token-comment"># Force standby</span></code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - HA Configuration</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Dedicated HA link:</strong> Use separate physical connection for heartbeat</li>
+                            <li><strong>Session sync:</strong> Enable to maintain connections during failover</li>
+                            <li><strong>Preemption:</strong> Consider disabling to prevent unnecessary failovers</li>
+                            <li><strong>Monitor all critical interfaces:</strong> Not just management</li>
+                            <li><strong>Test failover regularly:</strong> During maintenance windows</li>
+                            <li><strong>Matching hardware:</strong> Both units should be identical</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "Explain firewall HA and when you'd use Active/Active vs Active/Passive."</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>Active/Passive:</strong> One firewall handles traffic, second stands by. Simpler, most common. Use when: simplicity is priority, traffic fits single unit capacity.</li>
+                            <li><strong>Active/Active:</strong> Both firewalls process traffic, load balanced. Use when: need combined throughput, maximize hardware investment.</li>
+                            <li><strong>Key components:</strong> Heartbeat link, session synchronization, virtual IPs, health monitoring.</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="2-8-cloud-firewalls.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Cloud Firewalls</span>
+                        </div>
+                    </a>
+                    <a href="3-1-proxy-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Proxy Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

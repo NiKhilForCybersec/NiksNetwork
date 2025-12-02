@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cloud Firewalls - Complete guide to AWS Security Groups, Azure NSGs, GCP Firewall Rules, and cloud-native network security">
+    <title>Cloud Firewalls | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 2: Firewalls (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🛡️</span>
+                            Firewalls
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="2-1-firewall-fundamentals.html" class="nav-link"><span class="nav-link-number">2.1</span> Firewall Fundamentals</a>
+                        <a href="2-2-firewall-types.html" class="nav-link"><span class="nav-link-number">2.2</span> Firewall Types Deep Dive</a>
+                        <a href="2-3-rule-design.html" class="nav-link"><span class="nav-link-number">2.3</span> Firewall Rule Design</a>
+                        <a href="2-4-palo-alto.html" class="nav-link"><span class="nav-link-number">2.4</span> Palo Alto Networks</a>
+                        <a href="2-5-cisco-firepower.html" class="nav-link"><span class="nav-link-number">2.5</span> Cisco Firepower/ASA</a>
+                        <a href="2-6-fortigate.html" class="nav-link"><span class="nav-link-number">2.6</span> Fortinet FortiGate</a>
+                        <a href="2-7-checkpoint.html" class="nav-link"><span class="nav-link-number">2.7</span> Check Point</a>
+                        <a href="2-8-cloud-firewalls.html" class="nav-link active"><span class="nav-link-number">2.8</span> Cloud Firewalls</a>
+                        <a href="2-9-firewall-ha.html" class="nav-link"><span class="nav-link-number">2.9</span> High Availability</a>
+                        <a href="2-10-logging-monitoring.html" class="nav-link"><span class="nav-link-number">2.10</span> Logging & Monitoring</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Firewalls</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Cloud Firewalls</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>Cloud Firewalls</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Cloud environments use different network security models than traditional data centers. Understanding cloud-native firewalls and network security is essential as organizations increasingly adopt AWS, Azure, and GCP.</p>
+                        <ul>
+                            <li>Cloud security model differences</li>
+                            <li>AWS Security Groups and NACLs</li>
+                            <li>Azure Network Security Groups (NSGs)</li>
+                            <li>GCP Firewall Rules</li>
+                            <li>Cloud-native vs virtual appliance firewalls</li>
+                            <li>Multi-cloud security considerations</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Cloud Security Model</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Traditional vs Cloud Network Security</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    TRADITIONAL DATA CENTER                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Internet                                                                   │
+│      │                                                                      │
+│      ▼                                                                      │
+│  ┌────────────────┐                                                        │
+│  │   Perimeter    │   ◄── Single chokepoint, all traffic passes through   │
+│  │    Firewall    │                                                        │
+│  └───────┬────────┘                                                        │
+│          │                                                                  │
+│          ▼                                                                  │
+│  ┌────────────────────────────────────────────┐                            │
+│  │           Internal Network                  │                            │
+│  │  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐   │                            │
+│  │  │Server│  │Server│  │Server│  │Server│   │  ◄── Flat network, limited │
+│  │  └──────┘  └──────┘  └──────┘  └──────┘   │      internal segmentation │
+│  └────────────────────────────────────────────┘                            │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    CLOUD (AWS/Azure/GCP)                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Internet                                                                   │
+│      │                                                                      │
+│      ▼                                                                      │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │                         VPC / Virtual Network                       │    │
+│  │                                                                      │    │
+│  │  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐  │    │
+│  │  │   Public Subnet  │  │  Private Subnet  │  │  Private Subnet  │  │    │
+│  │  │                  │  │                  │  │                  │  │    │
+│  │  │ ┌──────────────┐ │  │ ┌──────────────┐ │  │ ┌──────────────┐ │  │    │
+│  │  │ │   Web Tier   │ │  │ │   App Tier   │ │  │ │   DB Tier    │ │  │    │
+│  │  │ │ ┌──┐  ┌──┐   │ │  │ │ ┌──┐  ┌──┐   │ │  │ │ ┌──┐  ┌──┐   │ │  │    │
+│  │  │ │ │SG│  │SG│   │ │  │ │ │SG│  │SG│   │ │  │ │ │SG│  │SG│   │ │  │    │
+│  │  │ │ └──┘  └──┘   │ │  │ │ └──┘  └──┘   │ │  │ │ └──┘  └──┘   │ │  │    │
+│  │  │ └──────────────┘ │  │ └──────────────┘ │  │ └──────────────┘ │  │    │
+│  │  │      NACL        │  │      NACL        │  │      NACL        │  │    │
+│  │  └──────────────────┘  └──────────────────┘  └──────────────────┘  │    │
+│  │                                                                      │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  KEY DIFFERENCES:                                                           │
+│  • Security applied at multiple layers (subnet + instance)                 │
+│  • Each workload can have unique security policy (micro-segmentation)      │
+│  • Software-defined, API-managed, version-controlled                       │
+│  • Stateful (Security Groups) and Stateless (NACLs) options                │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>AWS Security Groups & NACLs</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Security Group</th>
+                                <th>Network ACL (NACL)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Level</strong></td>
+                                <td>Instance (ENI)</td>
+                                <td>Subnet</td>
+                            </tr>
+                            <tr>
+                                <td><strong>State</strong></td>
+                                <td>Stateful (return traffic auto-allowed)</td>
+                                <td>Stateless (must allow both directions)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rules</strong></td>
+                                <td>Allow only (implicit deny)</td>
+                                <td>Allow and Deny</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Evaluation</strong></td>
+                                <td>All rules evaluated</td>
+                                <td>Rules processed in order (first match)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Default</strong></td>
+                                <td>Deny all inbound, Allow all outbound</td>
+                                <td>Allow all (default NACL)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use Case</strong></td>
+                                <td>Primary firewall for instances</td>
+                                <td>Additional subnet-level protection</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">AWS CLI - Security Group Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CREATE SECURITY GROUP</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">aws</span> ec2 create-security-group \
+    --group-name WebServerSG \
+    --description "Security group for web servers" \
+    --vpc-id vpc-0123456789abcdef0
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ADD INBOUND RULES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Allow HTTPS from anywhere</span>
+<span class="token-command">aws</span> ec2 authorize-security-group-ingress \
+    --group-id sg-0123456789abcdef0 \
+    --protocol tcp \
+    --port 443 \
+    --cidr 0.0.0.0/0
+
+<span class="token-comment"># Allow SSH from specific IP</span>
+<span class="token-command">aws</span> ec2 authorize-security-group-ingress \
+    --group-id sg-0123456789abcdef0 \
+    --protocol tcp \
+    --port 22 \
+    --cidr 10.0.0.0/8
+
+<span class="token-comment"># Allow traffic from another security group</span>
+<span class="token-command">aws</span> ec2 authorize-security-group-ingress \
+    --group-id sg-0123456789abcdef0 \
+    --protocol tcp \
+    --port 3306 \
+    --source-group sg-appservers
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># VIEW SECURITY GROUP RULES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">aws</span> ec2 describe-security-groups \
+    --group-ids sg-0123456789abcdef0
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># REMOVE RULE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">aws</span> ec2 revoke-security-group-ingress \
+    --group-id sg-0123456789abcdef0 \
+    --protocol tcp \
+    --port 22 \
+    --cidr 0.0.0.0/0</code></pre>
+                </div>
+                
+                <h2>Azure Network Security Groups</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Azure CLI - NSG Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CREATE NSG</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">az</span> network nsg create \
+    --resource-group MyResourceGroup \
+    --name WebServerNSG
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ADD INBOUND RULES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Allow HTTPS</span>
+<span class="token-command">az</span> network nsg rule create \
+    --resource-group MyResourceGroup \
+    --nsg-name WebServerNSG \
+    --name AllowHTTPS \
+    --priority 100 \
+    --direction Inbound \
+    --access Allow \
+    --protocol Tcp \
+    --destination-port-ranges 443 \
+    --source-address-prefixes '*'
+
+<span class="token-comment"># Allow SSH from management subnet</span>
+<span class="token-command">az</span> network nsg rule create \
+    --resource-group MyResourceGroup \
+    --nsg-name WebServerNSG \
+    --name AllowSSH \
+    --priority 110 \
+    --direction Inbound \
+    --access Allow \
+    --protocol Tcp \
+    --destination-port-ranges 22 \
+    --source-address-prefixes 10.0.0.0/24
+
+<span class="token-comment"># Deny all other inbound (explicit)</span>
+<span class="token-command">az</span> network nsg rule create \
+    --resource-group MyResourceGroup \
+    --nsg-name WebServerNSG \
+    --name DenyAllInbound \
+    --priority 4096 \
+    --direction Inbound \
+    --access Deny \
+    --protocol '*' \
+    --source-address-prefixes '*' \
+    --destination-port-ranges '*'
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ASSOCIATE NSG WITH SUBNET</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">az</span> network vnet subnet update \
+    --resource-group MyResourceGroup \
+    --vnet-name MyVNet \
+    --name WebSubnet \
+    --network-security-group WebServerNSG
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># VIEW NSG RULES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">az</span> network nsg rule list \
+    --resource-group MyResourceGroup \
+    --nsg-name WebServerNSG \
+    --output table</code></pre>
+                </div>
+                
+                <h2>GCP Firewall Rules</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">gcloud - Firewall Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CREATE FIREWALL RULES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Allow HTTPS to instances with tag 'web-server'</span>
+<span class="token-command">gcloud</span> compute firewall-rules create allow-https \
+    --network=my-vpc \
+    --direction=INGRESS \
+    --priority=1000 \
+    --action=ALLOW \
+    --rules=tcp:443 \
+    --source-ranges=0.0.0.0/0 \
+    --target-tags=web-server
+
+<span class="token-comment"># Allow SSH from specific IP range</span>
+<span class="token-command">gcloud</span> compute firewall-rules create allow-ssh-mgmt \
+    --network=my-vpc \
+    --direction=INGRESS \
+    --priority=1000 \
+    --action=ALLOW \
+    --rules=tcp:22 \
+    --source-ranges=10.0.0.0/8 \
+    --target-tags=ssh-allowed
+
+<span class="token-comment"># Allow internal traffic between tagged instances</span>
+<span class="token-command">gcloud</span> compute firewall-rules create allow-internal \
+    --network=my-vpc \
+    --direction=INGRESS \
+    --priority=1000 \
+    --action=ALLOW \
+    --rules=all \
+    --source-tags=internal \
+    --target-tags=internal
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># VIEW FIREWALL RULES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">gcloud</span> compute firewall-rules list --format="table(name,network,direction,priority,allowed)"
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DELETE FIREWALL RULE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">gcloud</span> compute firewall-rules delete allow-https</code></pre>
+                </div>
+                
+                <h2>Cloud Provider Comparison</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>AWS</th>
+                                <th>Azure</th>
+                                <th>GCP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Instance-level</strong></td>
+                                <td>Security Groups</td>
+                                <td>NSG (on NIC)</td>
+                                <td>Firewall Rules + Tags</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Subnet-level</strong></td>
+                                <td>NACLs</td>
+                                <td>NSG (on Subnet)</td>
+                                <td>Firewall Rules + Subnets</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stateful</strong></td>
+                                <td>Security Groups</td>
+                                <td>NSGs</td>
+                                <td>Firewall Rules</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stateless</strong></td>
+                                <td>NACLs</td>
+                                <td>N/A</td>
+                                <td>N/A</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Managed NGFW</strong></td>
+                                <td>AWS Network Firewall</td>
+                                <td>Azure Firewall</td>
+                                <td>Cloud Firewall (L7)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Warning - Common Cloud Firewall Mistakes</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>0.0.0.0/0 on SSH/RDP:</strong> Never allow management ports from anywhere</li>
+                            <li><strong>Overly permissive outbound:</strong> Restrict egress to prevent data exfiltration</li>
+                            <li><strong>Not using security groups for source:</strong> Reference SGs instead of IP ranges when possible</li>
+                            <li><strong>Ignoring default rules:</strong> Understand what's allowed by default in each cloud</li>
+                            <li><strong>No logging:</strong> Enable VPC Flow Logs / NSG Flow Logs for visibility</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>Common cloud firewall operations:</strong></p>
+                        <ul>
+                            <li><strong>Rule requests:</strong> Review and implement firewall change requests</li>
+                            <li><strong>Audit:</strong> Review security group rules for overly permissive access</li>
+                            <li><strong>Flow log analysis:</strong> Investigate blocked/allowed traffic patterns</li>
+                            <li><strong>Troubleshooting:</strong> Debug connectivity issues between cloud resources</li>
+                            <li><strong>Compliance:</strong> Ensure rules meet security standards (no 0.0.0.0/0 on SSH)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "What's the difference between AWS Security Groups and NACLs?"</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>Security Groups:</strong> Instance-level, stateful (return traffic auto-allowed), allow rules only, all rules evaluated</li>
+                            <li><strong>NACLs:</strong> Subnet-level, stateless (must explicitly allow return traffic), can have allow AND deny rules, processed in order by rule number</li>
+                            <li><strong>Best practice:</strong> "Use Security Groups as primary firewall for micro-segmentation. Use NACLs as an additional layer for subnet-wide blocks, like blocking known bad IP ranges or enforcing subnet isolation."</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="2-7-checkpoint.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Check Point</span>
+                        </div>
+                    </a>
+                    <a href="2-9-firewall-ha.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">High Availability</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

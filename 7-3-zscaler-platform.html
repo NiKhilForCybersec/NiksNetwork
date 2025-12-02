@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Zscaler Platform - Complete guide to ZIA, ZPA, ZDX, architecture, policies, and troubleshooting">
+    <title>Zscaler Platform | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 7: SASE & Zero Trust (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">☁️</span>
+                            SASE & Zero Trust
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="7-1-sase.html" class="nav-link"><span class="nav-link-number">7.1</span> SASE Architecture</a>
+                        <a href="7-2-zero-trust.html" class="nav-link"><span class="nav-link-number">7.2</span> Zero Trust Architecture</a>
+                        <a href="7-3-zscaler-platform.html" class="nav-link active"><span class="nav-link-number">7.3</span> Zscaler Platform</a>
+                        <a href="7-4-prisma-access.html" class="nav-link"><span class="nav-link-number">7.4</span> Palo Alto Prisma</a>
+                        <a href="7-5-netskope.html" class="nav-link"><span class="nav-link-number">7.5</span> Netskope</a>
+                        <a href="7-6-sdwan-security.html" class="nav-link"><span class="nav-link-number">7.6</span> SD-WAN Security</a>
+                        <a href="7-7-casb.html" class="nav-link"><span class="nav-link-number">7.7</span> CASB</a>
+                        <a href="7-8-zero-trust-implementation.html" class="nav-link"><span class="nav-link-number">7.8</span> Implementing Zero Trust</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">SASE & Zero Trust</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Zscaler Platform</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>Zscaler Platform</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Zscaler is a cloud-native security platform that provides secure internet access (ZIA), private application access (ZPA), and digital experience monitoring (ZDX). As a leader in the SASE market, understanding Zscaler is essential for modern security engineers.</p>
+                        <ul>
+                            <li>Zscaler architecture and cloud infrastructure</li>
+                            <li>Zscaler Internet Access (ZIA) - Secure Web Gateway</li>
+                            <li>Zscaler Private Access (ZPA) - Zero Trust Network Access</li>
+                            <li>Zscaler Digital Experience (ZDX) - Monitoring</li>
+                            <li>Policy configuration and best practices</li>
+                            <li>Deployment options and client connectors</li>
+                            <li>Troubleshooting common issues</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Zscaler Platform Overview</h2>
+                
+                <p>Zscaler operates a global cloud security platform with 150+ data centers worldwide. All traffic is processed in the cloud, eliminating the need for on-premises security appliances for internet-bound traffic.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Zscaler Platform Components</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         ZSCALER PLATFORM                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    ZSCALER ZERO TRUST EXCHANGE                       │    │
+│  │              (Global Cloud with 150+ Data Centers)                   │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│         │                      │                       │                     │
+│         ▼                      ▼                       ▼                     │
+│  ┌─────────────┐        ┌─────────────┐        ┌─────────────┐              │
+│  │     ZIA     │        │     ZPA     │        │     ZDX     │              │
+│  │             │        │             │        │             │              │
+│  │  Internet   │        │   Private   │        │  Digital    │              │
+│  │   Access    │        │   Access    │        │ Experience  │              │
+│  └─────────────┘        └─────────────┘        └─────────────┘              │
+│         │                      │                       │                     │
+│         ▼                      ▼                       ▼                     │
+│  ┌─────────────┐        ┌─────────────┐        ┌─────────────┐              │
+│  │ • SWG       │        │ • ZTNA      │        │ • End-to-End│              │
+│  │ • CASB      │        │ • App       │        │   Monitoring│              │
+│  │ • Firewall  │        │   Connector │        │ • User Exp  │              │
+│  │ • Sandbox   │        │ • Browser   │        │   Scores    │              │
+│  │ • DLP       │        │   Isolation │        │ • Root Cause│              │
+│  │ • SSL Insp  │        │             │        │   Analysis  │              │
+│  └─────────────┘        └─────────────┘        └─────────────┘              │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  ADDITIONAL COMPONENTS:                                                     │
+│  • Zscaler Client Connector (ZCC) - Endpoint agent                         │
+│  • Zscaler Workload Posture - Cloud security posture (CSPM)                │
+│  • Zscaler Deception - Honeypots and decoys                                │
+│  • Zscaler Data Protection - DLP and CASB                                  │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Zscaler Internet Access (ZIA)</h2>
+                
+                <p>ZIA is a cloud-native Secure Web Gateway (SWG) that inspects all internet-bound traffic, providing URL filtering, threat protection, DLP, CASB, and firewall capabilities.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">ZIA Traffic Flow</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         ZIA TRAFFIC FLOW                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  USER DEVICE                                                                │
+│  ┌───────────────┐                                                          │
+│  │ Zscaler Client│                                                          │
+│  │ Connector     │                                                          │
+│  └───────┬───────┘                                                          │
+│          │ All Internet Traffic                                             │
+│          │ (Tunnel to nearest ZIA DC)                                       │
+│          ▼                                                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                     ZSCALER ZIA CLOUD                                │    │
+│  │                                                                      │    │
+│  │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐   │    │
+│  │  │   SSL   │  │   URL   │  │ THREAT  │  │  CASB   │  │   DLP   │   │    │
+│  │  │ INSPECT │─►│ FILTER  │─►│ PROTECT │─►│         │─►│         │   │    │
+│  │  └─────────┘  └─────────┘  └─────────┘  └─────────┘  └─────────┘   │    │
+│  │       │                                                      │       │    │
+│  │       │              ┌─────────────────┐                    │       │    │
+│  │       │              │    SANDBOX      │                    │       │    │
+│  │       └─────────────►│   (Unknown      │◄───────────────────┘       │    │
+│  │                      │    Files)       │                            │    │
+│  │                      └─────────────────┘                            │    │
+│  │                                                                      │    │
+│  │  POLICY ENGINE: User → Group → Location → Application               │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│                              ┌──────────┐                                    │
+│                              │ INTERNET │                                    │
+│                              └──────────┘                                    │
+│                                                                              │
+│  FORWARDING METHODS:                                                        │
+│  • Zscaler Client Connector (preferred for users)                          │
+│  • GRE/IPSec Tunnel from office (for locations)                            │
+│  • PAC File (legacy, browser only)                                         │
+│  • Proxy Chaining (from existing proxy)                                    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h3>ZIA Key Features</h3>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Description</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>URL Filtering</strong></td>
+                                <td>Category-based web filtering with 120+ categories</td>
+                                <td>Block malware, adult content, gambling, etc.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SSL Inspection</strong></td>
+                                <td>Decrypt and inspect HTTPS traffic</td>
+                                <td>Visibility into encrypted threats</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cloud Firewall</strong></td>
+                                <td>L3/L4 firewall rules for non-web traffic</td>
+                                <td>Control SSH, RDP, custom apps</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Advanced Threat Protection</strong></td>
+                                <td>IPS, anti-malware, phishing protection</td>
+                                <td>Block known and unknown threats</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cloud Sandbox</strong></td>
+                                <td>Detonate unknown files in isolated environment</td>
+                                <td>Zero-day malware detection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CASB (Inline)</strong></td>
+                                <td>Control SaaS application usage</td>
+                                <td>Shadow IT discovery, tenant restrictions</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DLP</strong></td>
+                                <td>Data Loss Prevention for web/cloud</td>
+                                <td>Prevent sensitive data exfiltration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bandwidth Control</strong></td>
+                                <td>QoS and bandwidth policies</td>
+                                <td>Prioritize business apps over streaming</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Zscaler Private Access (ZPA)</h2>
+                
+                <p>ZPA provides Zero Trust Network Access (ZTNA) to private applications without exposing them to the internet. It replaces traditional VPN with application-level access control.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">ZPA Architecture - Inside-Out Connection</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         ZPA ARCHITECTURE                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  KEY CONCEPT: Apps connect OUT to Zscaler (inside-out)                      │
+│               Users connect OUT to Zscaler                                  │
+│               Zscaler brokers the connection                                │
+│               Apps NEVER exposed to internet                                │
+│                                                                              │
+│  ┌───────────────┐                              ┌───────────────┐           │
+│  │ USER DEVICE   │                              │ DATA CENTER   │           │
+│  │               │                              │               │           │
+│  │ ┌───────────┐ │                              │ ┌───────────┐ │           │
+│  │ │ Zscaler   │ │                              │ │   App     │ │           │
+│  │ │ Client    │ │                              │ │ Connector │ │           │
+│  │ │ Connector │ │                              │ │           │ │           │
+│  │ └─────┬─────┘ │                              │ └─────┬─────┘ │           │
+│  └───────┼───────┘                              └───────┼───────┘           │
+│          │                                              │                    │
+│          │  Outbound TLS                    Outbound TLS│                    │
+│          │  Connection                       Connection │                    │
+│          │                                              │                    │
+│          ▼                                              ▼                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                     ZSCALER ZPA CLOUD                                │    │
+│  │                                                                      │    │
+│  │     ┌─────────────────┐              ┌─────────────────┐            │    │
+│  │     │    ZPA Public   │              │    ZPA Public   │            │    │
+│  │     │  Service Edge   │◄────────────►│  Service Edge   │            │    │
+│  │     │  (User-facing)  │   Brokered   │  (App-facing)   │            │    │
+│  │     └─────────────────┘   Connection └─────────────────┘            │    │
+│  │                                                                      │    │
+│  │     ┌──────────────────────────────────────────────────┐            │    │
+│  │     │               POLICY ENGINE                       │            │    │
+│  │     │  • User Identity (SAML/OIDC)                     │            │    │
+│  │     │  • Device Posture                                │            │    │
+│  │     │  • Application Segment                           │            │    │
+│  │     │  • Access Policy                                 │            │    │
+│  │     └──────────────────────────────────────────────────┘            │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  RESULT: User gets access to specific app, not network                      │
+│          App is invisible to internet (no inbound ports)                    │
+│          Lateral movement prevented                                         │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - ZPA vs VPN</div>
+                    <div class="callout-content">
+                        <p><strong>Why ZPA over traditional VPN?</strong></p>
+                        <ul>
+                            <li><strong>Application-level access:</strong> Users only see specific apps they're authorized for, not entire network</li>
+                            <li><strong>No network exposure:</strong> Apps never exposed to internet (no inbound firewall rules needed)</li>
+                            <li><strong>No lateral movement:</strong> Compromising one user doesn't give access to other apps</li>
+                            <li><strong>Better user experience:</strong> Direct-to-cloud, no backhauling to data center</li>
+                            <li><strong>Easier scaling:</strong> No VPN concentrator capacity planning</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3>ZPA Components</h3>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Description</th>
+                                <th>Deployment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>App Connector</strong></td>
+                                <td>Lightweight VM that connects apps to ZPA cloud</td>
+                                <td>Deploy in each data center/cloud with apps</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Application Segment</strong></td>
+                                <td>Definition of applications (IP/FQDN + ports)</td>
+                                <td>Configured in ZPA admin portal</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Segment Group</strong></td>
+                                <td>Logical grouping of application segments</td>
+                                <td>Used for policy organization</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Server Group</strong></td>
+                                <td>Group of App Connectors serving same apps</td>
+                                <td>Multiple connectors for HA</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Access Policy</strong></td>
+                                <td>Rules defining who can access what apps</td>
+                                <td>User/Group + App Segment + Conditions</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Client Connector</strong></td>
+                                <td>User endpoint agent (same as ZIA)</td>
+                                <td>Installed on user devices</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Zscaler Client Connector (ZCC)</h2>
+                
+                <p>The Zscaler Client Connector is the endpoint agent that forwards traffic to ZIA and ZPA. It's available for Windows, macOS, iOS, Android, and Linux.</p>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">ZCC Troubleshooting Commands (Windows)</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Check ZCC Status</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Open Command Prompt as Administrator</span>
+
+<span class="token-comment"># Check ZCC service status</span>
+<span class="token-command">sc</span> query ZSATunnel
+<span class="token-command">sc</span> query ZSAService
+
+<span class="token-comment"># View ZCC logs</span>
+<span class="token-comment"># Location: C:\Users\&lt;user&gt;\AppData\Local\Zscaler\Logs</span>
+
+<span class="token-comment"># Force ZCC to re-authenticate</span>
+<span class="token-comment"># Right-click ZCC tray icon → Logout → Login</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Network Connectivity Tests</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Test connectivity to Zscaler</span>
+<span class="token-command">nslookup</span> gateway.zscloud.net
+<span class="token-command">ping</span> gateway.zscloud.net
+
+<span class="token-comment"># Test ZIA PAC file (if used)</span>
+<span class="token-command">curl</span> -v http://pac.zscloud.net/yourcompany.pac
+
+<span class="token-comment"># Check if traffic is going through Zscaler</span>
+<span class="token-comment"># Visit: https://ip.zscaler.com</span>
+<span class="token-comment"># Should show "You are accessing the Internet via Zscaler"</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Common Issues</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># 1. Captive portal detection</span>
+<span class="token-comment">#    - ZCC may not tunnel until portal auth complete</span>
+<span class="token-comment">#    - Check: http://detectportal.firefox.com</span>
+
+<span class="token-comment"># 2. Certificate issues</span>
+<span class="token-comment">#    - Ensure Zscaler root CA is installed</span>
+<span class="token-command">certutil</span> -viewstore Root | findstr Zscaler
+
+<span class="token-comment"># 3. Tunnel not establishing</span>
+<span class="token-comment">#    - Check if UDP 443 is allowed outbound</span>
+<span class="token-comment">#    - Check for conflicting VPN or proxy</span></code></pre>
+                </div>
+                
+                <h2>ZIA Policy Configuration</h2>
+                
+                <p>ZIA policies are evaluated in a specific order. Understanding this order is crucial for effective policy design.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">ZIA Policy Evaluation Order</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ZIA POLICY EVALUATION ORDER                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Traffic arrives at ZIA                                                     │
+│          │                                                                   │
+│          ▼                                                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 1. FIREWALL POLICY                                                   │    │
+│  │    • L3/L4 rules for non-HTTP traffic                               │    │
+│  │    • Allow/Block based on IP, port, protocol                        │    │
+│  │    • Applied to Cloud Firewall-enabled traffic                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│          │                                                                   │
+│          ▼                                                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 2. SSL INSPECTION POLICY                                             │    │
+│  │    • Decide: Inspect / Do Not Inspect / Block                       │    │
+│  │    • Based on URL category, user, destination                       │    │
+│  │    • Critical: Exclude banking, healthcare, certificate pinned apps │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│          │                                                                   │
+│          ▼                                                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 3. URL FILTERING POLICY                                              │    │
+│  │    • Allow/Caution/Block based on URL category                      │    │
+│  │    • Custom URL lists                                               │    │
+│  │    • Override rules for specific users/groups                       │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│          │                                                                   │
+│          ▼                                                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 4. CLOUD APPLICATION CONTROL                                         │    │
+│  │    • SaaS app policies (allow Dropbox, block personal Gmail)        │    │
+│  │    • Tenant restrictions                                            │    │
+│  │    • Granular app controls (upload/download/share)                  │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│          │                                                                   │
+│          ▼                                                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 5. ADVANCED THREAT PROTECTION                                        │    │
+│  │    • Malware scanning                                               │    │
+│  │    • Phishing detection                                             │    │
+│  │    • Sandbox analysis (unknown files)                               │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│          │                                                                   │
+│          ▼                                                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 6. DLP POLICY                                                        │    │
+│  │    • Content inspection for sensitive data                          │    │
+│  │    • Block/Allow/Alert based on DLP rules                           │    │
+│  │    • Applied to uploads and web posts                               │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│          │                                                                   │
+│          ▼                                                                   │
+│  Traffic allowed to destination (if passed all checks)                      │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Zscaler Digital Experience (ZDX)</h2>
+                
+                <p>ZDX provides end-to-end visibility into user digital experience, from the endpoint through the network to the application. It helps identify performance issues and their root cause.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Capability</th>
+                                <th>What It Monitors</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>User Experience Score</strong></td>
+                                <td>Composite score (0-100) of user's digital experience</td>
+                                <td>Quickly identify users with issues</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Device Health</strong></td>
+                                <td>CPU, memory, disk, WiFi signal strength</td>
+                                <td>Identify endpoint-side issues</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network Path</strong></td>
+                                <td>Hop-by-hop latency and packet loss</td>
+                                <td>Identify network bottlenecks</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Application Performance</strong></td>
+                                <td>Response time, availability for key apps</td>
+                                <td>Monitor SaaS and internal app health</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Deep Tracing</strong></td>
+                                <td>Detailed per-transaction analysis</td>
+                                <td>Root cause analysis for specific issues</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>Common Zscaler administration tasks:</strong></p>
+                        <ul>
+                            <li><strong>URL exceptions:</strong> Add URLs to allow/block lists for specific users</li>
+                            <li><strong>SSL bypass:</strong> Add SSL inspection exceptions for certificate-pinned apps</li>
+                            <li><strong>ZPA app segments:</strong> Define new internal applications for ZPA access</li>
+                            <li><strong>Access policies:</strong> Modify who can access which applications</li>
+                            <li><strong>Troubleshooting:</strong> Check logs for blocked traffic, ZCC issues</li>
+                            <li><strong>User issues:</strong> Verify user authentication, check tunnel status</li>
+                            <li><strong>Reporting:</strong> Generate compliance and usage reports</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Troubleshooting Zscaler</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Zscaler Troubleshooting Flowchart</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ZSCALER TROUBLESHOOTING                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  USER REPORTS: "I can't access website/application"                         │
+│                                                                              │
+│  STEP 1: Verify Zscaler Status                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ • Check ZCC tray icon - is it connected (green)?                    │    │
+│  │ • Visit https://ip.zscaler.com - shows Zscaler?                    │    │
+│  │ • If not connected: Check network, restart ZCC service              │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                      User is connected to Zscaler                           │
+│                                    ▼                                         │
+│  STEP 2: Check ZIA Logs (Admin Portal)                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ • Insights → Logs → Web                                             │    │
+│  │ • Filter by user and time                                          │    │
+│  │ • Look for the blocked request                                     │    │
+│  │                                                                      │    │
+│  │ FOUND BLOCK? → Check which policy blocked it:                       │    │
+│  │   - URL Filtering → Add exception or recategorize                  │    │
+│  │   - SSL Inspection → Add to bypass list                            │    │
+│  │   - Cloud App Control → Adjust app policy                          │    │
+│  │   - Threat/Sandbox → False positive? Whitelist                     │    │
+│  │                                                                      │    │
+│  │ NO LOG ENTRY? → Traffic may not be reaching Zscaler                │    │
+│  │   - Check if app is bypassed in ZCC                                │    │
+│  │   - Check Cloud Firewall policy                                    │    │
+│  │   - Issue may be downstream (DNS, server, etc.)                    │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  FOR ZPA ISSUES:                                                            │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ • Check App Connector status - is it connected?                     │    │
+│  │ • Check Application Segment - correct IPs/ports?                   │    │
+│  │ • Check Access Policy - user has permission?                       │    │
+│  │ • Check ZPA Insights → Diagnostics for specific session            │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "Explain the difference between ZIA and ZPA."</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>ZIA (Zscaler Internet Access):</strong> Secures traffic going TO the internet. It's a cloud-based Secure Web Gateway that provides URL filtering, threat protection, DLP, and CASB for SaaS apps. Think of it as "secure internet access."</li>
+                            <li><strong>ZPA (Zscaler Private Access):</strong> Provides access to INTERNAL/private applications without exposing them to the internet. It's a Zero Trust Network Access solution that replaces VPN. Users only get access to specific apps, not the network. Think of it as "secure private access."</li>
+                        </ul>
+                        <p><strong>Together:</strong> ZIA + ZPA provide complete SASE - securing both internet-bound traffic and access to internal applications, all from the cloud.</p>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="7-2-zero-trust.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Zero Trust Architecture</span>
+                        </div>
+                    </a>
+                    <a href="7-4-prisma-access.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Palo Alto Prisma</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

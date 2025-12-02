@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NetFlow and sFlow - Complete guide to network flow monitoring and analysis">
+    <title>NetFlow & sFlow | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔧</span>Monitoring</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="12-5-threat-hunting.html" class="nav-link"><span class="nav-link-number">12.5</span> Threat Hunting</a>
+                        <a href="12-6-netflow.html" class="nav-link active"><span class="nav-link-number">12.6</span> NetFlow/sFlow</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Monitoring</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">NetFlow/sFlow</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>NetFlow & sFlow Monitoring</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Flow protocols (NetFlow, sFlow, IPFIX) provide metadata about network traffic without capturing full packets. They're essential for network visibility, capacity planning, and security monitoring.</p>
+                        <ul>
+                            <li>Flow protocol fundamentals</li>
+                            <li>NetFlow vs sFlow vs IPFIX</li>
+                            <li>Flow data for security</li>
+                            <li>Configuration and collectors</li>
+                            <li>Security use cases</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Flow Record Contents</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">What's in a Flow Record</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    NETFLOW/IPFIX RECORD                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  A FLOW = Unidirectional sequence of packets with common properties         │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ FLOW KEY (What defines a unique flow)                               │    │
+│  │                                                                      │    │
+│  │ • Source IP Address         192.168.1.100                           │    │
+│  │ • Destination IP Address    8.8.8.8                                 │    │
+│  │ • Source Port               54321                                   │    │
+│  │ • Destination Port          443                                     │    │
+│  │ • Protocol                  TCP (6)                                 │    │
+│  │ • Input Interface           Gi0/0                                   │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ FLOW METRICS (Statistics)                                           │    │
+│  │                                                                      │    │
+│  │ • Packet Count              1,523                                   │    │
+│  │ • Byte Count                2,345,678                               │    │
+│  │ • Start Time                14:23:01.123                            │    │
+│  │ • End Time                  14:25:45.456                            │    │
+│  │ • TCP Flags                 SYN, ACK, PSH, FIN                      │    │
+│  │ • ToS/DSCP                  0x00                                    │    │
+│  │ • Next Hop                  10.0.0.1                                │    │
+│  │ • AS Numbers                15169 (Google)                          │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  NOTE: Flow data is METADATA - no packet payload content!                  │
+│  Much smaller storage than full PCAP, but still reveals patterns.          │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Protocol Comparison</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>NetFlow v5</th>
+                                <th>NetFlow v9/IPFIX</th>
+                                <th>sFlow</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Vendor</strong></td>
+                                <td>Cisco</td>
+                                <td>Cisco / IETF</td>
+                                <td>sFlow.org (multi-vendor)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Method</strong></td>
+                                <td>Flow-based (100%)</td>
+                                <td>Flow-based (100%)</td>
+                                <td>Sampled (1:N packets)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Templates</strong></td>
+                                <td>Fixed fields</td>
+                                <td>Flexible templates</td>
+                                <td>Fixed + extensions</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Performance</strong></td>
+                                <td>Higher CPU load</td>
+                                <td>Higher CPU load</td>
+                                <td>Lower CPU (sampled)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Accuracy</strong></td>
+                                <td>Every flow</td>
+                                <td>Every flow</td>
+                                <td>Statistical (sampling)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>L2 Info</strong></td>
+                                <td>Limited</td>
+                                <td>Via templates</td>
+                                <td>Full L2 headers</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Flow Configuration</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco - NetFlow Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! CISCO IOS - NETFLOW v9 CONFIGURATION</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">! Define flow exporter</span>
+flow exporter SECURITY-COLLECTOR
+ destination 10.0.0.100
+ source Loopback0
+ transport udp 2055
+ template data timeout 60
+
+<span class="token-comment">! Define flow record (what to collect)</span>
+flow record SECURITY-RECORD
+ match ipv4 source address
+ match ipv4 destination address
+ match transport source-port
+ match transport destination-port
+ match ipv4 protocol
+ match interface input
+ collect counter bytes
+ collect counter packets
+ collect timestamp sys-uptime first
+ collect timestamp sys-uptime last
+ collect ipv4 tcp flags
+
+<span class="token-comment">! Define flow monitor</span>
+flow monitor SECURITY-MONITOR
+ exporter SECURITY-COLLECTOR
+ record SECURITY-RECORD
+ cache timeout active 60
+ cache timeout inactive 15
+
+<span class="token-comment">! Apply to interface</span>
+interface GigabitEthernet0/0
+ ip flow monitor SECURITY-MONITOR input
+ ip flow monitor SECURITY-MONITOR output
+
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! PALO ALTO - NETFLOW EXPORT</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Device > Server Profiles > NetFlow</span>
+<span class="token-comment"># Add server profile with collector IP/port</span>
+<span class="token-comment"># Network > Network Profiles > Netflow Profile</span>
+<span class="token-comment"># Apply to zones or interfaces</span></code></pre>
+                </div>
+                
+                <h2>Flow Collectors</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tool</th>
+                                <th>Type</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>ntopng</strong></td>
+                                <td>Open Source</td>
+                                <td>Real-time visualization</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Elastiflow</strong></td>
+                                <td>Open Source</td>
+                                <td>Elastic Stack integration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SolarWinds NTA</strong></td>
+                                <td>Commercial</td>
+                                <td>Enterprise monitoring</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cisco Stealthwatch</strong></td>
+                                <td>Commercial</td>
+                                <td>Security analytics</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kentik</strong></td>
+                                <td>Commercial SaaS</td>
+                                <td>Cloud-scale, DDoS detection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Plixer Scrutinizer</strong></td>
+                                <td>Commercial</td>
+                                <td>Incident response</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Security Use Cases</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Flow-Based Security Analysis</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SECURITY USE CASES FOR FLOW DATA</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+1. DATA EXFILTRATION DETECTION
+   • Look for: Large outbound transfers to unusual destinations
+   • Query: bytes_out > 100MB AND dst_ip NOT IN known_cloud_ips
+
+2. C2 BEACONING
+   • Look for: Regular interval connections to same destination
+   • Pattern: Same src/dst, consistent timing (±5 min)
+
+3. LATERAL MOVEMENT
+   • Look for: New internal connections between hosts
+   • Query: src_ip IN internal AND dst_ip IN internal 
+            AND dst_port IN (445, 3389, 22, 5985)
+
+4. PORT SCANNING
+   • Look for: Many connections to different ports, few packets each
+   • Pattern: Single src_ip → many dst_ports, packet_count < 5
+
+5. DDoS DETECTION
+   • Look for: Traffic spikes, many sources to single destination
+   • Query: GROUP BY dst_ip HAVING COUNT(DISTINCT src_ip) > 1000
+
+6. UNAUTHORIZED SERVICES
+   • Look for: Traffic on unexpected ports
+   • Query: dst_port NOT IN approved_ports AND bytes > threshold
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SPLUNK QUERY EXAMPLE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+index=netflow 
+| stats sum(bytes) as total_bytes by src_ip, dst_ip, dst_port
+| where total_bytes > 100000000
+| sort -total_bytes</code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Flow Monitoring Best Practices</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Cover all chokepoints:</strong> Core, distribution, DMZ, WAN links</li>
+                            <li><strong>Retain data:</strong> 30-90 days for incident response</li>
+                            <li><strong>Correlate with SIEM:</strong> Flow + logs = full picture</li>
+                            <li><strong>Baseline traffic:</strong> Know normal to find abnormal</li>
+                            <li><strong>Sample appropriately:</strong> sFlow 1:1000 for high-speed links</li>
+                            <li><strong>Monitor collector:</strong> Ensure no flow data loss</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you use NetFlow for security monitoring?"</p>
+                        <p><strong>Answer:</strong> "NetFlow provides network metadata without full packet capture - source/destination IPs, ports, byte counts, timestamps. For security, I'd analyze flows to detect data exfiltration by looking for large outbound transfers to unusual destinations, identify C2 by finding regular-interval connections to the same IP, detect lateral movement by monitoring east-west traffic on admin ports like 445 or 3389, and spot port scans by finding sources connecting to many ports with few packets each. The advantage over PCAP is scale - you can store months of flow data where PCAP would fill storage in days. I'd send flows to a collector like Stealthwatch or Elastiflow, establish baselines of normal traffic, then alert on deviations."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="12-5-threat-hunting.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Threat Hunting</span>
+                        </div>
+                    </a>
+                    <a href="13-1-compliance-frameworks.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Compliance Frameworks</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

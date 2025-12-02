@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Kubernetes Network Security - Complete guide to network policies, CNI security, and Kubernetes networking">
+    <title>Kubernetes Network Security | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">☁️</span>Cloud Security</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="14-9-service-mesh.html" class="nav-link"><span class="nav-link-number">14.9</span> Service Mesh</a>
+                        <a href="14-10-kubernetes-networking.html" class="nav-link active"><span class="nav-link-number">14.10</span> Kubernetes Networking</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Cloud Security</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Kubernetes Networking</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Kubernetes Network Security</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Kubernetes networking is fundamentally different from traditional networking. By default, all pods can communicate with all other pods - making network policies essential for security.</p>
+                        <ul>
+                            <li>Kubernetes networking model</li>
+                            <li>Network Policies for segmentation</li>
+                            <li>CNI plugins and security features</li>
+                            <li>Ingress security</li>
+                            <li>Egress controls</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Kubernetes Networking Model</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Kubernetes Network Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    KUBERNETES NETWORKING                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  EXTERNAL                                                                   │
+│      │                                                                      │
+│      ▼                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ INGRESS CONTROLLER (nginx, traefik, etc.)                           │   │
+│  │ - TLS termination                                                    │   │
+│  │ - Host/path routing                                                  │   │
+│  │ - Rate limiting, WAF                                                 │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│      │                                                                      │
+│      ▼                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ KUBERNETES CLUSTER                                                   │   │
+│  │                                                                       │   │
+│  │  ┌─────────────────────────────────────────────────────────────┐    │   │
+│  │  │ NAMESPACE: production                                        │    │   │
+│  │  │                                                              │    │   │
+│  │  │  ┌──────────┐    ┌──────────┐    ┌──────────┐              │    │   │
+│  │  │  │ Pod: Web │───►│ Pod: API │───►│ Pod: DB  │              │    │   │
+│  │  │  │ 10.1.1.5 │    │ 10.1.1.6 │    │ 10.1.1.7 │              │    │   │
+│  │  │  └──────────┘    └──────────┘    └──────────┘              │    │   │
+│  │  │                                                              │    │   │
+│  │  │  ⚠️ DEFAULT: All pods can talk to all pods!                │    │   │
+│  │  │  ✓ SECURE: Use NetworkPolicies to restrict                 │    │   │
+│  │  └─────────────────────────────────────────────────────────────┘    │   │
+│  │                                                                       │   │
+│  │  CNI PLUGIN (Calico, Cilium, etc.)                                  │   │
+│  │  - Implements pod networking                                         │   │
+│  │  - Enforces NetworkPolicies                                         │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│  KEY PRINCIPLES:                                                            │
+│  • Every pod gets unique IP                                                │
+│  • Pods can reach all pods (no NAT)                                        │
+│  • NetworkPolicies = firewall rules                                        │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Network Policies</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Kubernetes NetworkPolicy Examples</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DEFAULT DENY ALL - Start with zero trust</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: production
+spec:
+  podSelector: {}  <span class="token-comment"># Applies to all pods in namespace</span>
+  policyTypes:
+  - Ingress
+  - Egress
+  <span class="token-comment"># No ingress/egress rules = deny all</span>
+
+---
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ALLOW WEB TO API</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-web-to-api
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      app: api  <span class="token-comment"># Apply to API pods</span>
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: web  <span class="token-comment"># Allow from web pods</span>
+    ports:
+    - protocol: TCP
+      port: 8080
+
+---
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ALLOW API TO DATABASE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-to-db
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      app: database
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: api
+    ports:
+    - protocol: TCP
+      port: 5432
+
+---
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ALLOW DNS EGRESS (Required for most apps)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-egress
+  namespace: production
+spec:
+  podSelector: {}  <span class="token-comment"># All pods</span>
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53</code></pre>
+                </div>
+                
+                <h2>CNI Plugins Comparison</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>CNI Plugin</th>
+                                <th>NetworkPolicy</th>
+                                <th>Features</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Calico</strong></td>
+                                <td>✓ Full support</td>
+                                <td>L3/L4 policies, BGP, eBPF option</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cilium</strong></td>
+                                <td>✓ Extended</td>
+                                <td>L7 policies, eBPF, DNS-aware</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Weave</strong></td>
+                                <td>✓ Basic</td>
+                                <td>Encryption, simple setup</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Flannel</strong></td>
+                                <td>✗ None</td>
+                                <td>Simple overlay only</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS VPC CNI</strong></td>
+                                <td>✓ Via Calico</td>
+                                <td>Native VPC IPs, Security Groups</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure CNI</strong></td>
+                                <td>✓ Via Calico</td>
+                                <td>Native VNet IPs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Cilium L7 Network Policies</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cilium - Layer 7 Policies</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CILIUM L7 HTTP POLICY</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: api-l7-policy
+  namespace: production
+spec:
+  endpointSelector:
+    matchLabels:
+      app: api
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: web
+    toPorts:
+    - ports:
+      - port: "8080"
+        protocol: TCP
+      rules:
+        http:
+        - method: "GET"
+          path: "/api/v1/.*"
+        - method: "POST"
+          path: "/api/v1/orders"
+          headers:
+          - 'Content-Type: application/json'
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CILIUM DNS-BASED EGRESS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-external-api
+spec:
+  endpointSelector:
+    matchLabels:
+      app: backend
+  egress:
+  - toFQDNs:
+    - matchPattern: "*.stripe.com"
+    - matchName: "api.github.com"
+    toPorts:
+    - ports:
+      - port: "443"
+        protocol: TCP</code></pre>
+                </div>
+                
+                <h2>Ingress Security</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Ingress Security Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SECURE INGRESS WITH TLS AND RATE LIMITING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: secure-ingress
+  annotations:
+    <span class="token-comment"># TLS redirect</span>
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    <span class="token-comment"># Rate limiting</span>
+    nginx.ingress.kubernetes.io/limit-rps: "10"
+    nginx.ingress.kubernetes.io/limit-connections: "5"
+    <span class="token-comment"># WAF via ModSecurity</span>
+    nginx.ingress.kubernetes.io/enable-modsecurity: "true"
+    nginx.ingress.kubernetes.io/modsecurity-snippet: |
+      SecRuleEngine On
+      Include /etc/nginx/owasp-modsecurity-crs/crs-setup.conf
+    <span class="token-comment"># Security headers</span>
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header X-Frame-Options "SAMEORIGIN";
+      add_header X-Content-Type-Options "nosniff";
+      add_header Strict-Transport-Security "max-age=31536000";
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - api.example.com
+    secretName: api-tls-cert
+  rules:
+  - host: api.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-service
+            port:
+              number: 80</code></pre>
+                </div>
+                
+                <h2>Kubernetes Network Security Checklist</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Control</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Default deny</strong></td>
+                                <td>Apply deny-all NetworkPolicy to all namespaces</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Namespace isolation</strong></td>
+                                <td>Restrict cross-namespace traffic</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Egress controls</strong></td>
+                                <td>Limit outbound to required destinations</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use CNI with policies</strong></td>
+                                <td>Calico or Cilium, not just Flannel</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ingress TLS</strong></td>
+                                <td>Terminate TLS at ingress, encrypt in-cluster</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Service mesh</strong></td>
+                                <td>Consider Istio/Linkerd for mTLS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Private API server</strong></td>
+                                <td>Don't expose API server to internet</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Audit logging</strong></td>
+                                <td>Enable API server audit logs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-critical">
+                    <div class="callout-title">🚨 Common Kubernetes Network Mistakes</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>No NetworkPolicies:</strong> Default allows all pod-to-pod traffic</li>
+                            <li><strong>Flannel without policies:</strong> Flannel doesn't support NetworkPolicy</li>
+                            <li><strong>Forgot DNS egress:</strong> Deny-all blocks DNS, breaking apps</li>
+                            <li><strong>Public API server:</strong> K8s API exposed to internet</li>
+                            <li><strong>No egress controls:</strong> Compromised pods can reach anywhere</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How do you secure networking in Kubernetes?"</p>
+                        <p><strong>Answer:</strong> "Kubernetes networking is open by default - all pods can reach all other pods. I'd implement defense in depth starting with NetworkPolicies. First, apply a default-deny policy to every namespace, then explicitly allow only required communication paths. This requires a CNI that supports policies - Calico or Cilium, not Flannel. For egress, I'd restrict outbound traffic to only required external services and always allow DNS to kube-system. At the ingress layer, use an ingress controller with TLS termination, rate limiting, and WAF capabilities. For sensitive workloads, add a service mesh like Istio for mTLS between pods. Keep the API server private - don't expose it to the internet. Finally, use namespace isolation to separate environments and limit blast radius of any compromise."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="14-9-service-mesh.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Service Mesh Security</span>
+                        </div>
+                    </a>
+                    <a href="23-1-iot-security.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">IoT Network Security</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

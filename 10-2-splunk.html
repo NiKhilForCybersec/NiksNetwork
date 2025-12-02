@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Splunk - Complete guide to Splunk Enterprise Security, SPL queries, dashboards, and security monitoring">
+    <title>Splunk | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 10: SIEM (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">📊</span>
+                            SIEM & Log Management
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="10-1-siem-fundamentals.html" class="nav-link"><span class="nav-link-number">10.1</span> SIEM Fundamentals</a>
+                        <a href="10-2-splunk.html" class="nav-link active"><span class="nav-link-number">10.2</span> Splunk</a>
+                        <a href="10-3-microsoft-sentinel.html" class="nav-link"><span class="nav-link-number">10.3</span> Microsoft Sentinel</a>
+                        <a href="10-4-elastic-siem.html" class="nav-link"><span class="nav-link-number">10.4</span> Elastic SIEM</a>
+                        <a href="10-5-qradar.html" class="nav-link"><span class="nav-link-number">10.5</span> IBM QRadar</a>
+                        <a href="10-6-log-sources.html" class="nav-link"><span class="nav-link-number">10.6</span> Log Sources</a>
+                        <a href="10-7-correlation-rules.html" class="nav-link"><span class="nav-link-number">10.7</span> Correlation Rules</a>
+                        <a href="10-8-use-cases.html" class="nav-link"><span class="nav-link-number">10.8</span> Detection Use Cases</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">SIEM & Log Management</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Splunk</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>Splunk</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Splunk is one of the most widely deployed SIEM platforms in enterprise environments. Known for its powerful Search Processing Language (SPL) and flexibility, Splunk is essential knowledge for security professionals.</p>
+                        <ul>
+                            <li>Splunk architecture and components</li>
+                            <li>Search Processing Language (SPL) basics</li>
+                            <li>Common security searches</li>
+                            <li>Splunk Enterprise Security (ES)</li>
+                            <li>Creating dashboards and alerts</li>
+                            <li>Data models and CIM</li>
+                            <li>Troubleshooting Splunk issues</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Splunk Architecture</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Splunk Distributed Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SPLUNK DISTRIBUTED ARCHITECTURE                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  DATA SOURCES                                                               │
+│  ┌───────┐ ┌───────┐ ┌───────┐ ┌───────┐                                   │
+│  │Firewall│ │Windows│ │ Linux │ │ Cloud │                                   │
+│  └───┬───┘ └───┬───┘ └───┬───┘ └───┬───┘                                   │
+│      │         │         │         │                                        │
+│      └─────────┴─────────┴─────────┘                                        │
+│                    │                                                         │
+│                    ▼                                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ UNIVERSAL FORWARDERS (UF)                                            │    │
+│  │ • Lightweight agent on data sources                                 │    │
+│  │ • Collects and forwards logs                                        │    │
+│  │ • Minimal CPU/memory footprint                                      │    │
+│  │ • No parsing (raw data forwarding)                                  │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                    │                                                         │
+│                    ▼                                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ HEAVY FORWARDERS (HF) - Optional                                     │    │
+│  │ • Intermediate processing                                           │    │
+│  │ • Can parse, filter, route                                          │    │
+│  │ • Used for aggregation points                                       │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                    │                                                         │
+│                    ▼                                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ INDEXERS                                                             │    │
+│  │ • Parse and index incoming data                                     │    │
+│  │ • Store data in indexes                                             │    │
+│  │ • Execute distributed searches                                      │    │
+│  │ • Can be clustered for HA                                           │    │
+│  │                                                                      │    │
+│  │ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐                     │    │
+│  │ │  Indexer 1  │ │  Indexer 2  │ │  Indexer 3  │ (Cluster)           │    │
+│  │ └─────────────┘ └─────────────┘ └─────────────┘                     │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                    │                                                         │
+│                    ▼                                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ SEARCH HEADS                                                         │    │
+│  │ • User interface (Splunk Web)                                       │    │
+│  │ • Distributes searches to indexers                                  │    │
+│  │ • Aggregates results                                                │    │
+│  │ • Hosts dashboards, alerts, reports                                 │    │
+│  │ • Can be clustered for HA                                           │    │
+│  │                                                                      │    │
+│  │ ┌──────────────────┐  ┌──────────────────┐                          │    │
+│  │ │   Search Head 1  │  │   Search Head 2  │  (SH Cluster)            │    │
+│  │ └──────────────────┘  └──────────────────┘                          │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                    │                                                         │
+│                    ▼                                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ USERS / ANALYSTS                                                     │    │
+│  │ Access Splunk Web for searching, dashboards, alerts                 │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>SPL (Search Processing Language)</h2>
+                
+                <p>SPL is Splunk's query language. Mastering SPL is essential for effective security monitoring and threat hunting.</p>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">SPL - Basic Syntax</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BASIC SEARCH STRUCTURE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># search_terms | command1 | command2 | ...</span>
+
+<span class="token-comment"># Simple keyword search</span>
+<span class="token-keyword">index</span>=firewall error
+
+<span class="token-comment"># Search with time range</span>
+<span class="token-keyword">index</span>=firewall error <span class="token-keyword">earliest</span>=-24h <span class="token-keyword">latest</span>=now
+
+<span class="token-comment"># Field search (more efficient)</span>
+<span class="token-keyword">index</span>=firewall src_ip=10.1.1.100 action=blocked
+
+<span class="token-comment"># Wildcard search</span>
+<span class="token-keyword">index</span>=firewall src_ip=10.1.1.* action=blocked
+
+<span class="token-comment"># Boolean operators</span>
+<span class="token-keyword">index</span>=firewall (action=blocked OR action=denied) AND src_ip=10.1.1.*
+<span class="token-keyword">index</span>=firewall NOT action=allowed
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># COMMON COMMANDS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># stats - aggregate statistics</span>
+<span class="token-keyword">index</span>=firewall action=blocked 
+| <span class="token-command">stats</span> count by src_ip
+
+<span class="token-comment"># table - display specific fields</span>
+<span class="token-keyword">index</span>=firewall 
+| <span class="token-command">table</span> _time, src_ip, dst_ip, action, bytes
+
+<span class="token-comment"># top - most common values</span>
+<span class="token-keyword">index</span>=firewall action=blocked 
+| <span class="token-command">top</span> 10 src_ip
+
+<span class="token-comment"># rare - least common values</span>
+<span class="token-keyword">index</span>=firewall 
+| <span class="token-command">rare</span> user
+
+<span class="token-comment"># timechart - time-based statistics</span>
+<span class="token-keyword">index</span>=firewall action=blocked 
+| <span class="token-command">timechart</span> span=1h count by src_ip
+
+<span class="token-comment"># eval - create calculated fields</span>
+<span class="token-keyword">index</span>=firewall 
+| <span class="token-command">eval</span> MB = bytes/1024/1024
+
+<span class="token-comment"># where - filter results</span>
+<span class="token-keyword">index</span>=firewall 
+| <span class="token-command">stats</span> count by src_ip 
+| <span class="token-command">where</span> count > 100
+
+<span class="token-comment"># sort - order results</span>
+<span class="token-keyword">index</span>=firewall 
+| <span class="token-command">stats</span> count by src_ip 
+| <span class="token-command">sort</span> -count
+
+<span class="token-comment"># dedup - remove duplicates</span>
+<span class="token-keyword">index</span>=firewall 
+| <span class="token-command">dedup</span> src_ip
+
+<span class="token-comment"># rex - extract fields with regex</span>
+<span class="token-keyword">index</span>=webserver 
+| <span class="token-command">rex</span> field=_raw "user=(?&lt;username&gt;\w+)"</code></pre>
+                </div>
+                
+                <h2>Common Security Searches</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">SPL - Security Use Cases</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># AUTHENTICATION - Failed Logins</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Windows failed logins (Event ID 4625)</span>
+<span class="token-keyword">index</span>=windows EventCode=4625 
+| <span class="token-command">stats</span> count by src_ip, user 
+| <span class="token-command">where</span> count > 5
+| <span class="token-command">sort</span> -count
+
+<span class="token-comment"># Failed logins followed by success (potential brute force)</span>
+<span class="token-keyword">index</span>=windows (EventCode=4625 OR EventCode=4624) 
+| <span class="token-command">transaction</span> user maxspan=10m 
+| <span class="token-command">search</span> EventCode=4625 EventCode=4624
+| <span class="token-command">table</span> _time, user, src_ip
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># FIREWALL - Blocked Traffic Analysis</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Top blocked source IPs</span>
+<span class="token-keyword">index</span>=firewall action=blocked 
+| <span class="token-command">top</span> 20 src_ip
+
+<span class="token-comment"># Outbound to unusual ports</span>
+<span class="token-keyword">index</span>=firewall direction=outbound 
+| <span class="token-command">where</span> NOT (dst_port=80 OR dst_port=443 OR dst_port=53)
+| <span class="token-command">stats</span> count by dst_port, dst_ip
+| <span class="token-command">sort</span> -count
+
+<span class="token-comment"># Large data transfers</span>
+<span class="token-keyword">index</span>=firewall direction=outbound 
+| <span class="token-command">stats</span> sum(bytes) as total_bytes by src_ip 
+| <span class="token-command">eval</span> GB=total_bytes/1024/1024/1024 
+| <span class="token-command">where</span> GB > 1
+| <span class="token-command">sort</span> -GB
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># MALWARE / THREAT DETECTION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Connections to known bad IPs (using lookup)</span>
+<span class="token-keyword">index</span>=firewall 
+| <span class="token-command">lookup</span> threat_intel ip as dst_ip OUTPUT threat_type
+| <span class="token-command">where</span> isnotnull(threat_type)
+| <span class="token-command">table</span> _time, src_ip, dst_ip, threat_type
+
+<span class="token-comment"># DNS queries to suspicious TLDs</span>
+<span class="token-keyword">index</span>=dns 
+| <span class="token-command">rex</span> field=query "\.(?&lt;tld&gt;[^.]+)$"
+| <span class="token-command">where</span> tld IN ("xyz", "top", "pw", "tk", "ml")
+| <span class="token-command">stats</span> count by src_ip, query
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PRIVILEGE ESCALATION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># User added to privileged group (Event ID 4728, 4732, 4756)</span>
+<span class="token-keyword">index</span>=windows (EventCode=4728 OR EventCode=4732 OR EventCode=4756)
+| <span class="token-command">table</span> _time, user, Group_Name, src_user
+
+<span class="token-comment"># New admin account created</span>
+<span class="token-keyword">index</span>=windows EventCode=4720 
+| <span class="token-command">table</span> _time, user, src_user, src_ip
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># VPN MONITORING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># VPN logins from unusual locations</span>
+<span class="token-keyword">index</span>=vpn action=success 
+| <span class="token-command">iplocation</span> src_ip 
+| <span class="token-command">stats</span> count by user, Country
+| <span class="token-command">where</span> NOT Country IN ("United States", "Canada")
+
+<span class="token-comment"># Multiple VPN sessions from same user</span>
+<span class="token-keyword">index</span>=vpn action=connected 
+| <span class="token-command">stats</span> dc(src_ip) as unique_ips by user 
+| <span class="token-command">where</span> unique_ips > 1</code></pre>
+                </div>
+                
+                <h2>Splunk Enterprise Security (ES)</h2>
+                
+                <p>Splunk ES is the premium security app that provides advanced analytics, notable events, risk-based alerting, and compliance frameworks.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Notable Events</strong></td>
+                                <td>Prioritized security incidents for analyst review</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Risk-Based Alerting (RBA)</strong></td>
+                                <td>Accumulate risk scores instead of individual alerts</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Asset & Identity</strong></td>
+                                <td>Enrich events with asset and user context</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Threat Intelligence</strong></td>
+                                <td>Integrate IOCs from multiple threat feeds</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Investigation Workbench</strong></td>
+                                <td>Visual investigation and timeline</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security Posture Dashboard</strong></td>
+                                <td>Executive-level security overview</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - Efficient SPL</div>
+                    <div class="callout-content">
+                        <p><strong>Optimize your searches for performance:</strong></p>
+                        <ul>
+                            <li><strong>Always specify index:</strong> <code>index=firewall</code> not just <code>*</code></li>
+                            <li><strong>Use time ranges:</strong> Smaller time = faster search</li>
+                            <li><strong>Filter early:</strong> Put restrictive terms at the start</li>
+                            <li><strong>Use fields over keywords:</strong> <code>src_ip=10.1.1.1</code> faster than just <code>10.1.1.1</code></li>
+                            <li><strong>Limit results:</strong> Use <code>head</code> or <code>top</code> when exploring</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Common Data Models (CIM)</h2>
+                
+                <p>The Common Information Model (CIM) normalizes data from different sources to common field names, enabling searches that work across multiple source types.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data Model</th>
+                                <th>Common Fields</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Authentication</strong></td>
+                                <td>action, app, src, dest, user</td>
+                                <td>Login monitoring across all systems</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network Traffic</strong></td>
+                                <td>src_ip, dest_ip, src_port, dest_port, bytes</td>
+                                <td>Firewall and network analysis</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Web</strong></td>
+                                <td>url, http_method, status, src, dest</td>
+                                <td>Web proxy and server logs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Malware</strong></td>
+                                <td>action, file_name, file_hash, signature</td>
+                                <td>Antivirus and EDR</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Endpoint</strong></td>
+                                <td>dest, process, user, parent_process</td>
+                                <td>Endpoint detection</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>Common Splunk operations:</strong></p>
+                        <ul>
+                            <li><strong>Notable event triage:</strong> Review and close ES notable events</li>
+                            <li><strong>Ad-hoc searches:</strong> Investigate incidents using SPL</li>
+                            <li><strong>Alert creation:</strong> Build saved searches with alert actions</li>
+                            <li><strong>Dashboard maintenance:</strong> Update dashboards for stakeholders</li>
+                            <li><strong>Data onboarding:</strong> Add new log sources, configure parsing</li>
+                            <li><strong>Search optimization:</strong> Improve slow searches</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "Write a Splunk search to find brute force attacks."</p>
+                        <p><strong>Answer:</strong></p>
+                        <pre><code>index=windows EventCode=4625
+| stats count by src_ip, user
+| where count > 10
+| sort -count</code></pre>
+                        <p><strong>Explanation:</strong> "This searches Windows security logs for Event ID 4625 (failed login), counts occurrences by source IP and user, filters for more than 10 failures, and sorts by count. You could enhance this by adding a time window with <code>bin _time span=5m</code> to find rapid attempts."</p>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="10-1-siem-fundamentals.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">SIEM Fundamentals</span>
+                        </div>
+                    </a>
+                    <a href="10-3-microsoft-sentinel.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Microsoft Sentinel</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

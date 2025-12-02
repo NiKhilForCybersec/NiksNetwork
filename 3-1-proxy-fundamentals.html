@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Proxy Fundamentals - Complete guide to web proxies, forward proxies, reverse proxies, SSL inspection, and enterprise deployment">
+    <title>Proxy Fundamentals | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 3: Web Security (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🌐</span>
+                            Web Security & Proxy
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="3-1-proxy-fundamentals.html" class="nav-link active"><span class="nav-link-number">3.1</span> Proxy Fundamentals</a>
+                        <a href="3-2-ssl-inspection.html" class="nav-link"><span class="nav-link-number">3.2</span> SSL/TLS Inspection</a>
+                        <a href="3-3-url-filtering.html" class="nav-link"><span class="nav-link-number">3.3</span> URL Filtering</a>
+                        <a href="3-4-symantec-proxy.html" class="nav-link"><span class="nav-link-number">3.4</span> Symantec ProxySG</a>
+                        <a href="3-5-squid-proxy.html" class="nav-link"><span class="nav-link-number">3.5</span> Squid Proxy</a>
+                        <a href="3-6-cloud-proxy.html" class="nav-link"><span class="nav-link-number">3.6</span> Cloud Proxy (SWG)</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Web Security & Proxy</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Fundamentals</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>Proxy Fundamentals</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>A proxy server acts as an intermediary between clients and servers. In security, proxies provide visibility, control, and protection for web traffic. Understanding proxy architecture is fundamental to enterprise security.</p>
+                        <ul>
+                            <li>Forward vs Reverse proxy concepts</li>
+                            <li>Explicit vs Transparent proxy modes</li>
+                            <li>SSL/TLS inspection</li>
+                            <li>URL filtering and categorization</li>
+                            <li>Authentication methods</li>
+                            <li>Proxy deployment architectures</li>
+                            <li>PAC files and WPAD</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Forward Proxy vs Reverse Proxy</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Forward Proxy vs Reverse Proxy</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    FORWARD PROXY (Outbound)                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Internal Users                           Internet                          │
+│                                                                              │
+│  ┌──────┐                                     ┌──────────┐                  │
+│  │User A│ ──┐                            ┌──► │ Website 1│                  │
+│  └──────┘   │                            │    └──────────┘                  │
+│             │    ┌─────────────────┐     │                                  │
+│  ┌──────┐   ├──► │  FORWARD PROXY  │ ────┤    ┌──────────┐                  │
+│  │User B│ ──┤    │                 │     ├──► │ Website 2│                  │
+│  └──────┘   │    │ • URL filtering │     │    └──────────┘                  │
+│             │    │ • SSL inspect   │     │                                  │
+│  ┌──────┐   │    │ • Authentication│     │    ┌──────────┐                  │
+│  │User C│ ──┘    │ • Logging       │     └──► │ Website 3│                  │
+│  └──────┘        └─────────────────┘          └──────────┘                  │
+│                                                                              │
+│  PURPOSE: Control and inspect OUTBOUND traffic from internal users          │
+│  USERS KNOW: Proxy exists (explicit) or traffic is redirected (transparent) │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    REVERSE PROXY (Inbound)                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Internet                             Internal Servers                      │
+│                                                                              │
+│  ┌────────┐                               ┌──────────┐                      │
+│  │Client 1│ ──┐                      ┌──► │ Server 1 │                      │
+│  └────────┘   │                      │    └──────────┘                      │
+│               │  ┌─────────────────┐ │                                      │
+│  ┌────────┐   ├► │  REVERSE PROXY  │─┤    ┌──────────┐                      │
+│  │Client 2│ ──┤  │                 │ ├──► │ Server 2 │                      │
+│  └────────┘   │  │ • Load balance  │ │    └──────────┘                      │
+│               │  │ • SSL terminate │ │                                      │
+│  ┌────────┐   │  │ • WAF           │ │    ┌──────────┐                      │
+│  │Client 3│ ──┘  │ • Caching       │ └──► │ Server 3 │                      │
+│  └────────┘      └─────────────────┘      └──────────┘                      │
+│                                                                              │
+│  PURPOSE: Protect and optimize INBOUND traffic to internal servers          │
+│  CLIENTS DON'T KNOW: They think they're talking directly to the server      │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Explicit vs Transparent Proxy</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Explicit Proxy</th>
+                                <th>Transparent Proxy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Client Config</strong></td>
+                                <td>Required (browser/system settings)</td>
+                                <td>Not required</td>
+                            </tr>
+                            <tr>
+                                <td><strong>User Awareness</strong></td>
+                                <td>Users know about proxy</td>
+                                <td>Users may not know</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Deployment</strong></td>
+                                <td>PAC file, GPO, manual config</td>
+                                <td>Network redirect (WCCP, PBR)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>HTTPS Handling</strong></td>
+                                <td>CONNECT method</td>
+                                <td>Requires inline interception</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Authentication</strong></td>
+                                <td>Easy (proxy auth headers)</td>
+                                <td>Complex (IP-based or captive portal)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bypass Risk</strong></td>
+                                <td>Users can remove config</td>
+                                <td>Harder to bypass (network-level)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Explicit vs Transparent Proxy</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    EXPLICIT PROXY                                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌────────┐        ┌─────────┐        ┌───────┐                             │
+│  │ Client │ ─────► │  Proxy  │ ─────► │ Server│                             │
+│  │        │        │ :8080   │        │       │                             │
+│  └────────┘        └─────────┘        └───────┘                             │
+│       │                                                                      │
+│       │  Browser configured with proxy:8080                                 │
+│       │  Client says: "CONNECT www.example.com:443"                         │
+│       │  Proxy decides: Allow or block                                      │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    TRANSPARENT PROXY                                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌────────┐        ┌─────────┐        ┌───────┐                             │
+│  │ Client │ ─────► │ Router  │ ─────► │ Server│                             │
+│  │        │        │  WCCP   │        │       │                             │
+│  └────────┘        └────┬────┘        └───────┘                             │
+│       │                 │                                                    │
+│       │                 │ Traffic redirected                                 │
+│       │                 ▼                                                    │
+│       │           ┌─────────┐                                               │
+│       │           │  Proxy  │                                               │
+│       │           └─────────┘                                               │
+│       │                                                                      │
+│       │  Client thinks it's talking directly to server                      │
+│       │  Network intercepts and redirects to proxy                          │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>SSL/TLS Inspection</h2>
+                
+                <p>Modern web traffic is encrypted (HTTPS). To inspect this traffic, proxies perform SSL/TLS interception, also known as "man-in-the-middle" decryption.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">SSL Inspection Flow</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SSL INSPECTION                                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌────────┐                   ┌─────────┐                   ┌───────────┐   │
+│  │ Client │                   │  Proxy  │                   │  Website  │   │
+│  │        │                   │         │                   │           │   │
+│  └────┬───┘                   └────┬────┘                   └─────┬─────┘   │
+│       │                            │                              │         │
+│       │  1. CONNECT example.com:443│                              │         │
+│       │ ─────────────────────────► │                              │         │
+│       │                            │                              │         │
+│       │                            │  2. Connect to real server   │         │
+│       │                            │ ────────────────────────────►│         │
+│       │                            │                              │         │
+│       │                            │  3. TLS handshake with server│         │
+│       │                            │ ◄═══════════════════════════►│         │
+│       │                            │     (Gets real certificate)  │         │
+│       │                            │                              │         │
+│       │  4. TLS handshake with     │                              │         │
+│       │     PROXY certificate      │                              │         │
+│       │ ◄═══════════════════════►  │                              │         │
+│       │  (Proxy CA signed cert     │                              │         │
+│       │   for example.com)         │                              │         │
+│       │                            │                              │         │
+│       │  5. Client sends request   │                              │         │
+│       │ ═══════════════════════►   │                              │         │
+│       │  (Encrypted to proxy)      │                              │         │
+│       │                            │                              │         │
+│       │       ┌─────────────────────────────────────┐            │         │
+│       │       │ PROXY DECRYPTS, INSPECTS, RE-ENCRYPTS│            │         │
+│       │       │ • URL filtering                      │            │         │
+│       │       │ • Malware scanning                   │            │         │
+│       │       │ • DLP inspection                     │            │         │
+│       │       └─────────────────────────────────────┘            │         │
+│       │                            │                              │         │
+│       │                            │  6. Forward request          │         │
+│       │                            │ ═══════════════════════════► │         │
+│       │                            │  (Encrypted to server)       │         │
+│       │                            │                              │         │
+│                                                                              │
+│  REQUIREMENT: Proxy CA certificate must be trusted by clients               │
+│  (Deployed via GPO, MDM, or manually installed)                             │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>PAC Files and WPAD</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">PAC File Example</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">// PAC (Proxy Auto-Configuration) File</span>
+<span class="token-comment">// Browsers download this and execute to determine proxy for each URL</span>
+
+<span class="token-keyword">function</span> <span class="token-function">FindProxyForURL</span>(url, host) {
+    
+    <span class="token-comment">// Direct connection for internal sites</span>
+    <span class="token-keyword">if</span> (isPlainHostName(host) ||
+        shExpMatch(host, "*.internal.company.com") ||
+        isInNet(dnsResolve(host), "10.0.0.0", "255.0.0.0") ||
+        isInNet(dnsResolve(host), "172.16.0.0", "255.240.0.0") ||
+        isInNet(dnsResolve(host), "192.168.0.0", "255.255.0.0")) {
+        <span class="token-keyword">return</span> "DIRECT";
+    }
+    
+    <span class="token-comment">// Direct connection for localhost</span>
+    <span class="token-keyword">if</span> (host == "localhost" || host == "127.0.0.1") {
+        <span class="token-keyword">return</span> "DIRECT";
+    }
+    
+    <span class="token-comment">// Direct connection for specific domains (e.g., video conferencing)</span>
+    <span class="token-keyword">if</span> (shExpMatch(host, "*.zoom.us") ||
+        shExpMatch(host, "*.teams.microsoft.com") ||
+        shExpMatch(host, "*.webex.com")) {
+        <span class="token-keyword">return</span> "DIRECT";
+    }
+    
+    <span class="token-comment">// Use primary proxy, failover to secondary</span>
+    <span class="token-keyword">return</span> "PROXY proxy1.company.com:8080; PROXY proxy2.company.com:8080; DIRECT";
+}</code></pre>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Description</th>
+                                <th>Pros/Cons</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Manual Config</strong></td>
+                                <td>User manually enters proxy in browser</td>
+                                <td>Simple but doesn't scale</td>
+                            </tr>
+                            <tr>
+                                <td><strong>PAC File URL</strong></td>
+                                <td>Browser downloads PAC from specific URL</td>
+                                <td>Flexible, conditional logic</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WPAD</strong></td>
+                                <td>Auto-discover PAC via DNS/DHCP</td>
+                                <td>Zero-touch but security concerns</td>
+                            </tr>
+                            <tr>
+                                <td><strong>GPO</strong></td>
+                                <td>Push settings via Active Directory</td>
+                                <td>Centralized, managed, Windows only</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Authentication Methods</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Description</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>IP-based</strong></td>
+                                <td>Trust traffic from specific IP ranges</td>
+                                <td>Transparent proxy, simple environments</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Basic Auth</strong></td>
+                                <td>Username/password (Base64 encoded)</td>
+                                <td>Simple but credentials sent in clear (use HTTPS)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NTLM</strong></td>
+                                <td>Windows integrated authentication</td>
+                                <td>Domain-joined Windows clients</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kerberos</strong></td>
+                                <td>Ticket-based (more secure than NTLM)</td>
+                                <td>Domain environments, SSO</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SAML/OAuth</strong></td>
+                                <td>Federation with identity provider</td>
+                                <td>Cloud proxies, modern auth</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Common Proxy Solutions</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Solution</th>
+                                <th>Type</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Zscaler Internet Access</strong></td>
+                                <td>Cloud (SWG)</td>
+                                <td>Large enterprise, global workforce</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Symantec ProxySG</strong></td>
+                                <td>Appliance</td>
+                                <td>On-premises, high performance</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cisco Umbrella</strong></td>
+                                <td>Cloud (DNS + SWG)</td>
+                                <td>DNS security + web filtering</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Palo Alto Prisma Access</strong></td>
+                                <td>Cloud (SASE)</td>
+                                <td>Palo Alto shops, integrated security</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Squid</strong></td>
+                                <td>Open Source</td>
+                                <td>Budget-conscious, caching focus</td>
+                            </tr>
+                            <tr>
+                                <td><strong>McAfee Web Gateway</strong></td>
+                                <td>Appliance/Cloud</td>
+                                <td>Advanced threat protection</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>Common proxy operations:</strong></p>
+                        <ul>
+                            <li><strong>URL exceptions:</strong> Add/remove sites from block/allow lists</li>
+                            <li><strong>User troubleshooting:</strong> Debug connectivity issues (PAC, auth, SSL)</li>
+                            <li><strong>SSL bypass:</strong> Configure certificate pinned apps to bypass inspection</li>
+                            <li><strong>Log analysis:</strong> Investigate blocked requests, user activity</li>
+                            <li><strong>Policy updates:</strong> Modify URL categories, user policies</li>
+                            <li><strong>Certificate management:</strong> Renew/deploy proxy CA certificates</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "Explain SSL inspection and its challenges."</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>What it does:</strong> Proxy decrypts HTTPS traffic, inspects content, re-encrypts to client using proxy's certificate</li>
+                            <li><strong>Why needed:</strong> 80%+ of traffic is encrypted - without inspection, threats hide in HTTPS</li>
+                            <li><strong>Challenges:</strong>
+                                <ul>
+                                    <li>Certificate deployment (CA must be trusted by all clients)</li>
+                                    <li>Certificate pinning (some apps reject proxy certs, need bypass)</li>
+                                    <li>Privacy concerns (inspecting user traffic)</li>
+                                    <li>Performance (decryption/re-encryption CPU intensive)</li>
+                                    <li>Legal/compliance (some traffic shouldn't be inspected - banking, healthcare)</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="2-10-logging-monitoring.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Logging & Monitoring</span>
+                        </div>
+                    </a>
+                    <a href="3-2-ssl-inspection.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">SSL/TLS Inspection</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

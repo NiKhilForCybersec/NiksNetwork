@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Zeek - Complete guide to Zeek network security monitoring, log analysis, and threat hunting">
+    <title>Zeek NSM | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔍</span>IDS/IPS</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="5-1-ids-ips-fundamentals.html" class="nav-link"><span class="nav-link-number">5.1</span> Fundamentals</a>
+                        <a href="5-2-snort-suricata.html" class="nav-link"><span class="nav-link-number">5.2</span> Snort & Suricata</a>
+                        <a href="5-3-zeek.html" class="nav-link active"><span class="nav-link-number">5.3</span> Zeek</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">IDS/IPS</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Zeek</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Zeek (formerly Bro)</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Zeek is a powerful network analysis framework that differs from traditional IDS. Instead of just alerting on signatures, Zeek generates detailed logs of network activity that are invaluable for threat hunting and forensics.</p>
+                        <ul>
+                            <li>Zeek vs traditional IDS</li>
+                            <li>Zeek log types</li>
+                            <li>Log analysis and hunting</li>
+                            <li>Common hunting queries</li>
+                            <li>Integration with SIEM</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Zeek vs Traditional IDS</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Zeek</th>
+                                <th>Snort/Suricata</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Primary Function</strong></td>
+                                <td>Network metadata logging</td>
+                                <td>Signature-based alerting</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Output</strong></td>
+                                <td>Detailed logs of all connections</td>
+                                <td>Alerts when signatures match</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use Case</strong></td>
+                                <td>Forensics, threat hunting, visibility</td>
+                                <td>Real-time threat detection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Protocol Analysis</strong></td>
+                                <td>Deep protocol parsing</td>
+                                <td>Basic (improved in Suricata)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>File Extraction</strong></td>
+                                <td>Yes (hashes, MIME types)</td>
+                                <td>Limited</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Scripting</strong></td>
+                                <td>Full scripting language</td>
+                                <td>Rules only (Lua in Snort 3)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Zeek Log Types</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Log File</th>
+                                <th>Content</th>
+                                <th>Hunting Use</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>conn.log</strong></td>
+                                <td>All connections (TCP/UDP/ICMP)</td>
+                                <td>Baseline, anomaly detection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>dns.log</strong></td>
+                                <td>DNS queries and responses</td>
+                                <td>C2 detection, tunneling</td>
+                            </tr>
+                            <tr>
+                                <td><strong>http.log</strong></td>
+                                <td>HTTP requests and responses</td>
+                                <td>Web attacks, downloads</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ssl.log</strong></td>
+                                <td>SSL/TLS handshakes, certificates</td>
+                                <td>C2 detection, cert analysis</td>
+                            </tr>
+                            <tr>
+                                <td><strong>files.log</strong></td>
+                                <td>Files transferred over network</td>
+                                <td>Malware downloads</td>
+                            </tr>
+                            <tr>
+                                <td><strong>smtp.log</strong></td>
+                                <td>Email transactions</td>
+                                <td>Phishing, exfiltration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>notice.log</strong></td>
+                                <td>Zeek-generated alerts</td>
+                                <td>Anomalies, detections</td>
+                            </tr>
+                            <tr>
+                                <td><strong>weird.log</strong></td>
+                                <td>Protocol anomalies</td>
+                                <td>Evasion attempts</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Key conn.log Fields</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">conn.log Field Reference</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CONN.LOG KEY FIELDS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+ts              <span class="token-comment"># Timestamp</span>
+uid             <span class="token-comment"># Unique connection ID (correlate across logs)</span>
+id.orig_h       <span class="token-comment"># Source IP</span>
+id.orig_p       <span class="token-comment"># Source port</span>
+id.resp_h       <span class="token-comment"># Destination IP</span>
+id.resp_p       <span class="token-comment"># Destination port</span>
+proto           <span class="token-comment"># Protocol (tcp, udp, icmp)</span>
+service         <span class="token-comment"># Application protocol detected</span>
+duration        <span class="token-comment"># Connection duration</span>
+orig_bytes      <span class="token-comment"># Bytes sent by originator</span>
+resp_bytes      <span class="token-comment"># Bytes sent by responder</span>
+conn_state      <span class="token-comment"># Connection state (see below)</span>
+missed_bytes    <span class="token-comment"># Bytes missed due to packet loss</span>
+history         <span class="token-comment"># Connection state history</span>
+orig_pkts       <span class="token-comment"># Packets from originator</span>
+resp_pkts       <span class="token-comment"># Packets from responder</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CONN_STATE VALUES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+S0      <span class="token-comment"># Connection attempt, no reply (SYN only - scanning)</span>
+S1      <span class="token-comment"># Connection established, not terminated</span>
+SF      <span class="token-comment"># Normal connection (SYN, SYN-ACK, FIN)</span>
+REJ     <span class="token-comment"># Connection rejected (RST from responder)</span>
+RSTO    <span class="token-comment"># Connection reset by originator</span>
+RSTR    <span class="token-comment"># Connection reset by responder</span>
+OTH     <span class="token-comment"># No SYN, weird state</span></code></pre>
+                </div>
+                
+                <h2>Threat Hunting Queries</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Zeek-cut Hunting Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SCANNING DETECTION (Many S0 connections)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">cat</span> conn.log | zeek-cut id.orig_h conn_state | \
+    grep S0 | cut -f1 | sort | uniq -c | sort -rn | head
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LONG DNS QUERIES (Tunneling indicator)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">cat</span> dns.log | zeek-cut query | awk 'length($0) > 50' | sort | uniq -c
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BEACONING DETECTION (Regular intervals)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">cat</span> conn.log | zeek-cut ts id.orig_h id.resp_h | \
+    sort | uniq -c | sort -rn | head
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># UNUSUAL PORTS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">cat</span> conn.log | zeek-cut id.resp_p | sort | uniq -c | sort -rn
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LARGE DATA TRANSFERS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">cat</span> conn.log | zeek-cut id.orig_h id.resp_h orig_bytes resp_bytes | \
+    awk '$3 > 100000000 || $4 > 100000000' | sort -t$'\t' -k3 -rn
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SELF-SIGNED CERTIFICATES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">cat</span> ssl.log | zeek-cut id.resp_h validation_status | grep "self signed"
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># HTTP USER AGENTS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">cat</span> http.log | zeek-cut user_agent | sort | uniq -c | sort -rn
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># FILE DOWNLOADS BY TYPE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">cat</span> files.log | zeek-cut mime_type | sort | uniq -c | sort -rn</code></pre>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Threat Hunting with Zeek</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Baseline normal:</strong> Know your network's normal traffic patterns</li>
+                            <li><strong>Hunt for long connections:</strong> C2 often maintains persistent connections</li>
+                            <li><strong>Look for beaconing:</strong> Regular connection intervals indicate C2</li>
+                            <li><strong>Check DNS:</strong> Long queries, high volume to single domain = suspicious</li>
+                            <li><strong>Review SSL:</strong> Self-signed certs, unusual issuers</li>
+                            <li><strong>Correlate with uid:</strong> Track full connection context across logs</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How is Zeek different from Snort?"</p>
+                        <p><strong>Answer:</strong> "Zeek and Snort serve different purposes. Snort is signature-based - it alerts when traffic matches known bad patterns. Zeek is about visibility - it creates detailed logs of ALL network activity: connections, DNS queries, HTTP requests, file transfers, SSL certificates. This makes Zeek invaluable for threat hunting and forensics. With Snort, you only know about threats you have signatures for. With Zeek, you can hunt for unknown threats by analyzing connection patterns, like finding C2 beaconing through connection interval analysis. Most mature security teams use both: Snort for real-time alerting, Zeek for hunting and investigation."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="5-2-snort-suricata.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Snort & Suricata</span>
+                        </div>
+                    </a>
+                    <a href="6-1-vpn-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">VPN Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Network Access Control - Complete guide to NAC solutions, 802.1X, and endpoint compliance">
+    <title>Network Access Control | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🏗️</span>Architecture</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="7-6-pam.html" class="nav-link"><span class="nav-link-number">7.6</span> PAM</a>
+                        <a href="7-7-nac.html" class="nav-link active"><span class="nav-link-number">7.7</span> NAC</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Architecture</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">NAC</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Network Access Control (NAC)</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>NAC solutions control which devices can connect to the network and what they can access based on identity, device health, and compliance status.</p>
+                        <ul>
+                            <li>NAC architecture and components</li>
+                            <li>802.1X authentication</li>
+                            <li>Posture assessment</li>
+                            <li>Guest and BYOD management</li>
+                            <li>Major NAC solutions</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>NAC Architecture</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">NAC Solution Flow</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    NAC DECISION FLOW                                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  DEVICE CONNECTS                                                            │
+│       │                                                                     │
+│       ▼                                                                     │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐                   │
+│  │ 1. IDENTIFY │────►│ 2. AUTHENT │────►│ 3. POSTURE  │                   │
+│  │             │     │    ICATE   │     │    CHECK    │                   │
+│  │ • MAC addr  │     │ • 802.1X   │     │ • AV status │                   │
+│  │ • Device    │     │ • MAB      │     │ • Patches   │                   │
+│  │   type      │     │ • Cert     │     │ • Encryption│                   │
+│  │ • Profiling │     │ • AD user  │     │ • EDR agent │                   │
+│  └─────────────┘     └─────────────┘     └─────────────┘                   │
+│                                                 │                           │
+│                           ┌─────────────────────┴──────────────────┐       │
+│                           │                                        │       │
+│                           ▼                                        ▼       │
+│                    ┌─────────────┐                          ┌─────────────┐│
+│                    │ COMPLIANT   │                          │ NON-COMPLIANT│
+│                    │             │                          │             ││
+│                    │ Full network│                          │ Remediation ││
+│                    │ access      │                          │ VLAN        ││
+│                    │             │                          │             ││
+│                    │ VLAN: Corp  │                          │ • Install AV││
+│                    │ ACL: Full   │                          │ • Update OS ││
+│                    └─────────────┘                          │ • Install   ││
+│                                                             │   agent     ││
+│                                                             └─────────────┘│
+│                                                                    │       │
+│                                                                    ▼       │
+│                                                             Re-check after │
+│                                                             remediation    │
+│                                                                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>NAC Authentication Methods</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>How It Works</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>802.1X (EAP)</strong></td>
+                                <td>User/device certificate or credentials</td>
+                                <td>Managed devices, highest security</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MAB</strong></td>
+                                <td>MAC Authentication Bypass</td>
+                                <td>Devices without 802.1X (printers, IoT)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Web Auth</strong></td>
+                                <td>Captive portal login</td>
+                                <td>Guest access, BYOD</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Profiling</strong></td>
+                                <td>Identify device type automatically</td>
+                                <td>IoT, unknown devices</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Posture Assessment</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Check</th>
+                                <th>What It Verifies</th>
+                                <th>Action if Failed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Antivirus</strong></td>
+                                <td>AV installed, running, updated</td>
+                                <td>Quarantine + remediation link</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Patch Level</strong></td>
+                                <td>OS/app patches within policy</td>
+                                <td>Limited access + WSUS redirect</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Encryption</strong></td>
+                                <td>Disk encryption enabled</td>
+                                <td>Block sensitive resources</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EDR Agent</strong></td>
+                                <td>Required security agent present</td>
+                                <td>Install agent before full access</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Firewall</strong></td>
+                                <td>Host firewall enabled</td>
+                                <td>Enable before proceeding</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Domain Joined</strong></td>
+                                <td>Device in AD domain</td>
+                                <td>BYOD VLAN if not joined</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>NAC Solutions</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Solution</th>
+                                <th>Vendor</th>
+                                <th>Strengths</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Cisco ISE</strong></td>
+                                <td>Cisco</td>
+                                <td>Market leader, deep Cisco integration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Aruba ClearPass</strong></td>
+                                <td>HPE Aruba</td>
+                                <td>Multi-vendor, strong profiling</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Forescout</strong></td>
+                                <td>Forescout</td>
+                                <td>Agentless, IoT visibility</td>
+                            </tr>
+                            <tr>
+                                <td><strong>FortiNAC</strong></td>
+                                <td>Fortinet</td>
+                                <td>Fortinet fabric integration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Portnox</strong></td>
+                                <td>Portnox</td>
+                                <td>Cloud-native, easy deployment</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Cisco ISE Example</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">ISE Policy Example</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CISCO ISE AUTHORIZATION POLICY</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+Policy Set: Corporate Access
+
+RULE 1: Corporate-Compliant
+  Condition:
+    • Identity Group = Domain Computers
+    • Posture Status = Compliant
+    • AD Group = Corp-Users
+  Result:
+    • VLAN: 10 (Corporate)
+    • dACL: Permit-All
+
+RULE 2: Corporate-NonCompliant  
+  Condition:
+    • Identity Group = Domain Computers
+    • Posture Status = NonCompliant
+  Result:
+    • VLAN: 99 (Remediation)
+    • dACL: Permit-Remediation-Only
+    • URL-Redirect: Remediation Portal
+
+RULE 3: BYOD-Registered
+  Condition:
+    • Identity Group = BYOD-Devices
+    • User authenticated
+  Result:
+    • VLAN: 20 (BYOD)
+    • dACL: Internet-Only
+
+RULE 4: Guest
+  Condition:
+    • Guest-Flow = Sponsor-Approved
+  Result:
+    • VLAN: 30 (Guest)
+    • dACL: Internet-Only
+    • Session-Timeout: 8 hours
+
+RULE 5: Unknown-Device
+  Condition:
+    • Default
+  Result:
+    • VLAN: 99 (Quarantine)
+    • dACL: Deny-All</code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ NAC Implementation Best Practices</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Start in monitor mode:</strong> Learn traffic patterns before enforcing</li>
+                            <li><strong>Profile first:</strong> Identify all devices before writing policies</li>
+                            <li><strong>Phased rollout:</strong> One building/VLAN at a time</li>
+                            <li><strong>Have exceptions process:</strong> Not everything supports 802.1X</li>
+                            <li><strong>Communicate to users:</strong> They'll call helpdesk when blocked</li>
+                            <li><strong>Integrate with other tools:</strong> EDR, SIEM, vulnerability scanners</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How does NAC improve network security?"</p>
+                        <p><strong>Answer:</strong> "NAC ensures only authorized and compliant devices connect to the network. It works by first identifying the device through 802.1X authentication or profiling, then checking posture - is the AV running? Are patches current? Based on this, NAC assigns the device to an appropriate VLAN with matching access policies. Non-compliant devices go to a remediation VLAN where they can only access update servers. Guest devices get internet-only access. This prevents compromised or unmanaged devices from accessing sensitive resources. It also provides visibility into all connected devices, which is crucial for IoT security. The key is the combination of identity verification, health assessment, and dynamic access control."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="7-6-pam.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">PAM</span>
+                        </div>
+                    </a>
+                    <a href="8-1-lb-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Load Balancer Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

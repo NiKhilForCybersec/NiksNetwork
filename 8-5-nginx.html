@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NGINX Load Balancing - Complete guide to NGINX as reverse proxy and load balancer">
+    <title>NGINX | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">⚖️</span>Load Balancers</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="8-1-lb-fundamentals.html" class="nav-link"><span class="nav-link-number">8.1</span> Fundamentals</a>
+                        <a href="8-2-f5-bigip.html" class="nav-link"><span class="nav-link-number">8.2</span> F5 BIG-IP</a>
+                        <a href="8-3-aws-elb.html" class="nav-link"><span class="nav-link-number">8.3</span> AWS ALB/NLB</a>
+                        <a href="8-4-haproxy.html" class="nav-link"><span class="nav-link-number">8.4</span> HAProxy</a>
+                        <a href="8-5-nginx.html" class="nav-link active"><span class="nav-link-number">8.5</span> NGINX</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Load Balancers</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">NGINX</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>NGINX</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>NGINX is a high-performance web server that's commonly used as a reverse proxy, load balancer, and HTTP cache. NGINX Plus adds enterprise features like active health checks, session persistence, and advanced monitoring.</p>
+                        <ul>
+                            <li>NGINX as reverse proxy</li>
+                            <li>Load balancing configuration</li>
+                            <li>SSL/TLS termination</li>
+                            <li>Security hardening</li>
+                            <li>Rate limiting</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>NGINX vs NGINX Plus</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>NGINX (Open Source)</th>
+                                <th>NGINX Plus</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Load Balancing</strong></td>
+                                <td>Round robin, least_conn, ip_hash</td>
+                                <td>+ least_time, random</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Health Checks</strong></td>
+                                <td>Passive only</td>
+                                <td>Active health checks</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Session Persistence</strong></td>
+                                <td>ip_hash, hash</td>
+                                <td>+ sticky cookie, sticky learn</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Live Reconfiguration</strong></td>
+                                <td>Reload required</td>
+                                <td>API-based, no reload</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Monitoring</strong></td>
+                                <td>Basic stub_status</td>
+                                <td>Live activity monitoring</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Support</strong></td>
+                                <td>Community</td>
+                                <td>Commercial support</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Load Balancing Configuration</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">nginx.conf - Load Balancer</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># UPSTREAM (BACKEND SERVERS)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">upstream</span> backend {
+    <span class="token-comment"># Load balancing method</span>
+    least_conn;                          <span class="token-comment"># or: round_robin (default), ip_hash</span>
+    
+    <span class="token-comment"># Backend servers</span>
+    server 10.0.1.10:8080 weight=5;      <span class="token-comment"># Higher weight = more traffic</span>
+    server 10.0.1.11:8080 weight=3;
+    server 10.0.1.12:8080 backup;        <span class="token-comment"># Only used when others fail</span>
+    server 10.0.1.13:8080 down;          <span class="token-comment"># Marked as down</span>
+    
+    <span class="token-comment"># Health check parameters (passive)</span>
+    server 10.0.1.10:8080 max_fails=3 fail_timeout=30s;
+    
+    <span class="token-comment"># Keep connections alive to backend</span>
+    keepalive 32;
+}
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># HTTPS SERVER</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">server</span> {
+    listen 443 ssl http2;
+    server_name example.com;
+    
+    <span class="token-comment"># SSL Configuration</span>
+    ssl_certificate /etc/nginx/ssl/example.com.crt;
+    ssl_certificate_key /etc/nginx/ssl/example.com.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+    
+    <span class="token-comment"># Security Headers</span>
+    add_header Strict-Transport-Security "max-age=31536000" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    
+    <span class="token-comment"># Proxy to backend</span>
+    location / {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection "";
+        
+        <span class="token-comment"># Timeouts</span>
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+    
+    <span class="token-comment"># API routing</span>
+    location /api/ {
+        proxy_pass http://api_backend;
+    }
+    
+    <span class="token-comment"># Health check endpoint</span>
+    location /health {
+        access_log off;
+        return 200 "OK";
+    }
+}
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># HTTP REDIRECT TO HTTPS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">server</span> {
+    listen 80;
+    server_name example.com;
+    return 301 https://$server_name$request_uri;
+}</code></pre>
+                </div>
+                
+                <h2>Rate Limiting</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Rate Limiting Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># Define rate limit zones (in http block)</span>
+<span class="token-keyword">http</span> {
+    <span class="token-comment"># 10 requests per second per IP</span>
+    limit_req_zone $binary_remote_addr zone=general:10m rate=10r/s;
+    
+    <span class="token-comment"># Stricter limit for login page</span>
+    limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
+    
+    <span class="token-comment"># Connection limit</span>
+    limit_conn_zone $binary_remote_addr zone=addr:10m;
+}
+
+<span class="token-keyword">server</span> {
+    <span class="token-comment"># Apply rate limit with burst</span>
+    location / {
+        limit_req zone=general burst=20 nodelay;
+        limit_conn addr 10;              <span class="token-comment"># Max 10 concurrent connections</span>
+        proxy_pass http://backend;
+    }
+    
+    <span class="token-comment"># Strict rate limit on login</span>
+    location /login {
+        limit_req zone=login burst=5;
+        proxy_pass http://backend;
+    }
+}</code></pre>
+                </div>
+                
+                <h2>Security Hardening</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Security Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># Hide NGINX version</span>
+server_tokens off;
+
+<span class="token-comment"># Prevent clickjacking</span>
+add_header X-Frame-Options "SAMEORIGIN" always;
+
+<span class="token-comment"># Block common attacks</span>
+location ~* "(eval\(|base64_|javascript:)" {
+    return 403;
+}
+
+<span class="token-comment"># Block sensitive files</span>
+location ~ /\. {
+    deny all;
+}
+
+location ~* \.(git|svn|htaccess|htpasswd|env)$ {
+    deny all;
+}
+
+<span class="token-comment"># Block user agents</span>
+if ($http_user_agent ~* (sqlmap|nikto|nmap|masscan)) {
+    return 403;
+}
+
+<span class="token-comment"># IP whitelist for admin</span>
+location /admin {
+    allow 10.0.0.0/8;
+    allow 192.168.1.0/24;
+    deny all;
+    proxy_pass http://backend;
+}</code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - NGINX Security</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Hide version:</strong> server_tokens off</li>
+                            <li><strong>Enable HTTPS:</strong> Redirect all HTTP to HTTPS</li>
+                            <li><strong>Security headers:</strong> HSTS, X-Frame-Options, CSP</li>
+                            <li><strong>Rate limiting:</strong> Protect against DDoS and brute force</li>
+                            <li><strong>TLS 1.2+:</strong> Disable older protocols</li>
+                            <li><strong>Regular updates:</strong> Keep NGINX patched</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you configure NGINX for high availability?"</p>
+                        <p><strong>Answer:</strong> "For high availability, I'd deploy multiple NGINX instances behind a cloud load balancer or use keepalived for IP failover. The upstream block would define multiple backend servers with health checks. I'd use least_conn for even distribution, set max_fails and fail_timeout for passive health checks, and configure keepalive connections to reduce latency. For session persistence, ip_hash works for basic needs, or NGINX Plus provides sticky cookies. I'd also configure proper timeouts and use HTTP/2 for better performance."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="8-4-haproxy.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">HAProxy</span>
+                        </div>
+                    </a>
+                    <a href="9-1-edr-xdr-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">EDR/XDR Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

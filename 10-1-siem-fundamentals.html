@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SIEM Fundamentals - Complete guide to Security Information and Event Management, log collection, correlation, and SOC operations">
+    <title>SIEM Fundamentals | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 10: SIEM (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">📊</span>
+                            SIEM & Log Management
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="10-1-siem-fundamentals.html" class="nav-link active"><span class="nav-link-number">10.1</span> SIEM Fundamentals</a>
+                        <a href="10-2-splunk.html" class="nav-link"><span class="nav-link-number">10.2</span> Splunk</a>
+                        <a href="10-3-microsoft-sentinel.html" class="nav-link"><span class="nav-link-number">10.3</span> Microsoft Sentinel</a>
+                        <a href="10-4-elastic-siem.html" class="nav-link"><span class="nav-link-number">10.4</span> Elastic SIEM</a>
+                        <a href="10-5-qradar.html" class="nav-link"><span class="nav-link-number">10.5</span> IBM QRadar</a>
+                        <a href="10-6-log-sources.html" class="nav-link"><span class="nav-link-number">10.6</span> Log Sources</a>
+                        <a href="10-7-correlation-rules.html" class="nav-link"><span class="nav-link-number">10.7</span> Correlation Rules</a>
+                        <a href="10-8-use-cases.html" class="nav-link"><span class="nav-link-number">10.8</span> Detection Use Cases</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">SIEM & Log Management</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Fundamentals</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>SIEM Fundamentals</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Security Information and Event Management (SIEM) is the cornerstone of Security Operations Centers (SOC). A SIEM collects logs from across the enterprise, correlates events, detects threats, and enables investigation and response.</p>
+                        <ul>
+                            <li>What is SIEM and why it matters</li>
+                            <li>SIEM architecture and components</li>
+                            <li>Log collection and normalization</li>
+                            <li>Correlation and detection rules</li>
+                            <li>Alert triage and investigation</li>
+                            <li>SIEM vs SOAR vs XDR</li>
+                            <li>Key metrics and KPIs</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>What is SIEM?</h2>
+                
+                <p>SIEM combines Security Information Management (SIM) - log collection and storage - with Security Event Management (SEM) - real-time analysis and alerting. Modern SIEMs provide centralized visibility, threat detection, and compliance reporting.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">SIEM Architecture Overview</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SIEM ARCHITECTURE                                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  LOG SOURCES                                                                │
+│  ┌───────┐ ┌───────┐ ┌───────┐ ┌───────┐ ┌───────┐ ┌───────┐              │
+│  │Firewall│ │  IDS  │ │Endpoint│ │  AD   │ │ Cloud │ │  App  │              │
+│  │        │ │  IPS  │ │  EDR   │ │       │ │ AWS/  │ │ Logs  │              │
+│  │        │ │       │ │        │ │       │ │ Azure │ │       │              │
+│  └───┬────┘ └───┬───┘ └───┬────┘ └───┬───┘ └───┬───┘ └───┬───┘              │
+│      │          │         │          │         │         │                  │
+│      └──────────┴─────────┴──────────┴─────────┴─────────┘                  │
+│                              │                                               │
+│                              ▼                                               │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    LOG COLLECTION                                    │    │
+│  │  • Syslog (UDP/TCP 514, TLS 6514)                                   │    │
+│  │  • Agents (Splunk UF, Beats, etc.)                                  │    │
+│  │  • API (REST, cloud integrations)                                   │    │
+│  │  • Agentless (WMI, WinRM)                                           │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                              │                                               │
+│                              ▼                                               │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    PARSING & NORMALIZATION                           │    │
+│  │  • Extract fields from raw logs                                     │    │
+│  │  • Normalize to common schema (src_ip, dst_ip, user, action)        │    │
+│  │  • Enrich with context (geo, threat intel, asset info)              │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                              │                                               │
+│                              ▼                                               │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    INDEXING & STORAGE                                │    │
+│  │  • Index for fast searching                                         │    │
+│  │  • Hot/Warm/Cold storage tiers                                      │    │
+│  │  • Retention policies (90 days, 1 year, 7 years)                    │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                              │                                               │
+│          ┌───────────────────┼───────────────────┐                          │
+│          ▼                   ▼                   ▼                          │
+│  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐                   │
+│  │  CORRELATION  │  │   SEARCH &    │  │   REPORTING   │                   │
+│  │   & ALERTS    │  │ INVESTIGATION │  │  & DASHBOARDS │                   │
+│  │               │  │               │  │               │                   │
+│  │ • Rules       │  │ • Ad-hoc      │  │ • Compliance  │                   │
+│  │ • Thresholds  │  │   queries     │  │ • Executive   │                   │
+│  │ • Anomalies   │  │ • Forensics   │  │ • Operational │                   │
+│  │ • ML models   │  │ • Hunting     │  │               │                   │
+│  └───────────────┘  └───────────────┘  └───────────────┘                   │
+│                              │                                               │
+│                              ▼                                               │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    SOC ANALYSTS                                      │    │
+│  │  • Alert triage and investigation                                   │    │
+│  │  • Incident response                                                │    │
+│  │  • Threat hunting                                                   │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>SIEM Core Functions</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Function</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Log Collection</strong></td>
+                                <td>Aggregate logs from all sources</td>
+                                <td>Firewall logs, Windows events, cloud audit logs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Normalization</strong></td>
+                                <td>Parse and standardize log formats</td>
+                                <td>Map vendor fields to common schema</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Correlation</strong></td>
+                                <td>Connect related events across sources</td>
+                                <td>Failed login + successful login = potential brute force</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Alerting</strong></td>
+                                <td>Notify on suspicious activity</td>
+                                <td>Alert when 10+ failed logins from same IP</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Search</strong></td>
+                                <td>Query historical data</td>
+                                <td>Find all connections to suspicious IP last 30 days</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dashboards</strong></td>
+                                <td>Visualize security posture</td>
+                                <td>Top blocked threats, login anomalies</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Reporting</strong></td>
+                                <td>Compliance and executive reports</td>
+                                <td>PCI-DSS log review, monthly security summary</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Retention</strong></td>
+                                <td>Store logs for compliance/forensics</td>
+                                <td>1 year online, 7 years archive</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Log Sources by Category</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Essential SIEM Log Sources</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ESSENTIAL LOG SOURCES                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  PERIMETER SECURITY                    IDENTITY & ACCESS                    │
+│  ┌─────────────────────────┐          ┌─────────────────────────┐          │
+│  │ • Firewall (allow/deny) │          │ • Active Directory      │          │
+│  │ • IDS/IPS alerts        │          │ • Azure AD / Entra ID   │          │
+│  │ • Web Proxy             │          │ • Identity Provider     │          │
+│  │ • VPN connections       │          │ • PAM solutions         │          │
+│  │ • WAF                   │          │ • MFA logs              │          │
+│  │ • Email gateway         │          │                         │          │
+│  └─────────────────────────┘          └─────────────────────────┘          │
+│                                                                              │
+│  ENDPOINT                              NETWORK                              │
+│  ┌─────────────────────────┐          ┌─────────────────────────┐          │
+│  │ • Windows Event Logs    │          │ • DNS queries           │          │
+│  │ • EDR/XDR               │          │ • DHCP leases           │          │
+│  │ • Antivirus             │          │ • NetFlow/sFlow         │          │
+│  │ • macOS/Linux auth      │          │ • Switch/Router         │          │
+│  │ • DLP alerts            │          │ • Wireless controller   │          │
+│  └─────────────────────────┘          └─────────────────────────┘          │
+│                                                                              │
+│  CLOUD                                 APPLICATIONS                         │
+│  ┌─────────────────────────┐          ┌─────────────────────────┐          │
+│  │ • AWS CloudTrail        │          │ • Web server (Apache,   │          │
+│  │ • Azure Activity Log    │          │   Nginx, IIS)           │          │
+│  │ • GCP Audit Logs        │          │ • Database audit logs   │          │
+│  │ • O365/M365 audit       │          │ • Custom applications   │          │
+│  │ • SaaS app logs         │          │ • API gateways          │          │
+│  └─────────────────────────┘          └─────────────────────────┘          │
+│                                                                              │
+│  PRIORITY LOG SOURCES (Start Here):                                        │
+│  1. Active Directory (authentication, privilege changes)                   │
+│  2. Firewall (traffic flow, blocks)                                        │
+│  3. VPN (remote access monitoring)                                         │
+│  4. EDR/Endpoint (malware, suspicious behavior)                            │
+│  5. Email gateway (phishing, malware delivery)                             │
+│  6. Cloud audit logs (AWS/Azure/GCP)                                       │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Correlation and Detection</h2>
+                
+                <p>Correlation is the heart of SIEM - connecting individual events to identify attacks that span multiple systems.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Correlation Example - Brute Force Attack</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    CORRELATION EXAMPLE                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  INDIVIDUAL EVENTS (Not alarming alone):                                    │
+│                                                                              │
+│  10:00:01  AD: Failed login for user 'admin' from 198.51.100.50            │
+│  10:00:03  AD: Failed login for user 'admin' from 198.51.100.50            │
+│  10:00:05  AD: Failed login for user 'admin' from 198.51.100.50            │
+│  ...       (50 more failures)                                               │
+│  10:02:45  AD: Successful login for user 'admin' from 198.51.100.50        │
+│  10:02:46  AD: User 'admin' added to Domain Admins group                   │
+│  10:02:50  Firewall: Large outbound data transfer to 203.0.113.0           │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  CORRELATION RULE:                                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ IF:                                                                  │    │
+│  │   • Failed logins > 10 from same source in 5 minutes               │    │
+│  │   AND                                                               │    │
+│  │   • Successful login from same source within 10 minutes            │    │
+│  │   AND                                                               │    │
+│  │   • Privilege escalation within 5 minutes of login                 │    │
+│  │ THEN:                                                                │    │
+│  │   • Alert: "Potential Brute Force with Privilege Escalation"       │    │
+│  │   • Severity: CRITICAL                                              │    │
+│  │   • Auto-response: Disable account, block source IP                │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  CORRELATED ALERT:                                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ ⚠️  CRITICAL: Brute Force Attack with Privilege Escalation          │    │
+│  │                                                                      │    │
+│  │ Source IP: 198.51.100.50 (US - Unknown)                             │    │
+│  │ Target: Domain Controller DC01                                       │    │
+│  │ User: admin                                                          │    │
+│  │ Timeline:                                                            │    │
+│  │   - 52 failed logins over 2 minutes                                 │    │
+│  │   - Successful login at 10:02:45                                    │    │
+│  │   - Added to Domain Admins at 10:02:46                              │    │
+│  │ Related Events: 54                                                  │    │
+│  │                                                                      │    │
+│  │ [Investigate] [Block IP] [Disable Account] [Escalate]               │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>SIEM vs SOAR vs XDR</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Platform</th>
+                                <th>Primary Function</th>
+                                <th>Key Capabilities</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>SIEM</strong></td>
+                                <td>Log aggregation, correlation, detection</td>
+                                <td>Central log storage, alerts, compliance, search</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SOAR</strong></td>
+                                <td>Automation and orchestration</td>
+                                <td>Playbooks, automated response, case management</td>
+                            </tr>
+                            <tr>
+                                <td><strong>XDR</strong></td>
+                                <td>Extended detection across endpoint/network/cloud</td>
+                                <td>Unified detection, native integration, ML-based</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - SIEM Implementation</div>
+                    <div class="callout-content">
+                        <p><strong>Start small and expand:</strong></p>
+                        <ol>
+                            <li><strong>Phase 1:</strong> Core security logs (firewall, AD, VPN, email)</li>
+                            <li><strong>Phase 2:</strong> Endpoint (EDR, Windows events from critical servers)</li>
+                            <li><strong>Phase 3:</strong> Cloud (AWS, Azure, O365)</li>
+                            <li><strong>Phase 4:</strong> Application logs, DNS, DHCP, etc.</li>
+                        </ol>
+                        <p><strong>Don't just collect - detect:</strong> Every log source should have detection rules. If you're not alerting on it, why collect it?</p>
+                    </div>
+                </div>
+                
+                <h2>Popular SIEM Solutions</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Solution</th>
+                                <th>Type</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Splunk Enterprise Security</strong></td>
+                                <td>Commercial</td>
+                                <td>Large enterprise, flexibility, mature ecosystem</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Microsoft Sentinel</strong></td>
+                                <td>Cloud-native</td>
+                                <td>Microsoft shops, Azure/M365 integration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IBM QRadar</strong></td>
+                                <td>Commercial</td>
+                                <td>Enterprise, strong correlation, offense management</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Elastic Security</strong></td>
+                                <td>Open Source/Commercial</td>
+                                <td>Cost-effective, scalable, flexible</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Google Chronicle</strong></td>
+                                <td>Cloud-native</td>
+                                <td>Massive scale, fixed pricing</td>
+                            </tr>
+                            <tr>
+                                <td><strong>LogRhythm</strong></td>
+                                <td>Commercial</td>
+                                <td>Mid-market, built-in SOAR</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Wazuh</strong></td>
+                                <td>Open Source</td>
+                                <td>Budget-conscious, compliance, XDR features</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Key SIEM Metrics</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Description</th>
+                                <th>Target</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>MTTD</strong></td>
+                                <td>Mean Time to Detect - time from attack to alert</td>
+                                <td>Minutes to hours</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MTTR</strong></td>
+                                <td>Mean Time to Respond - time from alert to containment</td>
+                                <td>Hours (critical), days (medium)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>False Positive Rate</strong></td>
+                                <td>Percentage of alerts that aren't real threats</td>
+                                <td>&lt; 10-20%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Alert Volume</strong></td>
+                                <td>Number of alerts per analyst per day</td>
+                                <td>10-50 actionable alerts</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Coverage</strong></td>
+                                <td>Percentage of assets with logging enabled</td>
+                                <td>>95%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EPS</strong></td>
+                                <td>Events Per Second ingested</td>
+                                <td>Varies by org size</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>Common SIEM operations:</strong></p>
+                        <ul>
+                            <li><strong>Alert triage:</strong> Review and prioritize new alerts</li>
+                            <li><strong>Investigation:</strong> Deep dive on suspicious alerts, pivot searches</li>
+                            <li><strong>Rule tuning:</strong> Reduce false positives, improve detection</li>
+                            <li><strong>Log source management:</strong> Add new sources, fix parsing issues</li>
+                            <li><strong>Dashboard updates:</strong> Create views for stakeholders</li>
+                            <li><strong>Threat hunting:</strong> Proactive searches for undetected threats</li>
+                            <li><strong>Reporting:</strong> Generate compliance and executive reports</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "What is SIEM and how does it help with security?"</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>Definition:</strong> SIEM (Security Information and Event Management) aggregates logs from across the environment, correlates events, and detects threats in real-time.</li>
+                            <li><strong>Value:</strong> Without SIEM, security teams would have to log into dozens of systems to investigate incidents. SIEM provides a single pane of glass for visibility.</li>
+                            <li><strong>Key capabilities:</strong> Log collection, normalization, correlation rules, alerting, investigation/search, compliance reporting, long-term retention.</li>
+                            <li><strong>Example:</strong> "A firewall might see suspicious traffic, AD might see failed logins, and endpoint might see process execution - but only SIEM can correlate these into a single attack story."</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="9-8-edr-integration.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">EDR Integration</span>
+                        </div>
+                    </a>
+                    <a href="10-2-splunk.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Splunk</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

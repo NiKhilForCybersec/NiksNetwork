@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Azure Networking Security Deep Dive - Complete guide to VNets, NSGs, Azure Firewall, and network security">
+    <title>Azure Networking Deep Dive | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">☁️</span>Cloud Security</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="14-7-aws-vpc-deep-dive.html" class="nav-link"><span class="nav-link-number">14.7</span> AWS VPC Deep Dive</a>
+                        <a href="14-8-azure-networking.html" class="nav-link active"><span class="nav-link-number">14.8</span> Azure Networking</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Cloud Security</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Azure Networking</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Azure Networking Security Deep Dive</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Azure networking provides VNets, NSGs, Azure Firewall, and other controls for securing cloud workloads. Understanding these components is essential for Azure security.</p>
+                        <ul>
+                            <li>VNet architecture and subnets</li>
+                            <li>Network Security Groups (NSGs)</li>
+                            <li>Azure Firewall and Azure Firewall Manager</li>
+                            <li>Private Link and Service Endpoints</li>
+                            <li>Hub-spoke architecture</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Azure Network Architecture</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Azure Hub-Spoke Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    AZURE HUB-SPOKE ARCHITECTURE                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│                              INTERNET                                        │
+│                                  │                                           │
+│                                  ▼                                           │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                         HUB VNET (10.0.0.0/16)                         │  │
+│  │                                                                        │  │
+│  │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐       │  │
+│  │  │ GatewaySubnet   │  │ AzureFirewall   │  │ Bastion Subnet  │       │  │
+│  │  │ VPN/ExpressRoute│  │ Subnet          │  │                 │       │  │
+│  │  │ 10.0.1.0/24     │  │ 10.0.2.0/24     │  │ 10.0.3.0/24     │       │  │
+│  │  └─────────────────┘  └────────┬────────┘  └─────────────────┘       │  │
+│  │                                │                                       │  │
+│  │                         Azure Firewall                                │  │
+│  │                         (Inspect all traffic)                         │  │
+│  └───────────────────────────────┬───────────────────────────────────────┘  │
+│                                  │                                           │
+│            ┌─────────────────────┼─────────────────────┐                    │
+│            │ VNet Peering        │ VNet Peering        │                    │
+│            ▼                     ▼                     ▼                    │
+│  ┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐          │
+│  │ SPOKE 1: PROD   │   │ SPOKE 2: DEV    │   │ SPOKE 3: DMZ    │          │
+│  │ 10.1.0.0/16     │   │ 10.2.0.0/16     │   │ 10.3.0.0/16     │          │
+│  │                 │   │                 │   │                 │          │
+│  │ ┌─────────────┐ │   │ ┌─────────────┐ │   │ ┌─────────────┐ │          │
+│  │ │ Web Subnet  │ │   │ │ Dev Subnet  │ │   │ │ DMZ Subnet  │ │          │
+│  │ │ NSG: web    │ │   │ │ NSG: dev    │ │   │ │ NSG: dmz    │ │          │
+│  │ └─────────────┘ │   │ └─────────────┘ │   │ └─────────────┘ │          │
+│  │ ┌─────────────┐ │   │                 │   │                 │          │
+│  │ │ App Subnet  │ │   │                 │   │                 │          │
+│  │ │ NSG: app    │ │   │                 │   │                 │          │
+│  │ └─────────────┘ │   │                 │   │                 │          │
+│  └─────────────────┘   └─────────────────┘   └─────────────────┘          │
+│                                                                              │
+│  UDR: All spoke traffic → Azure Firewall in Hub                            │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Network Security Groups (NSGs)</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Azure CLI - NSG Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CREATE NETWORK SECURITY GROUP</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Create NSG</span>
+<span class="token-command">az</span> network nsg create \
+  --resource-group MyRG \
+  --name web-nsg
+
+<span class="token-comment"># Allow HTTPS from Internet</span>
+<span class="token-command">az</span> network nsg rule create \
+  --resource-group MyRG \
+  --nsg-name web-nsg \
+  --name Allow-HTTPS \
+  --priority 100 \
+  --direction Inbound \
+  --access Allow \
+  --protocol Tcp \
+  --source-address-prefixes Internet \
+  --destination-port-ranges 443
+
+<span class="token-comment"># Allow HTTP for redirect</span>
+<span class="token-command">az</span> network nsg rule create \
+  --resource-group MyRG \
+  --nsg-name web-nsg \
+  --name Allow-HTTP \
+  --priority 110 \
+  --direction Inbound \
+  --access Allow \
+  --protocol Tcp \
+  --source-address-prefixes Internet \
+  --destination-port-ranges 80
+
+<span class="token-comment"># Deny all other inbound (explicit)</span>
+<span class="token-command">az</span> network nsg rule create \
+  --resource-group MyRG \
+  --nsg-name web-nsg \
+  --name Deny-All-Inbound \
+  --priority 4096 \
+  --direction Inbound \
+  --access Deny \
+  --protocol '*' \
+  --source-address-prefixes '*' \
+  --destination-port-ranges '*'
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># APPLICATION SECURITY GROUPS (ASGs)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Create ASGs for logical grouping</span>
+<span class="token-command">az</span> network asg create --resource-group MyRG --name web-servers
+<span class="token-command">az</span> network asg create --resource-group MyRG --name app-servers
+<span class="token-command">az</span> network asg create --resource-group MyRG --name db-servers
+
+<span class="token-comment"># NSG rule using ASGs</span>
+<span class="token-command">az</span> network nsg rule create \
+  --resource-group MyRG \
+  --nsg-name app-nsg \
+  --name Allow-Web-to-App \
+  --priority 100 \
+  --direction Inbound \
+  --access Allow \
+  --protocol Tcp \
+  --source-asgs web-servers \
+  --destination-asgs app-servers \
+  --destination-port-ranges 8080</code></pre>
+                </div>
+                
+                <h2>Azure Firewall</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Azure CLI - Azure Firewall</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># AZURE FIREWALL DEPLOYMENT</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Create Azure Firewall</span>
+<span class="token-command">az</span> network firewall create \
+  --resource-group MyRG \
+  --name AzureFirewall \
+  --location eastus \
+  --vnet-name HubVNet
+
+<span class="token-comment"># Create Firewall Policy</span>
+<span class="token-command">az</span> network firewall policy create \
+  --resource-group MyRG \
+  --name FirewallPolicy \
+  --sku Premium
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># FIREWALL RULES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Create rule collection group</span>
+<span class="token-command">az</span> network firewall policy rule-collection-group create \
+  --name DefaultRuleCollectionGroup \
+  --policy-name FirewallPolicy \
+  --resource-group MyRG \
+  --priority 100
+
+<span class="token-comment"># Application rule (FQDN filtering)</span>
+<span class="token-command">az</span> network firewall policy rule-collection-group collection add-filter-collection \
+  --resource-group MyRG \
+  --policy-name FirewallPolicy \
+  --rule-collection-group-name DefaultRuleCollectionGroup \
+  --name AllowWeb \
+  --collection-priority 100 \
+  --action Allow \
+  --rule-type ApplicationRule \
+  --rules name="AllowMicrosoft" source-addresses="10.0.0.0/8" \
+          protocols="https=443" target-fqdns="*.microsoft.com"
+
+<span class="token-comment"># Network rule</span>
+<span class="token-command">az</span> network firewall policy rule-collection-group collection add-filter-collection \
+  --resource-group MyRG \
+  --policy-name FirewallPolicy \
+  --rule-collection-group-name DefaultRuleCollectionGroup \
+  --name AllowDNS \
+  --collection-priority 200 \
+  --action Allow \
+  --rule-type NetworkRule \
+  --rules name="DNS" source-addresses="10.0.0.0/8" \
+          destination-addresses="168.63.129.16" \
+          destination-ports="53" protocols="UDP"</code></pre>
+                </div>
+                
+                <h2>Private Link & Service Endpoints</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Service Endpoint</th>
+                                <th>Private Link</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>How it works</strong></td>
+                                <td>Optimized route to Azure service</td>
+                                <td>Private IP in your VNet</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Traffic path</strong></td>
+                                <td>Azure backbone (public IP)</td>
+                                <td>Private IP, stays in VNet</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DNS</strong></td>
+                                <td>Public DNS</td>
+                                <td>Private DNS zone required</td>
+                            </tr>
+                            <tr>
+                                <td><strong>On-prem access</strong></td>
+                                <td>No (VNet only)</td>
+                                <td>Yes (via VPN/ER)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cost</strong></td>
+                                <td>Free</td>
+                                <td>Per hour + data</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use case</strong></td>
+                                <td>Simple VNet-to-Azure access</td>
+                                <td>Full private access, on-prem</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>NSG Flow Logs</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Azure CLI - NSG Flow Logs</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ENABLE NSG FLOW LOGS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Create storage account for logs</span>
+<span class="token-command">az</span> storage account create \
+  --resource-group MyRG \
+  --name flowlogsstorage \
+  --location eastus \
+  --sku Standard_LRS
+
+<span class="token-comment"># Enable flow logs</span>
+<span class="token-command">az</span> network watcher flow-log create \
+  --resource-group MyRG \
+  --name FlowLog \
+  --nsg web-nsg \
+  --storage-account flowlogsstorage \
+  --enabled true \
+  --retention 30 \
+  --format JSON \
+  --log-version 2
+
+<span class="token-comment"># Enable Traffic Analytics (requires Log Analytics)</span>
+<span class="token-command">az</span> network watcher flow-log update \
+  --resource-group MyRG \
+  --name FlowLog \
+  --traffic-analytics true \
+  --workspace MyLogAnalyticsWorkspace
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># QUERY FLOW LOGS IN LOG ANALYTICS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># KQL query for denied traffic</span>
+AzureNetworkAnalytics_CL
+| where FlowStatus_s == "D"
+| summarize count() by SrcIP_s, DestIP_s, DestPort_d
+| top 10 by count_</code></pre>
+                </div>
+                
+                <h2>Azure Network Security Best Practices</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Hub-spoke topology</strong></td>
+                                <td>Centralize security controls in hub VNet</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure Firewall in hub</strong></td>
+                                <td>Inspect all traffic through central firewall</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NSG per subnet</strong></td>
+                                <td>Defense in depth at subnet level</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use ASGs</strong></td>
+                                <td>Logical grouping instead of IP-based rules</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Enable flow logs</strong></td>
+                                <td>NSG flow logs + Traffic Analytics</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Private Link</strong></td>
+                                <td>Private access to PaaS services</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure Bastion</strong></td>
+                                <td>Secure RDP/SSH without public IPs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DDoS Protection</strong></td>
+                                <td>Enable DDoS Protection Standard</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you design a secure Azure network architecture?"</p>
+                        <p><strong>Answer:</strong> "I'd implement a hub-spoke architecture. The hub VNet contains shared services: Azure Firewall for traffic inspection, VPN/ExpressRoute gateway for hybrid connectivity, and Azure Bastion for secure admin access. Spoke VNets are peered to the hub and contain workloads separated by environment (prod, dev) or application. User-defined routes force all traffic through Azure Firewall. Each subnet has an NSG with explicit allow rules using Application Security Groups for logical grouping. I'd enable NSG flow logs with Traffic Analytics for visibility. For PaaS services, I'd use Private Link to keep traffic private. Azure DDoS Protection Standard protects public endpoints. This gives defense in depth: Azure Firewall for L3-L7 inspection, NSGs for subnet-level filtering, and full logging for security monitoring."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="14-7-aws-vpc-deep-dive.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">AWS VPC Deep Dive</span>
+                        </div>
+                    </a>
+                    <a href="14-9-service-mesh.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Service Mesh Security</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

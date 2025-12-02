@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AWS VPC Security Deep Dive - Complete guide to VPC architecture, security groups, NACLs, and network security">
+    <title>AWS VPC Security Deep Dive | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">☁️</span>Cloud Security</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="14-6-casb.html" class="nav-link"><span class="nav-link-number">14.6</span> CASB</a>
+                        <a href="14-7-aws-vpc-deep-dive.html" class="nav-link active"><span class="nav-link-number">14.7</span> AWS VPC Deep Dive</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Cloud Security</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">AWS VPC Deep Dive</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>AWS VPC Security Deep Dive</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Amazon VPC is the foundation of AWS network security. Understanding VPC components and their security implications is essential for securing cloud workloads.</p>
+                        <ul>
+                            <li>VPC architecture and components</li>
+                            <li>Security Groups vs NACLs</li>
+                            <li>VPC Flow Logs for monitoring</li>
+                            <li>Transit Gateway and peering security</li>
+                            <li>VPC best practices</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>VPC Architecture</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">AWS VPC Security Components</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    AWS VPC ARCHITECTURE                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  REGION: us-east-1                                                          │
+│  ┌───────────────────────────────────────────────────────────────────────┐ │
+│  │ VPC: 10.0.0.0/16                                                      │ │
+│  │                                                                        │ │
+│  │  ┌─────────────────────────────────────────────────────────────────┐  │ │
+│  │  │ AVAILABILITY ZONE: us-east-1a                                    │  │ │
+│  │  │                                                                   │  │ │
+│  │  │  ┌─────────────────┐    ┌─────────────────┐                     │  │ │
+│  │  │  │ PUBLIC SUBNET   │    │ PRIVATE SUBNET  │                     │  │ │
+│  │  │  │ 10.0.1.0/24     │    │ 10.0.10.0/24    │                     │  │ │
+│  │  │  │                 │    │                 │                     │  │ │
+│  │  │  │ ┌─────────────┐ │    │ ┌─────────────┐ │                     │  │ │
+│  │  │  │ │ Web Server  │ │    │ │ App Server  │ │                     │  │ │
+│  │  │  │ │ [SG: web]   │ │    │ │ [SG: app]   │ │                     │  │ │
+│  │  │  │ └─────────────┘ │    │ └─────────────┘ │                     │  │ │
+│  │  │  │                 │    │                 │                     │  │ │
+│  │  │  │ Route: IGW      │    │ Route: NAT GW   │                     │  │ │
+│  │  │  │ NACL: public    │    │ NACL: private   │                     │  │ │
+│  │  │  └─────────────────┘    └─────────────────┘                     │  │ │
+│  │  └─────────────────────────────────────────────────────────────────┘  │ │
+│  │                                                                        │ │
+│  │  ┌────────────────────────────────────────────────────────────────┐   │ │
+│  │  │ INTERNET GATEWAY        NAT GATEWAY        VPC ENDPOINTS       │   │ │
+│  │  │ (public access)         (outbound only)    (AWS services)      │   │ │
+│  │  └────────────────────────────────────────────────────────────────┘   │ │
+│  └───────────────────────────────────────────────────────────────────────┘ │
+│                                                                              │
+│  SECURITY LAYERS:                                                           │
+│  1. NACL (subnet level, stateless)                                         │
+│  2. Security Group (instance level, stateful)                              │
+│  3. Host firewall (OS level)                                               │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Security Groups vs NACLs</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Security Group</th>
+                                <th>Network ACL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Level</strong></td>
+                                <td>Instance (ENI)</td>
+                                <td>Subnet</td>
+                            </tr>
+                            <tr>
+                                <td><strong>State</strong></td>
+                                <td>Stateful (return traffic auto-allowed)</td>
+                                <td>Stateless (must allow both directions)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rules</strong></td>
+                                <td>Allow only (implicit deny)</td>
+                                <td>Allow and Deny</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Evaluation</strong></td>
+                                <td>All rules evaluated</td>
+                                <td>Rules processed in order</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Default</strong></td>
+                                <td>Deny all inbound, allow all outbound</td>
+                                <td>Allow all (default NACL)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use Case</strong></td>
+                                <td>Primary access control</td>
+                                <td>Subnet-level blocking, defense in depth</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Security Group Configuration</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">AWS CLI - Security Group Examples</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># WEB TIER SECURITY GROUP</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Create security group</span>
+<span class="token-command">aws</span> ec2 create-security-group \
+  --group-name web-tier-sg \
+  --description "Web tier security group" \
+  --vpc-id vpc-12345678
+
+<span class="token-comment"># Allow HTTPS from anywhere</span>
+<span class="token-command">aws</span> ec2 authorize-security-group-ingress \
+  --group-id sg-web12345 \
+  --protocol tcp \
+  --port 443 \
+  --cidr 0.0.0.0/0
+
+<span class="token-comment"># Allow HTTP from anywhere (redirect to HTTPS)</span>
+<span class="token-command">aws</span> ec2 authorize-security-group-ingress \
+  --group-id sg-web12345 \
+  --protocol tcp \
+  --port 80 \
+  --cidr 0.0.0.0/0
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># APP TIER SECURITY GROUP</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Allow traffic ONLY from web tier security group</span>
+<span class="token-command">aws</span> ec2 authorize-security-group-ingress \
+  --group-id sg-app12345 \
+  --protocol tcp \
+  --port 8080 \
+  --source-group sg-web12345
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DATABASE TIER SECURITY GROUP</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Allow MySQL ONLY from app tier</span>
+<span class="token-command">aws</span> ec2 authorize-security-group-ingress \
+  --group-id sg-db12345 \
+  --protocol tcp \
+  --port 3306 \
+  --source-group sg-app12345</code></pre>
+                </div>
+                
+                <h2>VPC Flow Logs</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">AWS CLI - VPC Flow Logs</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ENABLE VPC FLOW LOGS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Create Flow Log to CloudWatch</span>
+<span class="token-command">aws</span> ec2 create-flow-logs \
+  --resource-type VPC \
+  --resource-ids vpc-12345678 \
+  --traffic-type ALL \
+  --log-destination-type cloud-watch-logs \
+  --log-group-name /aws/vpc/flow-logs \
+  --deliver-logs-permission-arn arn:aws:iam::123456789:role/flowlogsRole
+
+<span class="token-comment"># Create Flow Log to S3 (for long-term retention)</span>
+<span class="token-command">aws</span> ec2 create-flow-logs \
+  --resource-type VPC \
+  --resource-ids vpc-12345678 \
+  --traffic-type ALL \
+  --log-destination-type s3 \
+  --log-destination arn:aws:s3:::my-flow-logs-bucket
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># FLOW LOG FORMAT (default v2)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># version account-id interface-id srcaddr dstaddr srcport dstport</span>
+<span class="token-comment"># protocol packets bytes start end action log-status</span>
+
+<span class="token-comment"># Example accepted traffic:</span>
+<span class="token-comment"># 2 123456789012 eni-abc123 10.0.1.5 10.0.2.10 443 49152 6 20 4000 1620000000 1620000060 ACCEPT OK</span>
+
+<span class="token-comment"># Example rejected traffic:</span>
+<span class="token-comment"># 2 123456789012 eni-abc123 203.0.113.5 10.0.1.5 12345 22 6 1 40 1620000000 1620000060 REJECT OK</span></code></pre>
+                </div>
+                
+                <h2>VPC Endpoints</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">VPC Endpoints - Private AWS Access</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    VPC ENDPOINTS                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  WITHOUT ENDPOINT:                                                          │
+│  ──────────────────                                                         │
+│  EC2 ──► NAT GW ──► IGW ──► Internet ──► S3                               │
+│  (Traffic leaves VPC, goes over internet)                                   │
+│                                                                              │
+│  WITH GATEWAY ENDPOINT (S3, DynamoDB):                                     │
+│  ─────────────────────────────────────                                      │
+│  EC2 ──► VPC Endpoint ──► S3                                               │
+│  (Traffic stays on AWS network, free)                                       │
+│                                                                              │
+│  WITH INTERFACE ENDPOINT (PrivateLink):                                    │
+│  ────────────────────────────────────                                       │
+│  EC2 ──► ENI in subnet ──► AWS Service                                     │
+│  (Private IP, Security Group, costs $)                                      │
+│                                                                              │
+│  SECURITY BENEFITS:                                                         │
+│  • Traffic doesn't traverse internet                                       │
+│  • No need for NAT Gateway for AWS services                                │
+│  • Endpoint policies restrict access                                       │
+│  • Can restrict S3 bucket to VPC endpoint only                             │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>VPC Security Best Practices</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Practice</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Use multiple AZs</strong></td>
+                                <td>Distribute subnets across AZs for HA</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Separate public/private</strong></td>
+                                <td>Only put resources that need internet in public subnets</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Security Group per tier</strong></td>
+                                <td>Web, App, DB each get their own SG</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Reference SGs not CIDRs</strong></td>
+                                <td>Use source security groups for internal traffic</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Enable Flow Logs</strong></td>
+                                <td>Log all traffic for security monitoring</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use VPC Endpoints</strong></td>
+                                <td>Private access to AWS services</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NACLs for blocking</strong></td>
+                                <td>Use NACLs to block known bad IPs at subnet level</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Least privilege</strong></td>
+                                <td>Only allow required ports and sources</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Common VPC Mistakes</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>0.0.0.0/0 in Security Groups:</strong> Don't open to the world unless necessary</li>
+                            <li><strong>All ports open:</strong> Specify only required ports</li>
+                            <li><strong>Not using VPC Endpoints:</strong> Traffic goes over internet unnecessarily</li>
+                            <li><strong>Flow Logs not enabled:</strong> No visibility into network traffic</li>
+                            <li><strong>Single AZ deployment:</strong> No high availability</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How do you secure an AWS VPC for a three-tier application?"</p>
+                        <p><strong>Answer:</strong> "I'd design with security in depth. First, create public subnets for the web tier with ALB, private subnets for app tier, and isolated subnets for database. Each tier gets its own security group - web SG allows 443 from internet, app SG allows 8080 only from web SG, database SG allows 3306 only from app SG. I use security group references rather than CIDRs so access follows instances regardless of IP. NACLs provide an additional layer - I'd use them to explicitly block known bad IPs. VPC endpoints for S3 and other AWS services keep that traffic off the internet. VPC Flow Logs enabled and sent to CloudWatch for security monitoring, with alerts for rejected traffic patterns. Finally, I'd deploy across multiple AZs for availability."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="14-6-casb.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">CASB</span>
+                        </div>
+                    </a>
+                    <a href="14-8-azure-networking.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Azure Networking Deep Dive</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

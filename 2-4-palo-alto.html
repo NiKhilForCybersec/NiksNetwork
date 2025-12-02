@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Palo Alto Networks Firewalls - Complete guide to PA-Series, App-ID, User-ID, Content-ID, Panorama management, and CLI commands">
+    <title>Palo Alto Networks Firewalls | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 2: Firewalls (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🛡️</span>
+                            Firewalls
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="2-1-firewall-fundamentals.html" class="nav-link"><span class="nav-link-number">2.1</span> Firewall Fundamentals</a>
+                        <a href="2-2-firewall-types.html" class="nav-link"><span class="nav-link-number">2.2</span> Firewall Types Deep Dive</a>
+                        <a href="2-3-rule-design.html" class="nav-link"><span class="nav-link-number">2.3</span> Firewall Rule Design</a>
+                        <a href="2-4-palo-alto.html" class="nav-link active"><span class="nav-link-number">2.4</span> Palo Alto Networks</a>
+                        <a href="2-5-cisco-firepower.html" class="nav-link"><span class="nav-link-number">2.5</span> Cisco Firepower/ASA</a>
+                        <a href="2-6-fortigate.html" class="nav-link"><span class="nav-link-number">2.6</span> Fortinet FortiGate</a>
+                        <a href="2-7-checkpoint.html" class="nav-link"><span class="nav-link-number">2.7</span> Check Point</a>
+                        <a href="2-8-cloud-firewalls.html" class="nav-link"><span class="nav-link-number">2.8</span> Cloud Firewalls</a>
+                        <a href="2-9-firewall-ha.html" class="nav-link"><span class="nav-link-number">2.9</span> High Availability</a>
+                        <a href="2-10-logging-monitoring.html" class="nav-link"><span class="nav-link-number">2.10</span> Logging & Monitoring</a>
+                        <a href="2-11-troubleshooting.html" class="nav-link"><span class="nav-link-number">2.11</span> Troubleshooting</a>
+                        <a href="2-12-security-assessment.html" class="nav-link"><span class="nav-link-number">2.12</span> Security Assessment</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Firewalls</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Palo Alto Networks</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>Palo Alto Networks Firewalls</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Palo Alto Networks is the market leader in Next-Generation Firewalls, known for their Single-Pass Parallel Processing (SP3) architecture and the App-ID, User-ID, Content-ID technologies. This guide covers everything from architecture to daily operations.</p>
+                        <ul>
+                            <li>Single-Pass Parallel Processing (SP3) Architecture</li>
+                            <li>App-ID, User-ID, and Content-ID technologies</li>
+                            <li>Security policy configuration</li>
+                            <li>NAT policies and routing</li>
+                            <li>GlobalProtect VPN</li>
+                            <li>Panorama centralized management</li>
+                            <li>Essential CLI commands</li>
+                            <li>Troubleshooting methodology</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Architecture Overview</h2>
+                
+                <p>Palo Alto Networks firewalls use a unique Single-Pass Parallel Processing (SP3) architecture that performs all security functions in a single pass through the firewall, rather than chaining multiple inspection engines.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Single-Pass Parallel Processing (SP3) Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    PALO ALTO NETWORKS SP3 ARCHITECTURE                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│                              INCOMING PACKET                                 │
+│                                    │                                         │
+│                                    ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                         SINGLE PASS                                  │    │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌────────────┐  │    │
+│  │  │   APP-ID    │  │   USER-ID   │  │ CONTENT-ID  │  │   POLICY   │  │    │
+│  │  │             │  │             │  │             │  │  DECISION  │  │    │
+│  │  │ Identify    │  │ Map IP to   │  │ • Threat    │  │            │  │    │
+│  │  │ Application │  │ Username    │  │   Prevention│  │ Allow/Deny │  │    │
+│  │  │ (Layer 7)   │  │ (AD/LDAP)   │  │ • URL Filter│  │ Log/Alert  │  │    │
+│  │  │             │  │             │  │ • File Block│  │            │  │    │
+│  │  │             │  │             │  │ • Data Filter│  │           │  │    │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘  └────────────┘  │    │
+│  │         │                │                │                │         │    │
+│  │         └────────────────┴────────────────┴────────────────┘         │    │
+│  │                                  │                                    │    │
+│  │                           PARALLEL PROCESSING                         │    │
+│  │                        (All done simultaneously)                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│                            FORWARDING DECISION                               │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  BENEFITS OF SP3:                                                           │
+│  ✓ Lower latency (one pass vs multiple)                                    │
+│  ✓ Higher throughput                                                        │
+│  ✓ Consistent performance with all features enabled                        │
+│  ✓ Predictable behavior under load                                         │
+│                                                                              │
+│  CONTRAST WITH TRADITIONAL APPROACH:                                        │
+│  ✗ Packet → Firewall → IPS → AV → URL Filter → ... (sequential)           │
+│  ✗ Each engine re-parses the packet                                        │
+│  ✗ Latency compounds with each inspection                                  │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>The Three IDs: App-ID, User-ID, Content-ID</h2>
+                
+                <h3>App-ID (Application Identification)</h3>
+                
+                <p>App-ID identifies applications regardless of port, protocol, encryption, or evasive tactics. This is the foundation of Palo Alto's NGFW capabilities.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">App-ID Identification Process</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         APP-ID IDENTIFICATION FLOW                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  STEP 1: Application Signatures                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  Pattern matching against 3000+ application signatures              │    │
+│  │  Example: Identify Zoom by specific byte patterns in TLS handshake  │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                    Not identified? │                                         │
+│                                    ▼                                         │
+│  STEP 2: SSL/TLS Decryption (if enabled)                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  Decrypt → Inspect decrypted content → Re-encrypt                   │    │
+│  │  Now can see actual application data inside HTTPS                   │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                    Not identified? │                                         │
+│                                    ▼                                         │
+│  STEP 3: Protocol Decoders                                                  │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  Apply protocol-specific decoders (HTTP, SMTP, etc.)                │    │
+│  │  Identify applications within standard protocols                    │    │
+│  │  Example: Detect Slack within HTTP/HTTPS                            │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                    Not identified? │                                         │
+│                                    ▼                                         │
+│  STEP 4: Heuristics                                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  Behavioral analysis for evasive applications                       │    │
+│  │  Identify apps trying to hide (tunneling, encryption)               │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  RESULT: Application identified or marked as "unknown-tcp/udp"              │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  EXAMPLE APP-ID RESULTS:                                                    │
+│  • Port 443 traffic might be identified as:                                 │
+│    - web-browsing (generic HTTPS)                                           │
+│    - ssl (just TLS, app not identified)                                     │
+│    - facebook-base (Facebook)                                               │
+│    - office365-enterprise-access (O365)                                     │
+│    - zoom (Zoom meetings)                                                   │
+│    - dropbox-base (Dropbox)                                                 │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h3>User-ID (User Identification)</h3>
+                
+                <p>User-ID maps IP addresses to usernames, enabling policies based on user identity rather than just IP addresses.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>How It Works</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>AD Integration</strong></td>
+                                <td>User-ID agent monitors AD security logs for login events</td>
+                                <td>Most common; works for domain-joined Windows devices</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Captive Portal</strong></td>
+                                <td>Users authenticate via web page when accessing network</td>
+                                <td>Guest networks, BYOD, non-domain devices</td>
+                            </tr>
+                            <tr>
+                                <td><strong>GlobalProtect</strong></td>
+                                <td>VPN client reports user identity when connecting</td>
+                                <td>Remote users, mobile devices</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SAML/SSO</strong></td>
+                                <td>Integration with identity providers (Okta, Azure AD)</td>
+                                <td>Cloud-first environments, SaaS apps</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Syslog</strong></td>
+                                <td>Parse user info from other systems' logs</td>
+                                <td>NAC, wireless controllers, custom apps</td>
+                            </tr>
+                            <tr>
+                                <td><strong>XML API</strong></td>
+                                <td>Programmatically push user-to-IP mappings</td>
+                                <td>Custom integrations, scripts</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Palo Alto CLI - User-ID Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># Show user-to-IP mappings</span>
+<span class="token-command">show</span> user ip-user-mapping all
+
+<span class="token-comment"># Show mappings for specific IP</span>
+<span class="token-command">show</span> user ip-user-mapping ip 10.1.1.100
+
+<span class="token-comment"># Show User-ID agent status</span>
+<span class="token-command">show</span> user user-id-agent state all
+
+<span class="token-comment"># Show group mappings</span>
+<span class="token-command">show</span> user group-mapping state all
+
+<span class="token-comment"># Clear user mapping (for troubleshooting)</span>
+<span class="token-command">clear</span> user-cache ip 10.1.1.100
+
+<span class="token-comment"># Debug User-ID</span>
+<span class="token-command">debug</span> user-id log-ip-user-mapping yes
+<span class="token-command">tail</span> follow yes mp-log useridd.log</code></pre>
+                </div>
+                
+                <h3>Content-ID</h3>
+                
+                <p>Content-ID provides threat prevention, URL filtering, and data filtering capabilities.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Function</th>
+                                <th>License Required</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Threat Prevention</strong></td>
+                                <td>IPS signatures, anti-spyware, vulnerability protection</td>
+                                <td>Threat Prevention</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Antivirus</strong></td>
+                                <td>Stream-based malware detection</td>
+                                <td>Threat Prevention</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WildFire</strong></td>
+                                <td>Cloud-based sandbox for unknown files</td>
+                                <td>WildFire</td>
+                            </tr>
+                            <tr>
+                                <td><strong>URL Filtering</strong></td>
+                                <td>Category-based web access control</td>
+                                <td>URL Filtering (PAN-DB or BrightCloud)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>File Blocking</strong></td>
+                                <td>Block file types by extension or true type</td>
+                                <td>Included</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Data Filtering</strong></td>
+                                <td>DLP patterns (SSN, credit cards, custom)</td>
+                                <td>Included</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Security Policy Configuration</h2>
+                
+                <p>Security policies in Palo Alto are zone-based and evaluate in order from top to bottom. The first match wins.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Security Policy Evaluation Flow</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SECURITY POLICY EVALUATION                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  TRAFFIC ARRIVES:                                                           │
+│  Source: 10.1.1.100 (Trust zone, User: jsmith, App: web-browsing)           │
+│  Destination: 203.0.113.50:443 (Untrust zone)                               │
+│                                                                              │
+│  EVALUATION (Top to Bottom):                                                │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ Rule 1: Block-Malware                                                │    │
+│  │ From: any  To: any  App: any  Action: DENY                          │    │
+│  │ URL Category: malware, phishing                                     │    │
+│  │                                                                      │    │
+│  │ Match? NO (URL not in malware/phishing category) → Continue         │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ Rule 2: Allow-Web-Browsing                                          │    │
+│  │ From: Trust  To: Untrust  User: any  App: web-browsing, ssl         │    │
+│  │ Action: ALLOW  Profile: strict-security                             │    │
+│  │                                                                      │    │
+│  │ Match? YES → ALLOW (with security profiles applied)                 │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│                          TRAFFIC PERMITTED                                   │
+│                     (Security profiles inspected)                            │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  NOTE: If no rules match, implicit "deny all" at bottom                     │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Palo Alto CLI - Security Policy Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># Create a security policy rule</span>
+<span class="token-keyword">set</span> rulebase security rules Allow-Web-Access
+<span class="token-keyword">set</span> rulebase security rules Allow-Web-Access from Trust
+<span class="token-keyword">set</span> rulebase security rules Allow-Web-Access to Untrust
+<span class="token-keyword">set</span> rulebase security rules Allow-Web-Access source any
+<span class="token-keyword">set</span> rulebase security rules Allow-Web-Access destination any
+<span class="token-keyword">set</span> rulebase security rules Allow-Web-Access application web-browsing ssl
+<span class="token-keyword">set</span> rulebase security rules Allow-Web-Access service application-default
+<span class="token-keyword">set</span> rulebase security rules Allow-Web-Access action allow
+<span class="token-keyword">set</span> rulebase security rules Allow-Web-Access log-end yes
+
+<span class="token-comment"># Add security profiles to rule</span>
+<span class="token-keyword">set</span> rulebase security rules Allow-Web-Access profile-setting profiles virus default
+<span class="token-keyword">set</span> rulebase security rules Allow-Web-Access profile-setting profiles spyware strict
+<span class="token-keyword">set</span> rulebase security rules Allow-Web-Access profile-setting profiles vulnerability strict
+<span class="token-keyword">set</span> rulebase security rules Allow-Web-Access profile-setting profiles url-filtering default
+
+<span class="token-comment"># Or use a profile group</span>
+<span class="token-keyword">set</span> rulebase security rules Allow-Web-Access profile-setting group Strict-Security
+
+<span class="token-comment"># Move rule to specific position</span>
+<span class="token-keyword">move</span> rulebase security rules Allow-Web-Access before Block-All
+
+<span class="token-comment"># Commit changes</span>
+<span class="token-keyword">commit</span></code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - Application-Default Service</div>
+                    <div class="callout-content">
+                        <p><strong>Always use "application-default" for the service when possible.</strong></p>
+                        <p>This setting allows the application only on its standard ports. For example:</p>
+                        <ul>
+                            <li>DNS (app) with application-default = Only allows DNS on UDP/53, TCP/53</li>
+                            <li>web-browsing with application-default = Only allows on TCP/80</li>
+                            <li>ssl with application-default = Only allows on TCP/443</li>
+                        </ul>
+                        <p>This prevents application evasion where malware uses non-standard ports.</p>
+                    </div>
+                </div>
+                
+                <h2>NAT Configuration</h2>
+                
+                <p>Palo Alto supports source NAT (for outbound traffic) and destination NAT (for inbound traffic/port forwarding).</p>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Palo Alto CLI - NAT Configuration Examples</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SOURCE NAT - Internal users to Internet (hide NAT)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">set</span> rulebase nat rules Outbound-NAT
+<span class="token-keyword">set</span> rulebase nat rules Outbound-NAT from Trust
+<span class="token-keyword">set</span> rulebase nat rules Outbound-NAT to Untrust
+<span class="token-keyword">set</span> rulebase nat rules Outbound-NAT source 10.0.0.0/8
+<span class="token-keyword">set</span> rulebase nat rules Outbound-NAT destination any
+<span class="token-keyword">set</span> rulebase nat rules Outbound-NAT service any
+<span class="token-keyword">set</span> rulebase nat rules Outbound-NAT source-translation dynamic-ip-and-port interface-address interface ethernet1/1
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DESTINATION NAT - Port forwarding to internal web server</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">set</span> rulebase nat rules Web-Server-Inbound
+<span class="token-keyword">set</span> rulebase nat rules Web-Server-Inbound from Untrust
+<span class="token-keyword">set</span> rulebase nat rules Web-Server-Inbound to Untrust
+<span class="token-keyword">set</span> rulebase nat rules Web-Server-Inbound source any
+<span class="token-keyword">set</span> rulebase nat rules Web-Server-Inbound destination 203.0.113.10
+<span class="token-keyword">set</span> rulebase nat rules Web-Server-Inbound service service-https
+<span class="token-keyword">set</span> rulebase nat rules Web-Server-Inbound destination-translation translated-address 192.168.1.100
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># U-TURN NAT (Hairpin NAT) - Internal access to public IP</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">set</span> rulebase nat rules Hairpin-NAT
+<span class="token-keyword">set</span> rulebase nat rules Hairpin-NAT from Trust
+<span class="token-keyword">set</span> rulebase nat rules Hairpin-NAT to Trust
+<span class="token-keyword">set</span> rulebase nat rules Hairpin-NAT source any
+<span class="token-keyword">set</span> rulebase nat rules Hairpin-NAT destination 203.0.113.10
+<span class="token-keyword">set</span> rulebase nat rules Hairpin-NAT destination-translation translated-address 192.168.1.100
+<span class="token-keyword">set</span> rulebase nat rules Hairpin-NAT source-translation dynamic-ip-and-port interface-address interface ethernet1/2</code></pre>
+                </div>
+                
+                <h2>GlobalProtect VPN</h2>
+                
+                <p>GlobalProtect provides secure remote access VPN with always-on capabilities, HIP (Host Information Profile) checks, and seamless integration with firewall policies.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">GlobalProtect Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    GLOBALPROTECT ARCHITECTURE                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  REMOTE USER                                                                │
+│  ┌───────────────┐                                                          │
+│  │ GP Client     │                                                          │
+│  │               │                                                          │
+│  │ • User Auth   │─────────┐                                                │
+│  │ • HIP Check   │         │                                                │
+│  │ • Split/Full  │         │                                                │
+│  │   Tunnel      │         │                                                │
+│  └───────────────┘         │                                                │
+│                            │                                                │
+│                            ▼                                                │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                      GLOBALPROTECT PORTAL                            │    │
+│  │                     (portal.company.com)                             │    │
+│  │                                                                      │    │
+│  │  Functions:                                                          │    │
+│  │  • Client configuration distribution                                │    │
+│  │  • Gateway list                                                     │    │
+│  │  • Agent settings                                                   │    │
+│  │  • HIP data collection settings                                     │    │
+│  │  • Client download (optional)                                       │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                            │                                                │
+│                            ▼                                                │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                     GLOBALPROTECT GATEWAY                            │    │
+│  │                    (vpn.company.com)                                 │    │
+│  │                                                                      │    │
+│  │  Functions:                                                          │    │
+│  │  • IPSec/SSL VPN tunnel termination                                 │    │
+│  │  • User authentication                                              │    │
+│  │  • HIP enforcement                                                  │    │
+│  │  • Tunnel IP assignment                                             │    │
+│  │  • Security policy enforcement                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                            │                                                │
+│                            ▼                                                │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    INTERNAL NETWORK                                  │    │
+│  │         (User now has secure access to internal resources)          │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "What is HIP (Host Information Profile) in GlobalProtect?"</p>
+                        <p><strong>Answer:</strong> HIP collects information about the connecting device's security posture, such as:</p>
+                        <ul>
+                            <li>Is antivirus installed and up-to-date?</li>
+                            <li>Is disk encryption enabled?</li>
+                            <li>Is host firewall running?</li>
+                            <li>What OS version/patch level?</li>
+                            <li>Is the device domain-joined?</li>
+                        </ul>
+                        <p>This information can be used in security policies to allow/deny access or apply different policies based on device compliance. For example, non-compliant devices might only get access to a remediation portal.</p>
+                    </div>
+                </div>
+                
+                <h2>Panorama Centralized Management</h2>
+                
+                <p>Panorama provides centralized management for multiple Palo Alto firewalls, enabling consistent policy deployment, aggregated logging, and simplified operations.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Device Groups</strong></td>
+                                <td>Logical groupings of firewalls for shared policies (e.g., "Branch-Offices", "Data-Centers")</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Templates</strong></td>
+                                <td>Shared network/device configurations (interfaces, zones, routing)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Template Stacks</strong></td>
+                                <td>Layer multiple templates for inheritance and override</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Log Collector</strong></td>
+                                <td>Aggregate logs from all managed firewalls for centralized analysis</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Commit Push</strong></td>
+                                <td>Push configuration changes to selected firewalls</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Software Management</strong></td>
+                                <td>Schedule and deploy PAN-OS upgrades across fleet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Essential CLI Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Palo Alto CLI - Essential Commands Reference</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SYSTEM INFORMATION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> system info                         <span class="token-comment"># System details, version, serial</span>
+<span class="token-command">show</span> system resources                    <span class="token-comment"># CPU, memory, disk usage</span>
+<span class="token-command">show</span> system environmentals               <span class="token-comment"># Temperature, fans, power</span>
+<span class="token-command">show</span> high-availability state             <span class="token-comment"># HA status</span>
+<span class="token-command">show</span> jobs all                            <span class="token-comment"># Background jobs (commits, downloads)</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SESSION AND TRAFFIC</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> session all                         <span class="token-comment"># All active sessions</span>
+<span class="token-command">show</span> session all filter source 10.1.1.100    <span class="token-comment"># Sessions from specific IP</span>
+<span class="token-command">show</span> session all filter destination 8.8.8.8  <span class="token-comment"># Sessions to specific IP</span>
+<span class="token-command">show</span> session all filter application dns      <span class="token-comment"># Sessions for specific app</span>
+<span class="token-command">show</span> session id 12345                    <span class="token-comment"># Detailed info for session ID</span>
+<span class="token-command">show</span> session info                        <span class="token-comment"># Session statistics</span>
+<span class="token-command">clear</span> session id 12345                   <span class="token-comment"># Kill specific session</span>
+<span class="token-command">clear</span> session all filter source 10.1.1.100  <span class="token-comment"># Kill sessions from IP</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># POLICY TESTING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">test</span> security-policy-match source 10.1.1.100 destination 8.8.8.8 protocol 17 destination-port 53
+<span class="token-comment"># Shows which security rule would match this traffic</span>
+
+<span class="token-command">test</span> security-policy-match source 10.1.1.100 destination 8.8.8.8 protocol 6 destination-port 443 application ssl
+<span class="token-comment"># Include application for more accurate match</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ROUTING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> routing route                       <span class="token-comment"># Routing table</span>
+<span class="token-command">show</span> routing fib                         <span class="token-comment"># Forwarding table</span>
+<span class="token-command">test</span> routing fib-lookup ip 8.8.8.8 virtual-router default
+<span class="token-comment"># Shows which interface/next-hop for destination</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># NETWORK INTERFACES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> interface all                       <span class="token-comment"># All interfaces</span>
+<span class="token-command">show</span> interface ethernet1/1               <span class="token-comment"># Specific interface details</span>
+<span class="token-command">show</span> arp all                             <span class="token-comment"># ARP table</span>
+<span class="token-command">show</span> counter global filter delta yes    <span class="token-comment"># Global counters (errors, drops)</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># VPN</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> vpn ike-sa                          <span class="token-comment"># IKE Phase 1 SAs</span>
+<span class="token-command">show</span> vpn ipsec-sa                        <span class="token-comment"># IPSec Phase 2 SAs</span>
+<span class="token-command">show</span> vpn flow                            <span class="token-comment"># VPN traffic statistics</span>
+<span class="token-command">test</span> vpn ike-sa gateway GW-Name          <span class="token-comment"># Initiate IKE negotiation</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># GLOBALPROTECT</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> global-protect-gateway current-user  <span class="token-comment"># Connected GP users</span>
+<span class="token-command">show</span> global-protect-gateway statistics   <span class="token-comment"># GP gateway stats</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LOGGING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> log traffic direction equal backward dest equal 10.1.1.100
+<span class="token-comment"># Search traffic logs</span>
+
+<span class="token-command">show</span> log threat                          <span class="token-comment"># Threat logs</span>
+<span class="token-command">show</span> log url                             <span class="token-comment"># URL filtering logs</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PACKET CAPTURE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">debug</span> dataplane packet-diag set filter match source 10.1.1.100 destination 8.8.8.8
+<span class="token-command">debug</span> dataplane packet-diag set capture stage receive file rx.pcap
+<span class="token-command">debug</span> dataplane packet-diag set capture stage transmit file tx.pcap
+<span class="token-command">debug</span> dataplane packet-diag set capture stage firewall file fw.pcap
+<span class="token-command">debug</span> dataplane packet-diag set capture on
+<span class="token-comment"># Generate traffic</span>
+<span class="token-command">debug</span> dataplane packet-diag set capture off
+<span class="token-command">view-pcap</span> follow-tcp yes mgmt-pcap rx.pcap
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># COMMIT OPERATIONS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">commit</span>                                   <span class="token-comment"># Commit changes</span>
+<span class="token-command">commit</span> force                             <span class="token-comment"># Force commit (override warnings)</span>
+<span class="token-command">show</span> config diff                         <span class="token-comment"># Show uncommitted changes</span>
+<span class="token-command">load</span> config last-saved                   <span class="token-comment"># Revert to last saved config</span>
+<span class="token-command">revert</span> config                            <span class="token-comment"># Revert to running config</span></code></pre>
+                </div>
+                
+                <!-- Day-to-Day Tasks -->
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>Common daily operations on Palo Alto firewalls:</strong></p>
+                        <ul>
+                            <li><strong>Rule changes:</strong> Add/modify security rules, commit and verify</li>
+                            <li><strong>User issues:</strong> Check User-ID mappings, clear cache if needed</li>
+                            <li><strong>VPN troubleshooting:</strong> Check IKE/IPSec SA status, verify proposals</li>
+                            <li><strong>Log analysis:</strong> Search traffic/threat logs for incidents</li>
+                            <li><strong>Performance monitoring:</strong> Check resource utilization, session counts</li>
+                            <li><strong>Update management:</strong> Apply signature updates, schedule PAN-OS upgrades</li>
+                            <li><strong>Reporting:</strong> Generate compliance/traffic reports from Panorama</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Troubleshooting Flowchart</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Palo Alto Troubleshooting Methodology</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    TRAFFIC TROUBLESHOOTING FLOWCHART                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  USER REPORTS: "I can't access website X"                                   │
+│                                                                              │
+│  STEP 1: Check if traffic hits firewall                                     │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ > show session all filter source <user-ip> destination <site-ip>   │    │
+│  │                                                                      │    │
+│  │ Session exists? ─────► YES: Check session state and application     │    │
+│  │        │                    Check if DENY action                     │    │
+│  │        NO                                                            │    │
+│  │        │                                                             │    │
+│  │        ▼                                                             │    │
+│  │ Traffic not reaching firewall - check client routing/upstream       │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  STEP 2: Test policy match                                                  │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ > test security-policy-match source <ip> destination <ip> ...      │    │
+│  │                                                                      │    │
+│  │ Which rule matches? ─────► Expected rule? Good                      │    │
+│  │        │                   Wrong rule? Fix rule order/criteria      │    │
+│  │        │                   No match? Add appropriate rule           │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  STEP 3: Check traffic logs                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ > show log traffic source equal <user-ip>                          │    │
+│  │                                                                      │    │
+│  │ Action = deny? ─────► Check rule, check threat logs                 │    │
+│  │ Action = allow but still failing? ─────► Issue is beyond firewall  │    │
+│  │ No log entries? ─────► Traffic not matching any rule, or not       │    │
+│  │                        reaching firewall                            │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  STEP 4: Check for security profile blocks                                  │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ > show log threat source equal <user-ip>                           │    │
+│  │ > show log url source equal <user-ip>                              │    │
+│  │                                                                      │    │
+│  │ Blocked by threat/URL profile? ─────► Tune profile or whitelist    │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  STEP 5: If still stuck - packet capture                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ Capture at: receive → firewall → transmit                          │    │
+│  │ Analyze what happens to the packets through the firewall pipeline  │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "Describe your experience with Palo Alto Networks firewalls."</p>
+                        <p><strong>Framework for answering:</strong></p>
+                        <ol>
+                            <li><strong>Scale:</strong> "I managed X firewalls (PA-3260, PA-5260) across Y locations using Panorama"</li>
+                            <li><strong>Features used:</strong> "Extensively used App-ID for application control, User-ID integrated with Active Directory, and GlobalProtect for remote access"</li>
+                            <li><strong>Specific accomplishments:</strong>
+                                <ul>
+                                    <li>"Migrated from legacy Cisco ASA to Palo Alto, reducing rule base by 60%"</li>
+                                    <li>"Implemented SSL decryption for 80% of outbound traffic"</li>
+                                    <li>"Designed GlobalProtect always-on VPN for 2000+ remote users"</li>
+                                </ul>
+                            </li>
+                            <li><strong>Troubleshooting:</strong> "Regularly used CLI for session analysis, packet captures, and policy testing"</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="2-3-rule-design.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Firewall Rule Design</span>
+                        </div>
+                    </a>
+                    <a href="2-5-cisco-firepower.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Cisco Firepower/ASA</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

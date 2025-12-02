@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WAF Fundamentals - Complete guide to Web Application Firewalls, OWASP Top 10, deployment modes, and policy configuration">
+    <title>WAF Fundamentals | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 4: WAF (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🛡️</span>
+                            Web Application Firewall
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="4-1-waf-fundamentals.html" class="nav-link active"><span class="nav-link-number">4.1</span> WAF Fundamentals</a>
+                        <a href="4-2-owasp-top10.html" class="nav-link"><span class="nav-link-number">4.2</span> OWASP Top 10</a>
+                        <a href="4-3-aws-waf.html" class="nav-link"><span class="nav-link-number">4.3</span> AWS WAF</a>
+                        <a href="4-4-azure-waf.html" class="nav-link"><span class="nav-link-number">4.4</span> Azure WAF</a>
+                        <a href="4-5-cloudflare-waf.html" class="nav-link"><span class="nav-link-number">4.5</span> Cloudflare WAF</a>
+                        <a href="4-6-f5-asm.html" class="nav-link"><span class="nav-link-number">4.6</span> F5 ASM/AWAF</a>
+                        <a href="4-7-modsecurity.html" class="nav-link"><span class="nav-link-number">4.7</span> ModSecurity</a>
+                        <a href="4-8-waf-troubleshooting.html" class="nav-link"><span class="nav-link-number">4.8</span> WAF Troubleshooting</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Web Application Firewall</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Fundamentals</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>WAF Fundamentals</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>A Web Application Firewall (WAF) is a security control that protects web applications from attacks like SQL injection, cross-site scripting (XSS), and other OWASP Top 10 vulnerabilities. Unlike network firewalls, WAFs understand HTTP and can inspect request content.</p>
+                        <ul>
+                            <li>What is a WAF and why it's needed</li>
+                            <li>WAF vs network firewall vs IPS</li>
+                            <li>Positive vs negative security models</li>
+                            <li>Deployment modes (inline, out-of-band, cloud)</li>
+                            <li>Key features and capabilities</li>
+                            <li>Policy configuration best practices</li>
+                            <li>Common attack patterns WAFs detect</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Why Do We Need WAF?</h2>
+                
+                <p>Traditional network firewalls allow HTTP/HTTPS traffic (ports 80/443) to web servers. But attackers exploit this allowed traffic by hiding malicious payloads inside legitimate-looking HTTP requests. WAFs inspect the HTTP layer to detect and block these attacks.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">WAF vs Network Firewall</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    WAF vs NETWORK FIREWALL                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  NETWORK FIREWALL VIEW:                                                     │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  Source: 203.0.113.50                                               │    │
+│  │  Destination: 10.1.1.100:443                                        │    │
+│  │  Protocol: TCP/HTTPS                                                │    │
+│  │                                                                      │    │
+│  │  Decision: ALLOW (port 443 is permitted)  ✓                        │    │
+│  │                                                                      │    │
+│  │  Problem: Cannot see WHAT is inside the HTTPS request               │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  WAF VIEW (after SSL termination):                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  POST /login.php HTTP/1.1                                           │    │
+│  │  Host: app.company.com                                              │    │
+│  │  Content-Type: application/x-www-form-urlencoded                    │    │
+│  │                                                                      │    │
+│  │  username=admin' OR '1'='1'--&password=anything                     │    │
+│  │  ─────────────────────────────────────────────                      │    │
+│  │            ↑ SQL INJECTION DETECTED!                                │    │
+│  │                                                                      │    │
+│  │  Decision: BLOCK ✗                                                  │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  KEY DIFFERENCE:                                                            │
+│  • Network Firewall: Sees IP, Port, Protocol (Layers 3-4)                  │
+│  • WAF: Sees HTTP Request details - URL, Headers, Body (Layer 7)           │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>WAF Deployment Modes</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">WAF Deployment Options</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    WAF DEPLOYMENT MODES                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  1. INLINE / REVERSE PROXY (Most Common)                                    │
+│  ════════════════════════════════════════                                   │
+│                                                                              │
+│     User ──► WAF ──► Web Server                                             │
+│                                                                              │
+│     • WAF terminates SSL, inspects, re-encrypts                            │
+│     • Can block malicious requests                                         │
+│     • Adds some latency                                                    │
+│     • Single point of failure consideration                                │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  2. OUT-OF-BAND / TAP MODE                                                  │
+│  ══════════════════════════════                                             │
+│                                                                              │
+│     User ──────────────────────► Web Server                                 │
+│              │                                                              │
+│              │ (Mirror)                                                     │
+│              ▼                                                              │
+│            WAF ──► Alerts only (no blocking)                               │
+│                                                                              │
+│     • Detection only, no prevention                                        │
+│     • No impact on production traffic                                      │
+│     • Good for initial deployment/tuning                                   │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  3. CLOUD-BASED WAF (CDN Integration)                                       │
+│  ═════════════════════════════════════                                      │
+│                                                                              │
+│     User ──► Cloud WAF ──► Origin Server                                    │
+│              (Cloudflare, AWS WAF, Akamai, etc.)                           │
+│                                                                              │
+│     • DNS points to cloud provider                                         │
+│     • Global edge locations                                                │
+│     • DDoS protection included                                             │
+│     • No hardware to manage                                                │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  4. EMBEDDED / MODULE-BASED                                                 │
+│  ═══════════════════════════════                                            │
+│                                                                              │
+│     ┌─────────────────────────────┐                                        │
+│     │       Web Server            │                                        │
+│     │   ┌───────────────────┐     │                                        │
+│     │   │   ModSecurity     │     │                                        │
+│     │   │   (WAF Module)    │     │                                        │
+│     │   └───────────────────┘     │                                        │
+│     └─────────────────────────────┘                                        │
+│                                                                              │
+│     • WAF runs as module inside web server (Apache, Nginx)                 │
+│     • Lower cost, simpler architecture                                     │
+│     • Limited to that server                                               │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Security Models</h2>
+                
+                <h3>Negative Security Model (Blacklist)</h3>
+                
+                <p>Blocks known bad patterns. Default is to allow traffic unless it matches a known attack signature.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pros</th>
+                                <th>Cons</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Easy to deploy - works out of the box</td>
+                                <td>Cannot block unknown/zero-day attacks</td>
+                            </tr>
+                            <tr>
+                                <td>Lower false positive rate initially</td>
+                                <td>Requires constant signature updates</td>
+                            </tr>
+                            <tr>
+                                <td>Doesn't need application knowledge</td>
+                                <td>Attackers can evade with encoding/obfuscation</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h3>Positive Security Model (Whitelist)</h3>
+                
+                <p>Only allows known good patterns. Default is to block unless traffic matches expected format.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pros</th>
+                                <th>Cons</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Blocks unknown attacks (zero-day)</td>
+                                <td>Requires deep knowledge of application</td>
+                            </tr>
+                            <tr>
+                                <td>More secure when properly configured</td>
+                                <td>Time-consuming to build and maintain</td>
+                            </tr>
+                            <tr>
+                                <td>Harder to evade</td>
+                                <td>Higher false positive risk</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - Hybrid Approach</div>
+                    <div class="callout-content">
+                        <p><strong>Use both models together:</strong></p>
+                        <ul>
+                            <li><strong>Negative security:</strong> Block known attacks (OWASP CRS rules)</li>
+                            <li><strong>Positive security:</strong> Define allowed parameters for critical functions (login, payment)</li>
+                        </ul>
+                        <p>This provides defense-in-depth with the best of both worlds.</p>
+                    </div>
+                </div>
+                
+                <h2>Common Attack Patterns WAFs Detect</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Attack</th>
+                                <th>Example Payload</th>
+                                <th>WAF Detection</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>SQL Injection</strong></td>
+                                <td><code>' OR '1'='1'--</code></td>
+                                <td>Detects SQL syntax in parameters</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cross-Site Scripting (XSS)</strong></td>
+                                <td><code>&lt;script&gt;alert(1)&lt;/script&gt;</code></td>
+                                <td>Detects HTML/JS in input fields</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Path Traversal</strong></td>
+                                <td><code>../../etc/passwd</code></td>
+                                <td>Detects directory traversal sequences</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Command Injection</strong></td>
+                                <td><code>; cat /etc/passwd</code></td>
+                                <td>Detects shell commands in input</td>
+                            </tr>
+                            <tr>
+                                <td><strong>LDAP Injection</strong></td>
+                                <td><code>*)(uid=*))(|(uid=*</code></td>
+                                <td>Detects LDAP filter manipulation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>XML Injection (XXE)</strong></td>
+                                <td><code>&lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;</code></td>
+                                <td>Detects external entity references</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Protocol Violations</strong></td>
+                                <td>Malformed HTTP requests</td>
+                                <td>Validates HTTP protocol compliance</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>WAF Features and Capabilities</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">WAF Feature Categories</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    WAF CAPABILITIES                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ATTACK PROTECTION                      ACCESS CONTROL                      │
+│  ┌─────────────────────────────┐       ┌─────────────────────────────┐     │
+│  │ • SQL Injection             │       │ • IP Whitelisting/Blacklist │     │
+│  │ • Cross-Site Scripting      │       │ • Geo-blocking              │     │
+│  │ • Command Injection         │       │ • Rate Limiting             │     │
+│  │ • Path Traversal            │       │ • Bot Management            │     │
+│  │ • Protocol Attacks          │       │ • CAPTCHA Integration       │     │
+│  │ • Session Attacks           │       │ • Authentication Policies   │     │
+│  └─────────────────────────────┘       └─────────────────────────────┘     │
+│                                                                              │
+│  DATA PROTECTION                        MONITORING & LOGGING               │
+│  ┌─────────────────────────────┐       ┌─────────────────────────────┐     │
+│  │ • Credit Card Masking       │       │ • Real-time Dashboards      │     │
+│  │ • SSN Detection             │       │ • Detailed Request Logs     │     │
+│  │ • Response Inspection       │       │ • SIEM Integration          │     │
+│  │ • Error Message Suppression │       │ • Alerting                  │     │
+│  │ • Cookie Protection         │       │ • Compliance Reporting      │     │
+│  └─────────────────────────────┘       └─────────────────────────────┘     │
+│                                                                              │
+│  ADVANCED CAPABILITIES                                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ • Machine Learning-based Detection                                  │   │
+│  │ • API Security (REST, GraphQL, SOAP)                               │   │
+│  │ • Bot Detection and Mitigation                                     │   │
+│  │ • DDoS Protection (L7)                                             │   │
+│  │ • Virtual Patching                                                  │   │
+│  │ • SSL/TLS Offloading                                               │   │
+│  │ • Content Delivery (CDN WAF)                                       │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>WAF Vendors and Solutions</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Solutions</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Cloud-Native</strong></td>
+                                <td>AWS WAF, Azure WAF, GCP Cloud Armor</td>
+                                <td>Cloud-hosted applications</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CDN-Based</strong></td>
+                                <td>Cloudflare, Akamai, Fastly</td>
+                                <td>Global applications, DDoS protection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Enterprise Appliance</strong></td>
+                                <td>F5 ASM/AWAF, Imperva, Barracuda</td>
+                                <td>On-prem data centers, complex apps</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Open Source</strong></td>
+                                <td>ModSecurity, NAXSI</td>
+                                <td>Cost-sensitive, custom deployments</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Next-Gen / API</strong></td>
+                                <td>Salt Security, 42Crunch, Noname</td>
+                                <td>API-heavy, microservices</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Policy Configuration Example</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">AWS WAF - Web ACL Rules (Terraform)</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># AWS WAF Web ACL with common rules</span>
+<span class="token-keyword">resource</span> "aws_wafv2_web_acl" "main" {
+  name        = "production-waf"
+  scope       = "REGIONAL"
+  description = "WAF for production web application"
+
+  default_action {
+    allow {}
+  }
+
+  <span class="token-comment"># AWS Managed Rules - Core Rule Set (CRS)</span>
+  rule {
+    name     = "AWSManagedRulesCommonRuleSet"
+    priority = 1
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        vendor_name = "AWS"
+        name        = "AWSManagedRulesCommonRuleSet"
+      }
+    }
+
+    visibility_config {
+      sampled_requests_enabled   = true
+      cloudwatch_metrics_enabled = true
+      metric_name               = "CommonRuleSet"
+    }
+  }
+
+  <span class="token-comment"># SQL Injection Protection</span>
+  rule {
+    name     = "AWSManagedRulesSQLiRuleSet"
+    priority = 2
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        vendor_name = "AWS"
+        name        = "AWSManagedRulesSQLiRuleSet"
+      }
+    }
+
+    visibility_config {
+      sampled_requests_enabled   = true
+      cloudwatch_metrics_enabled = true
+      metric_name               = "SQLiRuleSet"
+    }
+  }
+
+  <span class="token-comment"># Rate Limiting Rule</span>
+  rule {
+    name     = "RateLimitRule"
+    priority = 3
+
+    action {
+      block {}
+    }
+
+    statement {
+      rate_based_statement {
+        limit              = 2000
+        aggregate_key_type = "IP"
+      }
+    }
+
+    visibility_config {
+      sampled_requests_enabled   = true
+      cloudwatch_metrics_enabled = true
+      metric_name               = "RateLimit"
+    }
+  }
+
+  <span class="token-comment"># Geo-blocking (block specific countries)</span>
+  rule {
+    name     = "GeoBlockRule"
+    priority = 4
+
+    action {
+      block {}
+    }
+
+    statement {
+      geo_match_statement {
+        country_codes = ["CN", "RU", "KP"]
+      }
+    }
+
+    visibility_config {
+      sampled_requests_enabled   = true
+      cloudwatch_metrics_enabled = true
+      metric_name               = "GeoBlock"
+    }
+  }
+}</code></pre>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>Common WAF operations tasks:</strong></p>
+                        <ul>
+                            <li><strong>Alert review:</strong> Investigate blocked requests for false positives</li>
+                            <li><strong>Whitelist management:</strong> Add exceptions for legitimate traffic</li>
+                            <li><strong>Rule tuning:</strong> Adjust rule sensitivity, disable noisy rules</li>
+                            <li><strong>Virtual patching:</strong> Create custom rules for newly discovered vulnerabilities</li>
+                            <li><strong>Log analysis:</strong> Review attack patterns, identify trends</li>
+                            <li><strong>Policy updates:</strong> Apply new managed rule updates</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "What's the difference between a WAF and a network firewall?"</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>Network firewall:</strong> Operates at Layers 3-4, filters by IP address, port, and protocol. Allows "port 443" without understanding what's inside the HTTPS request.</li>
+                            <li><strong>WAF:</strong> Operates at Layer 7 (Application layer), understands HTTP protocol, can inspect request URL, headers, cookies, body content. Blocks attacks like SQL injection and XSS that are hidden within allowed HTTP traffic.</li>
+                        </ul>
+                        <p><strong>Analogy:</strong> "A network firewall is like a bouncer who checks IDs at the door. A WAF is like security inside that watches what people do and stops bad behavior."</p>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="3-10-proxy-troubleshooting.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Proxy Troubleshooting</span>
+                        </div>
+                    </a>
+                    <a href="4-2-owasp-top10.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">OWASP Top 10</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

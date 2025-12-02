@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="URL Filtering - Complete guide to web content filtering, categories, and policy configuration">
+    <title>URL Filtering | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌐</span>Web Proxy</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="3-1-proxy-fundamentals.html" class="nav-link"><span class="nav-link-number">3.1</span> Fundamentals</a>
+                        <a href="3-2-ssl-inspection.html" class="nav-link"><span class="nav-link-number">3.2</span> SSL Inspection</a>
+                        <a href="3-3-url-filtering.html" class="nav-link active"><span class="nav-link-number">3.3</span> URL Filtering</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Web Proxy</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">URL Filtering</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>URL Filtering</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>URL filtering controls access to websites based on categories, reputation, or custom lists. It's a fundamental security control for protecting users from malicious sites and enforcing acceptable use policies.</p>
+                        <ul>
+                            <li>URL filtering concepts</li>
+                            <li>Category-based filtering</li>
+                            <li>Custom allow/block lists</li>
+                            <li>Reputation-based filtering</li>
+                            <li>Policy design best practices</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>How URL Filtering Works</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">URL Filtering Decision Flow</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    URL FILTERING PROCESS                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  User requests: https://example.com/path/page.html                          │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                      │    │
+│  │  1. CHECK CUSTOM LISTS                                               │    │
+│  │     ├─ Allow List? ──────────────────────────────► ALLOW            │    │
+│  │     └─ Block List? ──────────────────────────────► BLOCK            │    │
+│  │                                                                      │    │
+│  │  2. CHECK URL CATEGORY (from cloud database)                         │    │
+│  │     ├─ Category: "Shopping"                                         │    │
+│  │     ├─ Look up policy for user/group                                │    │
+│  │     └─ Action: Allow / Block / Warn / Continue                      │    │
+│  │                                                                      │    │
+│  │  3. CHECK REPUTATION SCORE                                           │    │
+│  │     ├─ High Risk (0-20) ─────────────────────────► BLOCK            │    │
+│  │     ├─ Suspicious (21-40) ───────────────────────► WARN             │    │
+│  │     ├─ Moderate (41-60) ─────────────────────────► ALLOW (log)      │    │
+│  │     └─ Trusted (61-100) ─────────────────────────► ALLOW            │    │
+│  │                                                                      │    │
+│  │  4. APPLY ACTION                                                     │    │
+│  │     ├─ Allow: Pass traffic                                          │    │
+│  │     ├─ Block: Show block page                                       │    │
+│  │     ├─ Warn: Show warning, user can proceed                         │    │
+│  │     └─ Continue: Allow but log for review                           │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Common URL Categories</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Typical Action</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Malware</strong></td>
+                                <td>Block</td>
+                                <td>Known malicious sites</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Phishing</strong></td>
+                                <td>Block</td>
+                                <td>Credential theft attempts</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Command & Control</strong></td>
+                                <td>Block</td>
+                                <td>Malware communication</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Adult Content</strong></td>
+                                <td>Block</td>
+                                <td>Inappropriate workplace content</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Gambling</strong></td>
+                                <td>Block</td>
+                                <td>Policy violation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Streaming Media</strong></td>
+                                <td>Warn/Allow</td>
+                                <td>Bandwidth, productivity</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Social Media</strong></td>
+                                <td>Warn/Allow</td>
+                                <td>Productivity (may be needed)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cloud Storage</strong></td>
+                                <td>Allow (monitor)</td>
+                                <td>May be business-critical, DLP concern</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Newly Registered Domains</strong></td>
+                                <td>Block/Warn</td>
+                                <td>High-risk for phishing</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Parked Domains</strong></td>
+                                <td>Block</td>
+                                <td>Often used for malware</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Policy Design</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">URL Filtering Policy Structure</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    POLICY STRUCTURE                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  POLICY ORDER (First Match Wins)                                            │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 1. CUSTOM ALLOW LIST                                                 │    │
+│  │    - Business-critical sites that must always work                  │    │
+│  │    - Sites miscategorized as blocked                                │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                        ▼                                                     │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 2. CUSTOM BLOCK LIST                                                 │    │
+│  │    - Specific sites to block regardless of category                 │    │
+│  │    - Competitors, known-bad sites                                   │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                        ▼                                                     │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 3. SECURITY CATEGORIES (Always Block)                               │    │
+│  │    - Malware, Phishing, C2, Cryptomining                           │    │
+│  │    - High-risk categories, newly registered domains                 │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                        ▼                                                     │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 4. GROUP-BASED POLICIES                                              │    │
+│  │    - IT Staff: More permissive (security research)                  │    │
+│  │    - Finance: Access to financial sites                             │    │
+│  │    - General: Standard restrictions                                 │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                        ▼                                                     │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 5. DEFAULT POLICY                                                    │    │
+│  │    - Allow all other traffic (log for visibility)                   │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - URL Filtering</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Block security categories:</strong> Always block malware, phishing, C2</li>
+                            <li><strong>Use "Warn" for gray areas:</strong> Social media, streaming - educate users</li>
+                            <li><strong>Block newly registered domains:</strong> High-risk for phishing campaigns</li>
+                            <li><strong>Review block page reports:</strong> Find miscategorizations, policy issues</li>
+                            <li><strong>Update lists regularly:</strong> Keep custom lists current</li>
+                            <li><strong>Test before deploy:</strong> Pilot with small group first</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Review block requests:</strong> Users request access to blocked sites</li>
+                            <li><strong>Check miscategorizations:</strong> Submit recategorization requests</li>
+                            <li><strong>Monitor top blocked:</strong> Identify policy gaps or issues</li>
+                            <li><strong>Update custom lists:</strong> Add/remove URLs as needed</li>
+                            <li><strong>Review shadow IT:</strong> Look for unauthorized cloud services</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you design a URL filtering policy?"</p>
+                        <p><strong>Answer:</strong> "I'd use a layered approach: First, always block security threats like malware and phishing. Second, apply custom allow/block lists for exceptions. Third, use category-based rules for productivity (social media, streaming) with 'warn' for borderline categories. Finally, implement group-based policies - IT may need more access for research. I'd also block newly registered domains since they're commonly used in phishing, and regularly review blocked site reports to catch miscategorizations."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="3-2-ssl-inspection.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">SSL Inspection</span>
+                        </div>
+                    </a>
+                    <a href="4-1-waf-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">WAF Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

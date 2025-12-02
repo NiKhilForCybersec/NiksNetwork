@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Layer 2 Security - Complete guide to switch security, VLAN attacks, ARP security, and DHCP snooping">
+    <title>Layer 2 Security | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌐</span>Networking</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="1-9-bgp-security.html" class="nav-link"><span class="nav-link-number">1.9</span> BGP Security</a>
+                        <a href="1-10-layer2-security.html" class="nav-link active"><span class="nav-link-number">1.10</span> Layer 2 Security</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Networking</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Layer 2 Security</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Layer 2 Security</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Layer 2 attacks target the data link layer - switches, VLANs, MAC addresses, and ARP. These attacks are often overlooked but can be devastating. Proper switch hardening is essential for network security.</p>
+                        <ul>
+                            <li>VLAN security and VLAN hopping</li>
+                            <li>ARP spoofing and Dynamic ARP Inspection</li>
+                            <li>DHCP snooping</li>
+                            <li>Port security and MAC flooding</li>
+                            <li>STP attacks and protection</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Layer 2 Attack Surface</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Layer 2 Attacks Overview</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    LAYER 2 ATTACKS                                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  VLAN ATTACKS                           ARP ATTACKS                         │
+│  ────────────                           ───────────                         │
+│  • VLAN Hopping (Switch Spoofing)       • ARP Spoofing/Poisoning           │
+│  • Double Tagging (802.1Q-in-Q)         • ARP Cache Poisoning              │
+│  • Private VLAN bypass                   • Gratuitous ARP attacks          │
+│                                                                              │
+│  MAC ATTACKS                            DHCP ATTACKS                        │
+│  ───────────                            ────────────                        │
+│  • MAC Flooding (CAM overflow)          • DHCP Starvation                  │
+│  • MAC Spoofing                         • Rogue DHCP Server                │
+│  • MAC Address Table attacks                                               │
+│                                                                              │
+│  STP ATTACKS                            OTHER                              │
+│  ───────────                            ─────                              │
+│  • Root Bridge takeover                 • CDP/LLDP reconnaissance          │
+│  • Topology changes                     • VTP attacks                      │
+│  • STP manipulation                     • DTP exploitation                 │
+│                                                                              │
+│  ATTACK GOAL: Man-in-the-Middle, sniff traffic, DoS, lateral movement      │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Layer 2 Attacks and Mitigations</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Attack</th>
+                                <th>Description</th>
+                                <th>Mitigation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>VLAN Hopping</strong></td>
+                                <td>Access other VLANs via switch spoofing or double tagging</td>
+                                <td>Disable DTP, explicit trunk config, native VLAN</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ARP Spoofing</strong></td>
+                                <td>Poison ARP cache to intercept traffic</td>
+                                <td>Dynamic ARP Inspection (DAI)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MAC Flooding</strong></td>
+                                <td>Overflow CAM table, switch becomes hub</td>
+                                <td>Port Security (MAC limit)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DHCP Starvation</strong></td>
+                                <td>Exhaust DHCP pool with spoofed MACs</td>
+                                <td>DHCP Snooping + Port Security</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rogue DHCP</strong></td>
+                                <td>Attacker becomes DHCP server</td>
+                                <td>DHCP Snooping (trusted ports)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>STP Manipulation</strong></td>
+                                <td>Become root bridge, redirect traffic</td>
+                                <td>BPDU Guard, Root Guard</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>DHCP Snooping</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco - DHCP Snooping Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! DHCP SNOOPING</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! Creates binding table: MAC ↔ IP ↔ VLAN ↔ Port</span>
+<span class="token-comment">! Blocks rogue DHCP servers and DHCP starvation</span>
+
+<span class="token-comment">! Enable globally</span>
+ip dhcp snooping
+ip dhcp snooping vlan 10,20,30
+
+<span class="token-comment">! Trust uplink/DHCP server ports</span>
+interface GigabitEthernet0/1
+ description Uplink to DHCP Server
+ ip dhcp snooping trust
+
+<span class="token-comment">! Untrusted access ports (default)</span>
+interface range GigabitEthernet0/2-48
+ description User Access Ports
+ ip dhcp snooping limit rate 15   <span class="token-comment">! Limit DHCP packets/sec</span>
+
+<span class="token-comment">! Verify</span>
+show ip dhcp snooping
+show ip dhcp snooping binding</code></pre>
+                </div>
+                
+                <h2>Dynamic ARP Inspection (DAI)</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco - DAI Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! DYNAMIC ARP INSPECTION</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! Uses DHCP snooping binding table to validate ARP</span>
+<span class="token-comment">! Blocks ARP spoofing/poisoning attacks</span>
+
+<span class="token-comment">! Prerequisite: DHCP Snooping must be enabled!</span>
+
+<span class="token-comment">! Enable DAI on VLANs</span>
+ip arp inspection vlan 10,20,30
+
+<span class="token-comment">! Trust uplink ports</span>
+interface GigabitEthernet0/1
+ ip arp inspection trust
+
+<span class="token-comment">! Rate limit ARP on untrusted ports (prevent DoS)</span>
+interface range GigabitEthernet0/2-48
+ ip arp inspection limit rate 100   <span class="token-comment">! ARP packets/sec</span>
+
+<span class="token-comment">! Additional validation (optional)</span>
+ip arp inspection validate src-mac dst-mac ip
+
+<span class="token-comment">! For static IPs (no DHCP), use ARP ACLs</span>
+arp access-list STATIC-ARP
+ permit ip host 192.168.1.100 mac host 0011.2233.4455
+ 
+ip arp inspection filter STATIC-ARP vlan 10
+
+<span class="token-comment">! Verify</span>
+show ip arp inspection</code></pre>
+                </div>
+                
+                <h2>Port Security</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco - Port Security Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! PORT SECURITY</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! Limits number of MACs per port</span>
+<span class="token-comment">! Prevents MAC flooding and unauthorized devices</span>
+
+interface GigabitEthernet0/5
+ switchport mode access
+ switchport access vlan 10
+ 
+ <span class="token-comment">! Enable port security</span>
+ switchport port-security
+ 
+ <span class="token-comment">! Maximum MAC addresses allowed</span>
+ switchport port-security maximum 2
+ 
+ <span class="token-comment">! Violation action: shutdown, restrict, or protect</span>
+ switchport port-security violation shutdown
+ 
+ <span class="token-comment">! Learn MAC addresses dynamically and save to config</span>
+ switchport port-security mac-address sticky
+
+<span class="token-comment">! Verify</span>
+show port-security interface Gi0/5
+show port-security address
+
+<span class="token-comment">! Recovery from shutdown (err-disabled)</span>
+interface GigabitEthernet0/5
+ shutdown
+ no shutdown
+
+<span class="token-comment">! Or auto-recovery</span>
+errdisable recovery cause psecure-violation
+errdisable recovery interval 300</code></pre>
+                </div>
+                
+                <h2>VLAN Security</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco - VLAN Hardening</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! VLAN HOPPING PREVENTION</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">! 1. Disable DTP on all ports (prevent switch spoofing)</span>
+interface range GigabitEthernet0/1-48
+ switchport nonegotiate
+
+<span class="token-comment">! 2. Explicitly configure access ports</span>
+interface GigabitEthernet0/10
+ switchport mode access
+ switchport access vlan 10
+
+<span class="token-comment">! 3. Explicitly configure trunks (don't rely on negotiation)</span>
+interface GigabitEthernet0/1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30    <span class="token-comment">! Only needed VLANs</span>
+ switchport trunk native vlan 999          <span class="token-comment">! Unused native VLAN</span>
+ switchport nonegotiate
+
+<span class="token-comment">! 4. Move native VLAN to unused VLAN (prevent double tagging)</span>
+vlan 999
+ name NATIVE-UNUSED
+
+<span class="token-comment">! 5. Put unused ports in unused VLAN and shut down</span>
+interface range GigabitEthernet0/40-48
+ switchport mode access
+ switchport access vlan 999
+ shutdown</code></pre>
+                </div>
+                
+                <h2>STP Security</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco - STP Protection</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! STP SECURITY</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">! BPDU Guard - Shutdown port if BPDU received (access ports)</span>
+interface range GigabitEthernet0/2-48
+ spanning-tree bpduguard enable
+
+<span class="token-comment">! Or enable globally for all PortFast ports</span>
+spanning-tree portfast bpduguard default
+
+<span class="token-comment">! Root Guard - Prevent port from becoming root (uplinks)</span>
+interface GigabitEthernet0/1
+ spanning-tree guard root
+
+<span class="token-comment">! Loop Guard - Prevent loops from unidirectional links</span>
+spanning-tree loopguard default
+
+<span class="token-comment">! PortFast - Skip listening/learning on access ports</span>
+interface range GigabitEthernet0/2-48
+ spanning-tree portfast
+
+<span class="token-comment">! Set switch as root bridge (high priority)</span>
+spanning-tree vlan 10 root primary
+<span class="token-comment">! Or explicitly</span>
+spanning-tree vlan 10 priority 4096</code></pre>
+                </div>
+                
+                <h2>Layer 2 Security Checklist</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Control</th>
+                                <th>Configuration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>DHCP Snooping</strong></td>
+                                <td>Enable on all user VLANs, trust uplinks only</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DAI</strong></td>
+                                <td>Enable on all user VLANs, requires DHCP snooping</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Port Security</strong></td>
+                                <td>Limit MACs per port, sticky learning, shutdown violation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BPDU Guard</strong></td>
+                                <td>Enable on all access ports</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Root Guard</strong></td>
+                                <td>Enable on downlink ports</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DTP Disable</strong></td>
+                                <td>switchport nonegotiate on all ports</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Native VLAN</strong></td>
+                                <td>Change to unused VLAN, tag native</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Unused Ports</strong></td>
+                                <td>Assign to unused VLAN and shutdown</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-critical">
+                    <div class="callout-title">🚨 Common Misconfigurations</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>DTP left enabled:</strong> Allows VLAN hopping via switch spoofing</li>
+                            <li><strong>Native VLAN = 1:</strong> Default native VLAN is dangerous</li>
+                            <li><strong>No port security:</strong> Allows MAC flooding attacks</li>
+                            <li><strong>No DHCP snooping:</strong> Rogue DHCP servers can redirect traffic</li>
+                            <li><strong>No DAI:</strong> ARP spoofing allows man-in-the-middle</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How do you prevent ARP spoofing attacks?"</p>
+                        <p><strong>Answer:</strong> "I'd implement Dynamic ARP Inspection (DAI) on the switches. DAI works with DHCP snooping - when DHCP assigns an IP, it creates a binding table entry mapping MAC address to IP address. When DAI sees an ARP packet, it validates that the MAC-IP mapping matches the DHCP snooping table. If someone tries ARP spoofing with a fake MAC-IP pair, DAI drops the packet. For devices with static IPs that don't use DHCP, you configure ARP ACLs to permit known static mappings. Rate limiting ARP packets also helps prevent DoS attacks against the inspection process. This provides strong protection against ARP cache poisoning and man-in-the-middle attacks at Layer 2."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="1-9-bgp-security.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">BGP Security</span>
+                        </div>
+                    </a>
+                    <a href="2-1-firewall-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Firewall Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

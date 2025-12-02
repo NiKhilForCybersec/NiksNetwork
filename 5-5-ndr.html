@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Network Detection and Response - Complete guide to NDR, NTA, and network traffic analysis">
+    <title>Network Detection & Response | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🚨</span>IDS/IPS & NDR</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="5-4-ids-tuning.html" class="nav-link"><span class="nav-link-number">5.4</span> IDS Tuning</a>
+                        <a href="5-5-ndr.html" class="nav-link active"><span class="nav-link-number">5.5</span> NDR</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">IDS/IPS & NDR</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">NDR</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Network Detection & Response (NDR)</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>NDR (Network Detection and Response) uses machine learning and behavioral analysis to detect threats that signature-based IDS/IPS miss. It provides visibility into network traffic patterns and enables rapid response to threats.</p>
+                        <ul>
+                            <li>NDR vs traditional IDS/IPS</li>
+                            <li>Traffic analysis techniques</li>
+                            <li>Detection capabilities</li>
+                            <li>NDR deployment architecture</li>
+                            <li>Major NDR solutions</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>NDR vs IDS/IPS</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Traditional IDS/IPS</th>
+                                <th>NDR</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Detection Method</strong></td>
+                                <td>Signatures, rules</td>
+                                <td>ML, behavioral analysis</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Unknown Threats</strong></td>
+                                <td>Limited (needs signature)</td>
+                                <td>Detects anomalies/zero-days</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Encrypted Traffic</strong></td>
+                                <td>Blind without decryption</td>
+                                <td>Metadata analysis, JA3/JA4</td>
+                            </tr>
+                            <tr>
+                                <td><strong>East-West Traffic</strong></td>
+                                <td>Often not deployed</td>
+                                <td>Full internal visibility</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Response</strong></td>
+                                <td>Block inline</td>
+                                <td>Detect + integrate with SOAR</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Forensics</strong></td>
+                                <td>Limited context</td>
+                                <td>Full packet/metadata retention</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>NDR Architecture</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">NDR Deployment</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    NDR DEPLOYMENT ARCHITECTURE                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  TRAFFIC SOURCES                        NDR PLATFORM                        │
+│                                                                              │
+│  ┌─────────────┐                    ┌─────────────────────────────────┐    │
+│  │ Network TAP │───────────────────►│                                 │    │
+│  │ (Full PCAP) │                    │         NDR SENSORS             │    │
+│  └─────────────┘                    │                                 │    │
+│                                     │  ┌───────────────────────────┐  │    │
+│  ┌─────────────┐                    │  │ Traffic Analysis Engine   │  │    │
+│  │ SPAN Port   │───────────────────►│  │                           │  │    │
+│  │ (Mirror)    │                    │  │ • Protocol parsing        │  │    │
+│  └─────────────┘                    │  │ • Metadata extraction     │  │    │
+│                                     │  │ • ML behavioral models    │  │    │
+│  ┌─────────────┐                    │  │ • Threat detection        │  │    │
+│  │ NetFlow     │───────────────────►│  └───────────────────────────┘  │    │
+│  │ sFlow       │                    │              │                  │    │
+│  └─────────────┘                    │              ▼                  │    │
+│                                     │  ┌───────────────────────────┐  │    │
+│  ┌─────────────┐                    │  │ Detection Categories      │  │    │
+│  │ Cloud VPC   │───────────────────►│  │                           │  │    │
+│  │ Flow Logs   │                    │  │ • C2 Communication        │  │    │
+│  └─────────────┘                    │  │ • Lateral Movement        │  │    │
+│                                     │  │ • Data Exfiltration       │  │    │
+│                                     │  │ • Reconnaissance          │  │    │
+│                                     │  │ • Malware Activity        │  │    │
+│                                     │  │ • Protocol Anomalies      │  │    │
+│                                     │  └───────────────────────────┘  │    │
+│                                     │              │                  │    │
+│                                     └──────────────┼──────────────────┘    │
+│                                                    │                       │
+│                                                    ▼                       │
+│                                     ┌─────────────────────────────────┐    │
+│                                     │         INTEGRATION             │    │
+│                                     │                                 │    │
+│                                     │  SIEM ◄──────► SOAR ◄──────► FW │    │
+│                                     │                                 │    │
+│                                     └─────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>NDR Detection Capabilities</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Detection</th>
+                                <th>Technique</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>C2 Beaconing</strong></td>
+                                <td>Periodic connection analysis</td>
+                                <td>Regular intervals to unknown IPs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lateral Movement</strong></td>
+                                <td>Internal traffic patterns</td>
+                                <td>New SMB/RDP between hosts</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Data Exfiltration</strong></td>
+                                <td>Volume and destination analysis</td>
+                                <td>Large upload to cloud storage</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DNS Tunneling</strong></td>
+                                <td>DNS query analysis</td>
+                                <td>High entropy, long queries</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Encrypted Threats</strong></td>
+                                <td>JA3/JA4 fingerprinting</td>
+                                <td>Known malware TLS signatures</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Protocol Abuse</strong></td>
+                                <td>Deep protocol analysis</td>
+                                <td>HTTP on port 443, DNS over HTTPS</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>JA3/JA4 TLS Fingerprinting</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Encrypted Traffic Analysis</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># JA3 TLS CLIENT FINGERPRINTING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># JA3 creates fingerprint from TLS Client Hello:</span>
+<span class="token-comment"># - TLS Version</span>
+<span class="token-comment"># - Cipher Suites</span>
+<span class="token-comment"># - Extensions</span>
+<span class="token-comment"># - Elliptic Curves</span>
+<span class="token-comment"># - EC Point Formats</span>
+
+<span class="token-comment"># Example JA3 hash (Cobalt Strike default)</span>
+ja3_hash: 72a589da586844d7f0818ce684948eea
+
+<span class="token-comment"># Same malware = same fingerprint, even with different C2 domains</span>
+<span class="token-comment"># Detect malware without decrypting traffic!</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ZEEK JA3 LOGGING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ssl.log now includes:</span>
+<span class="token-comment"># ja3: client fingerprint</span>
+<span class="token-comment"># ja3s: server fingerprint</span>
+
+<span class="token-comment"># Hunt for known malware JA3:</span>
+<span class="token-command">cat</span> ssl.log | zeek-cut ja3 | sort | uniq -c | sort -rn
+
+<span class="token-comment"># Compare against threat intel JA3 database</span>
+<span class="token-comment"># https://ja3er.com - JA3 fingerprint database</span></code></pre>
+                </div>
+                
+                <h2>NDR Solutions</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Vendor</th>
+                                <th>Product</th>
+                                <th>Strengths</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Darktrace</strong></td>
+                                <td>Enterprise Immune System</td>
+                                <td>Self-learning AI, autonomous response</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ExtraHop</strong></td>
+                                <td>Reveal(x)</td>
+                                <td>Real-time analysis, cloud-native</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Vectra AI</strong></td>
+                                <td>Cognito</td>
+                                <td>Attack detection, AWS/Azure support</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cisco</strong></td>
+                                <td>Secure Network Analytics</td>
+                                <td>Stealthwatch, NetFlow analysis</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Corelight</strong></td>
+                                <td>Corelight Sensors</td>
+                                <td>Zeek-based, deep protocol analysis</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Gigamon</strong></td>
+                                <td>ThreatINSIGHT</td>
+                                <td>Visibility + NDR combined</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ NDR Best Practices</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Full visibility:</strong> Monitor east-west, not just perimeter</li>
+                            <li><strong>Baseline first:</strong> Let ML learn normal before alerting</li>
+                            <li><strong>Retain metadata:</strong> Store flow data for forensics</li>
+                            <li><strong>Integrate with SIEM:</strong> Correlate network + endpoint</li>
+                            <li><strong>Cloud coverage:</strong> Include VPC traffic mirrors</li>
+                            <li><strong>Tune models:</strong> Reduce false positives over time</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "What is NDR and how does it differ from IDS?"</p>
+                        <p><strong>Answer:</strong> "NDR - Network Detection and Response - uses machine learning and behavioral analysis instead of signatures. Traditional IDS needs a signature for every threat, so it misses zero-days and novel attacks. NDR learns what's normal for your network and alerts on anomalies - like a host suddenly making connections it's never made before, or traffic patterns that match C2 beaconing. NDR also handles encrypted traffic better through metadata analysis and TLS fingerprinting like JA3 - you can identify malware by its TLS handshake without decryption. Where IDS typically sits at the perimeter, NDR monitors east-west traffic to catch lateral movement. It's not a replacement for IDS but a complement - IDS for known threats, NDR for unknown."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="5-4-ids-tuning.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">IDS Tuning</span>
+                        </div>
+                    </a>
+                    <a href="6-1-vpn-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">VPN Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

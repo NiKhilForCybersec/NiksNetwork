@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="F5 BIG-IP - Complete guide to F5 load balancing, LTM, ASM WAF, and configuration">
+    <title>F5 BIG-IP | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">⚖️</span>Load Balancers</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="8-1-lb-fundamentals.html" class="nav-link"><span class="nav-link-number">8.1</span> Fundamentals</a>
+                        <a href="8-2-f5-bigip.html" class="nav-link active"><span class="nav-link-number">8.2</span> F5 BIG-IP</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Load Balancers</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">F5 BIG-IP</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>F5 BIG-IP</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>F5 BIG-IP is an enterprise Application Delivery Controller (ADC) providing load balancing, SSL offloading, WAF, and advanced traffic management. It's the market leader for enterprise load balancing.</p>
+                        <ul>
+                            <li>BIG-IP architecture and modules</li>
+                            <li>LTM (Local Traffic Manager)</li>
+                            <li>Virtual servers, pools, and nodes</li>
+                            <li>Health monitors</li>
+                            <li>ASM (WAF) basics</li>
+                            <li>Common CLI commands</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>BIG-IP Modules</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Module</th>
+                                <th>Name</th>
+                                <th>Function</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>LTM</strong></td>
+                                <td>Local Traffic Manager</td>
+                                <td>Load balancing, SSL offload, traffic management</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ASM</strong></td>
+                                <td>Application Security Manager</td>
+                                <td>Web Application Firewall (WAF)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>APM</strong></td>
+                                <td>Access Policy Manager</td>
+                                <td>VPN, SSO, access control</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AFM</strong></td>
+                                <td>Advanced Firewall Manager</td>
+                                <td>Network firewall, DDoS protection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>GTM/DNS</strong></td>
+                                <td>Global Traffic Manager</td>
+                                <td>Global load balancing, DNS</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>LTM Architecture</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">F5 LTM Traffic Flow</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    F5 LTM ARCHITECTURE                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Client ────► VIRTUAL SERVER ────► POOL ────► NODES                        │
+│               (VIP)                                                          │
+│                                                                              │
+│  ┌────────┐    ┌───────────────────────────────────────────────────┐        │
+│  │ Client │    │             VIRTUAL SERVER                        │        │
+│  │        │───►│  IP: 10.1.1.100:443                               │        │
+│  └────────┘    │  Profiles: TCP, HTTP, SSL (Client)                │        │
+│                │  iRules: (optional)                                │        │
+│                └────────────────────┬──────────────────────────────┘        │
+│                                     │                                        │
+│                                     ▼                                        │
+│                ┌───────────────────────────────────────────────────┐        │
+│                │                    POOL                            │        │
+│                │  Name: web-pool                                    │        │
+│                │  LB Method: Round Robin                            │        │
+│                │  Monitor: http                                     │        │
+│                │                                                    │        │
+│                │  ┌──────────────────────────────────────────────┐ │        │
+│                │  │ MEMBERS (Nodes)                               │ │        │
+│                │  │                                               │ │        │
+│                │  │  ┌─────────────┐  ┌─────────────┐            │ │        │
+│                │  │  │ web1:80     │  │ web2:80     │            │ │        │
+│                │  │  │ 10.2.1.10   │  │ 10.2.1.11   │            │ │        │
+│                │  │  │ ● UP        │  │ ● UP        │            │ │        │
+│                │  │  └─────────────┘  └─────────────┘            │ │        │
+│                │  │                                               │ │        │
+│                │  │  ┌─────────────┐                              │ │        │
+│                │  │  │ web3:80     │                              │ │        │
+│                │  │  │ 10.2.1.12   │                              │ │        │
+│                │  │  │ ○ DOWN      │ ◄── Health monitor failed   │ │        │
+│                │  │  └─────────────┘                              │ │        │
+│                │  └──────────────────────────────────────────────┘ │        │
+│                └───────────────────────────────────────────────────┘        │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Key Concepts</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Term</th>
+                                <th>Definition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Virtual Server</strong></td>
+                                <td>IP:Port that clients connect to (the VIP)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Pool</strong></td>
+                                <td>Group of backend servers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Node</strong></td>
+                                <td>Backend server IP address</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Pool Member</strong></td>
+                                <td>Node + Port combination</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Monitor</strong></td>
+                                <td>Health check for pool members</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Profile</strong></td>
+                                <td>Configuration template (SSL, HTTP, TCP)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>iRule</strong></td>
+                                <td>Custom traffic manipulation script (TCL)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SNAT</strong></td>
+                                <td>Source NAT for backend server replies</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Common CLI Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">F5 TMSH Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># VIEWING CONFIGURATION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">tmsh</span>                                   <span class="token-comment"># Enter TMSH shell</span>
+<span class="token-command">list</span> ltm virtual                       <span class="token-comment"># List all virtual servers</span>
+<span class="token-command">list</span> ltm pool                          <span class="token-comment"># List all pools</span>
+<span class="token-command">list</span> ltm node                          <span class="token-comment"># List all nodes</span>
+<span class="token-command">show</span> ltm virtual                       <span class="token-comment"># Show virtual server stats</span>
+<span class="token-command">show</span> ltm pool                          <span class="token-comment"># Show pool status</span>
+<span class="token-command">show</span> ltm pool members web-pool         <span class="token-comment"># Show pool member status</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># POOL MEMBER MANAGEMENT</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Disable pool member (graceful)</span>
+<span class="token-command">modify</span> ltm pool web-pool members modify { 10.2.1.10:80 { state user-disabled } }
+
+<span class="token-comment"># Force offline (immediate)</span>
+<span class="token-command">modify</span> ltm pool web-pool members modify { 10.2.1.10:80 { state user-down } }
+
+<span class="token-comment"># Enable pool member</span>
+<span class="token-command">modify</span> ltm pool web-pool members modify { 10.2.1.10:80 { state user-enabled } }
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SYSTEM</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> sys version                       <span class="token-comment"># BIG-IP version</span>
+<span class="token-command">show</span> sys failover                      <span class="token-comment"># HA status</span>
+<span class="token-command">show</span> sys performance                   <span class="token-comment"># System performance</span>
+<span class="token-command">save</span> sys config                        <span class="token-comment"># Save configuration</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CONNECTIONS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> sys connection                    <span class="token-comment"># Active connections</span>
+<span class="token-command">show</span> ltm virtual connections           <span class="token-comment"># Connections by VIP</span></code></pre>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Check pool status:</strong> Verify all members are healthy</li>
+                            <li><strong>Disable members:</strong> For maintenance windows</li>
+                            <li><strong>Review connections:</strong> Monitor active sessions</li>
+                            <li><strong>SSL cert expiry:</strong> Track certificate renewals</li>
+                            <li><strong>HA status:</strong> Verify failover is functioning</li>
+                            <li><strong>Config sync:</strong> Ensure HA pair is synchronized</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "Explain F5 BIG-IP LTM components."</p>
+                        <p><strong>Answer:</strong> "LTM has four main components: Virtual Servers (VIPs) - the IP:port clients connect to; Pools - groups of backend servers; Pool Members - specific server:port combinations; and Monitors - health checks that verify backend availability. Traffic flows from client to VIP, which applies profiles (SSL, HTTP, compression), then load balances to a healthy pool member. iRules allow custom traffic manipulation using TCL scripting."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="8-1-lb-fundamentals.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">LB Fundamentals</span>
+                        </div>
+                    </a>
+                    <a href="9-1-edr-xdr-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">EDR/XDR Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

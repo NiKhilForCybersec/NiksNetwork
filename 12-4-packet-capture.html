@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Packet Capture & Analysis - Complete guide to Wireshark, tcpdump, and network forensics">
+    <title>Packet Capture | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔧</span>Troubleshooting</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="12-1-methodology.html" class="nav-link"><span class="nav-link-number">12.1</span> Methodology</a>
+                        <a href="12-2-incident-response.html" class="nav-link"><span class="nav-link-number">12.2</span> Incident Response</a>
+                        <a href="12-3-log-analysis.html" class="nav-link"><span class="nav-link-number">12.3</span> Log Analysis</a>
+                        <a href="12-4-packet-capture.html" class="nav-link active"><span class="nav-link-number">12.4</span> Packet Capture</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Troubleshooting</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Packet Capture</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Packet Capture & Analysis</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Packet capture is essential for network troubleshooting and security analysis. Understanding how to capture and analyze traffic helps diagnose issues and investigate incidents.</p>
+                        <ul>
+                            <li>tcpdump command-line capture</li>
+                            <li>Wireshark analysis</li>
+                            <li>Common filters</li>
+                            <li>Security analysis patterns</li>
+                            <li>Performance analysis</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>tcpdump Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">tcpdump Capture Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BASIC CAPTURE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Capture on interface eth0</span>
+<span class="token-command">tcpdump</span> -i eth0
+
+<span class="token-comment"># Capture and save to file</span>
+<span class="token-command">tcpdump</span> -i eth0 -w capture.pcap
+
+<span class="token-comment"># Read from file</span>
+<span class="token-command">tcpdump</span> -r capture.pcap
+
+<span class="token-comment"># Capture with timestamp and don't resolve hostnames</span>
+<span class="token-command">tcpdump</span> -i eth0 -nn -tttt
+
+<span class="token-comment"># Limit capture size (100 packets)</span>
+<span class="token-command">tcpdump</span> -i eth0 -c 100 -w capture.pcap
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># COMMON FILTERS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># By host</span>
+<span class="token-command">tcpdump</span> -i eth0 host 192.168.1.100
+
+<span class="token-comment"># By source or destination</span>
+<span class="token-command">tcpdump</span> -i eth0 src 192.168.1.100
+<span class="token-command">tcpdump</span> -i eth0 dst 10.0.0.50
+
+<span class="token-comment"># By port</span>
+<span class="token-command">tcpdump</span> -i eth0 port 443
+<span class="token-command">tcpdump</span> -i eth0 port 80 or port 443
+
+<span class="token-comment"># By protocol</span>
+<span class="token-command">tcpdump</span> -i eth0 tcp
+<span class="token-command">tcpdump</span> -i eth0 udp
+<span class="token-command">tcpdump</span> -i eth0 icmp
+
+<span class="token-comment"># By network</span>
+<span class="token-command">tcpdump</span> -i eth0 net 192.168.1.0/24
+
+<span class="token-comment"># Complex filter (web traffic from specific host)</span>
+<span class="token-command">tcpdump</span> -i eth0 'host 192.168.1.100 and (port 80 or port 443)'
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ADVANCED OPTIONS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Show packet contents in hex and ASCII</span>
+<span class="token-command">tcpdump</span> -i eth0 -X port 80
+
+<span class="token-comment"># Capture full packet (not just header)</span>
+<span class="token-command">tcpdump</span> -i eth0 -s 0 -w capture.pcap
+
+<span class="token-comment"># Rotate files (100MB each, keep 10)</span>
+<span class="token-command">tcpdump</span> -i eth0 -w capture.pcap -C 100 -W 10
+
+<span class="token-comment"># Filter by TCP flags (SYN packets only)</span>
+<span class="token-command">tcpdump</span> -i eth0 'tcp[tcpflags] & (tcp-syn) != 0'</code></pre>
+                </div>
+                
+                <h2>Wireshark Display Filters</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Wireshark Filters</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BASIC FILTERS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+ip.addr == 192.168.1.100           <span class="token-comment"># Traffic to/from IP</span>
+ip.src == 192.168.1.100            <span class="token-comment"># Source IP</span>
+ip.dst == 10.0.0.50                <span class="token-comment"># Destination IP</span>
+tcp.port == 443                    <span class="token-comment"># TCP port 443</span>
+udp.port == 53                     <span class="token-comment"># DNS traffic</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PROTOCOL FILTERS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+http                               <span class="token-comment"># HTTP traffic</span>
+dns                                <span class="token-comment"># DNS traffic</span>
+tls                                <span class="token-comment"># TLS/SSL traffic</span>
+smb                                <span class="token-comment"># SMB traffic</span>
+ssh                                <span class="token-comment"># SSH traffic</span>
+icmp                               <span class="token-comment"># ICMP (ping)</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># HTTP ANALYSIS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+http.request.method == "POST"      <span class="token-comment"># POST requests</span>
+http.request.uri contains "login"  <span class="token-comment"># URIs with "login"</span>
+http.response.code == 200          <span class="token-comment"># HTTP 200 responses</span>
+http.response.code >= 400          <span class="token-comment"># Error responses</span>
+http.user_agent contains "curl"    <span class="token-comment"># Specific user agent</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DNS ANALYSIS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+dns.qry.name contains "evil.com"   <span class="token-comment"># Queries for domain</span>
+dns.qry.type == 1                  <span class="token-comment"># A records</span>
+dns.qry.type == 16                 <span class="token-comment"># TXT records (tunneling?)</span>
+dns.flags.rcode != 0               <span class="token-comment"># DNS errors</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># TCP ANALYSIS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+tcp.flags.syn == 1 && tcp.flags.ack == 0  <span class="token-comment"># SYN packets (new conn)</span>
+tcp.flags.reset == 1               <span class="token-comment"># Reset packets</span>
+tcp.analysis.retransmission        <span class="token-comment"># Retransmissions</span>
+tcp.analysis.duplicate_ack         <span class="token-comment"># Duplicate ACKs</span>
+tcp.analysis.zero_window           <span class="token-comment"># Zero window (backpressure)</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SECURITY ANALYSIS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Large DNS queries (tunneling)</span>
+dns && frame.len > 200
+
+<span class="token-comment"># Non-standard ports</span>
+tcp.port != 80 && tcp.port != 443 && http
+
+<span class="token-comment"># Cleartext credentials</span>
+http.authbasic || ftp.request.command == "PASS"</code></pre>
+                </div>
+                
+                <h2>Security Analysis Patterns</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pattern</th>
+                                <th>What to Look For</th>
+                                <th>Wireshark Filter</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Port Scan</strong></td>
+                                <td>Many SYN packets, different ports</td>
+                                <td>tcp.flags.syn==1 && tcp.flags.ack==0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DNS Tunneling</strong></td>
+                                <td>Large DNS queries, TXT records</td>
+                                <td>dns.qry.type == 16 && frame.len > 200</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Data Exfiltration</strong></td>
+                                <td>Large outbound transfers</td>
+                                <td>Statistics → Conversations → Sort by bytes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>C2 Beaconing</strong></td>
+                                <td>Regular interval connections</td>
+                                <td>Statistics → Flow Graph</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ARP Spoofing</strong></td>
+                                <td>Duplicate MAC addresses</td>
+                                <td>arp.duplicate-address-detected</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cleartext Creds</strong></td>
+                                <td>Passwords in HTTP, FTP, Telnet</td>
+                                <td>http.authbasic</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Useful Wireshark Features</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Wireshark Analysis Tips</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># FOLLOW STREAM (Right-click on packet)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Follow → TCP Stream: See entire conversation</span>
+<span class="token-comment"># Follow → HTTP Stream: See HTTP request/response</span>
+<span class="token-comment"># Follow → TLS Stream: See encrypted stream</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># STATISTICS MENU</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Statistics → Conversations: Top talkers by IP</span>
+<span class="token-comment"># Statistics → Endpoints: All IPs seen</span>
+<span class="token-comment"># Statistics → Protocol Hierarchy: Protocol breakdown</span>
+<span class="token-comment"># Statistics → HTTP → Requests: All HTTP requests</span>
+<span class="token-comment"># Statistics → DNS: DNS query/response stats</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># EXPORT OBJECTS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># File → Export Objects → HTTP: Extract downloaded files</span>
+<span class="token-comment"># File → Export Objects → SMB: Extract SMB files</span>
+<span class="token-comment"># Useful for malware analysis!</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># EXPERT INFO</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Analyze → Expert Information</span>
+<span class="token-comment"># Shows: Errors, Warnings, Notes, Chats</span>
+<span class="token-comment"># Good for finding network issues quickly</span></code></pre>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Quick Capture Checklist</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Know your interface:</strong> eth0, ens192, any?</li>
+                            <li><strong>Filter at capture:</strong> Don't capture everything if you know what you need</li>
+                            <li><strong>Full packets:</strong> Use -s 0 for complete capture</li>
+                            <li><strong>Time sync:</strong> Ensure NTP is working for correlation</li>
+                            <li><strong>Rotate files:</strong> For long captures, use -C and -W</li>
+                            <li><strong>Permissions:</strong> May need sudo/root for raw capture</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you use packet capture to investigate a potential data exfiltration?"</p>
+                        <p><strong>Answer:</strong> "I'd start by capturing traffic from the suspected host or network segment. In Wireshark, I'd use Statistics → Conversations to identify which external IPs received the most data. For suspicious destinations, I'd filter by that IP and follow the TCP streams to see what data was sent. I'd look for large file transfers, unusual protocols on standard ports (like HTTP on 443), or DNS queries with abnormally large responses that might indicate tunneling. I'd export any HTTP objects to see what files were downloaded or uploaded. If the traffic is encrypted, I'd at least document the destination IPs and timing for correlation with other logs."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="12-3-log-analysis.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Log Analysis</span>
+                        </div>
+                    </a>
+                    <a href="13-1-compliance-frameworks.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Compliance Frameworks</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

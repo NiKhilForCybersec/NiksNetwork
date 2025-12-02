@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Firewall Troubleshooting - Complete guide to diagnosing and fixing firewall connectivity issues">
+    <title>Firewall Troubleshooting | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🛡️</span>Firewalls</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="2-1-firewall-fundamentals.html" class="nav-link"><span class="nav-link-number">2.1</span> Fundamentals</a>
+                        <a href="2-10-firewall-logging.html" class="nav-link"><span class="nav-link-number">2.10</span> Logging</a>
+                        <a href="2-11-firewall-troubleshooting.html" class="nav-link active"><span class="nav-link-number">2.11</span> Troubleshooting</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Firewalls</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Troubleshooting</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Firewall Troubleshooting</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Firewall troubleshooting requires a systematic approach to identify whether traffic is being blocked, why, and how to resolve issues while maintaining security.</p>
+                        <ul>
+                            <li>Troubleshooting methodology</li>
+                            <li>Common issues and solutions</li>
+                            <li>Vendor-specific diagnostic commands</li>
+                            <li>Session and flow debugging</li>
+                            <li>Best practices</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Troubleshooting Flow</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Firewall Troubleshooting Methodology</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    FIREWALL TROUBLESHOOTING FLOW                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  START: Traffic Not Working                                                 │
+│         │                                                                   │
+│         ▼                                                                   │
+│  ┌──────────────────┐                                                       │
+│  │ 1. Verify the    │                                                       │
+│  │ problem          │ What exactly isn't working? Source, dest, port?       │
+│  └────────┬─────────┘                                                       │
+│           ▼                                                                 │
+│  ┌──────────────────┐                                                       │
+│  │ 2. Check traffic │                                                       │
+│  │ is reaching FW   │──NO──► Check: Routing, upstream device, cables        │
+│  │                  │                                                       │
+│  └────────┬─────────┘                                                       │
+│           │ YES                                                             │
+│           ▼                                                                 │
+│  ┌──────────────────┐                                                       │
+│  │ 3. Check firewall│                                                       │
+│  │ logs for traffic │──NOT FOUND──► Traffic not reaching FW                │
+│  │                  │              (routing/NAT issue upstream)             │
+│  └────────┬─────────┘                                                       │
+│           │ FOUND                                                           │
+│           ▼                                                                 │
+│  ┌──────────────────┐                                                       │
+│  │ 4. What action   │                                                       │
+│  │ was taken?       │                                                       │
+│  └────────┬─────────┘                                                       │
+│           │                                                                 │
+│     ┌─────┴─────┐                                                           │
+│     │           │                                                           │
+│   ALLOW       DENY/DROP                                                     │
+│     │           │                                                           │
+│     ▼           ▼                                                           │
+│  Problem is    │                                                            │
+│  AFTER the FW  │                                                            │
+│  (check dest)  │                                                            │
+│                ▼                                                            │
+│  ┌──────────────────┐                                                       │
+│  │ 5. WHY denied?   │                                                       │
+│  │ - No matching    │                                                       │
+│  │   rule (implicit │                                                       │
+│  │   deny)          │                                                       │
+│  │ - Explicit deny  │                                                       │
+│  │   rule           │                                                       │
+│  │ - Security       │                                                       │
+│  │   profile block  │                                                       │
+│  │   (IPS, URL, AV) │                                                       │
+│  │ - NAT issue      │                                                       │
+│  └──────────────────┘                                                       │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Common Issues</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Symptom</th>
+                                <th>Likely Cause</th>
+                                <th>Solution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Traffic denied, no rule matched</td>
+                                <td>Implicit deny (no allow rule)</td>
+                                <td>Create appropriate allow rule</td>
+                            </tr>
+                            <tr>
+                                <td>Traffic denied by wrong rule</td>
+                                <td>Rule order issue (first match)</td>
+                                <td>Move specific rule above general deny</td>
+                            </tr>
+                            <tr>
+                                <td>Blocked by security profile</td>
+                                <td>IPS, AV, or URL filtering</td>
+                                <td>Review profile, add exception if FP</td>
+                            </tr>
+                            <tr>
+                                <td>Return traffic blocked</td>
+                                <td>Asymmetric routing</td>
+                                <td>Fix routing or enable asymmetric bypass</td>
+                            </tr>
+                            <tr>
+                                <td>NAT not working</td>
+                                <td>NAT rule missing or wrong</td>
+                                <td>Create/fix NAT rule, check order</td>
+                            </tr>
+                            <tr>
+                                <td>Session timeout</td>
+                                <td>Timeout too short</td>
+                                <td>Adjust session timeout settings</td>
+                            </tr>
+                            <tr>
+                                <td>SSL inspection breaking app</td>
+                                <td>Certificate issues</td>
+                                <td>Add to SSL bypass list</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Diagnostic Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Vendor Diagnostic Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PALO ALTO</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Check traffic logs (CLI)</span>
+<span class="token-command">show</span> log traffic src 10.1.1.100 dst 8.8.8.8
+
+<span class="token-comment"># Test security policy match</span>
+<span class="token-command">test</span> security-policy-match source 10.1.1.100 destination 8.8.8.8 \
+    destination-port 443 protocol 6
+
+<span class="token-comment"># Show active sessions</span>
+<span class="token-command">show</span> session all filter source 10.1.1.100
+
+<span class="token-comment"># Session debug (capture flow)</span>
+<span class="token-command">debug</span> dataplane packet-diag set filter match source 10.1.1.100
+<span class="token-command">debug</span> dataplane packet-diag set log feature flow basic
+<span class="token-command">debug</span> dataplane packet-diag show log
+<span class="token-command">less</span> dp-log pan_packet_diag.log
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CISCO ASA</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Show connections</span>
+<span class="token-command">show</span> conn address 10.1.1.100
+
+<span class="token-comment"># Packet tracer (simulate traffic)</span>
+<span class="token-command">packet-tracer</span> input inside tcp 10.1.1.100 12345 8.8.8.8 443
+
+<span class="token-comment"># Capture traffic</span>
+<span class="token-command">capture</span> TEST interface inside match ip host 10.1.1.100 any
+<span class="token-command">show</span> capture TEST
+
+<span class="token-comment"># Show access list hits</span>
+<span class="token-command">show</span> access-list | include hitcnt
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># FORTINET</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Show sessions</span>
+<span class="token-command">diagnose</span> sys session filter src 10.1.1.100
+<span class="token-command">diagnose</span> sys session list
+
+<span class="token-comment"># Debug flow (packet trace)</span>
+<span class="token-command">diagnose</span> debug flow filter addr 10.1.1.100
+<span class="token-command">diagnose</span> debug flow show function-name enable
+<span class="token-command">diagnose</span> debug flow trace start 100
+<span class="token-command">diagnose</span> debug enable
+
+<span class="token-comment"># Stop debug</span>
+<span class="token-command">diagnose</span> debug disable
+<span class="token-command">diagnose</span> debug flow trace stop
+
+<span class="token-comment"># Sniffer</span>
+<span class="token-command">diagnose</span> sniffer packet any 'host 10.1.1.100' 4
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CHECK POINT</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Show connections</span>
+<span class="token-command">fw</span> tab -t connections -s
+
+<span class="token-comment"># Zdebug (packet debug)</span>
+<span class="token-command">fw</span> ctl zdebug drop
+
+<span class="token-comment"># fw monitor (packet capture)</span>
+<span class="token-command">fw</span> monitor -e "accept src=10.1.1.100 or dst=10.1.1.100;"
+
+<span class="token-comment"># SmartView Tracker for logs</span></code></pre>
+                </div>
+                
+                <h2>Session Analysis</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Session Troubleshooting</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># KEY SESSION INFORMATION TO CHECK</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Source/Destination (original and after NAT)</span>
+Source:      10.1.1.100:54321
+Destination: 8.8.8.8:443
+NAT Source:  203.0.113.1:54321    <span class="token-comment"># After SNAT</span>
+
+<span class="token-comment"># Application identified</span>
+Application: ssl               <span class="token-comment"># What app was detected?</span>
+
+<span class="token-comment"># Security rule matched</span>
+Rule:        "Allow-HTTPS"     <span class="token-comment"># Which rule allowed/denied?</span>
+
+<span class="token-comment"># Session state</span>
+State:       ACTIVE            <span class="token-comment"># ACTIVE, DISCARD, INIT, etc.</span>
+
+<span class="token-comment"># Bytes/packets transferred</span>
+Bytes:       1523456           <span class="token-comment"># Data transferred</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># COMMON SESSION STATES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+INIT        <span class="token-comment"># Session being created</span>
+ACTIVE      <span class="token-comment"># Normal active session</span>
+DISCARD     <span class="token-comment"># Session being discarded (denied/timed out)</span>
+CLOSED      <span class="token-comment"># Session closed normally</span></code></pre>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Before Making Changes</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Document current state:</strong> Screenshot rules before changes</li>
+                            <li><strong>Understand the impact:</strong> Will this affect other traffic?</li>
+                            <li><strong>Use change windows:</strong> For production changes</li>
+                            <li><strong>Have a rollback plan:</strong> Know how to undo quickly</li>
+                            <li><strong>Test first:</strong> Use policy test tools before committing</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "A user reports they can't access a web application. How do you troubleshoot?"</p>
+                        <p><strong>Answer:</strong> "First, I'd gather details - what's the destination IP/URL, what error are they seeing? Then I'd check firewall logs for traffic from their IP to the destination. If I see the traffic, I check the action - allowed or denied, and by which rule. If denied, I identify why - wrong rule order, missing rule, or blocked by a security profile like URL filtering or IPS. If allowed at the firewall but still not working, the problem is elsewhere - I'd check the destination server, intermediate devices, or DNS. On Palo Alto, I'd use 'test security-policy-match' to verify which rule would hit. For deeper issues, I'd capture traffic or run packet-diag to trace the flow through the firewall."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="2-10-firewall-logging.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Firewall Logging</span>
+                        </div>
+                    </a>
+                    <a href="3-1-proxy-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Proxy Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

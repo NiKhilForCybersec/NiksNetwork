@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="IPv6 Security - Complete guide to IPv6 threats, RA Guard, ND inspection, and dual-stack security">
+    <title>IPv6 Security | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌐</span>Networking</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="1-12-aaa-radius-tacacs.html" class="nav-link"><span class="nav-link-number">1.12</span> AAA / RADIUS / TACACS+</a>
+                        <a href="1-13-ipv6-security.html" class="nav-link active"><span class="nav-link-number">1.13</span> IPv6 Security</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Networking</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">IPv6 Security</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>IPv6 Security</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>IPv6 introduces new security challenges alongside new features. Many networks have IPv6 enabled by default but lack proper security controls, creating blind spots attackers can exploit.</p>
+                        <ul>
+                            <li>IPv6-specific attack vectors</li>
+                            <li>Router Advertisement (RA) attacks</li>
+                            <li>RA Guard and ND Inspection</li>
+                            <li>Dual-stack security considerations</li>
+                            <li>IPv6 firewall configuration</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>IPv6 Security Challenges</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">IPv6 vs IPv4 Security</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    IPv6 SECURITY CHALLENGES                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  NEW ATTACK SURFACE:                                                        │
+│  ───────────────────                                                        │
+│  • Router Advertisements (RA) - No equivalent in IPv4                       │
+│  • Neighbor Discovery (ND) - Replaces ARP, new attacks                     │
+│  • Extension Headers - Can bypass security devices                          │
+│  • SLAAC - Auto-configuration can be abused                                │
+│  • Larger address space - Harder to scan, easier to hide                   │
+│                                                                              │
+│  DUAL-STACK RISKS:                                                          │
+│  ─────────────────                                                          │
+│  • IPv6 enabled by default on most OS                                      │
+│  • Security tools may not inspect IPv6                                     │
+│  • Firewall rules often IPv4-only                                          │
+│  • Attackers can tunnel through IPv6 when IPv4 is monitored               │
+│                                                                              │
+│  COMMON MISTAKES:                                                           │
+│  ────────────────                                                           │
+│  • Not filtering IPv6 at all ("we don't use IPv6")                        │
+│  • Forgetting IPv6 ACLs on interfaces                                      │
+│  • No RA Guard on switches                                                 │
+│  • Not logging IPv6 traffic                                                │
+│                                                                              │
+│  "If you're not managing IPv6, attackers are using it against you"        │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>IPv6-Specific Attacks</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Attack</th>
+                                <th>Description</th>
+                                <th>Mitigation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Rogue RA</strong></td>
+                                <td>Fake Router Advertisement to become default gateway</td>
+                                <td>RA Guard</td>
+                            </tr>
+                            <tr>
+                                <td><strong>RA Flooding</strong></td>
+                                <td>Flood RAs to exhaust host resources</td>
+                                <td>RA Guard, rate limiting</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ND Spoofing</strong></td>
+                                <td>Neighbor Discovery spoofing (like ARP spoofing)</td>
+                                <td>ND Inspection, SEND</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SLAAC Attack</strong></td>
+                                <td>Manipulate auto-configuration</td>
+                                <td>RA Guard, DHCPv6</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Extension Header Abuse</strong></td>
+                                <td>Use headers to bypass firewalls/IDS</td>
+                                <td>Deep packet inspection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tunnel Exploitation</strong></td>
+                                <td>6to4, Teredo tunnels bypass security</td>
+                                <td>Block tunnel protocols</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Router Advertisement (RA) Attack</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Rogue RA Attack Flow</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ROGUE ROUTER ADVERTISEMENT ATTACK                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  NORMAL OPERATION:                                                          │
+│                                                                              │
+│    Legitimate Router ──────► RA: "I'm the gateway, prefix 2001:db8::/64"   │
+│           │                                                                 │
+│           ▼                                                                 │
+│    [Hosts configure IPv6 using this info]                                  │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════   │
+│                                                                              │
+│  ATTACK:                                                                    │
+│                                                                              │
+│    Attacker's Machine ────► RA: "I'm the gateway! Use ME!"                 │
+│           │                                                                 │
+│           ▼                                                                 │
+│    [Hosts now send traffic through attacker = MITM]                        │
+│                                                                              │
+│  TOOLS:                                                                     │
+│  • THC-IPv6 toolkit (fake_router6)                                         │
+│  • Scapy (craft custom RAs)                                                │
+│  • RouterSploit                                                            │
+│                                                                              │
+│  IMPACT:                                                                    │
+│  • Man-in-the-middle                                                       │
+│  • Traffic interception                                                    │
+│  • DNS hijacking (via RDNSS option)                                        │
+│  • DoS (invalid prefix/gateway)                                            │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>IPv6 First Hop Security</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco - IPv6 RA Guard Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! IPv6 RA GUARD - Block rogue Router Advertisements</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">! Create RA Guard policy for host ports (block all RAs)</span>
+ipv6 nd raguard policy HOST-POLICY
+ device-role host
+
+<span class="token-comment">! Create RA Guard policy for router ports (allow RAs)</span>
+ipv6 nd raguard policy ROUTER-POLICY
+ device-role router
+
+<span class="token-comment">! Apply to access ports (hosts)</span>
+interface range GigabitEthernet0/1-48
+ ipv6 nd raguard attach-policy HOST-POLICY
+
+<span class="token-comment">! Apply to uplink (router)</span>
+interface GigabitEthernet0/49
+ ipv6 nd raguard attach-policy ROUTER-POLICY
+
+<span class="token-comment">! Verify</span>
+show ipv6 nd raguard policy
+show ipv6 nd raguard interface</code></pre>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco - IPv6 ND Inspection (Snooping)</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! IPv6 ND INSPECTION - Like DHCP Snooping + DAI for IPv6</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">! Enable IPv6 snooping globally</span>
+ipv6 nd inspection
+
+<span class="token-comment">! Create snooping policy</span>
+ipv6 nd inspection policy SNOOP-POLICY
+ device-role host
+ drop-unsecure
+ validate source-mac
+ 
+<span class="token-comment">! Apply to VLAN</span>
+vlan configuration 10
+ ipv6 nd inspection
+ ipv6 nd raguard
+
+<span class="token-comment">! Or apply to interface</span>
+interface GigabitEthernet0/1
+ ipv6 nd inspection attach-policy SNOOP-POLICY
+
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! IPv6 DHCP GUARD - Protect DHCPv6</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+ipv6 dhcp guard policy DHCP-HOST
+ device-role client
+
+ipv6 dhcp guard policy DHCP-SERVER
+ device-role server
+
+interface range GigabitEthernet0/1-48
+ ipv6 dhcp guard attach-policy DHCP-HOST</code></pre>
+                </div>
+                
+                <h2>IPv6 Firewall Rules</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">IPv6 ACL Best Practices</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! CISCO IPv6 ACCESS LIST</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">! Allow essential ICMPv6 (required for IPv6 to function)</span>
+ipv6 access-list IPv6-INBOUND
+ <span class="token-comment">! Allow Neighbor Discovery</span>
+ permit icmp any any nd-na
+ permit icmp any any nd-ns
+ <span class="token-comment">! Allow Router Solicitation/Advertisement (from trusted)</span>
+ permit icmp any any router-solicitation
+ permit icmp any any router-advertisement
+ <span class="token-comment">! Allow essential ICMP</span>
+ permit icmp any any echo-request
+ permit icmp any any echo-reply
+ permit icmp any any packet-too-big
+ permit icmp any any time-exceeded
+ permit icmp any any destination-unreachable
+ <span class="token-comment">! Block other ICMPv6</span>
+ deny icmp any any
+ <span class="token-comment">! Allow established connections</span>
+ permit tcp any any established
+ <span class="token-comment">! Your rules here...</span>
+ permit tcp any host 2001:db8::80 eq 443
+ <span class="token-comment">! Deny all else</span>
+ deny ipv6 any any log
+
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! BLOCK TRANSITION MECHANISMS (if not using)</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! Block 6to4</span>
+deny ipv6 2002::/16 any
+deny ipv6 any 2002::/16
+
+<span class="token-comment">! Block Teredo (IPv4 firewall)</span>
+deny udp any any eq 3544
+
+<span class="token-comment">! Block ISATAP</span>
+deny ipv6 any fe80::5efe:0:0/96</code></pre>
+                </div>
+                
+                <h2>IPv6 Security Checklist</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Control</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>RA Guard</strong></td>
+                                <td>Enable on all access switches, allow only from real routers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ND Inspection</strong></td>
+                                <td>Enable to prevent ND spoofing attacks</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DHCPv6 Guard</strong></td>
+                                <td>Block rogue DHCPv6 servers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Firewall Rules</strong></td>
+                                <td>Mirror IPv4 rules in IPv6, don't forget!</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Block Tunnels</strong></td>
+                                <td>Disable 6to4, Teredo, ISATAP if not needed</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IDS/IPS</strong></td>
+                                <td>Ensure IPv6 traffic is inspected</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Logging</strong></td>
+                                <td>Log IPv6 traffic to SIEM</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Disable if unused</strong></td>
+                                <td>If not using IPv6, disable at OS/interface level</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-critical">
+                    <div class="callout-title">🚨 Common IPv6 Mistakes</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>"We don't use IPv6":</strong> It's enabled by default - attackers will use it</li>
+                            <li><strong>IPv4-only ACLs:</strong> Forgetting ipv6 access-list on interfaces</li>
+                            <li><strong>No RA Guard:</strong> Easy MITM attack vector on L2</li>
+                            <li><strong>Extension header bypass:</strong> Some firewalls don't inspect them</li>
+                            <li><strong>Tunnel blind spots:</strong> 6to4/Teredo can bypass perimeter security</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How do you secure IPv6 in an enterprise network?"</p>
+                        <p><strong>Answer:</strong> "First, acknowledge that IPv6 exists even if you're not officially using it - it's enabled by default on most operating systems. At Layer 2, deploy RA Guard on all access switches to prevent rogue router advertisement attacks, which is the IPv6 equivalent of rogue DHCP. Enable ND Inspection to prevent neighbor discovery spoofing, similar to Dynamic ARP Inspection for IPv4. At the firewall, ensure all IPv4 rules have IPv6 equivalents - a common mistake is having strict IPv4 filtering but no IPv6 ACLs. Block IPv6 transition mechanisms like 6to4 and Teredo at the perimeter if you're not using them, as they can tunnel IPv6 through your IPv4 security. Make sure your IDS/IPS and SIEM are configured to inspect and log IPv6 traffic. If you truly don't need IPv6, disable it at the interface level, but that's becoming less practical as more services require it."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="1-12-aaa-radius-tacacs.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">AAA / RADIUS / TACACS+</span>
+                        </div>
+                    </a>
+                    <a href="1-14-macsec.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">MACsec</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

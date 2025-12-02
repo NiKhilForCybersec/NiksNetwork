@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SSL VPN - Complete guide to SSL/TLS VPN, remote access, and clientless VPN solutions">
+    <title>SSL VPN | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔐</span>VPN</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="6-1-vpn-fundamentals.html" class="nav-link"><span class="nav-link-number">6.1</span> Fundamentals</a>
+                        <a href="6-2-ipsec.html" class="nav-link"><span class="nav-link-number">6.2</span> IPSec</a>
+                        <a href="6-3-ssl-vpn.html" class="nav-link active"><span class="nav-link-number">6.3</span> SSL VPN</a>
+                        <a href="6-4-site-to-site.html" class="nav-link"><span class="nav-link-number">6.4</span> Site-to-Site</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">VPN</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">SSL VPN</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>SSL VPN</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>SSL VPN uses TLS (formerly SSL) to provide secure remote access. It's often preferred over IPSec for remote workers because it works through firewalls and NAT without special configuration.</p>
+                        <ul>
+                            <li>SSL VPN vs IPSec VPN</li>
+                            <li>SSL VPN modes (portal vs tunnel)</li>
+                            <li>Split tunneling</li>
+                            <li>Client configuration</li>
+                            <li>Security considerations</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>SSL VPN vs IPSec VPN</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>SSL VPN</th>
+                                <th>IPSec VPN</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Protocol Layer</strong></td>
+                                <td>Layer 4-7 (TLS)</td>
+                                <td>Layer 3 (IP)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Port</strong></td>
+                                <td>TCP 443 (HTTPS)</td>
+                                <td>UDP 500, 4500, ESP</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Firewall Traversal</strong></td>
+                                <td>Excellent (looks like HTTPS)</td>
+                                <td>May require NAT-T, port forwarding</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Client Required</strong></td>
+                                <td>Browser (portal) or client</td>
+                                <td>Always requires client</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Best For</strong></td>
+                                <td>Remote access, BYOD</td>
+                                <td>Site-to-site, full network access</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Granular Control</strong></td>
+                                <td>Can limit to specific apps</td>
+                                <td>Full network access typically</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>SSL VPN Modes</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">SSL VPN Access Modes</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SSL VPN MODES                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  PORTAL MODE (Clientless / Web-Based)                                       │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                      │    │
+│  │  ┌────────┐    HTTPS    ┌─────────────┐        ┌──────────────┐    │    │
+│  │  │ Browser│ ──────────► │ SSL VPN     │ ─────► │ Internal     │    │    │
+│  │  │        │             │ Portal      │        │ Web Apps     │    │    │
+│  │  └────────┘             └─────────────┘        └──────────────┘    │    │
+│  │                                                                      │    │
+│  │  • No client installation                                           │    │
+│  │  • Access via web browser                                           │    │
+│  │  • Limited to web applications, file shares                         │    │
+│  │  • Good for contractors, BYOD                                       │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  TUNNEL MODE (Full Client)                                                  │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                      │    │
+│  │  ┌────────┐   TLS Tunnel  ┌─────────────┐      ┌──────────────┐    │    │
+│  │  │  VPN   │ ════════════► │ SSL VPN     │ ───► │ Full Network │    │    │
+│  │  │ Client │               │ Gateway     │      │ Access       │    │    │
+│  │  └────────┘               └─────────────┘      └──────────────┘    │    │
+│  │     │                                                               │    │
+│  │     └── Virtual adapter gets corporate IP                          │    │
+│  │                                                                      │    │
+│  │  • Requires client installation                                     │    │
+│  │  • Full Layer 3 network access                                      │    │
+│  │  • All applications work (RDP, SSH, etc.)                          │    │
+│  │  • Split or full tunneling options                                  │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Split Tunneling</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Split vs Full Tunneling</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    TUNNELING MODES                                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  FULL TUNNEL (More Secure)                                                  │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                      │    │
+│  │  ┌────────┐                                                         │    │
+│  │  │ Remote │ ────► ALL TRAFFIC ────► VPN Gateway ────► Internet     │    │
+│  │  │  User  │                              │                          │    │
+│  │  └────────┘                              └─────────► Corporate      │    │
+│  │                                                                      │    │
+│  │  ✓ All traffic inspected by corporate security                     │    │
+│  │  ✓ No direct internet exposure                                     │    │
+│  │  ✗ Increased bandwidth on VPN                                      │    │
+│  │  ✗ Slower internet for user                                        │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  SPLIT TUNNEL (Better Performance)                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                      │    │
+│  │  ┌────────┐ ──► Corporate Traffic ──► VPN Gateway ──► Corporate    │    │
+│  │  │ Remote │                                                         │    │
+│  │  │  User  │ ──► Internet Traffic ───────────────────► Internet     │    │
+│  │  └────────┘           (direct)                                      │    │
+│  │                                                                      │    │
+│  │  ✓ Better performance                                               │    │
+│  │  ✓ Less VPN bandwidth                                               │    │
+│  │  ✗ Internet traffic bypasses security                              │    │
+│  │  ✗ Potential for malware from direct internet                      │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Common SSL VPN Platforms</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Platform</th>
+                                <th>Client Name</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Palo Alto</strong></td>
+                                <td>GlobalProtect</td>
+                                <td>Integrated with NGFW, always-on option</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cisco</strong></td>
+                                <td>AnyConnect</td>
+                                <td>Most widely deployed, posture assessment</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fortinet</strong></td>
+                                <td>FortiClient</td>
+                                <td>Free client, EMS for management</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Pulse Secure</strong></td>
+                                <td>Pulse Secure</td>
+                                <td>Acquired by Ivanti</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Zscaler</strong></td>
+                                <td>ZPA Client</td>
+                                <td>Zero Trust, cloud-based</td>
+                            </tr>
+                            <tr>
+                                <td><strong>OpenVPN</strong></td>
+                                <td>OpenVPN Client</td>
+                                <td>Open source, widely compatible</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ SSL VPN Security Risks</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>CVE vulnerabilities:</strong> SSL VPN appliances are high-value targets (Pulse Secure, Fortinet CVEs)</li>
+                            <li><strong>Credential theft:</strong> VPN credentials are prime phishing targets</li>
+                            <li><strong>Split tunneling:</strong> Can expose corporate network to infected home devices</li>
+                            <li><strong>Patch quickly:</strong> VPN appliances must be patched immediately</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - SSL VPN Security</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Enable MFA:</strong> Require multi-factor authentication for all VPN access</li>
+                            <li><strong>Use certificates:</strong> Machine certificates + user credentials</li>
+                            <li><strong>Host checking:</strong> Verify endpoint health before granting access</li>
+                            <li><strong>Limit access:</strong> Least privilege - only what users need</li>
+                            <li><strong>Monitor:</strong> Log all VPN connections, alert on anomalies</li>
+                            <li><strong>Patch rapidly:</strong> VPN vulnerabilities are actively exploited</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "What's the difference between split and full tunneling?"</p>
+                        <p><strong>Answer:</strong> "Full tunneling sends ALL traffic through the VPN - more secure because corporate security controls inspect everything, but higher latency and bandwidth usage. Split tunneling only sends corporate traffic through VPN while internet traffic goes direct - better performance but internet traffic bypasses security. For high-security environments, I'd recommend full tunnel. For general use, split tunnel with a cloud proxy (like Zscaler) provides a good balance."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="6-2-ipsec.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">IPSec</span>
+                        </div>
+                    </a>
+                    <a href="6-4-site-to-site.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Site-to-Site VPN</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="IoT Security - Complete guide to securing IoT and OT devices in enterprise networks">
+    <title>IoT Security | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">📡</span>IoT/OT Security</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="23-1-iot-security.html" class="nav-link active"><span class="nav-link-number">23.1</span> IoT Security</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">IoT/OT Security</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">IoT Security</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>IoT & OT Security</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>IoT (Internet of Things) and OT (Operational Technology) devices present unique security challenges - they often can't be patched, run legacy software, and expand the attack surface significantly.</p>
+                        <ul>
+                            <li>IoT/OT security challenges</li>
+                            <li>Network segmentation</li>
+                            <li>Device discovery and inventory</li>
+                            <li>IoT security platforms</li>
+                            <li>ICS/SCADA security</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>IoT vs IT vs OT</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>IT</th>
+                                <th>IoT</th>
+                                <th>OT/ICS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Priority</strong></td>
+                                <td>Confidentiality</td>
+                                <td>Functionality</td>
+                                <td>Availability/Safety</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Patching</strong></td>
+                                <td>Regular</td>
+                                <td>Difficult/Rare</td>
+                                <td>Very difficult</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lifecycle</strong></td>
+                                <td>3-5 years</td>
+                                <td>5-10 years</td>
+                                <td>15-25 years</td>
+                            </tr>
+                            <tr>
+                                <td><strong>OS</strong></td>
+                                <td>Windows, Linux</td>
+                                <td>Embedded Linux, RTOS</td>
+                                <td>Proprietary, legacy</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Examples</strong></td>
+                                <td>Servers, laptops</td>
+                                <td>Cameras, printers, HVAC</td>
+                                <td>PLCs, SCADA, HMIs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>IoT Security Challenges</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">IoT Attack Surface</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    IOT SECURITY CHALLENGES                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 1. NO VISIBILITY                                                     │    │
+│  │    • Unknown devices on network                                     │    │
+│  │    • Shadow IoT (devices IT doesn't know about)                    │    │
+│  │    • No asset inventory                                            │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 2. UNPATACHABLE                                                      │    │
+│  │    • Firmware rarely updated                                        │    │
+│  │    • No auto-update mechanism                                       │    │
+│  │    • Vendor may no longer support device                           │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 3. WEAK SECURITY                                                     │    │
+│  │    • Default credentials (admin/admin)                             │    │
+│  │    • No encryption (Telnet, HTTP)                                  │    │
+│  │    • No authentication for protocols                               │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 4. NO AGENT SUPPORT                                                  │    │
+│  │    • Can't install EDR/AV                                          │    │
+│  │    • Limited CPU/memory                                            │    │
+│  │    • Proprietary OS                                                │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ENTERPRISE IOT EXAMPLES:                                                   │
+│  • IP cameras, badge readers, printers                                     │
+│  • HVAC systems, building automation                                       │
+│  • Medical devices (infusion pumps, monitors)                              │
+│  • Manufacturing equipment (PLCs, robots)                                  │
+│  • Smart TVs, digital signage                                              │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>IoT Security Architecture</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">IoT Network Segmentation</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># IOT NETWORK SEGMENTATION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+CORPORATE NETWORK
+├── VLAN 10: Users (workstations)
+├── VLAN 20: Servers
+├── VLAN 30: DMZ
+│
+IOT NETWORKS (Isolated)
+├── VLAN 100: Cameras
+│   └── Firewall: Allow → NVR only, deny all else
+├── VLAN 110: Printers
+│   └── Firewall: Allow → print ports from users only
+├── VLAN 120: HVAC/BMS
+│   └── Firewall: Allow → BMS server only
+├── VLAN 130: Badge Readers
+│   └── Firewall: Allow → access control server only
+│
+OT NETWORKS (Air-gapped or highly restricted)
+├── VLAN 200: SCADA/ICS
+│   └── Firewall: Deny all except jump server
+└── VLAN 210: Manufacturing
+    └── Firewall: Deny all except historian
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># KEY PRINCIPLES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+• Default deny between IoT and corporate
+• IoT devices should only reach their management systems
+• No IoT device needs internet unless absolutely required
+• Use NAC to enforce VLAN assignment
+• Monitor IoT traffic for anomalies</code></pre>
+                </div>
+                
+                <h2>IoT Security Platforms</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Vendor</th>
+                                <th>Product</th>
+                                <th>Strengths</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Armis</strong></td>
+                                <td>Armis Platform</td>
+                                <td>Agentless, broad device support</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Claroty</strong></td>
+                                <td>Claroty Platform</td>
+                                <td>OT/ICS focus, deep protocol support</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nozomi Networks</strong></td>
+                                <td>Vantage</td>
+                                <td>OT visibility and threat detection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Forescout</strong></td>
+                                <td>eyeSight</td>
+                                <td>Device visibility, NAC integration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Palo Alto</strong></td>
+                                <td>IoT Security</td>
+                                <td>Integrated with NGFW</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Microsoft</strong></td>
+                                <td>Defender for IoT</td>
+                                <td>Azure integration, OT support</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>IoT Security Checklist</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Control</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Discovery</strong></td>
+                                <td>Deploy IoT platform for device inventory</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Segmentation</strong></td>
+                                <td>Isolate IoT on dedicated VLANs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Credentials</strong></td>
+                                <td>Change default passwords on all devices</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Access Control</strong></td>
+                                <td>Use NAC to enforce policies</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Monitoring</strong></td>
+                                <td>Monitor IoT traffic for anomalies</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Patching</strong></td>
+                                <td>Establish firmware update process</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Procurement</strong></td>
+                                <td>Security requirements for new IoT purchases</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ OT/ICS Special Considerations</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Safety first:</strong> Security changes can impact physical safety</li>
+                            <li><strong>No scanning:</strong> Active scanning can crash OT systems</li>
+                            <li><strong>Change windows:</strong> Coordinate with operations team</li>
+                            <li><strong>Passive monitoring:</strong> Use network TAPs, not inline</li>
+                            <li><strong>Air gap:</strong> Consider physical isolation for critical systems</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you secure IoT devices in an enterprise?"</p>
+                        <p><strong>Answer:</strong> "IoT security starts with visibility - you can't secure what you don't know about. I'd deploy an IoT security platform like Armis or Forescout to discover all devices. Then network segmentation - IoT devices go on isolated VLANs with strict firewall rules allowing only necessary communication. For example, cameras can only talk to the NVR, printers only accept print jobs. I'd change default credentials, disable unnecessary services, and establish a firmware update process. NAC enforces segmentation by auto-assigning devices to correct VLANs. Finally, monitor IoT traffic for anomalies - if a camera starts making DNS queries to unusual domains, that's suspicious. The key principle is zero trust - assume IoT devices are compromised and limit what they can access."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="22-1-devsecops.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">DevSecOps</span>
+                        </div>
+                    </a>
+                    <a href="index.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Home</span>
+                            <span class="page-nav-title">Back to Index</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

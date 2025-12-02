@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Azure WAF - Complete guide to Azure Web Application Firewall on Application Gateway and Front Door">
+    <title>Azure WAF | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🛡️</span>WAF</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="4-1-waf-fundamentals.html" class="nav-link"><span class="nav-link-number">4.1</span> Fundamentals</a>
+                        <a href="4-2-owasp-top10.html" class="nav-link"><span class="nav-link-number">4.2</span> OWASP Top 10</a>
+                        <a href="4-3-aws-waf.html" class="nav-link"><span class="nav-link-number">4.3</span> AWS WAF</a>
+                        <a href="4-4-azure-waf.html" class="nav-link active"><span class="nav-link-number">4.4</span> Azure WAF</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">WAF</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Azure WAF</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Azure WAF</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Azure WAF provides centralized protection for web applications against common exploits. It can be deployed on Application Gateway (regional) or Azure Front Door (global).</p>
+                        <ul>
+                            <li>Azure WAF deployment options</li>
+                            <li>WAF policies and rule sets</li>
+                            <li>CRS (Core Rule Set) rules</li>
+                            <li>Custom rules</li>
+                            <li>Exclusions and tuning</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Deployment Options</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Application Gateway WAF</th>
+                                <th>Front Door WAF</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Scope</strong></td>
+                                <td>Regional</td>
+                                <td>Global (edge locations)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use Case</strong></td>
+                                <td>Single region apps</td>
+                                <td>Multi-region, CDN</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Layer</strong></td>
+                                <td>Layer 7 (HTTP/HTTPS)</td>
+                                <td>Layer 7 (HTTP/HTTPS)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SSL Termination</strong></td>
+                                <td>Yes</td>
+                                <td>Yes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bot Protection</strong></td>
+                                <td>Yes</td>
+                                <td>Yes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rate Limiting</strong></td>
+                                <td>Limited</td>
+                                <td>Yes (custom rules)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>WAF Policy Structure</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Azure WAF Policy</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    AZURE WAF POLICY                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  WAF POLICY: prod-waf-policy                                                │
+│  Mode: Prevention (or Detection)                                            │
+│                                                                              │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │ MANAGED RULES (CRS 3.2)                                              │   │
+│  │                                                                       │   │
+│  │ ┌────────────────────────────────────────────────────────────────┐   │   │
+│  │ │ Rule Group: REQUEST-920-PROTOCOL-ENFORCEMENT    [Enabled]      │   │   │
+│  │ │ Rule Group: REQUEST-921-PROTOCOL-ATTACK         [Enabled]      │   │   │
+│  │ │ Rule Group: REQUEST-930-APPLICATION-ATTACK-LFI  [Enabled]      │   │   │
+│  │ │ Rule Group: REQUEST-931-APPLICATION-ATTACK-RFI  [Enabled]      │   │   │
+│  │ │ Rule Group: REQUEST-932-APPLICATION-ATTACK-RCE  [Enabled]      │   │   │
+│  │ │ Rule Group: REQUEST-933-APPLICATION-ATTACK-PHP  [Disabled]     │   │   │
+│  │ │ Rule Group: REQUEST-941-APPLICATION-ATTACK-XSS  [Enabled]      │   │   │
+│  │ │ Rule Group: REQUEST-942-APPLICATION-ATTACK-SQLI [Enabled]      │   │   │
+│  │ └────────────────────────────────────────────────────────────────┘   │   │
+│  │                                                                       │   │
+│  │ EXCLUSIONS                                                           │   │
+│  │ ┌────────────────────────────────────────────────────────────────┐   │   │
+│  │ │ Match Variable: RequestCookieNames                             │   │   │
+│  │ │ Selector: session_id                                           │   │   │
+│  │ │ Applies to: Rule 942100                                        │   │   │
+│  │ └────────────────────────────────────────────────────────────────┘   │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │ CUSTOM RULES (Evaluated First)                                       │   │
+│  │                                                                       │   │
+│  │ Priority 1: AllowTrustedIPs       [Match: IP in 10.0.0.0/8] → ALLOW │   │
+│  │ Priority 2: BlockBadCountries     [Match: GeoMatch CN,RU] → BLOCK   │   │
+│  │ Priority 3: RateLimit             [Match: >1000 req/min] → BLOCK    │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Core Rule Set (CRS) Groups</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rule Group</th>
+                                <th>Protection</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>920</strong></td>
+                                <td>Protocol enforcement</td>
+                            </tr>
+                            <tr>
+                                <td><strong>921</strong></td>
+                                <td>Protocol attack</td>
+                            </tr>
+                            <tr>
+                                <td><strong>930</strong></td>
+                                <td>Local File Inclusion (LFI)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>931</strong></td>
+                                <td>Remote File Inclusion (RFI)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>932</strong></td>
+                                <td>Remote Command Execution</td>
+                            </tr>
+                            <tr>
+                                <td><strong>941</strong></td>
+                                <td>Cross-Site Scripting (XSS)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>942</strong></td>
+                                <td>SQL Injection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>943</strong></td>
+                                <td>Session Fixation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>944</strong></td>
+                                <td>Java attacks</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Azure CLI Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Azure WAF CLI Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># List WAF policies</span>
+<span class="token-command">az</span> network application-gateway waf-policy list --resource-group myRG
+
+<span class="token-comment"># Get WAF policy details</span>
+<span class="token-command">az</span> network application-gateway waf-policy show --name myWAFPolicy --resource-group myRG
+
+<span class="token-comment"># Create WAF policy</span>
+<span class="token-command">az</span> network application-gateway waf-policy create \
+    --name myWAFPolicy \
+    --resource-group myRG \
+    --location eastus
+
+<span class="token-comment"># Enable managed rules (CRS 3.2)</span>
+<span class="token-command">az</span> network application-gateway waf-policy managed-rule rule-set add \
+    --policy-name myWAFPolicy \
+    --resource-group myRG \
+    --type OWASP \
+    --version 3.2
+
+<span class="token-comment"># Add custom rule (block country)</span>
+<span class="token-command">az</span> network application-gateway waf-policy custom-rule create \
+    --policy-name myWAFPolicy \
+    --resource-group myRG \
+    --name BlockCountries \
+    --priority 1 \
+    --rule-type MatchRule \
+    --action Block \
+    --match-conditions '[{"matchVariables":[{"variableName":"RemoteAddr"}],"operator":"GeoMatch","matchValues":["CN","RU"]}]'
+
+<span class="token-comment"># Set mode to Prevention</span>
+<span class="token-command">az</span> network application-gateway waf-policy policy-setting update \
+    --policy-name myWAFPolicy \
+    --resource-group myRG \
+    --mode Prevention \
+    --state Enabled</code></pre>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Common False Positives</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>942100:</strong> SQL injection in cookies/headers (common with CMS)</li>
+                            <li><strong>941100:</strong> XSS in legitimate HTML content</li>
+                            <li><strong>920230:</strong> URL encoding issues</li>
+                            <li><strong>Fix:</strong> Add exclusions for specific fields/rules, not disable entire rule groups</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - Azure WAF</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Start in Detection mode:</strong> Monitor before blocking</li>
+                            <li><strong>Use CRS 3.2:</strong> Latest managed rule set</li>
+                            <li><strong>Create exclusions:</strong> Don't disable entire rule groups</li>
+                            <li><strong>Enable logging:</strong> Send to Log Analytics workspace</li>
+                            <li><strong>Custom rules first:</strong> Allow trusted IPs before managed rules</li>
+                            <li><strong>Monitor metrics:</strong> Track blocked requests, rule triggers</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How do you handle false positives in Azure WAF?"</p>
+                        <p><strong>Answer:</strong> "I'd start by reviewing WAF logs in Log Analytics to identify the specific rule being triggered. Instead of disabling the entire rule group, I'd create a targeted exclusion - for example, exclude a specific cookie or header from rule 942100 if it's causing false positives on session IDs. I'd specify the exact match variable (RequestCookieNames) and selector (session_id) so the exclusion is as narrow as possible while still allowing protection for other traffic."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="4-3-aws-waf.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">AWS WAF</span>
+                        </div>
+                    </a>
+                    <a href="5-1-ids-ips-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">IDS/IPS Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

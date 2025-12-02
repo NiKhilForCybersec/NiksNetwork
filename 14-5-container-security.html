@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Container Security - Complete guide to Docker and Kubernetes security">
+    <title>Container Security | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">☁️</span>Cloud Security</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="14-1-cloud-security.html" class="nav-link"><span class="nav-link-number">14.1</span> Fundamentals</a>
+                        <a href="14-5-container-security.html" class="nav-link active"><span class="nav-link-number">14.5</span> Containers</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Cloud Security</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Container Security</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Container Security</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Containers introduce new security challenges and attack surfaces. Understanding container and Kubernetes security is essential as organizations adopt cloud-native architectures.</p>
+                        <ul>
+                            <li>Container threat model</li>
+                            <li>Docker security best practices</li>
+                            <li>Kubernetes security</li>
+                            <li>Image scanning and supply chain</li>
+                            <li>Runtime protection</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Container Attack Surface</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Container Security Layers</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    CONTAINER SECURITY LAYERS                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ APPLICATION CODE                                                     │    │
+│  │ • Vulnerabilities in code       • Secrets in code                   │    │
+│  │ • Dependency vulnerabilities    • Insecure configurations           │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ CONTAINER IMAGE                                                      │    │
+│  │ • Base image vulnerabilities    • Embedded secrets                  │    │
+│  │ • Outdated packages             • Malicious images                  │    │
+│  │ • Unnecessary packages          • Image tampering                   │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ CONTAINER RUNTIME (Docker, containerd)                              │    │
+│  │ • Container escape              • Privileged containers             │    │
+│  │ • Shared kernel                 • Resource exhaustion               │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ ORCHESTRATOR (Kubernetes)                                           │    │
+│  │ • API server exposure           • RBAC misconfiguration             │    │
+│  │ • Secrets management            • Network policies                  │    │
+│  │ • Pod security                  • Etcd exposure                     │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ HOST OS / INFRASTRUCTURE                                            │    │
+│  │ • Host vulnerabilities          • Shared resources                  │    │
+│  │ • Docker socket exposure        • Network segmentation              │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Docker Security Best Practices</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Dockerfile Security</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SECURE DOCKERFILE EXAMPLE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Use specific version, not :latest</span>
+FROM python:3.11-slim-bookworm
+
+<span class="token-comment"># Create non-root user</span>
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
+
+<span class="token-comment"># Set working directory</span>
+WORKDIR /app
+
+<span class="token-comment"># Copy only what's needed (use .dockerignore)</span>
+COPY --chown=appuser:appgroup requirements.txt .
+COPY --chown=appuser:appgroup app/ ./app/
+
+<span class="token-comment"># Install dependencies</span>
+RUN pip install --no-cache-dir -r requirements.txt
+
+<span class="token-comment"># Switch to non-root user</span>
+USER appuser
+
+<span class="token-comment"># Use EXPOSE for documentation (doesn't publish)</span>
+EXPOSE 8080
+
+<span class="token-comment"># Don't run as root</span>
+CMD ["python", "app/main.py"]
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DOCKER RUN SECURITY FLAGS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Run with limited capabilities</span>
+<span class="token-command">docker</span> run --cap-drop=ALL --cap-add=NET_BIND_SERVICE myapp
+
+<span class="token-comment"># Read-only filesystem</span>
+<span class="token-command">docker</span> run --read-only myapp
+
+<span class="token-comment"># No new privileges</span>
+<span class="token-command">docker</span> run --security-opt=no-new-privileges myapp
+
+<span class="token-comment"># Resource limits</span>
+<span class="token-command">docker</span> run --memory=512m --cpus=1 myapp
+
+<span class="token-comment"># Don't run privileged!</span>
+<span class="token-comment"># docker run --privileged myapp  ← NEVER DO THIS</span></code></pre>
+                </div>
+                
+                <h2>Kubernetes Security</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Risk</th>
+                                <th>Mitigation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>API Server</strong></td>
+                                <td>Unauthorized access</td>
+                                <td>RBAC, network policies, audit logging</td>
+                            </tr>
+                            <tr>
+                                <td><strong>etcd</strong></td>
+                                <td>Data exposure (secrets)</td>
+                                <td>Encryption at rest, TLS, restricted access</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kubelet</strong></td>
+                                <td>Node compromise</td>
+                                <td>Disable anonymous auth, use TLS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Pods</strong></td>
+                                <td>Privilege escalation</td>
+                                <td>Pod Security Standards, securityContext</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Secrets</strong></td>
+                                <td>Credential exposure</td>
+                                <td>External secrets manager, encryption</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network</strong></td>
+                                <td>Lateral movement</td>
+                                <td>Network policies (default deny)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Pod Security</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Secure Pod Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># Secure Pod specification</span>
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-app
+spec:
+  securityContext:
+    runAsNonRoot: true           <span class="token-comment"># Don't run as root</span>
+    runAsUser: 1000              <span class="token-comment"># Specific UID</span>
+    fsGroup: 2000                <span class="token-comment"># File system group</span>
+    seccompProfile:
+      type: RuntimeDefault       <span class="token-comment"># Use seccomp</span>
+  
+  containers:
+  - name: app
+    image: myapp:v1.2.3          <span class="token-comment"># Specific version</span>
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL                  <span class="token-comment"># Drop all capabilities</span>
+    resources:
+      limits:
+        memory: "256Mi"
+        cpu: "500m"
+      requests:
+        memory: "128Mi"
+        cpu: "250m"
+    
+  automountServiceAccountToken: false  <span class="token-comment"># Don't mount SA token</span></code></pre>
+                </div>
+                
+                <h2>Container Security Tools</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tool</th>
+                                <th>Type</th>
+                                <th>Function</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Trivy</strong></td>
+                                <td>Open Source</td>
+                                <td>Image vulnerability scanning</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Falco</strong></td>
+                                <td>Open Source</td>
+                                <td>Runtime threat detection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>OPA/Gatekeeper</strong></td>
+                                <td>Open Source</td>
+                                <td>Policy enforcement</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Aqua Security</strong></td>
+                                <td>Commercial</td>
+                                <td>Full lifecycle container security</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Prisma Cloud</strong></td>
+                                <td>Commercial</td>
+                                <td>CWPP + container security</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sysdig Secure</strong></td>
+                                <td>Commercial</td>
+                                <td>Runtime + image scanning</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Container Security Checklist</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Scan images:</strong> In CI/CD pipeline before deployment</li>
+                            <li><strong>Use minimal base images:</strong> Distroless or Alpine</li>
+                            <li><strong>Don't run as root:</strong> Use non-root users</li>
+                            <li><strong>Sign images:</strong> Ensure image integrity</li>
+                            <li><strong>Network policies:</strong> Default deny, allow specific</li>
+                            <li><strong>Secrets management:</strong> Use external vault, not env vars</li>
+                            <li><strong>Runtime monitoring:</strong> Detect anomalous behavior</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How do you secure a Kubernetes cluster?"</p>
+                        <p><strong>Answer:</strong> "I'd approach it in layers: For the control plane, enable RBAC with least privilege, encrypt etcd at rest, enable audit logging, and restrict API server access. For nodes, disable anonymous kubelet access and use Pod Security Standards. For workloads, enforce non-root containers, read-only filesystems, drop all capabilities, and use network policies with default-deny. For images, scan in CI/CD with Trivy, use minimal base images, and sign images. For secrets, use an external secrets manager like Vault instead of Kubernetes secrets. For runtime, deploy Falco for threat detection. Finally, ensure namespace isolation and resource quotas."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="14-4-gcp-security.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">GCP Security</span>
+                        </div>
+                    </a>
+                    <a href="15-2-interview-questions.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Interview Questions</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="IDS/IPS Tuning - Complete guide to reducing false positives and optimizing detection">
+    <title>IDS/IPS Tuning | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔍</span>IDS/IPS</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="5-1-ids-ips-fundamentals.html" class="nav-link"><span class="nav-link-number">5.1</span> Fundamentals</a>
+                        <a href="5-2-snort-suricata.html" class="nav-link"><span class="nav-link-number">5.2</span> Snort & Suricata</a>
+                        <a href="5-3-zeek.html" class="nav-link"><span class="nav-link-number">5.3</span> Zeek</a>
+                        <a href="5-4-ids-tuning.html" class="nav-link active"><span class="nav-link-number">5.4</span> Tuning</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">IDS/IPS</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Tuning</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>IDS/IPS Tuning</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>IDS/IPS tuning is the process of reducing false positives while maintaining detection of real threats. Proper tuning is essential - too many false positives lead to alert fatigue, while over-tuning can miss real attacks.</p>
+                        <ul>
+                            <li>False positive vs false negative</li>
+                            <li>Tuning methodology</li>
+                            <li>Rule management</li>
+                            <li>Threshold and suppression</li>
+                            <li>Baseline establishment</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Detection Accuracy</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Detection Matrix</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    DETECTION ACCURACY MATRIX                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│                        ACTUAL CONDITION                                      │
+│                    ┌────────────────┬────────────────┐                      │
+│                    │   ATTACK       │   NORMAL       │                      │
+│  ┌─────────────┬───┼────────────────┼────────────────┤                      │
+│  │             │   │                │                │                      │
+│  │  ALERT      │ ✓ │ TRUE POSITIVE  │ FALSE POSITIVE │                      │
+│  │  (Detected) │   │ (Good!)        │ (Noise)        │                      │
+│  │             │   │                │                │                      │
+│  │ DETECTION   ├───┼────────────────┼────────────────┤                      │
+│  │             │   │                │                │                      │
+│  │  NO ALERT   │ ✗ │ FALSE NEGATIVE │ TRUE NEGATIVE  │                      │
+│  │  (Missed)   │   │ (Dangerous!)   │ (Good!)        │                      │
+│  │             │   │                │                │                      │
+│  └─────────────┴───┴────────────────┴────────────────┘                      │
+│                                                                              │
+│  GOAL: Maximize TRUE POSITIVE + TRUE NEGATIVE                               │
+│        Minimize FALSE POSITIVE (alert fatigue)                              │
+│        Minimize FALSE NEGATIVE (missed attacks)                             │
+│                                                                              │
+│  TUNING BALANCE:                                                            │
+│  Too Sensitive  ────────────────────────────────── Too Loose               │
+│  Many FPs                                           Many FNs               │
+│  Alert fatigue                                      Missed attacks         │
+│                         ▲                                                   │
+│                     IDEAL SPOT                                              │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Tuning Methodology</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Step</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. Baseline</strong></td>
+                                <td>Understand normal traffic</td>
+                                <td>What apps, protocols, behaviors are normal?</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. Enable Gradually</strong></td>
+                                <td>Start with high-fidelity rules</td>
+                                <td>Enable rule categories one at a time</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. Analyze Alerts</strong></td>
+                                <td>Review top triggered rules</td>
+                                <td>Which rules generate most alerts?</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. Validate</strong></td>
+                                <td>Verify if alert is FP or TP</td>
+                                <td>Check payload, context, expected behavior</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. Tune</strong></td>
+                                <td>Suppress, threshold, or disable</td>
+                                <td>Choose appropriate tuning method</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. Document</strong></td>
+                                <td>Record why rule was tuned</td>
+                                <td>Maintain tuning decisions for audit</td>
+                            </tr>
+                            <tr>
+                                <td><strong>7. Review</strong></td>
+                                <td>Periodic re-evaluation</td>
+                                <td>Environment changes, new threats</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Tuning Techniques</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Snort/Suricata Tuning Examples</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># 1. SUPPRESS BY IP (Ignore alerts from specific sources)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Suppress rule 1:2100366 from vulnerability scanner</span>
+suppress gen_id 1, sig_id 2100366, track by_src, ip 10.0.5.50
+
+<span class="token-comment"># Suppress rule for entire subnet</span>
+suppress gen_id 1, sig_id 2100366, track by_src, ip 10.0.5.0/24
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># 2. THRESHOLD (Limit alert frequency)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Alert only once per 60 seconds per source IP</span>
+threshold gen_id 1, sig_id 2100366, type limit, track by_src, count 1, seconds 60
+
+<span class="token-comment"># Alert only if seen 10 times in 60 seconds (reduce noise)</span>
+threshold gen_id 1, sig_id 2100366, type threshold, track by_src, count 10, seconds 60
+
+<span class="token-comment"># Alert once, then again only after 10 occurrences</span>
+threshold gen_id 1, sig_id 2100366, type both, track by_src, count 10, seconds 60
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># 3. DISABLE RULE (Last resort)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># In /etc/suricata/disable.conf</span>
+2100366     <span class="token-comment"># Disable by SID</span>
+re:HTTP     <span class="token-comment"># Disable by regex (all HTTP rules - be careful!)</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># 4. MODIFY RULE (Custom tuning)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># In /etc/suricata/modify.conf</span>
+<span class="token-comment"># Change action from alert to drop</span>
+2100366 alert -> drop
+
+<span class="token-comment"># Lower priority</span>
+2100366 priority:2 -> priority:4</code></pre>
+                </div>
+                
+                <h2>Common False Positive Sources</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Source</th>
+                                <th>Why It Triggers</th>
+                                <th>Solution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Vulnerability Scanners</strong></td>
+                                <td>Intentionally probe for vulnerabilities</td>
+                                <td>Suppress scanner IPs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Penetration Testing</strong></td>
+                                <td>Authorized testing generates alerts</td>
+                                <td>Suppress during test windows</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Development Servers</strong></td>
+                                <td>Test payloads look malicious</td>
+                                <td>Suppress dev network ranges</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Backup Software</strong></td>
+                                <td>Large transfers, unusual patterns</td>
+                                <td>Suppress backup server IPs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Web Applications</strong></td>
+                                <td>User input contains attack strings</td>
+                                <td>Tune content-based rules</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Encrypted Traffic</strong></td>
+                                <td>Patterns in encrypted data</td>
+                                <td>Consider SSL inspection or tune</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Tuning Pitfalls</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Over-suppression:</strong> Don't suppress entire rule categories</li>
+                            <li><strong>No documentation:</strong> Always record why you tuned</li>
+                            <li><strong>Set and forget:</strong> Review tuning regularly</li>
+                            <li><strong>Disabling vs suppressing:</strong> Prefer suppress over disable</li>
+                            <li><strong>Ignoring context:</strong> Same alert may be FP in one place, TP in another</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Tuning Workflow</div>
+                    <div class="callout-content">
+                        <ol>
+                            <li>Query SIEM for top 10 triggered rules</li>
+                            <li>For each rule, sample 5-10 alerts</li>
+                            <li>Analyze: Is this expected behavior?</li>
+                            <li>If FP: Suppress by source/dest, or threshold</li>
+                            <li>If TP: Escalate, investigate</li>
+                            <li>Document decision in tuning log</li>
+                            <li>Review monthly for changes</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How do you approach tuning an IDS that's generating thousands of alerts daily?"</p>
+                        <p><strong>Answer:</strong> "I'd start by identifying the top 10 rules generating the most alerts. For each, I'd sample several alerts to understand if they're true or false positives. For FPs, I'd determine the root cause - is it a scanner, dev traffic, or a noisy rule? Then I'd apply the least aggressive tuning: first try thresholding (alert once per minute instead of every packet), then suppression by specific IP if it's a known source, and only disable as a last resort. I'd document every tuning decision with the rationale. The goal is reducing noise while preserving detection capability. I'd also establish a baseline of normal network behavior to better identify anomalies."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="5-3-zeek.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Zeek</span>
+                        </div>
+                    </a>
+                    <a href="6-1-vpn-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">VPN Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

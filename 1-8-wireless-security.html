@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Wireless Security - Complete guide to Wi-Fi security, WPA3, and enterprise wireless">
+    <title>Wireless Security | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌐</span>Networking</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="1-1-osi-model.html" class="nav-link"><span class="nav-link-number">1.1</span> OSI Model</a>
+                        <a href="1-8-wireless-security.html" class="nav-link active"><span class="nav-link-number">1.8</span> Wireless Security</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Networking</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Wireless Security</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Wireless Security</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Wireless networks extend the attack surface beyond physical premises. Understanding Wi-Fi security protocols and enterprise wireless architecture is essential for protecting the network perimeter.</p>
+                        <ul>
+                            <li>Wi-Fi security protocols (WPA2, WPA3)</li>
+                            <li>Enterprise wireless (802.1X)</li>
+                            <li>Wireless attacks</li>
+                            <li>Rogue AP detection</li>
+                            <li>Wireless best practices</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Wi-Fi Security Protocols</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Protocol</th>
+                                <th>Encryption</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>WEP</strong></td>
+                                <td>RC4 (broken)</td>
+                                <td>❌ Deprecated - Never use</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WPA</strong></td>
+                                <td>TKIP</td>
+                                <td>❌ Deprecated</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WPA2-Personal</strong></td>
+                                <td>AES-CCMP (PSK)</td>
+                                <td>⚠️ Acceptable for home</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WPA2-Enterprise</strong></td>
+                                <td>AES-CCMP (802.1X)</td>
+                                <td>✅ Required for business</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WPA3-Personal</strong></td>
+                                <td>SAE (Dragonfly)</td>
+                                <td>✅ Recommended</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WPA3-Enterprise</strong></td>
+                                <td>192-bit security</td>
+                                <td>✅ Best for enterprise</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Enterprise Wireless (802.1X)</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">802.1X Authentication Flow</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    802.1X AUTHENTICATION                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  SUPPLICANT          AUTHENTICATOR           AUTHENTICATION                 │
+│  (Client/Laptop)     (Access Point)          SERVER (RADIUS)                │
+│                                                                              │
+│       │                    │                       │                        │
+│       │  1. Associate      │                       │                        │
+│       │───────────────────►│                       │                        │
+│       │                    │                       │                        │
+│       │  2. EAP-Request/   │                       │                        │
+│       │     Identity       │                       │                        │
+│       │◄───────────────────│                       │                        │
+│       │                    │                       │                        │
+│       │  3. EAP-Response/  │                       │                        │
+│       │     Identity       │                       │                        │
+│       │───────────────────►│  4. RADIUS Access    │                        │
+│       │                    │     Request          │                        │
+│       │                    │──────────────────────►│                        │
+│       │                    │                       │                        │
+│       │                    │  5. RADIUS Challenge │                        │
+│       │  6. EAP Challenge  │◄──────────────────────│                        │
+│       │◄───────────────────│                       │                        │
+│       │                    │                       │                        │
+│       │  7. EAP Response   │  8. Credentials      │                        │
+│       │───────────────────►│──────────────────────►│  Verify against       │
+│       │                    │                       │  AD/LDAP/Database     │
+│       │                    │  9. Access-Accept    │                        │
+│       │  10. EAP-Success   │◄──────────────────────│                        │
+│       │◄───────────────────│                       │                        │
+│       │                    │                       │                        │
+│       │  11. 4-way handshake (key exchange)       │                        │
+│       │◄──────────────────►│                       │                        │
+│       │                    │                       │                        │
+│       │  ✅ Connected with encryption              │                        │
+│       │                    │                       │                        │
+│                                                                              │
+│  COMMON EAP METHODS:                                                        │
+│  • EAP-TLS: Certificate-based (most secure)                                │
+│  • PEAP: Password with server certificate                                  │
+│  • EAP-TTLS: Similar to PEAP, more flexible                               │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Wireless Attacks</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Attack</th>
+                                <th>Description</th>
+                                <th>Prevention</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Evil Twin</strong></td>
+                                <td>Fake AP with same SSID</td>
+                                <td>802.1X, certificate validation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Deauthentication</strong></td>
+                                <td>Force client disconnect</td>
+                                <td>802.11w (PMF), WPA3</td>
+                            </tr>
+                            <tr>
+                                <td><strong>KRACK</strong></td>
+                                <td>Key reinstallation attack</td>
+                                <td>Patched APs/clients, WPA3</td>
+                            </tr>
+                            <tr>
+                                <td><strong>PSK Cracking</strong></td>
+                                <td>Capture handshake, brute force</td>
+                                <td>Strong passwords, WPA3-SAE</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rogue AP</strong></td>
+                                <td>Unauthorized access point</td>
+                                <td>WIDS/WIPS, NAC</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Karma/MANA</strong></td>
+                                <td>Respond to probe requests</td>
+                                <td>Don't auto-connect, forget networks</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Enterprise Wireless Design</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Enterprise SSID Design</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># RECOMMENDED ENTERPRISE SSID STRUCTURE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># 1. CORPORATE (Managed devices)</span>
+SSID: Corp-Secure
+Security: WPA2/WPA3-Enterprise
+Auth: 802.1X (EAP-TLS with certificates)
+VLAN: 10 (Corporate)
+Access: Full internal + internet
+
+<span class="token-comment"># 2. BYOD (Personal devices)</span>
+SSID: Corp-BYOD  
+Security: WPA2/WPA3-Enterprise
+Auth: 802.1X (PEAP with AD credentials)
+VLAN: 20 (BYOD - restricted)
+Access: Internet + limited internal
+
+<span class="token-comment"># 3. GUEST (Visitors)</span>
+SSID: Guest
+Security: WPA2-Personal or Captive Portal
+Auth: Sponsored access or self-registration
+VLAN: 30 (Guest - isolated)
+Access: Internet only, client isolation
+
+<span class="token-comment"># 4. IOT (Devices)</span>
+SSID: IoT-Devices (hidden)
+Security: WPA2-Enterprise or PSK
+VLAN: 40 (IoT - heavily restricted)
+Access: Specific destinations only
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SEGMENTATION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Each SSID → Different VLAN → Firewall rules between VLANs</span>
+<span class="token-comment"># Guest/BYOD should NOT reach internal servers directly</span></code></pre>
+                </div>
+                
+                <h2>Wireless Security Checklist</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Requirement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Encryption</strong></td>
+                                <td>WPA2-Enterprise minimum, WPA3 preferred</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Authentication</strong></td>
+                                <td>802.1X with RADIUS, EAP-TLS for high security</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Segmentation</strong></td>
+                                <td>Separate VLANs for Corp/BYOD/Guest/IoT</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rogue Detection</strong></td>
+                                <td>WIDS/WIPS enabled on controller</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Management</strong></td>
+                                <td>Secure AP management (HTTPS, SSH)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Logging</strong></td>
+                                <td>Send wireless logs to SIEM</td>
+                            </tr>
+                            <tr>
+                                <td><strong>PMF</strong></td>
+                                <td>Enable Protected Management Frames (802.11w)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Common Wireless Mistakes</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>WPA2-Personal in enterprise:</strong> Use 802.1X, not PSK</li>
+                            <li><strong>Weak PSK:</strong> If using PSK, 20+ random characters</li>
+                            <li><strong>No segmentation:</strong> Guest on same VLAN as corporate</li>
+                            <li><strong>Hidden SSID:</strong> Not security, just inconvenience</li>
+                            <li><strong>MAC filtering:</strong> Easily bypassed, not security</li>
+                            <li><strong>No certificate validation:</strong> Evil twin vulnerability</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you secure an enterprise wireless network?"</p>
+                        <p><strong>Answer:</strong> "I'd implement WPA2 or WPA3-Enterprise with 802.1X authentication using a RADIUS server integrated with Active Directory. For managed devices, I'd use EAP-TLS with certificates for strongest security. I'd create separate SSIDs for corporate, BYOD, guest, and IoT - each on different VLANs with firewall rules controlling inter-VLAN traffic. Guest should only reach the internet with client isolation enabled. I'd enable WIDS/WIPS for rogue AP detection and Protected Management Frames to prevent deauth attacks. All wireless logs would go to our SIEM for monitoring. For clients, I'd configure certificate validation to prevent evil twin attacks."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="1-7-dns-security.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">DNS Security</span>
+                        </div>
+                    </a>
+                    <a href="2-1-firewall-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Firewall Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DNS Security - Complete guide to DNS attacks, DNSSEC, DNS filtering, and protective DNS">
+    <title>DNS Security | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌐</span>Networking</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="1-4-dns.html" class="nav-link"><span class="nav-link-number">1.4</span> DNS Basics</a>
+                        <a href="1-7-dns-security.html" class="nav-link active"><span class="nav-link-number">1.7</span> DNS Security</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Networking</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">DNS Security</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>DNS Security</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>DNS is critical infrastructure but was designed without security in mind. Understanding DNS threats and protections is essential for both defense and detection.</p>
+                        <ul>
+                            <li>Common DNS attacks</li>
+                            <li>DNSSEC validation</li>
+                            <li>DNS over HTTPS/TLS (DoH/DoT)</li>
+                            <li>Protective DNS services</li>
+                            <li>DNS tunneling detection</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>DNS Attack Types</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Attack</th>
+                                <th>Description</th>
+                                <th>Detection/Prevention</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>DNS Spoofing/Cache Poisoning</strong></td>
+                                <td>Inject false DNS records into cache</td>
+                                <td>DNSSEC, randomized source ports</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DNS Tunneling</strong></td>
+                                <td>Exfiltrate data or C2 via DNS queries</td>
+                                <td>Monitor query length/volume, block TXT</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DNS Hijacking</strong></td>
+                                <td>Modify DNS settings on device/router</td>
+                                <td>Monitor DNS server changes, DNSSEC</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DNS Amplification DDoS</strong></td>
+                                <td>Spoof source, trigger large responses</td>
+                                <td>Rate limiting, RRL, disable recursion</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Typosquatting</strong></td>
+                                <td>Register similar domains (gooogle.com)</td>
+                                <td>Domain monitoring, user training</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DNS Rebinding</strong></td>
+                                <td>Bypass same-origin policy</td>
+                                <td>DNS pinning, internal DNS filtering</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>DNS Tunneling Detection</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">DNS Tunneling Indicators</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    DNS TUNNELING INDICATORS                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  NORMAL DNS QUERY:                                                          │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │ www.example.com                                                     │    │
+│  │ Length: 15 characters                                               │    │
+│  │ Record: A                                                           │    │
+│  │ Frequency: Normal                                                   │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  DNS TUNNELING QUERY:                                                       │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │ dGhpcyBpcyBleGZpbHRyYXRlZCBkYXRh.tunnel.evil.com                   │    │
+│  │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                               │    │
+│  │ Base64 encoded data being exfiltrated                              │    │
+│  │                                                                     │    │
+│  │ Length: 52 characters  ⚠️  ABNORMALLY LONG                         │    │
+│  │ Record: TXT            ⚠️  UNUSUAL RECORD TYPE                     │    │
+│  │ Frequency: High        ⚠️  MANY QUERIES TO SAME DOMAIN             │    │
+│  │ Entropy: High          ⚠️  RANDOM-LOOKING SUBDOMAIN                │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  DETECTION THRESHOLDS:                                                      │
+│  • Query length > 50 characters                                            │
+│  • Subdomain length > 30 characters                                        │
+│  • High volume to single domain (>100/hour from one host)                  │
+│  • TXT or NULL record queries                                              │
+│  • High entropy subdomains                                                 │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Protective DNS Services</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Type</th>
+                                <th>Features</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Cisco Umbrella</strong></td>
+                                <td>Enterprise</td>
+                                <td>DNS filtering, proxy, CASB</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cloudflare Gateway</strong></td>
+                                <td>Enterprise</td>
+                                <td>DNS filtering, Zero Trust</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Infoblox BloxOne</strong></td>
+                                <td>Enterprise</td>
+                                <td>DDI + threat defense</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CISA Protective DNS</strong></td>
+                                <td>Government</td>
+                                <td>Free for federal agencies</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Quad9 (9.9.9.9)</strong></td>
+                                <td>Free</td>
+                                <td>Threat blocking, privacy-focused</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cloudflare (1.1.1.1)</strong></td>
+                                <td>Free</td>
+                                <td>Fast, privacy-focused, malware blocking option</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>DNS Security Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">DNS Security Analysis</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CHECK DNSSEC</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Check if domain has DNSSEC</span>
+<span class="token-command">dig</span> +dnssec example.com
+
+<span class="token-comment"># Look for RRSIG records (signatures)</span>
+<span class="token-command">dig</span> +short DNSKEY example.com
+
+<span class="token-comment"># Validate DNSSEC chain</span>
+<span class="token-command">delv</span> @8.8.8.8 example.com
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DNS TUNNELING DETECTION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Find long DNS queries in logs</span>
+<span class="token-command">grep</span> -E "query:.{50,}" /var/log/named/query.log
+
+<span class="token-comment"># Count queries per domain</span>
+<span class="token-command">cat</span> dns.log | awk '{print $NF}' | sort | uniq -c | sort -rn | head
+
+<span class="token-comment"># Find TXT record queries (common for tunneling)</span>
+<span class="token-command">grep</span> "type=TXT" /var/log/named/query.log
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># RESPONSE POLICY ZONE (RPZ) - SINKHOLE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># In named.conf</span>
+zone "rpz.local" {
+    type master;
+    file "/etc/bind/db.rpz";
+    allow-query { any; };
+};
+
+<span class="token-comment"># In db.rpz - sinkhole malicious domain</span>
+evil-domain.com     CNAME   .            <span class="token-comment"># Block (NXDOMAIN)</span>
+*.evil-domain.com   CNAME   .            <span class="token-comment"># Block subdomains</span>
+malware.bad.com     A       10.0.0.1     <span class="token-comment"># Redirect to sinkhole</span></code></pre>
+                </div>
+                
+                <h2>DoH/DoT (Encrypted DNS)</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Protocol</th>
+                                <th>Port</th>
+                                <th>Pros</th>
+                                <th>Cons</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>DNS (Traditional)</strong></td>
+                                <td>53/UDP</td>
+                                <td>Fast, simple</td>
+                                <td>No encryption, easy to monitor/block</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DoT (DNS over TLS)</strong></td>
+                                <td>853/TCP</td>
+                                <td>Encrypted, dedicated port</td>
+                                <td>Easy to block (known port)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DoH (DNS over HTTPS)</strong></td>
+                                <td>443/TCP</td>
+                                <td>Encrypted, hard to block</td>
+                                <td>Bypasses enterprise DNS controls</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ DoH Security Concerns</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Bypasses enterprise DNS:</strong> Users/malware can bypass filtering</li>
+                            <li><strong>Reduced visibility:</strong> Can't monitor DNS queries</li>
+                            <li><strong>Block known DoH providers:</strong> At firewall level</li>
+                            <li><strong>Use canary domain:</strong> Detect DoH bypass attempts</li>
+                            <li><strong>GPO control:</strong> Disable DoH in browsers via policy</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you detect DNS tunneling?"</p>
+                        <p><strong>Answer:</strong> "I'd look for several indicators: First, unusually long DNS queries - normal queries are short, but tunneling encodes data in subdomains creating 50+ character queries. Second, high volume of queries to a single domain from one host - legitimate browsing queries many domains, but tunneling repeatedly hits one. Third, unusual record types like TXT or NULL which can carry more data. Fourth, high entropy in subdomains - random-looking strings instead of readable names. For detection, I'd use tools like Zeek to log DNS metadata, then query in the SIEM for these patterns. Protective DNS services like Cisco Umbrella can also detect and block known tunneling domains."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="1-4-dns.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">DNS Basics</span>
+                        </div>
+                    </a>
+                    <a href="2-1-firewall-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Firewall Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

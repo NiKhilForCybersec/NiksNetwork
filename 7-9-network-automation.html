@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Network Automation Security - Complete guide to securing Ansible, Terraform, and network automation tools">
+    <title>Network Automation Security | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🏗️</span>Architecture</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="7-8-datacenter-security.html" class="nav-link"><span class="nav-link-number">7.8</span> Data Center Security</a>
+                        <a href="7-9-network-automation.html" class="nav-link active"><span class="nav-link-number">7.9</span> Network Automation</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Architecture</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Network Automation</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Network Automation Security</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Network automation tools like Ansible and Terraform can manage entire infrastructures - making their security critical. A compromised automation system can reconfigure every device in minutes.</p>
+                        <ul>
+                            <li>Automation security risks</li>
+                            <li>Securing Ansible for network devices</li>
+                            <li>Terraform security best practices</li>
+                            <li>Secrets management</li>
+                            <li>GitOps security</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Network Automation Risks</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Automation Attack Surface</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    NETWORK AUTOMATION RISKS                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌───────────────────────────────────────────────────────────────────────┐ │
+│  │ AUTOMATION SERVER (Ansible Tower, Jenkins, GitLab CI)                  │ │
+│  │                                                                        │ │
+│  │  RISKS:                                                               │ │
+│  │  • Stores credentials for ALL network devices                        │ │
+│  │  • Has privileged access to entire infrastructure                    │ │
+│  │  • Single point of compromise = total network access                 │ │
+│  │  • Often runs with admin/root privileges                             │ │
+│  └───────────────────────────┬───────────────────────────────────────────┘ │
+│                              │                                              │
+│         ┌────────────────────┼────────────────────┐                        │
+│         ▼                    ▼                    ▼                        │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐                  │
+│  │ Firewalls   │     │ Switches    │     │ Routers     │                  │
+│  │             │     │             │     │             │                  │
+│  │ If automation│    │ Can change  │     │ Can modify  │                  │
+│  │ compromised: │    │ VLANs, ACLs │     │ routing,    │                  │
+│  │ rules removed│    │ ports       │     │ BGP         │                  │
+│  └─────────────┘     └─────────────┘     └─────────────┘                  │
+│                                                                              │
+│  ATTACK SCENARIOS:                                                         │
+│  • Compromised automation server → Push malicious configs                 │
+│  • Leaked credentials → Direct device access                              │
+│  • Supply chain → Malicious module/role/provider                         │
+│  • Insider threat → Unauthorized changes via automation                   │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Ansible Network Security</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Ansible - Secure Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ANSIBLE VAULT - ENCRYPT SECRETS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Create encrypted vars file</span>
+<span class="token-command">ansible-vault</span> create group_vars/network_devices/vault.yml
+
+<span class="token-comment"># vault.yml contents (encrypted)</span>
+---
+vault_network_username: admin
+vault_network_password: "SuperSecretP@ss!"
+vault_enable_secret: "EnableS3cret!"
+
+<span class="token-comment"># Reference in playbook (use vault_ prefix convention)</span>
+---
+- hosts: network_devices
+  vars:
+    ansible_user: "{{ vault_network_username }}"
+    ansible_password: "{{ vault_network_password }}"
+    ansible_become_password: "{{ vault_enable_secret }}"
+
+<span class="token-comment"># Run with vault password</span>
+<span class="token-command">ansible-playbook</span> playbook.yml --ask-vault-pass
+<span class="token-comment"># Or use password file (protect this file!)</span>
+<span class="token-command">ansible-playbook</span> playbook.yml --vault-password-file ~/.vault_pass
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ANSIBLE.CFG SECURITY SETTINGS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+[defaults]
+<span class="token-comment"># Don't store passwords in logs</span>
+no_log = True
+<span class="token-comment"># Require host key checking</span>
+host_key_checking = True
+<span class="token-comment"># Restrict fact caching</span>
+fact_caching = memory
+
+[ssh_connection]
+<span class="token-comment"># Use SSH keys, not passwords when possible</span>
+ssh_args = -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking=yes</code></pre>
+                </div>
+                
+                <h2>Terraform Security</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Terraform - Security Best Practices</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># TERRAFORM SECRETS - DO NOT HARDCODE!</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># BAD - Secrets in code</span>
+provider "aws" {
+  access_key = "AKIAIOSFODNN7EXAMPLE"  <span class="token-comment"># NEVER DO THIS!</span>
+  secret_key = "wJalrXUtnFEMI/K7MDENG" <span class="token-comment"># NEVER DO THIS!</span>
+}
+
+<span class="token-comment"># GOOD - Use environment variables</span>
+<span class="token-comment"># AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY</span>
+provider "aws" {
+  region = "us-east-1"
+  <span class="token-comment"># Credentials from env vars or IAM role</span>
+}
+
+<span class="token-comment"># GOOD - Use secrets manager</span>
+data "aws_secretsmanager_secret_version" "db_creds" {
+  secret_id = "prod/database/credentials"
+}
+
+locals {
+  db_creds = jsondecode(data.aws_secretsmanager_secret_version.db_creds.secret_string)
+}
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># TERRAFORM STATE SECURITY</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># State contains secrets! Secure it.</span>
+terraform {
+  backend "s3" {
+    bucket         = "my-terraform-state"
+    key            = "network/terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true                    <span class="token-comment"># Encrypt at rest</span>
+    dynamodb_table = "terraform-locks"       <span class="token-comment"># State locking</span>
+  }
+}
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SENSITIVE VARIABLES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+variable "db_password" {
+  description = "Database password"
+  type        = string
+  sensitive   = true  <span class="token-comment"># Prevents display in logs/output</span>
+}</code></pre>
+                </div>
+                
+                <h2>Secrets Management</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Solution</th>
+                                <th>Type</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>HashiCorp Vault</strong></td>
+                                <td>Enterprise</td>
+                                <td>Dynamic secrets, rotation, audit</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS Secrets Manager</strong></td>
+                                <td>Cloud</td>
+                                <td>AWS workloads, automatic rotation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure Key Vault</strong></td>
+                                <td>Cloud</td>
+                                <td>Azure workloads</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ansible Vault</strong></td>
+                                <td>Built-in</td>
+                                <td>Simple Ansible encryption</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CyberArk</strong></td>
+                                <td>Enterprise</td>
+                                <td>PAM integration, network devices</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>GitOps Security</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Git Security for Network Configs</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># .GITIGNORE - NEVER COMMIT SECRETS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Terraform</span>
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform/
+
+<span class="token-comment"># Ansible</span>
+*.retry
+*.log
+vault_password_file
+
+<span class="token-comment"># General secrets</span>
+*.pem
+*.key
+*secret*
+*password*
+.env
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PRE-COMMIT HOOKS - PREVENT SECRET COMMITS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># .pre-commit-config.yaml</span>
+repos:
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+  
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.77.0
+    hooks:
+      - id: terraform_tfsec
+      - id: terraform_checkov
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BRANCH PROTECTION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># GitHub/GitLab branch protection:</span>
+<span class="token-comment"># ✓ Require pull request reviews</span>
+<span class="token-comment"># ✓ Require status checks (linting, security scan)</span>
+<span class="token-comment"># ✓ Require signed commits</span>
+<span class="token-comment"># ✓ No direct pushes to main/master</span></code></pre>
+                </div>
+                
+                <h2>Automation Security Checklist</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Control</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Encrypt secrets</strong></td>
+                                <td>Use Vault, Secrets Manager, never plaintext</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Least privilege</strong></td>
+                                <td>Automation accounts get minimum required access</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Audit logging</strong></td>
+                                <td>Log all automation activities</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Code review</strong></td>
+                                <td>Require PR review for all changes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Pre-commit hooks</strong></td>
+                                <td>Scan for secrets before commit</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Signed commits</strong></td>
+                                <td>Verify author identity</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Secure state</strong></td>
+                                <td>Encrypt Terraform state, restrict access</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network isolation</strong></td>
+                                <td>Automation server on management network</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-critical">
+                    <div class="callout-title">🚨 Automation Security Risks</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Credentials in Git:</strong> Scan history, they may still be there</li>
+                            <li><strong>Overprivileged accounts:</strong> Automation often has admin access</li>
+                            <li><strong>Unencrypted state:</strong> Terraform state contains secrets</li>
+                            <li><strong>No approval process:</strong> Changes deploy without review</li>
+                            <li><strong>Supply chain:</strong> Malicious modules/providers</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How do you secure network automation?"</p>
+                        <p><strong>Answer:</strong> "Network automation security is critical because these systems have privileged access to the entire infrastructure. First, secrets management - never store credentials in code or Git. Use Ansible Vault, HashiCorp Vault, or cloud secrets managers. For Terraform, encrypt state files and store in secure backend like S3 with encryption. Second, access control - the automation server itself needs strong security since it's a high-value target. Put it on a dedicated management network, use MFA, and audit all access. Third, GitOps security - require PR reviews for all changes, use pre-commit hooks to scan for secrets, enable signed commits. Fourth, least privilege - even for automation, use the minimum permissions needed. Fifth, audit everything - log all automation runs and what changes were made for accountability and forensics."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="7-8-datacenter-security.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Data Center Security</span>
+                        </div>
+                    </a>
+                    <a href="8-1-lb-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Load Balancer Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

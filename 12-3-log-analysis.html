@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Security Log Analysis - Complete guide to analyzing security logs for threat detection">
+    <title>Log Analysis | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔧</span>Troubleshooting</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="12-1-methodology.html" class="nav-link"><span class="nav-link-number">12.1</span> Methodology</a>
+                        <a href="12-2-incident-response.html" class="nav-link"><span class="nav-link-number">12.2</span> Incident Response</a>
+                        <a href="12-3-log-analysis.html" class="nav-link active"><span class="nav-link-number">12.3</span> Log Analysis</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Troubleshooting</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Log Analysis</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Security Log Analysis</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Log analysis is fundamental to security operations - detecting threats, investigating incidents, and maintaining compliance. Understanding what to look for across different log sources is essential.</p>
+                        <ul>
+                            <li>Critical Windows Event IDs</li>
+                            <li>Linux log analysis</li>
+                            <li>Network device logs</li>
+                            <li>Common attack patterns in logs</li>
+                            <li>Command-line analysis tools</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Critical Windows Event IDs</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Event ID</th>
+                                <th>Description</th>
+                                <th>Security Relevance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>4624</strong></td>
+                                <td>Successful logon</td>
+                                <td>Track user access, lateral movement</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4625</strong></td>
+                                <td>Failed logon</td>
+                                <td>Brute force detection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4648</strong></td>
+                                <td>Logon with explicit credentials</td>
+                                <td>Pass-the-hash, RunAs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4672</strong></td>
+                                <td>Special privileges assigned</td>
+                                <td>Admin logon tracking</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4688</strong></td>
+                                <td>Process creation</td>
+                                <td>Command execution tracking</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4697</strong></td>
+                                <td>Service installed</td>
+                                <td>Persistence detection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4698</strong></td>
+                                <td>Scheduled task created</td>
+                                <td>Persistence detection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4720</strong></td>
+                                <td>User account created</td>
+                                <td>Unauthorized account creation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4732</strong></td>
+                                <td>Member added to security group</td>
+                                <td>Privilege escalation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>1102</strong></td>
+                                <td>Audit log cleared</td>
+                                <td>Evidence destruction</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Logon Type Codes (4624/4625)</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Name</th>
+                                <th>Meaning</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>2</strong></td>
+                                <td>Interactive</td>
+                                <td>Local keyboard/mouse logon</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3</strong></td>
+                                <td>Network</td>
+                                <td>SMB, mapped drives (lateral movement)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4</strong></td>
+                                <td>Batch</td>
+                                <td>Scheduled tasks</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5</strong></td>
+                                <td>Service</td>
+                                <td>Service account logon</td>
+                            </tr>
+                            <tr>
+                                <td><strong>7</strong></td>
+                                <td>Unlock</td>
+                                <td>Workstation unlock</td>
+                            </tr>
+                            <tr>
+                                <td><strong>10</strong></td>
+                                <td>RemoteInteractive</td>
+                                <td>RDP logon</td>
+                            </tr>
+                            <tr>
+                                <td><strong>11</strong></td>
+                                <td>CachedInteractive</td>
+                                <td>Cached credentials (offline)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Linux Log Locations</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Important Linux Logs</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># AUTHENTICATION LOGS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+/var/log/auth.log          <span class="token-comment"># Debian/Ubuntu - SSH, sudo, su</span>
+/var/log/secure            <span class="token-comment"># RHEL/CentOS - SSH, sudo, su</span>
+
+<span class="token-comment"># SSH brute force detection</span>
+<span class="token-command">grep</span> "Failed password" /var/log/auth.log | awk '{print $11}' | sort | uniq -c | sort -rn
+
+<span class="token-comment"># Successful SSH logins</span>
+<span class="token-command">grep</span> "Accepted" /var/log/auth.log
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SYSTEM LOGS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+/var/log/syslog            <span class="token-comment"># General system log (Debian)</span>
+/var/log/messages          <span class="token-comment"># General system log (RHEL)</span>
+/var/log/kern.log          <span class="token-comment"># Kernel messages</span>
+/var/log/dmesg             <span class="token-comment"># Boot messages</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># APPLICATION LOGS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+/var/log/apache2/          <span class="token-comment"># Apache web server</span>
+/var/log/nginx/            <span class="token-comment"># NGINX web server</span>
+/var/log/mysql/            <span class="token-comment"># MySQL database</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># AUDIT LOG (if auditd enabled)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+/var/log/audit/audit.log   <span class="token-comment"># Detailed audit events</span>
+
+<span class="token-comment"># Search audit log</span>
+<span class="token-command">ausearch</span> -m USER_AUTH        <span class="token-comment"># Authentication events</span>
+<span class="token-command">ausearch</span> -m EXECVE           <span class="token-comment"># Command execution</span></code></pre>
+                </div>
+                
+                <h2>Attack Patterns in Logs</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Common Attack Indicators</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BRUTE FORCE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Windows: Many 4625 from same source, then 4624</span>
+<span class="token-comment"># Linux: Many "Failed password" then "Accepted"</span>
+EventID=4625 | stats count by src_ip | where count > 10
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PASS-THE-HASH / LATERAL MOVEMENT</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># 4624 with LogonType=3 (Network) from internal IP</span>
+<span class="token-comment"># Especially with NTLM authentication (not Kerberos)</span>
+EventID=4624 LogonType=3 AuthPackage=NTLM
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PERSISTENCE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># New services (4697), scheduled tasks (4698)</span>
+<span class="token-comment"># Registry run keys, startup items</span>
+EventID IN (4697, 4698, 4699)
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PRIVILEGE ESCALATION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># User added to admin groups (4732, 4728)</span>
+<span class="token-comment"># SeDebugPrivilege assigned (4672)</span>
+EventID=4732 GroupName="Administrators"
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SUSPICIOUS COMMANDS (4688 with command line)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PowerShell encoded commands</span>
+CommandLine:*-enc* OR CommandLine:*-encoded*
+
+<span class="token-comment"># Credential dumping tools</span>
+CommandLine:*mimikatz* OR CommandLine:*sekurlsa*
+
+<span class="token-comment"># Network reconnaissance</span>
+CommandLine:*net user* OR CommandLine:*net group*</code></pre>
+                </div>
+                
+                <h2>Command-Line Analysis</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Log Analysis Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BASIC LOG ANALYSIS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Count occurrences</span>
+<span class="token-command">cat</span> access.log | awk '{print $1}' | sort | uniq -c | sort -rn | head
+
+<span class="token-comment"># Filter by time range</span>
+<span class="token-command">awk</span> '$4 >= "[01/Jan/2024:10:00" && $4 <= "[01/Jan/2024:11:00"' access.log
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># WEB SERVER ATTACKS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SQL injection attempts</span>
+<span class="token-command">grep</span> -iE "(union.*select|or.*1=1|'.*--)" access.log
+
+<span class="token-comment"># Path traversal</span>
+<span class="token-command">grep</span> -E "\.\./|\.\.%2f" access.log
+
+<span class="token-comment"># 404 scanning</span>
+<span class="token-command">grep</span> " 404 " access.log | awk '{print $1}' | sort | uniq -c | sort -rn
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># FIREWALL LOG ANALYSIS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Top denied sources</span>
+<span class="token-command">grep</span> "DENY" firewall.log | awk '{print $SRC_IP}' | sort | uniq -c | sort -rn
+
+<span class="token-comment"># Port scan detection (many ports from one source)</span>
+<span class="token-command">grep</span> "DENY" firewall.log | awk '{print $SRC_IP, $DST_PORT}' | \
+    sort | uniq | cut -d' ' -f1 | uniq -c | sort -rn</code></pre>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Daily Log Review Checklist</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Failed logins:</strong> Any spikes in 4625 events?</li>
+                            <li><strong>Admin activity:</strong> Review 4672 (special privileges)</li>
+                            <li><strong>Account changes:</strong> New users (4720), group changes (4732)</li>
+                            <li><strong>Service/task creation:</strong> Check 4697, 4698</li>
+                            <li><strong>Audit log cleared:</strong> Alert on 1102 immediately</li>
+                            <li><strong>Unusual hours:</strong> Logins outside business hours</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "What Windows event logs would you review when investigating a potential breach?"</p>
+                        <p><strong>Answer:</strong> "I'd start with Security log event 4624/4625 to trace authentication - looking for unusual logon times, sources, or LogonType 3 (network) that might indicate lateral movement. I'd check 4688 for process creation to see what commands were run, especially PowerShell with encoded commands. I'd look for persistence mechanisms via 4697 (service creation) and 4698 (scheduled tasks). I'd check for privilege escalation with 4732 (group membership changes) and 4672 (special privileges). I'd also check if audit logs were cleared (1102) which is a red flag for covering tracks. For a complete picture, I'd correlate with Sysmon logs if available for more detailed process and network connection data."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="12-2-incident-response.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Incident Response</span>
+                        </div>
+                    </a>
+                    <a href="13-1-compliance-frameworks.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Compliance Frameworks</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

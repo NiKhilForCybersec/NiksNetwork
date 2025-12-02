@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VPN Troubleshooting - Complete guide to diagnosing and fixing IPSec and SSL VPN issues">
+    <title>VPN Troubleshooting | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔐</span>VPN</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="6-1-vpn-fundamentals.html" class="nav-link"><span class="nav-link-number">6.1</span> Fundamentals</a>
+                        <a href="6-2-ipsec.html" class="nav-link"><span class="nav-link-number">6.2</span> IPSec</a>
+                        <a href="6-3-ssl-vpn.html" class="nav-link"><span class="nav-link-number">6.3</span> SSL VPN</a>
+                        <a href="6-4-site-to-site.html" class="nav-link"><span class="nav-link-number">6.4</span> Site-to-Site</a>
+                        <a href="6-5-vpn-troubleshooting.html" class="nav-link active"><span class="nav-link-number">6.5</span> Troubleshooting</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">VPN</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Troubleshooting</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>VPN Troubleshooting</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>VPN issues can be complex due to the multiple components involved. This guide provides a systematic approach to diagnosing both IPSec and SSL VPN problems.</p>
+                        <ul>
+                            <li>IPSec Phase 1 & 2 troubleshooting</li>
+                            <li>SSL VPN connection issues</li>
+                            <li>Common error messages</li>
+                            <li>Diagnostic commands by vendor</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>IPSec Troubleshooting Flow</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">IPSec Troubleshooting Flowchart</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    IPSEC TROUBLESHOOTING FLOW                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  START: VPN Not Working                                                     │
+│         │                                                                   │
+│         ▼                                                                   │
+│  ┌──────────────────┐                                                       │
+│  │ Can reach peer   │                                                       │
+│  │ IP? (ping/UDP    │──NO──► Check: Routing, Firewall (UDP 500, 4500, ESP) │
+│  │ 500)             │                                                       │
+│  └────────┬─────────┘                                                       │
+│           │ YES                                                             │
+│           ▼                                                                 │
+│  ┌──────────────────┐                                                       │
+│  │ Phase 1 (IKE)    │                                                       │
+│  │ established?     │──NO──► Check: PSK, Peer IP, IKE version,             │
+│  │                  │        Encryption/Hash/DH Group proposals             │
+│  └────────┬─────────┘                                                       │
+│           │ YES                                                             │
+│           ▼                                                                 │
+│  ┌──────────────────┐                                                       │
+│  │ Phase 2 (IPSec)  │                                                       │
+│  │ established?     │──NO──► Check: Proxy IDs / Traffic Selectors,         │
+│  │                  │        Transform set, PFS group                       │
+│  └────────┬─────────┘                                                       │
+│           │ YES                                                             │
+│           ▼                                                                 │
+│  ┌──────────────────┐                                                       │
+│  │ Traffic flowing  │                                                       │
+│  │ through tunnel?  │──NO──► Check: Routing to tunnel interface,           │
+│  │                  │        Firewall policy, NAT exemption                 │
+│  └────────┬─────────┘                                                       │
+│           │ YES                                                             │
+│           ▼                                                                 │
+│       ✓ VPN Working                                                        │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Common Issues & Solutions</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Symptom</th>
+                                <th>Phase</th>
+                                <th>Likely Cause</th>
+                                <th>Solution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>No response from peer</td>
+                                <td>Pre-Phase 1</td>
+                                <td>Firewall blocking, wrong peer IP</td>
+                                <td>Allow UDP 500, 4500; verify IPs</td>
+                            </tr>
+                            <tr>
+                                <td>Authentication failed</td>
+                                <td>Phase 1</td>
+                                <td>Wrong pre-shared key</td>
+                                <td>Verify PSK matches exactly</td>
+                            </tr>
+                            <tr>
+                                <td>No proposal chosen</td>
+                                <td>Phase 1</td>
+                                <td>Proposal mismatch</td>
+                                <td>Match encryption, hash, DH group</td>
+                            </tr>
+                            <tr>
+                                <td>Invalid ID</td>
+                                <td>Phase 1</td>
+                                <td>Peer ID mismatch</td>
+                                <td>Check local/remote ID settings</td>
+                            </tr>
+                            <tr>
+                                <td>TS_UNACCEPTABLE</td>
+                                <td>Phase 2</td>
+                                <td>Traffic selector mismatch</td>
+                                <td>Match proxy IDs on both sides</td>
+                            </tr>
+                            <tr>
+                                <td>Tunnel up, no traffic</td>
+                                <td>Post-Phase 2</td>
+                                <td>Routing or policy issue</td>
+                                <td>Check routes, firewall rules</td>
+                            </tr>
+                            <tr>
+                                <td>Tunnel flapping</td>
+                                <td>Any</td>
+                                <td>DPD settings, rekey issues</td>
+                                <td>Adjust DPD intervals, check rekey</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Diagnostic Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">VPN Diagnostic Commands by Vendor</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PALO ALTO</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> vpn ike-sa                        <span class="token-comment"># Phase 1 SA status</span>
+<span class="token-command">show</span> vpn ike-sa gateway &lt;name&gt; detail  <span class="token-comment"># Detailed Phase 1</span>
+<span class="token-command">show</span> vpn ipsec-sa                      <span class="token-comment"># Phase 2 SA status</span>
+<span class="token-command">show</span> vpn ipsec-sa tunnel &lt;name&gt;        <span class="token-comment"># Detailed Phase 2</span>
+<span class="token-command">show</span> vpn flow name &lt;tunnel&gt;            <span class="token-comment"># Traffic counters</span>
+<span class="token-command">test</span> vpn ike-sa gateway &lt;name&gt;         <span class="token-comment"># Force IKE negotiation</span>
+<span class="token-command">debug</span> ike global on debug              <span class="token-comment"># Enable IKE debug</span>
+<span class="token-command">less</span> mp-log ikemgr.log                 <span class="token-comment"># View IKE logs</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CISCO ASA</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">show</span> crypto isakmp sa                  <span class="token-comment"># Phase 1 status</span>
+<span class="token-command">show</span> crypto isakmp sa detail           <span class="token-comment"># Detailed Phase 1</span>
+<span class="token-command">show</span> crypto ipsec sa                   <span class="token-comment"># Phase 2 status</span>
+<span class="token-command">show</span> crypto ipsec sa peer &lt;IP&gt;         <span class="token-comment"># Specific peer</span>
+<span class="token-command">debug</span> crypto isakmp 127                <span class="token-comment"># IKE debug</span>
+<span class="token-command">debug</span> crypto ipsec 127                 <span class="token-comment"># IPSec debug</span>
+<span class="token-command">clear</span> crypto isakmp sa                 <span class="token-comment"># Clear Phase 1</span>
+<span class="token-command">clear</span> crypto ipsec sa peer &lt;IP&gt;        <span class="token-comment"># Clear Phase 2</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># FORTINET</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">get</span> vpn ipsec tunnel summary           <span class="token-comment"># Tunnel summary</span>
+<span class="token-command">diagnose</span> vpn ike gateway list          <span class="token-comment"># Phase 1 status</span>
+<span class="token-command">diagnose</span> vpn tunnel list               <span class="token-comment"># Phase 2 status</span>
+<span class="token-command">diagnose</span> vpn ike log-filter dst-addr4 &lt;IP&gt;
+<span class="token-command">diagnose</span> debug application ike -1      <span class="token-comment"># Enable IKE debug</span>
+<span class="token-command">diagnose</span> debug enable
+<span class="token-command">diagnose</span> vpn ike gateway clear name &lt;name&gt;  <span class="token-comment"># Clear tunnel</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CHECK POINT</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">vpn</span> tu                                 <span class="token-comment"># VPN tunnel utility (interactive)</span>
+<span class="token-command">vpn</span> tunnelutil                         <span class="token-comment"># Same as above</span>
+<span class="token-command">cpstat</span> vpn                             <span class="token-comment"># VPN statistics</span>
+<span class="token-command">fw</span> ctl ztdebug drop                    <span class="token-comment"># Check drops</span>
+<span class="token-command">vpn</span> debug trunc                        <span class="token-comment"># Truncate debug file</span>
+<span class="token-command">vpn</span> debug on                           <span class="token-comment"># Enable debug</span></code></pre>
+                </div>
+                
+                <h2>SSL VPN Troubleshooting</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Issue</th>
+                                <th>Cause</th>
+                                <th>Solution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Certificate error</td>
+                                <td>Untrusted CA, expired cert</td>
+                                <td>Install CA cert, renew certificate</td>
+                            </tr>
+                            <tr>
+                                <td>Authentication failed</td>
+                                <td>Wrong credentials, MFA issue</td>
+                                <td>Verify credentials, check MFA</td>
+                            </tr>
+                            <tr>
+                                <td>No IP assigned</td>
+                                <td>IP pool exhausted</td>
+                                <td>Expand IP pool, check leases</td>
+                            </tr>
+                            <tr>
+                                <td>Connected but no access</td>
+                                <td>Firewall policy, routing</td>
+                                <td>Check VPN zone policies, routes</td>
+                            </tr>
+                            <tr>
+                                <td>DNS not working</td>
+                                <td>DNS not pushed, wrong DNS</td>
+                                <td>Configure DNS in VPN profile</td>
+                            </tr>
+                            <tr>
+                                <td>Slow connection</td>
+                                <td>MTU issues, congestion</td>
+                                <td>Adjust MTU, check bandwidth</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day VPN Tasks</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Monitor tunnel status:</strong> Set up alerts for tunnel down</li>
+                            <li><strong>Check SA lifetimes:</strong> Ensure rekey is working</li>
+                            <li><strong>Review connection logs:</strong> Failed auth attempts</li>
+                            <li><strong>Certificate expiry:</strong> Track VPN certificate dates</li>
+                            <li><strong>Capacity planning:</strong> Monitor concurrent VPN users</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "Walk me through troubleshooting an IPSec VPN that won't come up."</p>
+                        <p><strong>Answer:</strong> "I'd start with connectivity - can we reach the peer on UDP 500/4500? Then check Phase 1 status - if it's failing, I'd look at the logs for specific errors like authentication failed (PSK mismatch) or no proposal chosen (encryption/hash/DH group mismatch). If Phase 1 is up but Phase 2 fails, the most common issue is proxy ID / traffic selector mismatch - the local and remote networks defined must match exactly on both sides. If both phases are up but traffic isn't flowing, I'd check routing to the tunnel interface and firewall policies."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="6-4-site-to-site.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Site-to-Site VPN</span>
+                        </div>
+                    </a>
+                    <a href="7-1-network-segmentation.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Network Segmentation</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

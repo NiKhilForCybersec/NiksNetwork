@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SNMP Security - Complete guide to SNMP versions, SNMPv3 configuration, and network device management security">
+    <title>SNMP Security | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌐</span>Networking</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="1-10-layer2-security.html" class="nav-link"><span class="nav-link-number">1.10</span> Layer 2 Security</a>
+                        <a href="1-11-snmp-security.html" class="nav-link active"><span class="nav-link-number">1.11</span> SNMP Security</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Networking</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">SNMP Security</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>SNMP Security</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>SNMP (Simple Network Management Protocol) is essential for network monitoring but is often misconfigured, exposing networks to reconnaissance and attacks. SNMPv3 provides the security features needed for safe deployment.</p>
+                        <ul>
+                            <li>SNMP versions and security differences</li>
+                            <li>SNMPv3 authentication and encryption</li>
+                            <li>Community string security</li>
+                            <li>SNMP hardening best practices</li>
+                            <li>SNMP-based attacks</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>SNMP Version Comparison</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">SNMP Security Evolution</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SNMP VERSIONS                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  SNMPv1 (1988)                                                              │
+│  ─────────────                                                              │
+│  │ Authentication: Community string (plaintext!)                           │
+│  │ Encryption: None                                                        │
+│  │ Security: TERRIBLE - avoid completely                                   │
+│  │ Risk: Community string visible on network                               │
+│  └─────────────────────────────────────────────────────────────────────────│
+│                                                                              │
+│  SNMPv2c (1996)                                                             │
+│  ──────────────                                                             │
+│  │ Authentication: Community string (still plaintext!)                     │
+│  │ Encryption: None                                                        │
+│  │ Security: POOR - only use if v3 not supported                          │
+│  │ Improvement: Better error handling, bulk operations                     │
+│  └─────────────────────────────────────────────────────────────────────────│
+│                                                                              │
+│  SNMPv3 (2002)                                                              │
+│  ──────────────                                                             │
+│  │ Authentication: MD5, SHA, SHA-256, SHA-512                             │
+│  │ Encryption: DES, 3DES, AES-128, AES-256                                │
+│  │ Security: GOOD - use this version!                                      │
+│  │                                                                         │
+│  │ Security Levels:                                                        │
+│  │ • noAuthNoPriv  - No auth, no encryption (don't use)                   │
+│  │ • authNoPriv    - Auth only, no encryption                             │
+│  │ • authPriv      - Auth + encryption (recommended!)                     │
+│  └─────────────────────────────────────────────────────────────────────────│
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>SNMP Attacks</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Attack</th>
+                                <th>Description</th>
+                                <th>Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Community String Sniffing</strong></td>
+                                <td>Capture v1/v2c community strings on network</td>
+                                <td>Full device access</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Community String Guessing</strong></td>
+                                <td>Try common strings: public, private, cisco</td>
+                                <td>Device compromise</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SNMP Enumeration</strong></td>
+                                <td>Walk MIB to gather network info</td>
+                                <td>Reconnaissance</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SNMP Amplification DDoS</strong></td>
+                                <td>Spoofed requests, large responses</td>
+                                <td>DDoS attacks</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Configuration Modification</strong></td>
+                                <td>Use write community to change config</td>
+                                <td>Device takeover</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>SNMPv3 Configuration</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco IOS - SNMPv3 Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! SNMPv3 CONFIGURATION</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">! Step 1: Create SNMPv3 group</span>
+<span class="token-comment">! priv = requires auth AND encryption</span>
+snmp-server group SNMP-RO-GROUP v3 priv
+snmp-server group SNMP-RW-GROUP v3 priv write v1default
+
+<span class="token-comment">! Step 2: Create SNMPv3 user with auth and encryption</span>
+<span class="token-comment">! SHA for auth, AES-256 for encryption</span>
+snmp-server user snmp-monitor SNMP-RO-GROUP v3 auth sha <span class="token-string">AuthP@ssw0rd!</span> priv aes 256 <span class="token-string">PrivP@ssw0rd!</span>
+snmp-server user snmp-admin SNMP-RW-GROUP v3 auth sha <span class="token-string">AuthP@ssw0rd!</span> priv aes 256 <span class="token-string">PrivP@ssw0rd!</span>
+
+<span class="token-comment">! Step 3: Restrict SNMP to management network</span>
+access-list 10 permit 10.0.0.0 0.0.0.255
+snmp-server group SNMP-RO-GROUP v3 priv access 10
+
+<span class="token-comment">! Step 4: Configure SNMP contact and location</span>
+snmp-server contact noc@company.com
+snmp-server location "DataCenter Rack 42"
+
+<span class="token-comment">! Step 5: Enable SNMP traps to monitoring server</span>
+snmp-server host 10.0.0.100 version 3 priv snmp-monitor
+
+<span class="token-comment">! Verify configuration</span>
+show snmp user
+show snmp group</code></pre>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Palo Alto - SNMPv3 Configuration</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PALO ALTO SNMPv3</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Device > Setup > Operations > SNMP Setup</span>
+
+<span class="token-comment"># CLI Configuration:</span>
+set deviceconfig system snmp-setting access-setting version v3
+
+set deviceconfig system snmp-setting snmp-system contact "noc@company.com"
+set deviceconfig system snmp-setting snmp-system location "DC1"
+
+<span class="token-comment"># Create SNMPv3 user</span>
+set deviceconfig system snmp-setting access-setting version v3 views SNMP-VIEW view oid 1.3.6.1 option include
+set deviceconfig system snmp-setting access-setting version v3 users snmp-user authpwd <span class="token-string">AuthPass123!</span>
+set deviceconfig system snmp-setting access-setting version v3 users snmp-user privpwd <span class="token-string">PrivPass123!</span>
+set deviceconfig system snmp-setting access-setting version v3 users snmp-user authproto SHA
+set deviceconfig system snmp-setting access-setting version v3 users snmp-user privproto AES</code></pre>
+                </div>
+                
+                <h2>SNMP Hardening Checklist</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">SNMP Security Best Practices</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SNMP HARDENING CHECKLIST</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+VERSION:
+☐ Use SNMPv3 with authPriv (auth + encryption)
+☐ Disable SNMPv1 and SNMPv2c completely
+☐ If v2c required: use complex community strings, ACLs
+
+AUTHENTICATION (SNMPv3):
+☐ Use SHA or SHA-256 (not MD5)
+☐ Use strong authentication passwords (12+ chars)
+☐ Different passwords for auth and priv
+
+ENCRYPTION (SNMPv3):
+☐ Use AES-128 or AES-256 (not DES)
+☐ Use strong privacy passwords
+
+ACCESS CONTROL:
+☐ Restrict SNMP to management VLAN/network only
+☐ Use ACLs to limit source IPs
+☐ Create read-only users for monitoring
+☐ Limit read-write users
+
+NETWORK:
+☐ Block SNMP (UDP 161/162) at perimeter firewall
+☐ Don't expose SNMP to internet
+☐ Use separate management network
+
+MONITORING:
+☐ Log SNMP authentication failures
+☐ Alert on SNMP brute-force attempts
+☐ Monitor for SNMP enumeration
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># DISABLE SNMPv1/v2c (Cisco)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+no snmp-server community public
+no snmp-server community private
+no snmp-server community cisco</code></pre>
+                </div>
+                
+                <h2>Testing SNMP Security</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">SNMP Testing Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># TEST SNMPv3 CONNECTION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">snmpwalk</span> -v3 -l authPriv -u snmp-monitor \
+  -a SHA -A "AuthP@ssw0rd!" \
+  -x AES -X "PrivP@ssw0rd!" \
+  192.168.1.1 system
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># TEST FOR WEAK COMMUNITY STRINGS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Try common community strings (for audit purposes)</span>
+<span class="token-command">onesixtyone</span> -c /usr/share/wordlists/snmp-strings.txt 192.168.1.0/24
+
+<span class="token-comment"># Nmap SNMP scan</span>
+<span class="token-command">nmap</span> -sU -p 161 --script snmp-brute 192.168.1.1
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ENUMERATE (if you have access - for testing)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Get system info</span>
+<span class="token-command">snmpwalk</span> -v3 -l authPriv -u snmp-monitor \
+  -a SHA -A "pass" -x AES -X "pass" \
+  192.168.1.1 1.3.6.1.2.1.1
+
+<span class="token-comment"># Get interfaces</span>
+<span class="token-command">snmpwalk</span> -v3 ... 192.168.1.1 1.3.6.1.2.1.2
+
+<span class="token-comment"># Get routing table</span>
+<span class="token-command">snmpwalk</span> -v3 ... 192.168.1.1 1.3.6.1.2.1.4.21</code></pre>
+                </div>
+                
+                <div class="callout callout-critical">
+                    <div class="callout-title">🚨 Common SNMP Vulnerabilities</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Default community "public":</strong> Allows anyone to read device info</li>
+                            <li><strong>Default community "private":</strong> Often allows write access!</li>
+                            <li><strong>SNMP exposed to internet:</strong> Used for DDoS amplification</li>
+                            <li><strong>Using SNMPv1/v2c:</strong> Credentials sent in plaintext</li>
+                            <li><strong>Same community everywhere:</strong> Compromise one, access all</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you secure SNMP in an enterprise network?"</p>
+                        <p><strong>Answer:</strong> "First, I'd migrate everything to SNMPv3 with authPriv security level - that provides both authentication (SHA) and encryption (AES). SNMPv1 and v2c should be disabled completely since they send community strings in plaintext. For SNMPv3, use strong passwords for both authentication and privacy, and create separate read-only users for monitoring versus read-write for management. Implement ACLs on devices to only accept SNMP from the management network. At the network level, block SNMP ports 161/162 at the perimeter - SNMP should never be accessible from the internet. Finally, log and alert on authentication failures to detect brute-force attempts."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="1-10-layer2-security.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Layer 2 Security</span>
+                        </div>
+                    </a>
+                    <a href="1-12-aaa-radius-tacacs.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">AAA / RADIUS / TACACS+</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

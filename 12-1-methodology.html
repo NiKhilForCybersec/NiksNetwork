@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Network Security Troubleshooting Methodology - Systematic approaches using OSI model, divide and conquer, and documentation best practices">
+    <title>Troubleshooting Methodology | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 12: Troubleshooting (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🔧</span>
+                            Troubleshooting Guide
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="12-1-methodology.html" class="nav-link active"><span class="nav-link-number">12.1</span> Troubleshooting Methodology</a>
+                        <a href="12-2-firewall-ts.html" class="nav-link"><span class="nav-link-number">12.2</span> Firewall Troubleshooting</a>
+                        <a href="12-3-proxy-ts.html" class="nav-link"><span class="nav-link-number">12.3</span> Proxy Troubleshooting</a>
+                        <a href="12-4-vpn-ts.html" class="nav-link"><span class="nav-link-number">12.4</span> VPN Troubleshooting</a>
+                        <a href="12-5-waf-ts.html" class="nav-link"><span class="nav-link-number">12.5</span> WAF Troubleshooting</a>
+                        <a href="12-6-lb-ts.html" class="nav-link"><span class="nav-link-number">12.6</span> Load Balancer Troubleshooting</a>
+                        <a href="12-7-connectivity-ts.html" class="nav-link"><span class="nav-link-number">12.7</span> Connectivity Troubleshooting</a>
+                        <a href="12-8-performance-ts.html" class="nav-link"><span class="nav-link-number">12.8</span> Performance Troubleshooting</a>
+                        <a href="12-9-ssl-ts.html" class="nav-link"><span class="nav-link-number">12.9</span> SSL/TLS Troubleshooting</a>
+                        <a href="12-10-toolkit.html" class="nav-link"><span class="nav-link-number">12.10</span> Troubleshooting Toolkit</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Troubleshooting Guide</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Methodology</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>Troubleshooting Methodology</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Effective troubleshooting is both an art and a science. Having a systematic methodology prevents wasted time, missed issues, and incomplete resolutions. This guide covers proven approaches used by senior network and security engineers.</p>
+                        <ul>
+                            <li>OSI model approach to troubleshooting</li>
+                            <li>Divide and conquer methodology</li>
+                            <li>Top-down vs bottom-up approaches</li>
+                            <li>The importance of documentation</li>
+                            <li>Change correlation analysis</li>
+                            <li>Baseline comparison techniques</li>
+                            <li>Escalation procedures</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>The Troubleshooting Mindset</h2>
+                
+                <p>Before diving into specific techniques, adopt the right mindset:</p>
+                
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Stay Calm and Methodical</h4>
+                            <p>Panic leads to random changes and makes problems worse. Even during outages, a systematic approach is faster than guessing.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Question Everything</h4>
+                            <p>Don't assume. "It's always worked" doesn't mean the configuration is correct. Verify before moving on.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Document as You Go</h4>
+                            <p>Write down what you checked, what you found, and what you changed. This saves time if you need to escalate or rollback.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>Change One Thing at a Time</h4>
+                            <p>If you change multiple things simultaneously, you won't know which one fixed (or broke) the issue.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <h2>The OSI Model Approach</h2>
+                
+                <p>Using the OSI model provides a systematic framework for isolating where a problem exists. Work from the bottom up or top down depending on the symptoms.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">OSI Model Troubleshooting Flow</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    OSI MODEL TROUBLESHOOTING                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  START WITH THE SYMPTOM:                                                    │
+│  "User cannot access web application"                                        │
+│                                                                              │
+│  BOTTOM-UP APPROACH (Physical to Application):                              │
+│  ════════════════════════════════════════════                               │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ LAYER 1: PHYSICAL                                                    │    │
+│  │ ✓ Cable connected?                                                   │    │
+│  │ ✓ Link light on?                                                     │    │
+│  │ ✓ Correct port?                                                      │    │
+│  │                                                                      │    │
+│  │ Commands: show interface status, check LED                          │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │ PASS                                    │
+│                                    ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ LAYER 2: DATA LINK                                                   │    │
+│  │ ✓ MAC address learned?                                              │    │
+│  │ ✓ Correct VLAN?                                                     │    │
+│  │ ✓ STP blocking?                                                     │    │
+│  │ ✓ Duplex mismatch?                                                  │    │
+│  │                                                                      │    │
+│  │ Commands: show mac address-table, show vlan, show spanning-tree    │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │ PASS                                    │
+│                                    ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ LAYER 3: NETWORK                                                     │    │
+│  │ ✓ IP address correct?                                               │    │
+│  │ ✓ Subnet mask correct?                                              │    │
+│  │ ✓ Default gateway reachable?                                        │    │
+│  │ ✓ Routing working? (ping gateway, traceroute)                       │    │
+│  │ ✓ Firewall/ACL blocking?                                            │    │
+│  │                                                                      │    │
+│  │ Commands: ping, traceroute, show ip route, show arp                 │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │ PASS                                    │
+│                                    ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ LAYER 4: TRANSPORT                                                   │    │
+│  │ ✓ Port open on server?                                              │    │
+│  │ ✓ Firewall allowing the port?                                       │    │
+│  │ ✓ Service listening?                                                │    │
+│  │ ✓ TCP connection established? (three-way handshake)                 │    │
+│  │                                                                      │    │
+│  │ Commands: telnet <ip> <port>, nc -zv, netstat, ss                   │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │ PASS                                    │
+│                                    ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ LAYER 7: APPLICATION                                                 │    │
+│  │ ✓ DNS resolving correctly?                                          │    │
+│  │ ✓ SSL/TLS certificate valid?                                        │    │
+│  │ ✓ Application returning errors?                                     │    │
+│  │ ✓ WAF/Proxy blocking content?                                       │    │
+│  │                                                                      │    │
+│  │ Commands: nslookup, curl -v, openssl s_client, browser dev tools   │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Divide and Conquer</h2>
+                
+                <p>This approach splits the problem space in half to quickly isolate where the issue exists. It's especially useful for complex, multi-hop connectivity issues.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Divide and Conquer Example</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    DIVIDE AND CONQUER METHODOLOGY                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  PROBLEM: User can't reach server in remote data center                    │
+│                                                                              │
+│  USER ─── Switch ─── Firewall ─── WAN ─── Firewall ─── Switch ─── SERVER   │
+│   │                     │                    │                        │     │
+│   A                     B                    C                        D     │
+│                                                                              │
+│  STEP 1: Test middle point (B to C - the WAN link)                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ From local firewall: ping remote firewall                           │    │
+│  │                                                                      │    │
+│  │ FAILS? ──► Problem is between A and C (local side or WAN)           │    │
+│  │ WORKS? ──► Problem is between C and D (remote side)                 │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  Let's say it WORKS. Problem is on remote side (C to D).                    │
+│                                                                              │
+│  STEP 2: Test remote firewall to server (C to D)                            │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ From remote firewall: ping server                                   │    │
+│  │                                                                      │    │
+│  │ FAILS? ──► Problem is firewall policy or routing to server         │    │
+│  │ WORKS? ──► Problem is server itself or return path                  │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  Let's say it FAILS. Check firewall policy and routing on remote FW.       │
+│                                                                              │
+│  STEP 3: Check remote firewall config                                       │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ Found: Missing route to server subnet                               │    │
+│  │ Fix: Add static route                                                │    │
+│  │ Result: Issue resolved                                               │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  BENEFIT: Only 3 steps to find issue in 6-hop path                          │
+│           Without D&C, might have checked all 6 hops sequentially           │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Standard Troubleshooting Process</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Complete Troubleshooting Workflow</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    TROUBLESHOOTING WORKFLOW                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 1. IDENTIFY THE PROBLEM                                              │    │
+│  │    • Gather information from user/alert                             │    │
+│  │    • What exactly is failing?                                       │    │
+│  │    • When did it start?                                             │    │
+│  │    • Who is affected? (one user, one site, everyone?)               │    │
+│  │    • What changed recently?                                         │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 2. ESTABLISH A THEORY                                                │    │
+│  │    • Based on symptoms, what are likely causes?                     │    │
+│  │    • Check for recent changes (change management)                   │    │
+│  │    • Check monitoring/SIEM for related alerts                       │    │
+│  │    • Consider both common and uncommon causes                       │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 3. TEST THE THEORY                                                   │    │
+│  │    • Use diagnostic tools to verify theory                          │    │
+│  │    • Logs, packet captures, CLI commands                            │    │
+│  │    • Compare to known-good baseline                                 │    │
+│  │    • If theory fails, develop new theory (step 2)                   │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                             Theory confirmed                                 │
+│                                    ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 4. ESTABLISH A PLAN OF ACTION                                        │    │
+│  │    • Determine fix/workaround                                       │    │
+│  │    • Assess risk of fix                                             │    │
+│  │    • Get approval if needed (change management)                     │    │
+│  │    • Have rollback plan ready                                       │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 5. IMPLEMENT THE SOLUTION                                            │    │
+│  │    • Make the change                                                 │    │
+│  │    • Document what was changed                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 6. VERIFY FULL FUNCTIONALITY                                         │    │
+│  │    • Test that original issue is resolved                           │    │
+│  │    • Test that fix didn't break anything else                       │    │
+│  │    • Have user confirm resolution                                   │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                    │                                         │
+│                                    ▼                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 7. DOCUMENT THE SOLUTION                                             │    │
+│  │    • Root cause                                                      │    │
+│  │    • Fix applied                                                     │    │
+│  │    • Prevention measures                                            │    │
+│  │    • Update knowledge base                                          │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>First Questions to Ask</h2>
+                
+                <p>When troubleshooting any network/security issue, these questions help narrow down the problem quickly:</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Question</th>
+                                <th>Why It Matters</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>"Did this ever work?"</strong></td>
+                                <td>If it never worked, likely a configuration issue. If it worked before, something changed.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>"When did it stop working?"</strong></td>
+                                <td>Correlate with change windows, maintenance, updates. Check change management logs.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>"What changed?"</strong></td>
+                                <td>Most problems are caused by changes. Even "nothing changed" often reveals something.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>"Who is affected?"</strong></td>
+                                <td>One user = likely client issue. One site = branch/WAN issue. Everyone = core/data center issue.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>"Can you show me the error?"</strong></td>
+                                <td>Seeing the actual error message prevents miscommunication. Screenshots are valuable.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>"Have you tried from a different device/location?"</strong></td>
+                                <td>Isolates whether issue is device-specific, network-specific, or universal.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - The "What Changed?" Investigation</div>
+                    <div class="callout-content">
+                        <p>80% of incidents are caused by changes. When something breaks, systematically check:</p>
+                        <ul>
+                            <li><strong>Recent tickets:</strong> What changes were implemented today/yesterday?</li>
+                            <li><strong>Config audit logs:</strong> Who made firewall/switch changes recently?</li>
+                            <li><strong>Update history:</strong> Were any patches or signatures updated?</li>
+                            <li><strong>Monitoring alerts:</strong> Did any related alerts fire before the issue?</li>
+                            <li><strong>Infrastructure changes:</strong> New servers, VMs, network equipment?</li>
+                            <li><strong>External factors:</strong> ISP issues, third-party service outages?</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Essential Troubleshooting Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Basic Connectivity Testing (Linux/Windows)</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LAYER 3 - BASIC CONNECTIVITY</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Ping - ICMP echo (basic reachability)</span>
+<span class="token-command">ping</span> 10.1.1.100                      <span class="token-comment"># Ping IP address</span>
+<span class="token-command">ping</span> -c 4 10.1.1.100                 <span class="token-comment"># Linux: 4 pings only</span>
+<span class="token-command">ping</span> -n 4 10.1.1.100                 <span class="token-comment"># Windows: 4 pings only</span>
+
+<span class="token-comment"># Traceroute - path to destination</span>
+<span class="token-command">traceroute</span> 10.1.1.100                <span class="token-comment"># Linux</span>
+<span class="token-command">tracert</span> 10.1.1.100                   <span class="token-comment"># Windows</span>
+<span class="token-command">mtr</span> 10.1.1.100                       <span class="token-comment"># Linux: real-time traceroute</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LAYER 4 - PORT CONNECTIVITY</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Test if port is open (TCP)</span>
+<span class="token-command">nc</span> -zv 10.1.1.100 443                <span class="token-comment"># Netcat port test</span>
+<span class="token-command">telnet</span> 10.1.1.100 443                <span class="token-comment"># Telnet port test</span>
+<span class="token-command">Test-NetConnection</span> 10.1.1.100 -Port 443  <span class="token-comment"># PowerShell</span>
+
+<span class="token-comment"># Show listening ports</span>
+<span class="token-command">ss</span> -tuln                             <span class="token-comment"># Linux: listening ports</span>
+<span class="token-command">netstat</span> -an | grep LISTEN            <span class="token-comment"># Linux/Mac</span>
+<span class="token-command">netstat</span> -an | findstr LISTENING      <span class="token-comment"># Windows</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LAYER 7 - DNS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">nslookup</span> www.example.com             <span class="token-comment"># DNS lookup</span>
+<span class="token-command">dig</span> www.example.com                  <span class="token-comment"># Linux: detailed DNS</span>
+<span class="token-command">dig</span> +trace www.example.com           <span class="token-comment"># Full DNS resolution path</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LAYER 7 - HTTP/HTTPS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">curl</span> -v https://example.com          <span class="token-comment"># Verbose HTTP request</span>
+<span class="token-command">curl</span> -I https://example.com          <span class="token-comment"># Headers only</span>
+<span class="token-command">curl</span> -k https://example.com          <span class="token-comment"># Ignore SSL errors</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SSL/TLS TESTING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">openssl</span> s_client -connect example.com:443
+<span class="token-comment"># Shows certificate chain, protocol, cipher</span>
+
+<span class="token-command">openssl</span> s_client -connect example.com:443 -servername example.com
+<span class="token-comment"># SNI for virtual hosts</span></code></pre>
+                </div>
+                
+                <h2>Documentation Template</h2>
+                
+                <p>Always document your troubleshooting. Use this template:</p>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Troubleshooting Documentation Template</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">═══════════════════════════════════════════════════════════════</span>
+<span class="token-keyword">INCIDENT:</span> [Brief description]
+<span class="token-keyword">DATE/TIME:</span> [When reported]
+<span class="token-keyword">REPORTED BY:</span> [User/System]
+<span class="token-keyword">SEVERITY:</span> [P1/P2/P3/P4]
+<span class="token-keyword">SYSTEMS AFFECTED:</span> [List affected systems/users]
+<span class="token-comment">═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-keyword">SYMPTOM:</span>
+[What exactly is the user experiencing?]
+
+<span class="token-keyword">INITIAL INFORMATION GATHERED:</span>
+- When started: 
+- What changed recently:
+- Who is affected (scope):
+- Error messages:
+
+<span class="token-keyword">TROUBLESHOOTING STEPS:</span>
+1. [Time] [Action taken] → [Result]
+2. [Time] [Action taken] → [Result]
+3. [Time] [Action taken] → [Result]
+
+<span class="token-keyword">ROOT CAUSE:</span>
+[What was the actual cause of the issue?]
+
+<span class="token-keyword">RESOLUTION:</span>
+[What was done to fix it?]
+
+<span class="token-keyword">VERIFICATION:</span>
+[How was the fix verified? User confirmation?]
+
+<span class="token-keyword">PREVENTION:</span>
+[How can this be prevented in the future?]
+
+<span class="token-keyword">FOLLOW-UP ACTIONS:</span>
+- [ ] Update monitoring
+- [ ] Update documentation
+- [ ] Knowledge base article
+- [ ] Change request for permanent fix
+<span class="token-comment">═══════════════════════════════════════════════════════════════</span></code></pre>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Common Troubleshooting Mistakes</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Making changes without documenting:</strong> You'll forget what you changed and can't rollback properly</li>
+                            <li><strong>Assuming you know the answer:</strong> Always verify with data, not assumptions</li>
+                            <li><strong>Not checking the basics:</strong> Is it plugged in? Is the service running? Don't skip fundamentals.</li>
+                            <li><strong>Tunnel vision:</strong> If your theory isn't proving out, step back and consider other causes</li>
+                            <li><strong>Changing multiple things at once:</strong> You won't know what fixed it (or what broke it worse)</li>
+                            <li><strong>Not verifying after "fixing":</strong> Always confirm with the user/monitoring that it's actually resolved</li>
+                            <li><strong>Working in isolation:</strong> Ask colleagues if they've seen similar issues. Check knowledge base.</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "Walk me through how you would troubleshoot [scenario]."</p>
+                        <p><strong>Framework for answering:</strong></p>
+                        <ol>
+                            <li><strong>Gather info:</strong> "First, I'd understand the scope - who's affected, when it started, what changed"</li>
+                            <li><strong>Develop theory:</strong> "Based on the symptoms, I'd hypothesize that..."</li>
+                            <li><strong>Test systematically:</strong> "I'd use [specific tools] to verify at each layer..."</li>
+                            <li><strong>Implement/verify:</strong> "Once I identify the cause, I'd implement the fix and verify with the user"</li>
+                            <li><strong>Document:</strong> "Finally, I'd document the root cause and update our knowledge base"</li>
+                        </ol>
+                        <p><strong>Always mention specific tools</strong> you'd use (Wireshark, tcpdump, CLI commands) to show practical experience.</p>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="11-8-dashboards.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Visibility & Dashboards</span>
+                        </div>
+                    </a>
+                    <a href="12-2-firewall-ts.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Firewall Troubleshooting</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

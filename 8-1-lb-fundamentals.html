@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Load Balancer Fundamentals - Complete guide to L4/L7 load balancing, algorithms, health checks, and security considerations">
+    <title>Load Balancer Fundamentals | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="sidebar-search">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search documentation...">
+                    <span class="search-shortcut">⌘K</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Section 8: Load Balancers (active) -->
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">⚖️</span>
+                            Load Balancers
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="8-1-lb-fundamentals.html" class="nav-link active"><span class="nav-link-number">8.1</span> Load Balancer Fundamentals</a>
+                        <a href="8-2-f5-big-ip.html" class="nav-link"><span class="nav-link-number">8.2</span> F5 BIG-IP</a>
+                        <a href="8-3-aws-elb-alb.html" class="nav-link"><span class="nav-link-number">8.3</span> AWS ELB/ALB/NLB</a>
+                        <a href="8-4-azure-lb.html" class="nav-link"><span class="nav-link-number">8.4</span> Azure Load Balancer</a>
+                        <a href="8-5-haproxy.html" class="nav-link"><span class="nav-link-number">8.5</span> HAProxy</a>
+                        <a href="8-6-nginx.html" class="nav-link"><span class="nav-link-number">8.6</span> NGINX</a>
+                        <a href="8-7-ssl-offload.html" class="nav-link"><span class="nav-link-number">8.7</span> SSL Offloading</a>
+                        <a href="8-8-lb-troubleshooting.html" class="nav-link"><span class="nav-link-number">8.8</span> Troubleshooting</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Load Balancers</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Fundamentals</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-btn" onclick="printPage()">🖨️ Print</button>
+                </div>
+            </header>
+            
+            <!-- Content Body -->
+            <div class="content-body">
+                <h1>Load Balancer Fundamentals</h1>
+                
+                <!-- Overview Box -->
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Load balancers distribute traffic across multiple servers to improve availability, reliability, and performance. From a security perspective, they also provide SSL termination, DDoS protection, and can integrate with WAF for application security.</p>
+                        <ul>
+                            <li>Load balancing concepts and benefits</li>
+                            <li>Layer 4 vs Layer 7 load balancing</li>
+                            <li>Load balancing algorithms</li>
+                            <li>Health checks and monitoring</li>
+                            <li>Session persistence (sticky sessions)</li>
+                            <li>SSL/TLS termination and security</li>
+                            <li>High availability configurations</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>What is a Load Balancer?</h2>
+                
+                <p>A load balancer acts as a reverse proxy, distributing incoming traffic across multiple backend servers. This ensures no single server becomes overwhelmed while providing failover if a server goes down.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Basic Load Balancer Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    LOAD BALANCER ARCHITECTURE                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│                              CLIENTS                                         │
+│                    ┌──────┐ ┌──────┐ ┌──────┐                               │
+│                    │User 1│ │User 2│ │User 3│                               │
+│                    └──┬───┘ └──┬───┘ └──┬───┘                               │
+│                       │        │        │                                    │
+│                       └────────┼────────┘                                    │
+│                                │                                             │
+│                                ▼                                             │
+│                    ┌───────────────────────┐                                │
+│                    │    LOAD BALANCER      │                                │
+│                    │                       │                                │
+│                    │  VIP: 203.0.113.100   │ ◄── Single IP for clients     │
+│                    │                       │                                │
+│                    │  Functions:           │                                │
+│                    │  • Distribute traffic │                                │
+│                    │  • Health checks      │                                │
+│                    │  • SSL termination    │                                │
+│                    │  • Session persist    │                                │
+│                    └───────────┬───────────┘                                │
+│                                │                                             │
+│              ┌─────────────────┼─────────────────┐                          │
+│              │                 │                 │                          │
+│              ▼                 ▼                 ▼                          │
+│       ┌───────────┐     ┌───────────┐     ┌───────────┐                    │
+│       │  Server 1 │     │  Server 2 │     │  Server 3 │                    │
+│       │ 10.1.1.10 │     │ 10.1.1.11 │     │ 10.1.1.12 │                    │
+│       │  (Active) │     │  (Active) │     │  (Active) │                    │
+│       └───────────┘     └───────────┘     └───────────┘                    │
+│                                                                              │
+│  BENEFITS:                                                                  │
+│  ✓ High Availability - if one server fails, others handle traffic         │
+│  ✓ Scalability - add more servers as demand grows                         │
+│  ✓ Performance - distribute load evenly                                   │
+│  ✓ Flexibility - maintain/update servers without downtime                 │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Layer 4 vs Layer 7 Load Balancing</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">L4 vs L7 Load Balancing</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    LAYER 4 vs LAYER 7 LOAD BALANCING                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  LAYER 4 (Transport Layer)                                                  │
+│  ═════════════════════════                                                  │
+│                                                                              │
+│  Based on: IP address, TCP/UDP port                                         │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    LAYER 4 LB                                        │    │
+│  │                                                                      │    │
+│  │  Sees:  Source IP: 198.51.100.50                                    │    │
+│  │         Dest IP: 203.0.113.100                                      │    │
+│  │         Dest Port: 443                                              │    │
+│  │                                                                      │    │
+│  │  Decision: Based on IP/Port only                                    │    │
+│  │            Cannot see HTTP content (URL, headers, cookies)          │    │
+│  │                                                                      │    │
+│  │  Pros: Faster (less processing), protocol agnostic                  │    │
+│  │  Cons: Limited routing options, no content-based decisions          │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  LAYER 7 (Application Layer)                                                │
+│  ═══════════════════════════                                                │
+│                                                                              │
+│  Based on: URL path, HTTP headers, cookies, content                         │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    LAYER 7 LB (ALB)                                  │    │
+│  │                                                                      │    │
+│  │  Sees:  GET /api/users HTTP/1.1                                     │    │
+│  │         Host: app.example.com                                       │    │
+│  │         Cookie: session=abc123                                      │    │
+│  │         User-Agent: Mozilla/5.0...                                  │    │
+│  │                                                                      │    │
+│  │  Can route based on:                                                │    │
+│  │  • URL path: /api/* → API servers, /static/* → CDN                 │    │
+│  │  • Host header: api.example.com vs www.example.com                  │    │
+│  │  • HTTP method: GET vs POST                                         │    │
+│  │  • Cookies: Route by session                                        │    │
+│  │                                                                      │    │
+│  │  Pros: Content-based routing, SSL termination, advanced features    │    │
+│  │  Cons: Higher latency (must parse HTTP), HTTP/HTTPS only           │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>Layer 4 (NLB)</th>
+                                <th>Layer 7 (ALB)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>OSI Layer</strong></td>
+                                <td>Transport (TCP/UDP)</td>
+                                <td>Application (HTTP/HTTPS)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Decision Based On</strong></td>
+                                <td>IP, Port</td>
+                                <td>URL, Headers, Cookies, Content</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Protocol Support</strong></td>
+                                <td>Any TCP/UDP protocol</td>
+                                <td>HTTP, HTTPS, WebSocket</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SSL Termination</strong></td>
+                                <td>Pass-through or terminate</td>
+                                <td>Typically terminates</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Performance</strong></td>
+                                <td>Higher (less processing)</td>
+                                <td>Lower (content parsing)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use Cases</strong></td>
+                                <td>Database, gaming, non-HTTP</td>
+                                <td>Web apps, APIs, microservices</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Examples</strong></td>
+                                <td>AWS NLB, F5 LTM (L4 mode)</td>
+                                <td>AWS ALB, NGINX, HAProxy</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Load Balancing Algorithms</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Algorithm</th>
+                                <th>How It Works</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Round Robin</strong></td>
+                                <td>Distributes requests sequentially to each server in order</td>
+                                <td>Servers with equal capacity, stateless apps</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Weighted Round Robin</strong></td>
+                                <td>Same as round robin but servers get different weights</td>
+                                <td>Servers with different capacities</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Least Connections</strong></td>
+                                <td>Sends to server with fewest active connections</td>
+                                <td>Long-lived connections, varying request times</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Weighted Least Connections</strong></td>
+                                <td>Least connections with server weighting</td>
+                                <td>Different capacity servers with long connections</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IP Hash</strong></td>
+                                <td>Hash of client IP determines server</td>
+                                <td>Session persistence without cookies</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Least Response Time</strong></td>
+                                <td>Sends to server with fastest response</td>
+                                <td>Performance-critical applications</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Random</strong></td>
+                                <td>Randomly selects a server</td>
+                                <td>Simple distribution, A/B testing</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Health Checks</h2>
+                
+                <p>Health checks ensure traffic only goes to healthy servers. When a server fails health checks, the load balancer stops sending traffic to it.</p>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Health Check Types</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    HEALTH CHECK TYPES                                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  TCP HEALTH CHECK (Layer 4)                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  LB ──── TCP SYN ────► Server:443                                   │    │
+│  │  LB ◄─── TCP SYN-ACK ─── Server    → HEALTHY                        │    │
+│  │  LB ──── TCP RST ────► Server                                       │    │
+│  │                                                                      │    │
+│  │  If no SYN-ACK received → UNHEALTHY                                 │    │
+│  │  Simple: Just checks if port is open                                │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  HTTP HEALTH CHECK (Layer 7)                                                │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  LB ──── GET /health ────► Server                                   │    │
+│  │  LB ◄─── HTTP 200 OK ────── Server  → HEALTHY                       │    │
+│  │                                                                      │    │
+│  │  Expected response: HTTP 200-299                                    │    │
+│  │  Can check specific path (e.g., /health, /status)                  │    │
+│  │  Can verify response body contains expected content                 │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  HTTPS HEALTH CHECK                                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  Same as HTTP but over TLS                                          │    │
+│  │  Can also validate SSL certificate                                  │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  CUSTOM/SCRIPT HEALTH CHECK                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  Execute custom script or command                                   │    │
+│  │  Check database connectivity                                        │    │
+│  │  Check disk space                                                   │    │
+│  │  Check dependent services                                           │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  HEALTH CHECK PARAMETERS:                                                   │
+│  • Interval: How often to check (e.g., every 30 seconds)                   │
+│  • Timeout: How long to wait for response (e.g., 5 seconds)                │
+│  • Healthy threshold: Checks needed to mark healthy (e.g., 2)              │
+│  • Unhealthy threshold: Failures to mark unhealthy (e.g., 3)               │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Session Persistence (Sticky Sessions)</h2>
+                
+                <p>Session persistence ensures a user's requests always go to the same backend server. This is important for stateful applications that store session data locally.</p>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>How It Works</th>
+                                <th>Considerations</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Source IP</strong></td>
+                                <td>Hash of client IP maps to server</td>
+                                <td>Simple but problematic with NAT, proxies</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cookie-based</strong></td>
+                                <td>LB sets cookie with server info</td>
+                                <td>Most reliable, works through NAT</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Application Cookie</strong></td>
+                                <td>App sets session cookie, LB reads it</td>
+                                <td>Requires app cooperation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SSL Session ID</strong></td>
+                                <td>Uses SSL session ID for persistence</td>
+                                <td>Only works with SSL, session can timeout</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - Avoid Session Persistence When Possible</div>
+                    <div class="callout-content">
+                        <p><strong>Sticky sessions create problems:</strong></p>
+                        <ul>
+                            <li>Uneven load distribution (hot servers)</li>
+                            <li>Longer failover time (sessions lost)</li>
+                            <li>Harder to scale and update servers</li>
+                        </ul>
+                        <p><strong>Better alternatives:</strong></p>
+                        <ul>
+                            <li>Store session in shared cache (Redis, Memcached)</li>
+                            <li>Use JWT tokens (stateless authentication)</li>
+                            <li>Store session in database</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>SSL/TLS Termination</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">SSL Termination Options</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SSL TERMINATION OPTIONS                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  OPTION 1: SSL TERMINATION (most common)                                    │
+│  ════════════════════════════════════════                                   │
+│                                                                              │
+│  Client ══ HTTPS ══► LB ──── HTTP ────► Server                              │
+│         (encrypted)      (unencrypted)                                       │
+│                                                                              │
+│  Pros: LB can inspect content, offloads CPU from servers                   │
+│  Cons: Traffic unencrypted between LB and servers (ok if same network)     │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  OPTION 2: SSL PASSTHROUGH                                                  │
+│  ═════════════════════════                                                  │
+│                                                                              │
+│  Client ══ HTTPS ══► LB ══ HTTPS ══► Server                                 │
+│         (encrypted)    (encrypted)                                           │
+│                                                                              │
+│  Pros: End-to-end encryption, LB doesn't need certificates                 │
+│  Cons: LB can't inspect traffic, limited to L4 balancing                   │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════    │
+│                                                                              │
+│  OPTION 3: SSL RE-ENCRYPTION (SSL Bridging)                                 │
+│  ════════════════════════════════════════════                               │
+│                                                                              │
+│  Client ══ HTTPS ══► LB ══ HTTPS ══► Server                                 │
+│         (encrypted)    (re-encrypted)                                        │
+│                                                                              │
+│  Pros: End-to-end encryption, LB can still inspect content                 │
+│  Cons: Higher CPU on LB (decrypt/re-encrypt), manage multiple certs        │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Load Balancer Security Considerations</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Security Feature</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>DDoS Protection</strong></td>
+                                <td>Rate limiting, SYN flood protection, connection limits</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WAF Integration</strong></td>
+                                <td>Many LBs integrate with WAF for application security</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Access Control</strong></td>
+                                <td>IP whitelisting/blacklisting, geo-blocking</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SSL/TLS Security</strong></td>
+                                <td>Force HTTPS, disable weak ciphers, HSTS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Authentication</strong></td>
+                                <td>Client certificate auth, integration with IdP</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Logging</strong></td>
+                                <td>Access logs, request/response logging for forensics</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Common Load Balancer Solutions</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Solution</th>
+                                <th>Type</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>AWS ALB</strong></td>
+                                <td>Cloud L7</td>
+                                <td>AWS web applications, microservices</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS NLB</strong></td>
+                                <td>Cloud L4</td>
+                                <td>AWS high-performance, non-HTTP</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure LB</strong></td>
+                                <td>Cloud L4</td>
+                                <td>Azure VMs, basic load balancing</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure App Gateway</strong></td>
+                                <td>Cloud L7</td>
+                                <td>Azure web apps, WAF integration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>F5 BIG-IP</strong></td>
+                                <td>Enterprise</td>
+                                <td>Complex enterprise needs, advanced features</td>
+                            </tr>
+                            <tr>
+                                <td><strong>HAProxy</strong></td>
+                                <td>Open Source</td>
+                                <td>High-performance, flexible configuration</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NGINX</strong></td>
+                                <td>Open Source/Commercial</td>
+                                <td>Web servers, reverse proxy, API gateway</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Citrix ADC</strong></td>
+                                <td>Enterprise</td>
+                                <td>Citrix environments, ADC features</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <p><strong>Common load balancer operations:</strong></p>
+                        <ul>
+                            <li><strong>Health monitoring:</strong> Check pool member status, investigate failed health checks</li>
+                            <li><strong>Certificate management:</strong> Renew SSL certificates before expiry</li>
+                            <li><strong>Capacity planning:</strong> Monitor connections, throughput, add capacity</li>
+                            <li><strong>Pool management:</strong> Add/remove servers, adjust weights</li>
+                            <li><strong>Troubleshooting:</strong> Connection issues, slow responses, 5xx errors</li>
+                            <li><strong>Log analysis:</strong> Review access logs for anomalies</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "Explain the difference between L4 and L7 load balancing."</p>
+                        <p><strong>Answer:</strong></p>
+                        <ul>
+                            <li><strong>L4 (Layer 4):</strong> Makes decisions based on IP and port. Faster because it doesn't inspect packet content. Works with any TCP/UDP protocol. Example: AWS NLB.</li>
+                            <li><strong>L7 (Layer 7):</strong> Makes decisions based on HTTP content - URL path, headers, cookies. Can route /api to API servers and /images to CDN. More features but more processing overhead. Example: AWS ALB.</li>
+                        </ul>
+                        <p><strong>When to use each:</strong> "Use L4 for database connections, gaming, or when you need raw performance. Use L7 for web applications where you need content-based routing, SSL termination, or WAF integration."</p>
+                    </div>
+                </div>
+                
+                <!-- Page Navigation -->
+                <nav class="page-navigation">
+                    <a href="7-8-zero-trust-implementation.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Implementing Zero Trust</span>
+                        </div>
+                    </a>
+                    <a href="8-2-f5-big-ip.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">F5 BIG-IP</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <input type="text" class="search-modal-input" id="searchModalInput" placeholder="Search documentation...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

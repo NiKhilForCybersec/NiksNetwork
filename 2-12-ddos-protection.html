@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DDoS Protection - Complete guide to DDoS attack types, mitigation, and scrubbing services">
+    <title>DDoS Protection | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔥</span>Firewalls</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="2-11-firewall-troubleshooting.html" class="nav-link"><span class="nav-link-number">2.11</span> Troubleshooting</a>
+                        <a href="2-12-ddos-protection.html" class="nav-link active"><span class="nav-link-number">2.12</span> DDoS Protection</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Firewalls</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">DDoS Protection</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>DDoS Protection</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>DDoS (Distributed Denial of Service) attacks overwhelm network resources to make services unavailable. Understanding attack types and mitigation strategies is critical for maintaining network availability.</p>
+                        <ul>
+                            <li>DDoS attack types (volumetric, protocol, application)</li>
+                            <li>On-premises vs cloud mitigation</li>
+                            <li>Scrubbing centers and CDN protection</li>
+                            <li>DDoS protection architecture</li>
+                            <li>Incident response</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>DDoS Attack Types</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">DDoS Attack Categories</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    DDOS ATTACK TYPES                                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  LAYER 3/4: VOLUMETRIC (Flood the pipe)                                    │
+│  ──────────────────────────────────────                                     │
+│  │ Goal: Saturate bandwidth                                                │
+│  │ Size: 100 Gbps - 3+ Tbps                                               │
+│  │                                                                         │
+│  │ • UDP Flood        - Massive UDP packets                               │
+│  │ • ICMP Flood       - Ping flood                                        │
+│  │ • DNS Amplification - Small query → large response (50x)              │
+│  │ • NTP Amplification - monlist command (500x)                          │
+│  │ • Memcached        - UDP amplification (50,000x!)                     │
+│  └─────────────────────────────────────────────────────────────────────────│
+│                                                                              │
+│  LAYER 3/4: PROTOCOL (Exhaust state tables)                                │
+│  ──────────────────────────────────────────                                 │
+│  │ Goal: Overwhelm firewalls, load balancers                              │
+│  │                                                                         │
+│  │ • SYN Flood        - Half-open TCP connections                        │
+│  │ • ACK Flood        - Bypass stateless filters                         │
+│  │ • RST Flood        - Reset existing connections                       │
+│  │ • Fragmentation    - Reassembly resource exhaustion                   │
+│  └─────────────────────────────────────────────────────────────────────────│
+│                                                                              │
+│  LAYER 7: APPLICATION (Exhaust application)                                │
+│  ──────────────────────────────────────────                                 │
+│  │ Goal: Overwhelm web servers, APIs                                      │
+│  │ Size: Low bandwidth, high impact                                       │
+│  │                                                                         │
+│  │ • HTTP Flood       - Legitimate-looking requests                      │
+│  │ • Slowloris        - Keep connections open slowly                     │
+│  │ • RUDY             - Slow POST body                                   │
+│  │ • DNS Query Flood  - Overwhelm DNS servers                            │
+│  └─────────────────────────────────────────────────────────────────────────│
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>DDoS Mitigation Architecture</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Multi-Layer DDoS Protection</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    DDOS PROTECTION LAYERS                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  INTERNET                                                                   │
+│      │                                                                      │
+│      ▼                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ LAYER 1: ISP/UPSTREAM PROTECTION                                    │   │
+│  │ • BGP blackhole routing (RTBH)                                     │   │
+│  │ • Upstream scrubbing                                               │   │
+│  │ • ACL filtering at carrier                                         │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│      │                                                                      │
+│      ▼                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ LAYER 2: CLOUD SCRUBBING / CDN                                      │   │
+│  │ • Cloudflare, Akamai, AWS Shield                                   │   │
+│  │ • Absorb volumetric attacks                                        │   │
+│  │ • Anycast distribution                                             │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│      │                                                                      │
+│      ▼                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ LAYER 3: ON-PREMISES DDOS APPLIANCE                                │   │
+│  │ • Arbor Networks, Radware, F5                                      │   │
+│  │ • Protocol attack mitigation                                       │   │
+│  │ • Behavioral analysis                                              │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│      │                                                                      │
+│      ▼                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ LAYER 4: FIREWALL / LOAD BALANCER                                   │   │
+│  │ • SYN cookies                                                      │   │
+│  │ • Rate limiting                                                    │   │
+│  │ • Connection limits                                                │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│      │                                                                      │
+│      ▼                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ LAYER 5: WAF / APPLICATION                                          │   │
+│  │ • HTTP rate limiting                                               │   │
+│  │ • Bot detection                                                    │   │
+│  │ • CAPTCHA challenges                                               │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│      │                                                                      │
+│      ▼                                                                      │
+│  [PROTECTED SERVERS]                                                        │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>DDoS Protection Solutions</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Solution</th>
+                                <th>Type</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Cloudflare</strong></td>
+                                <td>Cloud/CDN</td>
+                                <td>Web apps, always-on protection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS Shield</strong></td>
+                                <td>Cloud Native</td>
+                                <td>AWS workloads</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure DDoS Protection</strong></td>
+                                <td>Cloud Native</td>
+                                <td>Azure workloads</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Akamai Prolexic</strong></td>
+                                <td>Scrubbing</td>
+                                <td>Enterprise, on-demand</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Arbor Networks</strong></td>
+                                <td>On-Prem/Hybrid</td>
+                                <td>Data centers, ISPs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Radware DefensePro</strong></td>
+                                <td>On-Prem</td>
+                                <td>Inline protection</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Mitigation Techniques</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">DDoS Mitigation Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LINUX - SYN FLOOD PROTECTION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Enable SYN cookies</span>
+<span class="token-command">sysctl</span> -w net.ipv4.tcp_syncookies=1
+
+<span class="token-comment"># Reduce SYN-ACK retries</span>
+<span class="token-command">sysctl</span> -w net.ipv4.tcp_synack_retries=2
+
+<span class="token-comment"># Increase backlog queue</span>
+<span class="token-command">sysctl</span> -w net.ipv4.tcp_max_syn_backlog=4096
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># IPTABLES - RATE LIMITING</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Limit new connections per IP</span>
+<span class="token-command">iptables</span> -A INPUT -p tcp --syn -m connlimit --connlimit-above 50 -j DROP
+
+<span class="token-comment"># Rate limit ICMP</span>
+<span class="token-command">iptables</span> -A INPUT -p icmp --icmp-type echo-request -m limit --limit 1/s -j ACCEPT
+<span class="token-command">iptables</span> -A INPUT -p icmp --icmp-type echo-request -j DROP
+
+<span class="token-comment"># Block invalid packets</span>
+<span class="token-command">iptables</span> -A INPUT -m state --state INVALID -j DROP
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BGP BLACKHOLE (RTBH)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Cisco - Advertise attacked IP to blackhole</span>
+ip route 192.0.2.100 255.255.255.255 Null0 tag 666
+route-map BLACKHOLE permit 10
+ match tag 666
+ set community 65535:666
+ set origin igp
+
+<span class="token-comment"># Announce to upstream to drop traffic before it reaches you</span></code></pre>
+                </div>
+                
+                <h2>DDoS Response Runbook</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Phase</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. Detection</strong></td>
+                                <td>Monitor alerts, identify attack type and vector</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. Classification</strong></td>
+                                <td>Volumetric? Protocol? Application? Size?</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. Mitigation</strong></td>
+                                <td>Engage appropriate protection layer</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. Communication</strong></td>
+                                <td>Notify stakeholders, update status page</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. Monitoring</strong></td>
+                                <td>Watch for attack evolution, tune filters</td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. Post-Incident</strong></td>
+                                <td>Document, analyze, improve defenses</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ DDoS Protection Best Practices</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Defense in depth:</strong> Multiple layers of protection</li>
+                            <li><strong>Know your baseline:</strong> Understand normal traffic patterns</li>
+                            <li><strong>Overprovision bandwidth:</strong> Have headroom for attacks</li>
+                            <li><strong>Anycast DNS:</strong> Distribute DNS across locations</li>
+                            <li><strong>Pre-arranged scrubbing:</strong> Have cloud mitigation ready</li>
+                            <li><strong>Runbooks ready:</strong> Document response procedures</li>
+                            <li><strong>Test regularly:</strong> Simulate attacks to validate defenses</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you protect against a DDoS attack?"</p>
+                        <p><strong>Answer:</strong> "I'd implement defense in depth. For volumetric attacks, use cloud scrubbing services like Cloudflare or AWS Shield that have massive bandwidth to absorb floods - these use anycast to distribute traffic globally. For protocol attacks like SYN floods, enable SYN cookies on servers and use stateful firewalls with connection limits. For application layer attacks, deploy a WAF with rate limiting and bot detection. Have BGP blackhole (RTBH) capability coordinated with your ISP for emergency traffic dropping. Most importantly, know your normal traffic baseline so you can detect anomalies quickly. Have runbooks ready with escalation contacts for your ISP and scrubbing provider. Test your defenses regularly."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="2-11-firewall-troubleshooting.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Firewall Troubleshooting</span>
+                        </div>
+                    </a>
+                    <a href="3-1-proxy-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Proxy Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MACsec 802.1AE - Complete guide to Layer 2 encryption and secure network links">
+    <title>MACsec (802.1AE) | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🌐</span>Networking</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="1-13-ipv6-security.html" class="nav-link"><span class="nav-link-number">1.13</span> IPv6 Security</a>
+                        <a href="1-14-macsec.html" class="nav-link active"><span class="nav-link-number">1.14</span> MACsec</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Networking</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">MACsec</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>MACsec (802.1AE)</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>MACsec (Media Access Control Security) provides Layer 2 encryption on Ethernet links. It protects against eavesdropping, tampering, and man-in-the-middle attacks at the data link layer.</p>
+                        <ul>
+                            <li>MACsec fundamentals and use cases</li>
+                            <li>MACsec vs IPSec vs TLS comparison</li>
+                            <li>MKA (MACsec Key Agreement)</li>
+                            <li>Switch-to-switch and host-to-switch MACsec</li>
+                            <li>Configuration examples</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>MACsec Overview</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">MACsec - Layer 2 Encryption</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    MACsec (802.1AE) OVERVIEW                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  WITHOUT MACsec:                                                            │
+│  ───────────────                                                            │
+│                                                                              │
+│    ┌────────┐           Ethernet Link           ┌────────┐                 │
+│    │Switch A│◄─────────── Plaintext ───────────►│Switch B│                 │
+│    └────────┘      (Vulnerable to tap)          └────────┘                 │
+│                            │                                                │
+│                            ▼                                                │
+│                    [Attacker can sniff]                                    │
+│                                                                              │
+│  WITH MACsec:                                                               │
+│  ────────────                                                               │
+│                                                                              │
+│    ┌────────┐         MACsec Encrypted          ┌────────┐                 │
+│    │Switch A│◄══════════ AES-GCM-256 ══════════►│Switch B│                 │
+│    └────────┘      (Integrity + Encryption)     └────────┘                 │
+│                            │                                                │
+│                            ▼                                                │
+│                    [Attacker sees garbage]                                 │
+│                                                                              │
+│  MACsec FRAME FORMAT:                                                       │
+│  ┌─────────┬──────────┬─────────────────┬─────────┬─────────┐              │
+│  │ DA | SA │ SecTAG   │ Encrypted Data  │   ICV   │   FCS   │              │
+│  │ (clear) │ (8-16B)  │   (payload)     │ (8-16B) │  (4B)   │              │
+│  └─────────┴──────────┴─────────────────┴─────────┴─────────┘              │
+│                                                                              │
+│  • SecTAG: Security tag with packet number (anti-replay)                   │
+│  • ICV: Integrity Check Value (authentication tag)                         │
+│  • Encryption: AES-GCM-128 or AES-GCM-256                                  │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Encryption Comparison</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>MACsec</th>
+                                <th>IPSec</th>
+                                <th>TLS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Layer</strong></td>
+                                <td>Layer 2 (Data Link)</td>
+                                <td>Layer 3 (Network)</td>
+                                <td>Layer 4-7 (Transport/App)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Scope</strong></td>
+                                <td>Point-to-point link</td>
+                                <td>End-to-end or tunnel</td>
+                                <td>Application session</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Encrypts</strong></td>
+                                <td>All L2 traffic on link</td>
+                                <td>IP packets</td>
+                                <td>Application data</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Header Protected</strong></td>
+                                <td>L3+ headers encrypted</td>
+                                <td>IP header visible (ESP)</td>
+                                <td>TCP/IP headers visible</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Performance</strong></td>
+                                <td>Hardware (line rate)</td>
+                                <td>Hardware or software</td>
+                                <td>Software</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use Case</strong></td>
+                                <td>DC interconnects, WAN</td>
+                                <td>VPN tunnels</td>
+                                <td>Web, API, applications</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>MACsec Components</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">MKA - MACsec Key Agreement</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    MACsec KEY AGREEMENT (MKA)                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  MKA (802.1X-2010) establishes MACsec session:                             │
+│                                                                              │
+│  ┌──────────────┐                              ┌──────────────┐            │
+│  │   Switch A   │                              │   Switch B   │            │
+│  │              │                              │              │            │
+│  │  ┌────────┐  │      MKA Protocol (EAPoL)   │  ┌────────┐  │            │
+│  │  │  MKA   │◄─┼──────────────────────────────┼─►│  MKA   │  │            │
+│  │  │ Engine │  │   Exchange CAK → Derive SAK  │  │ Engine │  │            │
+│  │  └───┬────┘  │                              │  └───┬────┘  │            │
+│  │      │       │                              │      │       │            │
+│  │  ┌───▼────┐  │      MACsec Encrypted       │  ┌───▼────┐  │            │
+│  │  │MACsec  │◄─┼══════════════════════════════┼─►│MACsec  │  │            │
+│  │  │ Engine │  │       Data Traffic          │  │ Engine │  │            │
+│  │  └────────┘  │                              │  └────────┘  │            │
+│  └──────────────┘                              └──────────────┘            │
+│                                                                              │
+│  KEY HIERARCHY:                                                             │
+│  ─────────────                                                              │
+│  CAK (Connectivity Association Key)                                        │
+│   │   - Pre-shared or derived from 802.1X                                  │
+│   │   - Long-term key                                                      │
+│   ▼                                                                         │
+│  SAK (Secure Association Key)                                              │
+│       - Derived from CAK                                                   │
+│       - Short-term, rotated frequently                                     │
+│       - Actually encrypts the traffic                                      │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>MACsec Use Cases</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Use Case</th>
+                                <th>Description</th>
+                                <th>Deployment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Data Center Interconnect</strong></td>
+                                <td>Encrypt DC-to-DC links over dark fiber</td>
+                                <td>Switch-to-switch</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WAN Links</strong></td>
+                                <td>Secure MPLS or Metro Ethernet</td>
+                                <td>Router-to-router</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Campus Uplinks</strong></td>
+                                <td>Encrypt access-to-distribution</td>
+                                <td>Switch-to-switch</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Host Security</strong></td>
+                                <td>Secure endpoint to switch</td>
+                                <td>Host NIC to switch (802.1X)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cloud Connectivity</strong></td>
+                                <td>Direct Connect/ExpressRoute encryption</td>
+                                <td>Edge router to cloud</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>MACsec Configuration</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco - Switch-to-Switch MACsec (PSK)</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! SWITCH-TO-SWITCH MACsec WITH PRE-SHARED KEY</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">! Step 1: Define MKA policy</span>
+mka policy MACsec-Policy
+ macsec-cipher-suite gcm-aes-256
+ confidentiality-offset 0
+ key-server-priority 0
+ sak-rekey-interval 3600    <span class="token-comment">! Rekey every hour</span>
+
+<span class="token-comment">! Step 2: Create key chain with CAK</span>
+key chain MACsec-Keys macsec
+ key 01
+  cryptographic-algorithm aes-256-cmac
+  key-string <span class="token-string">0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF</span>
+  lifetime local 00:00:00 Jan 1 2024 infinite
+
+<span class="token-comment">! Step 3: Apply to interface</span>
+interface TenGigabitEthernet1/0/1
+ description MACsec Link to Switch-B
+ macsec network-link
+ mka policy MACsec-Policy
+ mka pre-shared-key key-chain MACsec-Keys
+ 
+<span class="token-comment">! Verify</span>
+show mka sessions
+show mka policy
+show macsec interface Te1/0/1</code></pre>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cisco - Host-to-Switch MACsec (802.1X)</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment">! HOST-TO-SWITCH MACsec WITH 802.1X</span>
+<span class="token-comment">! ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment">! MKA policy for endpoints</span>
+mka policy Endpoint-MACsec
+ macsec-cipher-suite gcm-aes-128
+ confidentiality-offset 0
+
+<span class="token-comment">! Configure 802.1X with MACsec</span>
+interface GigabitEthernet0/10
+ switchport mode access
+ switchport access vlan 10
+ authentication port-control auto
+ dot1x pae authenticator
+ mka policy Endpoint-MACsec
+ macsec
+
+<span class="token-comment">! The CAK is derived from EAP-TLS or EAP-FAST authentication</span>
+<span class="token-comment">! RADIUS returns MACsec policy attributes</span>
+
+<span class="token-comment">! Verify</span>
+show authentication sessions interface Gi0/10
+show mka sessions interface Gi0/10</code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ MACsec Best Practices</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Use AES-256-GCM:</strong> Stronger cipher suite when available</li>
+                            <li><strong>Enable SAK rekey:</strong> Rotate keys regularly (every 1-24 hours)</li>
+                            <li><strong>Prefer 802.1X:</strong> For host connections, use certificate-based auth</li>
+                            <li><strong>Hardware support:</strong> Ensure switches/NICs support MACsec in hardware</li>
+                            <li><strong>Plan for failures:</strong> MACsec link failure = no connectivity</li>
+                            <li><strong>Monitoring:</strong> Alert on MACsec session failures</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ MACsec Limitations</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Point-to-point only:</strong> Doesn't work across L3 boundaries</li>
+                            <li><strong>Hardware required:</strong> Software MACsec is rare and slow</li>
+                            <li><strong>Multi-hop:</strong> Must be configured on each link segment</li>
+                            <li><strong>Middleboxes:</strong> TAPs and packet brokers need MACsec support</li>
+                            <li><strong>Troubleshooting:</strong> Can't capture encrypted traffic easily</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "What is MACsec and when would you use it?"</p>
+                        <p><strong>Answer:</strong> "MACsec, or 802.1AE, provides Layer 2 encryption on Ethernet links. Unlike IPSec which operates at Layer 3 or TLS at the application layer, MACsec encrypts everything at the data link layer - including IP headers - providing true link-level security. It's primarily used for data center interconnects over dark fiber or leased lines, WAN links where you don't trust the carrier, and high-security campus environments. MACsec uses AES-GCM for encryption and provides both confidentiality and integrity. The key advantage is that it's implemented in hardware on modern switches, so you get line-rate encryption with no performance penalty. The limitation is that it's point-to-point - you need MACsec capable hardware on both ends of each link, and it doesn't cross Layer 3 boundaries."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="1-13-ipv6-security.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">IPv6 Security</span>
+                        </div>
+                    </a>
+                    <a href="1-15-network-taps.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Network TAPs & Visibility</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

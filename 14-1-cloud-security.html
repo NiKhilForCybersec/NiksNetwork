@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cloud Security Fundamentals - Complete guide to AWS, Azure, GCP security, shared responsibility, and cloud-native security">
+    <title>Cloud Security Fundamentals | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">☁️</span>Cloud Security</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="14-1-cloud-security.html" class="nav-link active"><span class="nav-link-number">14.1</span> Fundamentals</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Cloud Security</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Fundamentals</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Cloud Security Fundamentals</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Cloud security requires understanding the shared responsibility model, cloud-native security services, and how traditional security concepts apply in cloud environments.</p>
+                        <ul>
+                            <li>Shared responsibility model</li>
+                            <li>Cloud service models (IaaS, PaaS, SaaS)</li>
+                            <li>Major cloud provider security services</li>
+                            <li>Common cloud security risks</li>
+                            <li>Cloud security best practices</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Shared Responsibility Model</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Shared Responsibility Model</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SHARED RESPONSIBILITY MODEL                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│                    IaaS          PaaS          SaaS                         │
+│                    (EC2)         (Lambda)      (O365)                       │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                      │    │
+│  │  DATA                    ████████████  ████████████  ████████████   │    │
+│  │  Identity & Access       ████████████  ████████████  ████████████   │    │
+│  │  Application             ████████████  ████████████  ░░░░░░░░░░░░   │    │
+│  │  Network Controls        ████████████  ▓▓▓▓▓▓▓▓▓▓▓▓  ░░░░░░░░░░░░   │    │
+│  │  Operating System        ████████████  ░░░░░░░░░░░░  ░░░░░░░░░░░░   │    │
+│  │  Virtualization          ░░░░░░░░░░░░  ░░░░░░░░░░░░  ░░░░░░░░░░░░   │    │
+│  │  Physical Infrastructure ░░░░░░░░░░░░  ░░░░░░░░░░░░  ░░░░░░░░░░░░   │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ████ Customer Responsibility    ▓▓▓▓ Shared    ░░░░ Provider Responsibility│
+│                                                                              │
+│  KEY INSIGHT: "Security OF the cloud" (provider) vs                         │
+│               "Security IN the cloud" (customer)                            │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Security Services by Provider</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Function</th>
+                                <th>AWS</th>
+                                <th>Azure</th>
+                                <th>GCP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>IAM</strong></td>
+                                <td>IAM, Organizations</td>
+                                <td>Entra ID, RBAC</td>
+                                <td>Cloud IAM</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network Security</strong></td>
+                                <td>Security Groups, NACLs</td>
+                                <td>NSGs, Azure Firewall</td>
+                                <td>VPC Firewall Rules</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WAF</strong></td>
+                                <td>AWS WAF</td>
+                                <td>Azure WAF</td>
+                                <td>Cloud Armor</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SIEM/Detection</strong></td>
+                                <td>GuardDuty, Security Hub</td>
+                                <td>Microsoft Sentinel</td>
+                                <td>Chronicle, SCC</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Key Management</strong></td>
+                                <td>KMS, Secrets Manager</td>
+                                <td>Key Vault</td>
+                                <td>Cloud KMS, Secret Manager</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CSPM</strong></td>
+                                <td>Security Hub</td>
+                                <td>Defender for Cloud</td>
+                                <td>Security Command Center</td>
+                            </tr>
+                            <tr>
+                                <td><strong>DDoS</strong></td>
+                                <td>Shield</td>
+                                <td>DDoS Protection</td>
+                                <td>Cloud Armor</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Common Cloud Security Risks</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Risk</th>
+                                <th>Description</th>
+                                <th>Mitigation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Misconfiguration</strong></td>
+                                <td>Public S3 buckets, open security groups</td>
+                                <td>CSPM tools, IaC scanning</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Excessive Permissions</strong></td>
+                                <td>Overly permissive IAM roles</td>
+                                <td>Least privilege, regular reviews</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Exposed Credentials</strong></td>
+                                <td>Keys in code, environment variables</td>
+                                <td>Secrets management, rotation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Data Exposure</strong></td>
+                                <td>Unencrypted data, public endpoints</td>
+                                <td>Encryption at rest/transit, private endpoints</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lack of Logging</strong></td>
+                                <td>No visibility into activity</td>
+                                <td>Enable CloudTrail, VPC Flow Logs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Shadow IT</strong></td>
+                                <td>Unauthorized cloud usage</td>
+                                <td>CASB, account governance</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Cloud Security Best Practices</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">AWS Security Baseline</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># AWS SECURITY BASELINE CHECKLIST</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># IAM</span>
+✓ Enable MFA on root account
+✓ Don't use root for daily tasks
+✓ Use IAM roles instead of long-term keys
+✓ Implement least privilege policies
+✓ Enable IAM Access Analyzer
+
+<span class="token-comment"># Logging & Monitoring</span>
+✓ Enable CloudTrail in all regions
+✓ Enable VPC Flow Logs
+✓ Enable GuardDuty
+✓ Configure CloudWatch alarms
+✓ Centralize logs to Security account
+
+<span class="token-comment"># Network</span>
+✓ Use VPCs, avoid default VPC
+✓ Implement security groups (stateful)
+✓ Use NACLs for subnet-level control
+✓ Enable VPC endpoints for AWS services
+✓ Use private subnets for databases
+
+<span class="token-comment"># Data Protection</span>
+✓ Enable default S3 encryption
+✓ Block public S3 access (account level)
+✓ Enable EBS encryption by default
+✓ Use KMS for key management
+✓ Enable RDS encryption
+
+<span class="token-comment"># Governance</span>
+✓ Use AWS Organizations
+✓ Implement SCPs for guardrails
+✓ Enable AWS Config rules
+✓ Use Security Hub for posture</code></pre>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Most Common Cloud Breaches</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Public S3 buckets:</strong> Data exposure from misconfigured storage</li>
+                            <li><strong>Leaked credentials:</strong> API keys committed to GitHub</li>
+                            <li><strong>SSRF to metadata:</strong> Accessing 169.254.169.254 to steal credentials</li>
+                            <li><strong>Overprivileged roles:</strong> Compromised service leads to full account access</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "Explain the shared responsibility model."</p>
+                        <p><strong>Answer:</strong> "The cloud provider is responsible for security OF the cloud - physical infrastructure, hypervisor, network backbone. The customer is responsible for security IN the cloud - data, IAM, application security, network controls. The split varies by service model: with IaaS like EC2, you manage the OS and everything above. With PaaS like Lambda, the provider manages more. With SaaS, you mainly manage data and access. The key is understanding what YOU are responsible for securing."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="13-1-compliance-frameworks.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Compliance Frameworks</span>
+                        </div>
+                    </a>
+                    <a href="15-2-interview-questions.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Interview Questions</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

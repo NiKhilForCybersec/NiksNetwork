@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Threat Hunting - Complete guide to proactive threat detection and hunting methodologies">
+    <title>Threat Hunting | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔧</span>Troubleshooting</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="12-4-packet-capture.html" class="nav-link"><span class="nav-link-number">12.4</span> Packet Capture</a>
+                        <a href="12-5-threat-hunting.html" class="nav-link active"><span class="nav-link-number">12.5</span> Threat Hunting</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Troubleshooting</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Threat Hunting</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Threat Hunting</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Threat hunting is proactive security - actively searching for threats that evade automated detection. Unlike reactive incident response, hunting assumes the adversary is already in the environment.</p>
+                        <ul>
+                            <li>Hunting methodologies</li>
+                            <li>Hypothesis development</li>
+                            <li>Data sources and tools</li>
+                            <li>Common hunting techniques</li>
+                            <li>Measuring hunting effectiveness</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Hunting vs Detection</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Reactive vs Proactive Security</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    DETECTION vs HUNTING                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  TRADITIONAL DETECTION (Reactive)                                           │
+│  ─────────────────────────────────                                          │
+│                                                                              │
+│    Known Threats ──► Rules/Signatures ──► Alert ──► Investigate            │
+│                                                                              │
+│    ✓ Automated, scalable                                                    │
+│    ✗ Only detects known patterns                                           │
+│    ✗ Attackers can evade signatures                                        │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════   │
+│                                                                              │
+│  THREAT HUNTING (Proactive)                                                 │
+│  ──────────────────────────────                                             │
+│                                                                              │
+│    Hypothesis ──► Search Data ──► Analyze ──► Find (or not) ──► Improve   │
+│         │                                            │                      │
+│         │                                            ▼                      │
+│         │                              ┌─────────────────────────┐         │
+│         │                              │ If found: IR/Contain    │         │
+│         │                              │ Either way: New         │         │
+│         │                              │ detections/rules        │         │
+│         │                              └─────────────────────────┘         │
+│         │                                                                   │
+│    Based on:                                                                │
+│    • Threat intelligence                                                    │
+│    • MITRE ATT&CK techniques                                               │
+│    • Anomalies/intuition                                                   │
+│    • New vulnerability/threat reports                                      │
+│                                                                              │
+│    ✓ Finds unknown threats                                                 │
+│    ✓ Improves detection capability                                         │
+│    ✗ Requires skilled analysts                                             │
+│    ✗ Time-intensive                                                        │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Hunting Methodologies</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Approach</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Hypothesis-Driven</strong></td>
+                                <td>Start with theory of what attacker might do</td>
+                                <td>"Attackers may use PowerShell for lateral movement"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Intelligence-Driven</strong></td>
+                                <td>Hunt based on threat intel/IOCs</td>
+                                <td>"Hunt for APT29 TTPs from latest report"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Anomaly-Based</strong></td>
+                                <td>Find statistical outliers</td>
+                                <td>"Which process has unusual network connections?"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TTP-Based</strong></td>
+                                <td>Hunt for specific MITRE techniques</td>
+                                <td>"Hunt for T1055 Process Injection"</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>The Hunting Loop</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Threat Hunting Process</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># THE THREAT HUNTING LOOP</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+1. CREATE HYPOTHESIS
+   Example: "Attackers are using scheduled tasks for persistence"
+   Source: MITRE ATT&CK T1053.005, recent threat report
+   
+2. IDENTIFY DATA SOURCES
+   • Windows Event Log 4698 (scheduled task created)
+   • Sysmon Event 1 (process creation)
+   • EDR telemetry
+   
+3. DEVELOP HUNT QUERY
+   <span class="token-comment"># Splunk example</span>
+   index=windows EventCode=4698
+   | stats count by TaskName, User, Computer
+   | where User!="SYSTEM"
+   | sort -count
+   
+4. EXECUTE AND ANALYZE
+   • Run query across environment
+   • Identify anomalies
+   • Investigate suspicious results
+   
+5. DOCUMENT FINDINGS
+   • What was found (or not found)
+   • False positives encountered
+   • Data gaps identified
+   
+6. CREATE DETECTION
+   • Convert hunt to automated detection rule
+   • Add to SIEM/EDR
+   • Reduce future manual effort
+
+7. REPEAT
+   • New hypothesis
+   • Refine based on learnings</code></pre>
+                </div>
+                
+                <h2>Common Hunt Scenarios</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Hunt</th>
+                                <th>MITRE</th>
+                                <th>What to Look For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Persistence</strong></td>
+                                <td>T1053, T1547</td>
+                                <td>New scheduled tasks, run keys, services</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lateral Movement</strong></td>
+                                <td>T1021</td>
+                                <td>Unusual RDP, SMB, WMI connections</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Credential Access</strong></td>
+                                <td>T1003</td>
+                                <td>LSASS access, DCSync, Mimikatz patterns</td>
+                            </tr>
+                            <tr>
+                                <td><strong>C2 Communication</strong></td>
+                                <td>T1071</td>
+                                <td>Beaconing, DNS tunneling, unusual ports</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Data Exfiltration</strong></td>
+                                <td>T1041</td>
+                                <td>Large outbound transfers, cloud uploads</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Defense Evasion</strong></td>
+                                <td>T1562</td>
+                                <td>Disabled AV, cleared logs, timestomping</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Sample Hunt Queries</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Splunk Hunt Queries</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># POWERSHELL ENCODED COMMANDS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+index=sysmon EventCode=1 Image="*powershell.exe"
+| where match(CommandLine, "(?i)(-enc|-encoded|-e )")
+| table _time, Computer, User, CommandLine
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># UNUSUAL PARENT-CHILD PROCESS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+index=sysmon EventCode=1
+| where ParentImage LIKE "%outlook.exe" OR ParentImage LIKE "%winword.exe"
+| where Image LIKE "%cmd.exe" OR Image LIKE "%powershell.exe"
+| table _time, Computer, ParentImage, Image, CommandLine
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BEACONING DETECTION (Regular intervals)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+index=firewall action=allowed direction=outbound
+| bucket _time span=1m
+| stats count by src_ip, dest_ip, dest_port, _time
+| streamstats current=f last(_time) as prev_time by src_ip, dest_ip
+| eval interval=_time-prev_time
+| stats stdev(interval) as std_interval, avg(interval) as avg_interval by src_ip, dest_ip
+| where std_interval < 10 AND avg_interval > 30 AND avg_interval < 3600
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LSASS ACCESS (Credential dumping)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+index=sysmon EventCode=10 TargetImage="*lsass.exe"
+| where SourceImage!="*csrss.exe" AND SourceImage!="*services.exe"
+| table _time, Computer, SourceImage, GrantedAccess</code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Hunting Best Practices</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Start with ATT&CK:</strong> Use MITRE framework to prioritize</li>
+                            <li><strong>Know your baseline:</strong> Understand normal before finding abnormal</li>
+                            <li><strong>Document everything:</strong> Even negative results are valuable</li>
+                            <li><strong>Automate findings:</strong> Convert hunts to detection rules</li>
+                            <li><strong>Use good data:</strong> Sysmon, EDR, DNS logs are essential</li>
+                            <li><strong>Collaborate:</strong> Share techniques with security community</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "Describe your approach to threat hunting."</p>
+                        <p><strong>Answer:</strong> "I use a hypothesis-driven approach, typically starting with MITRE ATT&CK. I'll pick a technique relevant to current threats - say T1053 Scheduled Tasks for persistence. I develop a hypothesis like 'attackers may have created scheduled tasks for persistence.' Then I identify data sources - Windows Event 4698 and Sysmon logs. I build and run queries looking for anomalies - tasks created by unusual users, tasks running suspicious commands, or tasks created outside business hours. I investigate anything unusual, document findings, and regardless of whether I find anything malicious, I convert the hunt into an automated detection rule. This way, each hunt improves our detection capability over time."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="12-4-packet-capture.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Packet Capture</span>
+                        </div>
+                    </a>
+                    <a href="13-1-compliance-frameworks.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Compliance Frameworks</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

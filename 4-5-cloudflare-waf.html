@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cloudflare WAF - Complete guide to Cloudflare Web Application Firewall, managed rules, and DDoS protection">
+    <title>Cloudflare WAF | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🛡️</span>WAF</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="4-1-waf-fundamentals.html" class="nav-link"><span class="nav-link-number">4.1</span> Fundamentals</a>
+                        <a href="4-2-owasp-top10.html" class="nav-link"><span class="nav-link-number">4.2</span> OWASP Top 10</a>
+                        <a href="4-3-aws-waf.html" class="nav-link"><span class="nav-link-number">4.3</span> AWS WAF</a>
+                        <a href="4-4-azure-waf.html" class="nav-link"><span class="nav-link-number">4.4</span> Azure WAF</a>
+                        <a href="4-5-cloudflare-waf.html" class="nav-link active"><span class="nav-link-number">4.5</span> Cloudflare</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">WAF</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Cloudflare</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Cloudflare WAF</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Cloudflare provides a global edge network with integrated WAF, DDoS protection, and CDN. It's one of the most popular choices for protecting web applications due to its ease of deployment and comprehensive feature set.</p>
+                        <ul>
+                            <li>Cloudflare security architecture</li>
+                            <li>Managed rulesets</li>
+                            <li>Custom firewall rules</li>
+                            <li>Rate limiting</li>
+                            <li>Bot management</li>
+                            <li>DDoS protection</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Cloudflare Security Stack</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Cloudflare Protection Layers</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    CLOUDFLARE SECURITY STACK                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Internet Traffic                                                           │
+│        │                                                                    │
+│        ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ LAYER 1: DDoS Protection (Always On)                                │    │
+│  │ • L3/L4 DDoS mitigation                                             │    │
+│  │ • L7 HTTP flood protection                                          │    │
+│  │ • Automatic attack detection                                        │    │
+│  └────────────────────────────────┬────────────────────────────────────┘    │
+│                                   │                                         │
+│  ┌────────────────────────────────▼────────────────────────────────────┐    │
+│  │ LAYER 2: Bot Management                                             │    │
+│  │ • Bot score calculation                                             │    │
+│  │ • Challenge suspicious bots                                         │    │
+│  │ • Allow verified bots (Google, etc.)                                │    │
+│  └────────────────────────────────┬────────────────────────────────────┘    │
+│                                   │                                         │
+│  ┌────────────────────────────────▼────────────────────────────────────┐    │
+│  │ LAYER 3: Firewall Rules (Custom)                                    │    │
+│  │ • IP/Country blocking                                               │    │
+│  │ • Rate limiting                                                     │    │
+│  │ • Custom expressions                                                │    │
+│  └────────────────────────────────┬────────────────────────────────────┘    │
+│                                   │                                         │
+│  ┌────────────────────────────────▼────────────────────────────────────┐    │
+│  │ LAYER 4: Managed WAF Rulesets                                       │    │
+│  │ • Cloudflare Managed Rules                                          │    │
+│  │ • OWASP Core Rule Set                                               │    │
+│  │ • Exposed Credentials Check                                         │    │
+│  └────────────────────────────────┬────────────────────────────────────┘    │
+│                                   │                                         │
+│                                   ▼                                         │
+│                            Origin Server                                    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Managed Rulesets</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ruleset</th>
+                                <th>Description</th>
+                                <th>Plan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Cloudflare Managed</strong></td>
+                                <td>Cloudflare's own rules, updated frequently</td>
+                                <td>Pro+</td>
+                            </tr>
+                            <tr>
+                                <td><strong>OWASP Core Rule Set</strong></td>
+                                <td>Industry standard OWASP rules</td>
+                                <td>Pro+</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Exposed Credentials</strong></td>
+                                <td>Check for leaked credential usage</td>
+                                <td>Enterprise</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Free Managed Rules</strong></td>
+                                <td>Basic protection for free plans</td>
+                                <td>Free</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Custom Firewall Rules</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Cloudflare Firewall Rule Expressions</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BLOCK BY COUNTRY</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+(ip.geoip.country in {"CN" "RU" "KP"})
+Action: Block
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ALLOW SPECIFIC IPS (Whitelist)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+(ip.src in {10.0.0.0/8 192.168.1.0/24 203.0.113.50})
+Action: Allow
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BLOCK BAD USER AGENTS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+(http.user_agent contains "sqlmap") or 
+(http.user_agent contains "nikto") or
+(http.user_agent contains "nmap")
+Action: Block
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PROTECT ADMIN PAGES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+(http.request.uri.path contains "/admin" or 
+ http.request.uri.path contains "/wp-admin") and 
+not ip.src in {203.0.113.0/24}
+Action: Block (or Challenge)
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># CHALLENGE SUSPICIOUS REQUESTS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+(cf.threat_score gt 10)
+Action: Managed Challenge
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BLOCK NON-BROWSER BOTS (except known good)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+(cf.client.bot) and not (cf.bot_management.verified_bot)
+Action: Block
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># RATE LIMITING EXPRESSION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+(http.request.uri.path eq "/api/login")
+Action: Rate Limit (10 requests per minute)</code></pre>
+                </div>
+                
+                <h2>Common Fields for Rules</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>ip.src</strong></td>
+                                <td>Source IP address</td>
+                                <td>ip.src eq 1.2.3.4</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ip.geoip.country</strong></td>
+                                <td>Country code</td>
+                                <td>ip.geoip.country eq "US"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>http.request.uri.path</strong></td>
+                                <td>URL path</td>
+                                <td>http.request.uri.path contains "/api"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>http.user_agent</strong></td>
+                                <td>User-Agent header</td>
+                                <td>http.user_agent contains "bot"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>http.request.method</strong></td>
+                                <td>HTTP method</td>
+                                <td>http.request.method eq "POST"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>cf.threat_score</strong></td>
+                                <td>Cloudflare threat score (0-100)</td>
+                                <td>cf.threat_score gt 50</td>
+                            </tr>
+                            <tr>
+                                <td><strong>cf.bot_management.score</strong></td>
+                                <td>Bot score (1-99, lower = more bot-like)</td>
+                                <td>cf.bot_management.score lt 30</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Actions</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Block</strong></td>
+                                <td>Deny the request completely</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Managed Challenge</strong></td>
+                                <td>Non-interactive challenge (Turnstile)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>JS Challenge</strong></td>
+                                <td>JavaScript challenge page</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Interactive Challenge</strong></td>
+                                <td>CAPTCHA (deprecated)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Allow</strong></td>
+                                <td>Skip remaining rules</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Log</strong></td>
+                                <td>Log but don't take action</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - Cloudflare WAF</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Enable managed rules:</strong> Start with Cloudflare Managed Ruleset</li>
+                            <li><strong>Use Log first:</strong> Monitor before blocking</li>
+                            <li><strong>Whitelist first:</strong> Put allow rules at top priority</li>
+                            <li><strong>Rate limit login pages:</strong> Protect authentication endpoints</li>
+                            <li><strong>Enable Bot Fight Mode:</strong> Free basic bot protection</li>
+                            <li><strong>Review Security Events:</strong> Check logs regularly for FPs</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How does Cloudflare protect against DDoS attacks?"</p>
+                        <p><strong>Answer:</strong> "Cloudflare operates a global anycast network that absorbs DDoS traffic close to the source. For L3/L4 attacks, they use their network capacity (over 100 Tbps) to absorb volumetric attacks. For L7 attacks like HTTP floods, they use rate limiting, bot detection, and JavaScript challenges to distinguish legitimate users from attackers. The WAF handles application-layer attacks. All of this happens at the edge before traffic reaches the origin server, so even massive attacks don't impact the origin."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="4-4-azure-waf.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Azure WAF</span>
+                        </div>
+                    </a>
+                    <a href="5-1-ids-ips-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">IDS/IPS Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

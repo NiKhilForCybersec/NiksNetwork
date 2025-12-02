@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SSL/TLS Inspection - Complete guide to SSL decryption, certificate handling, and encrypted traffic inspection">
+    <title>SSL/TLS Inspection | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">
+                        Network Security
+                        <span>Ultimate Guide</span>
+                    </div>
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title">
+                            <span class="nav-section-icon">🔄</span>
+                            Proxy & Filtering
+                        </div>
+                        <span class="nav-section-arrow">▼</span>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="3-1-proxy-fundamentals.html" class="nav-link"><span class="nav-link-number">3.1</span> Proxy Fundamentals</a>
+                        <a href="3-2-ssl-inspection.html" class="nav-link active"><span class="nav-link-number">3.2</span> SSL/TLS Inspection</a>
+                        <a href="3-3-url-filtering.html" class="nav-link"><span class="nav-link-number">3.3</span> URL Filtering</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Proxy & Filtering</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">SSL/TLS Inspection</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>SSL/TLS Inspection</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>With 90%+ of web traffic encrypted, SSL/TLS inspection is essential for visibility into threats hiding in HTTPS. This section covers how SSL inspection works, deployment considerations, and best practices.</p>
+                        <ul>
+                            <li>Why SSL inspection is needed</li>
+                            <li>How SSL inspection works (MITM)</li>
+                            <li>Certificate handling</li>
+                            <li>Bypass categories and exemptions</li>
+                            <li>Performance considerations</li>
+                            <li>Privacy and legal considerations</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Why SSL Inspection?</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">The Encryption Blind Spot</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    THE ENCRYPTION BLIND SPOT                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  WITHOUT SSL INSPECTION                                                     │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                                                                      │    │
+│  │  User ─────► [HTTPS] ─────► Firewall/Proxy ─────► Internet          │    │
+│  │              ═══════                ▲                                │    │
+│  │              Encrypted              │                                │    │
+│  │                                     │                                │    │
+│  │                           "I can see:                               │    │
+│  │                            - Destination IP                         │    │
+│  │                            - SNI (domain name)                      │    │
+│  │                                                                      │    │
+│  │                            I CANNOT see:                            │    │
+│  │                            - URL path (/malware.exe)                │    │
+│  │                            - File downloads                         │    │
+│  │                            - Data exfiltration                      │    │
+│  │                            - Malware in responses"                  │    │
+│  │                                                                      │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  THREAT EXAMPLES HIDDEN IN HTTPS:                                           │
+│  • Malware downloads from compromised legitimate sites                      │
+│  • Phishing pages with valid SSL certificates                               │
+│  • Data exfiltration to cloud storage                                       │
+│  • Command & control (C2) over HTTPS                                        │
+│  • Encrypted malware payloads                                               │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>How SSL Inspection Works</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">SSL Inspection (Man-in-the-Middle)</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SSL INSPECTION PROCESS                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌────────┐                ┌──────────────────┐               ┌──────────┐ │
+│  │ Client │                │ Inspection Proxy │               │  Server  │ │
+│  │        │                │    (Firewall)    │               │          │ │
+│  └───┬────┘                └────────┬─────────┘               └────┬─────┘ │
+│      │                              │                              │       │
+│      │  1. Client Hello             │                              │       │
+│      │─────────────────────────────►│                              │       │
+│      │                              │  2. Proxy initiates          │       │
+│      │                              │     connection to server     │       │
+│      │                              │─────────────────────────────►│       │
+│      │                              │                              │       │
+│      │                              │  3. Server sends cert        │       │
+│      │                              │◄─────────────────────────────│       │
+│      │                              │                              │       │
+│      │                              │  4. Proxy validates          │       │
+│      │                              │     server cert              │       │
+│      │                              │                              │       │
+│      │  5. Proxy generates NEW      │                              │       │
+│      │     cert signed by           │                              │       │
+│      │     internal CA              │                              │       │
+│      │◄─────────────────────────────│                              │       │
+│      │                              │                              │       │
+│      │  6. Two separate             │                              │       │
+│      │     SSL sessions:            │                              │       │
+│      │                              │                              │       │
+│      │  ════════════════            ════════════════               │       │
+│      │  Session 1                   Session 2                      │       │
+│      │  Client ◄──► Proxy           Proxy ◄──► Server              │       │
+│      │  (Internal CA cert)          (Original server cert)         │       │
+│      │                              │                              │       │
+│      │  7. Traffic decrypted at proxy, inspected, re-encrypted     │       │
+│      │                              │                              │       │
+│                                                                              │
+│  RESULT: Proxy can inspect all traffic content                              │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Certificate Requirements</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Requirement</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Root CA Certificate</strong></td>
+                                <td>Generated on inspection device</td>
+                                <td>Signs all generated certificates</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Client Trust</strong></td>
+                                <td>Deploy CA to all endpoints</td>
+                                <td>Clients trust generated certs</td>
+                            </tr>
+                            <tr>
+                                <td><strong>GPO Deployment</strong></td>
+                                <td>Push via Group Policy</td>
+                                <td>Windows domain devices</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MDM Deployment</strong></td>
+                                <td>Intune, JAMF, etc.</td>
+                                <td>Mobile and Mac devices</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Manual Install</strong></td>
+                                <td>Browser/OS trust store</td>
+                                <td>BYOD, guest devices</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Bypass Categories</h2>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ Categories to Bypass SSL Inspection</div>
+                    <div class="callout-content">
+                        <p>Some traffic should NOT be decrypted for legal, privacy, or technical reasons:</p>
+                        <ul>
+                            <li><strong>Financial/Banking:</strong> Legal and compliance requirements</li>
+                            <li><strong>Healthcare:</strong> HIPAA considerations</li>
+                            <li><strong>Government:</strong> Sensitive communications</li>
+                            <li><strong>Certificate pinning:</strong> Apps that pin certificates will break</li>
+                            <li><strong>VPN clients:</strong> Enterprise VPN connections</li>
+                            <li><strong>Video conferencing:</strong> Performance and privacy</li>
+                            <li><strong>Software updates:</strong> Windows Update, antivirus updates</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Implementation by Platform</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Palo Alto - SSL Decryption Policy</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># PALO ALTO SSL DECRYPTION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># 1. Generate/Import Root CA</span>
+<span class="token-comment"># Device > Certificate Management > Certificates</span>
+<span class="token-comment"># Generate self-signed CA or import existing</span>
+
+<span class="token-comment"># 2. Create Decryption Profile</span>
+<span class="token-comment"># Objects > Decryption > Decryption Profile</span>
+<span class="token-comment"># - SSL Protocol Settings</span>
+<span class="token-comment"># - Certificate verification options</span>
+<span class="token-comment"># - Unsupported mode actions</span>
+
+<span class="token-comment"># 3. Create Decryption Policy</span>
+<span class="token-comment"># Policies > Decryption</span>
+
+<span class="token-comment"># NO DECRYPT RULE (First - Bypass sensitive)</span>
+Name: No-Decrypt-Financial
+Source: Trust Zone
+Destination: Any
+URL Category: financial-services, health-and-medicine
+Action: No Decrypt
+
+<span class="token-comment"># DECRYPT RULE (General traffic)</span>
+Name: Decrypt-Web-Traffic
+Source: Trust Zone  
+Destination: Untrust Zone
+Service: ssl, web-browsing
+Action: Decrypt
+Type: SSL Forward Proxy
+Decryption Profile: Standard-Decryption</code></pre>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Zscaler - SSL Inspection</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ZSCALER SSL INSPECTION</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Zscaler uses cloud-based SSL inspection</span>
+<span class="token-comment"># Certificate is Zscaler Root CA</span>
+
+<span class="token-comment"># 1. Download Zscaler Root Certificate</span>
+<span class="token-comment"># Administration > SSL Inspection > Zscaler Root Certificate</span>
+
+<span class="token-comment"># 2. Deploy via GPO or MDM</span>
+<span class="token-comment"># Import to Trusted Root Certification Authorities</span>
+
+<span class="token-comment"># 3. Configure SSL Inspection Policy</span>
+<span class="token-comment"># Policy > SSL Inspection</span>
+
+<span class="token-comment"># DO NOT INSPECT rules (exemptions)</span>
+- URL Categories: Financial Services, Health
+- Applications: Banking apps, Healthcare apps
+- Domains: *.banking.com, *.healthcare.org
+
+<span class="token-comment"># INSPECT rules</span>
+- All other HTTPS traffic</code></pre>
+                </div>
+                
+                <h2>Troubleshooting SSL Inspection</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Issue</th>
+                                <th>Symptom</th>
+                                <th>Solution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Certificate error</strong></td>
+                                <td>Browser shows "Not Secure"</td>
+                                <td>Deploy root CA to client trust store</td>
+                            </tr>
+                            <tr>
+                                <td><strong>App breaks</strong></td>
+                                <td>App fails to connect</td>
+                                <td>Check for certificate pinning, add bypass</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Performance</strong></td>
+                                <td>Slow HTTPS connections</td>
+                                <td>Check device capacity, bypass high-bandwidth</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TLS version</strong></td>
+                                <td>Connection fails</td>
+                                <td>Ensure TLS 1.2/1.3 support on device</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">OpenSSL - Certificate Verification</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># Check what certificate is presented (with SSL inspection)</span>
+<span class="token-function">openssl</span> s_client -connect www.google.com:443 -servername www.google.com
+
+<span class="token-comment"># Look for Issuer - should show your internal CA if inspection is active</span>
+<span class="token-comment"># Issuer: CN = Your-Company-SSL-Inspection-CA</span>
+
+<span class="token-comment"># Without inspection, you'd see:</span>
+<span class="token-comment"># Issuer: C = US, O = Google Trust Services, CN = GTS CA 1C3</span>
+
+<span class="token-comment"># Check certificate chain</span>
+<span class="token-function">openssl</span> s_client -connect www.google.com:443 -showcerts
+
+<span class="token-comment"># Verify specific certificate</span>
+<span class="token-function">openssl</span> x509 -in cert.pem -text -noout</code></pre>
+                </div>
+                
+                <div class="callout callout-daily">
+                    <div class="callout-title">📅 Day-to-Day Tasks</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Certificate expiry:</strong> Monitor and renew inspection CA before expiry</li>
+                            <li><strong>Bypass requests:</strong> Evaluate and add legitimate bypass rules</li>
+                            <li><strong>Troubleshooting:</strong> Investigate "connection failed" reports</li>
+                            <li><strong>Capacity monitoring:</strong> Watch SSL inspection CPU usage</li>
+                            <li><strong>Policy updates:</strong> Add new applications to bypass list as needed</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Common Question:</strong> "How does SSL inspection work and what are the challenges?"</p>
+                        <p><strong>Answer framework:</strong></p>
+                        <ol>
+                            <li><strong>How it works:</strong> "The inspection device acts as a man-in-the-middle. It terminates the client's SSL session, inspects the traffic, then creates a new SSL session to the server. It presents clients with a certificate signed by an internal CA."</li>
+                            <li><strong>Certificate deployment:</strong> "The internal CA must be trusted by all clients - typically deployed via GPO for Windows, MDM for mobile devices."</li>
+                            <li><strong>Challenges:</strong> "Certificate pinning breaks some apps, there are privacy/legal concerns for certain categories (banking, healthcare), and it adds CPU overhead."</li>
+                            <li><strong>Best practice:</strong> "Create bypass rules for sensitive categories and certificate-pinned applications, and monitor device performance."</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="3-1-proxy-fundamentals.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Proxy Fundamentals</span>
+                        </div>
+                    </a>
+                    <a href="3-3-url-filtering.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">URL Filtering</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    
+    <script src="main.js"></script>
+</body>
+</html>

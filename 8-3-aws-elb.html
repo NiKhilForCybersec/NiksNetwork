@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AWS ALB/NLB - Complete guide to AWS Application Load Balancer and Network Load Balancer">
+    <title>AWS ALB/NLB | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">⚖️</span>Load Balancers</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="8-1-lb-fundamentals.html" class="nav-link"><span class="nav-link-number">8.1</span> Fundamentals</a>
+                        <a href="8-2-f5-bigip.html" class="nav-link"><span class="nav-link-number">8.2</span> F5 BIG-IP</a>
+                        <a href="8-3-aws-elb.html" class="nav-link active"><span class="nav-link-number">8.3</span> AWS ALB/NLB</a>
+                        <a href="8-4-haproxy.html" class="nav-link"><span class="nav-link-number">8.4</span> HAProxy</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Load Balancers</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">AWS ALB/NLB</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>AWS Elastic Load Balancing</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>AWS provides multiple load balancer types: Application Load Balancer (ALB) for HTTP/HTTPS, Network Load Balancer (NLB) for TCP/UDP, and Gateway Load Balancer (GWLB) for third-party appliances.</p>
+                        <ul>
+                            <li>ALB vs NLB comparison</li>
+                            <li>Target groups and health checks</li>
+                            <li>SSL/TLS termination</li>
+                            <li>Security features</li>
+                            <li>Logging and monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Load Balancer Types</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>ALB</th>
+                                <th>NLB</th>
+                                <th>GWLB</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Layer</strong></td>
+                                <td>Layer 7 (HTTP/HTTPS)</td>
+                                <td>Layer 4 (TCP/UDP/TLS)</td>
+                                <td>Layer 3 (IP)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use Case</strong></td>
+                                <td>Web apps, microservices</td>
+                                <td>High performance, non-HTTP</td>
+                                <td>Firewall, IDS/IPS appliances</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Performance</strong></td>
+                                <td>Millions req/sec</td>
+                                <td>Millions req/sec, ultra-low latency</td>
+                                <td>Scales with traffic</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Static IP</strong></td>
+                                <td>No (use Global Accelerator)</td>
+                                <td>Yes (Elastic IP per AZ)</td>
+                                <td>N/A</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SSL Termination</strong></td>
+                                <td>Yes</td>
+                                <td>Yes (TLS)</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Path Routing</strong></td>
+                                <td>Yes (/api/*, /images/*)</td>
+                                <td>No</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Host Routing</strong></td>
+                                <td>Yes (api.example.com)</td>
+                                <td>No</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WAF Integration</strong></td>
+                                <td>Yes (AWS WAF)</td>
+                                <td>No</td>
+                                <td>N/A</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>ALB Architecture</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Application Load Balancer</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    APPLICATION LOAD BALANCER                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  Internet                                                                   │
+│      │                                                                      │
+│      ▼                                                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ ALB (Internet-facing)                                                │    │
+│  │ DNS: myapp-1234567890.us-east-1.elb.amazonaws.com                   │    │
+│  │                                                                      │    │
+│  │ LISTENERS:                                                           │    │
+│  │ ┌─────────────────────────────────────────────────────────────────┐ │    │
+│  │ │ Port 443 (HTTPS)                                                │ │    │
+│  │ │ SSL Certificate: *.example.com                                  │ │    │
+│  │ │                                                                  │ │    │
+│  │ │ RULES (evaluated in order):                                     │ │    │
+│  │ │ 1. IF path = /api/*    → Forward to: api-target-group          │ │    │
+│  │ │ 2. IF host = admin.*   → Forward to: admin-target-group        │ │    │
+│  │ │ 3. Default             → Forward to: web-target-group          │ │    │
+│  │ └─────────────────────────────────────────────────────────────────┘ │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                │                    │                    │                  │
+│                ▼                    ▼                    ▼                  │
+│        ┌─────────────┐      ┌─────────────┐      ┌─────────────┐           │
+│        │ api-target  │      │admin-target │      │ web-target  │           │
+│        │   group     │      │   group     │      │   group     │           │
+│        │             │      │             │      │             │           │
+│        │ ┌───┐ ┌───┐ │      │    ┌───┐    │      │ ┌───┐ ┌───┐ │           │
+│        │ │EC2│ │EC2│ │      │    │EC2│    │      │ │EC2│ │EC2│ │           │
+│        │ └───┘ └───┘ │      │    └───┘    │      │ └───┘ └───┘ │           │
+│        └─────────────┘      └─────────────┘      └─────────────┘           │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Security Features</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>ALB</th>
+                                <th>NLB</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Security Groups</strong></td>
+                                <td>Yes</td>
+                                <td>No (use NACLs)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS WAF</strong></td>
+                                <td>Yes</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SSL/TLS</strong></td>
+                                <td>Termination + re-encryption</td>
+                                <td>TLS passthrough or termination</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Authentication</strong></td>
+                                <td>OIDC, Cognito integration</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Access Logs</strong></td>
+                                <td>Yes (to S3)</td>
+                                <td>Yes (to S3)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Client IP</strong></td>
+                                <td>X-Forwarded-For header</td>
+                                <td>Preserved (proxy protocol optional)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>CLI Commands</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">AWS CLI - ELB Commands</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># LIST AND DESCRIBE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">aws</span> elbv2 describe-load-balancers
+<span class="token-command">aws</span> elbv2 describe-load-balancers --names my-alb
+<span class="token-command">aws</span> elbv2 describe-target-groups
+<span class="token-command">aws</span> elbv2 describe-target-health --target-group-arn &lt;arn&gt;
+<span class="token-command">aws</span> elbv2 describe-listeners --load-balancer-arn &lt;arn&gt;
+<span class="token-command">aws</span> elbv2 describe-rules --listener-arn &lt;arn&gt;
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># TARGET MANAGEMENT</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># Register target</span>
+<span class="token-command">aws</span> elbv2 register-targets --target-group-arn &lt;arn&gt; \
+    --targets Id=i-1234567890abcdef0
+
+<span class="token-comment"># Deregister target</span>
+<span class="token-command">aws</span> elbv2 deregister-targets --target-group-arn &lt;arn&gt; \
+    --targets Id=i-1234567890abcdef0
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># HEALTH CHECK</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">aws</span> elbv2 modify-target-group --target-group-arn &lt;arn&gt; \
+    --health-check-path /health \
+    --health-check-interval-seconds 30 \
+    --healthy-threshold-count 2 \
+    --unhealthy-threshold-count 3
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ENABLE ACCESS LOGS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-command">aws</span> elbv2 modify-load-balancer-attributes \
+    --load-balancer-arn &lt;arn&gt; \
+    --attributes Key=access_logs.s3.enabled,Value=true \
+                 Key=access_logs.s3.bucket,Value=my-log-bucket \
+                 Key=access_logs.s3.prefix,Value=alb-logs</code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ Best Practice - AWS ELB Security</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Use HTTPS:</strong> Always terminate SSL at the ALB</li>
+                            <li><strong>Enable access logs:</strong> Send to S3 for forensics</li>
+                            <li><strong>Attach WAF:</strong> Protect against web attacks</li>
+                            <li><strong>Security groups:</strong> Restrict ALB to only needed ports</li>
+                            <li><strong>Multi-AZ:</strong> Deploy across multiple availability zones</li>
+                            <li><strong>Health checks:</strong> Use application-level checks, not just TCP</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "When would you use ALB vs NLB?"</p>
+                        <p><strong>Answer:</strong> "ALB for HTTP/HTTPS workloads where you need Layer 7 features: path-based routing (/api vs /web), host-based routing (api.example.com), WAF integration, authentication with Cognito/OIDC. NLB for anything requiring Layer 4: ultra-low latency, static IPs (for firewall allowlisting), TCP/UDP protocols, or when you need to preserve client IP without proxy protocol. NLB is also better for extremely high throughput workloads. For typical web applications, ALB is the default choice."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="8-2-f5-bigip.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">F5 BIG-IP</span>
+                        </div>
+                    </a>
+                    <a href="8-4-haproxy.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">HAProxy</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

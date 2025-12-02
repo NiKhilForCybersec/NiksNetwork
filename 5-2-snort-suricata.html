@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Snort & Suricata - Complete guide to open-source IDS/IPS, rule writing, and deployment">
+    <title>Snort & Suricata | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔍</span>IDS/IPS</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="5-1-ids-ips-fundamentals.html" class="nav-link"><span class="nav-link-number">5.1</span> Fundamentals</a>
+                        <a href="5-2-snort-suricata.html" class="nav-link active"><span class="nav-link-number">5.2</span> Snort & Suricata</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">IDS/IPS</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Snort & Suricata</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Snort & Suricata</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>Snort and Suricata are the most popular open-source IDS/IPS engines. They use signature-based detection with rule languages that are largely compatible.</p>
+                        <ul>
+                            <li>Snort vs Suricata comparison</li>
+                            <li>Rule syntax and structure</li>
+                            <li>Writing custom rules</li>
+                            <li>Rule sources and management</li>
+                            <li>Deployment considerations</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Snort vs Suricata</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Snort</th>
+                                <th>Suricata</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Threading</strong></td>
+                                <td>Single-threaded (Snort 2), Multi (Snort 3)</td>
+                                <td>Multi-threaded from start</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Performance</strong></td>
+                                <td>Good</td>
+                                <td>Better at high speeds (multi-core)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rule Compatibility</strong></td>
+                                <td>Snort rules</td>
+                                <td>Snort rules + extensions</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Protocol Detection</strong></td>
+                                <td>Port-based + preprocessors</td>
+                                <td>Deep protocol inspection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>File Extraction</strong></td>
+                                <td>Limited</td>
+                                <td>Built-in file extraction</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lua Scripting</strong></td>
+                                <td>Snort 3 only</td>
+                                <td>Yes</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Owner</strong></td>
+                                <td>Cisco (Talos)</td>
+                                <td>OISF (Open Source)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Rule Syntax</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">Snort/Suricata Rule Structure</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    RULE STRUCTURE                                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"SQL Injection";          │
+│  content:"' OR '1'='1"; nocase; sid:1000001; rev:1;)                        │
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────┐     │
+│  │ HEADER                                                              │     │
+│  │                                                                     │     │
+│  │ alert    - Action (alert, log, pass, drop, reject)                 │     │
+│  │ tcp      - Protocol (tcp, udp, icmp, ip)                           │     │
+│  │ $EXTERNAL_NET any  - Source IP and port                            │     │
+│  │ ->       - Direction (-> or <>)                                    │     │
+│  │ $HOME_NET 80       - Destination IP and port                       │     │
+│  │                                                                     │     │
+│  └────────────────────────────────────────────────────────────────────┘     │
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────┐     │
+│  │ OPTIONS (in parentheses)                                           │     │
+│  │                                                                     │     │
+│  │ msg      - Alert message                                           │     │
+│  │ content  - Pattern to match in payload                             │     │
+│  │ nocase   - Case-insensitive matching                               │     │
+│  │ sid      - Signature ID (unique)                                   │     │
+│  │ rev      - Revision number                                         │     │
+│  │                                                                     │     │
+│  └────────────────────────────────────────────────────────────────────┘     │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Rule Examples</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Snort/Suricata Rules</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># BASIC DETECTION RULES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Detect SQL injection attempt</span>
+<span class="token-keyword">alert</span> http $EXTERNAL_NET any -> $HOME_NET any (
+    msg:"SQL Injection - OR 1=1";
+    content:"' OR '1'='1"; nocase;
+    classtype:web-application-attack;
+    sid:1000001; rev:1;)
+
+<span class="token-comment"># Detect XSS attempt</span>
+<span class="token-keyword">alert</span> http $EXTERNAL_NET any -> $HOME_NET any (
+    msg:"XSS - Script Tag";
+    content:"&lt;script"; nocase;
+    content:"&gt;"; distance:0;
+    classtype:web-application-attack;
+    sid:1000002; rev:1;)
+
+<span class="token-comment"># Detect SSH brute force</span>
+<span class="token-keyword">alert</span> tcp $EXTERNAL_NET any -> $HOME_NET 22 (
+    msg:"SSH Brute Force Attempt";
+    flow:to_server,established;
+    threshold:type both, track by_src, count 5, seconds 60;
+    classtype:attempted-admin;
+    sid:1000003; rev:1;)
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># ADVANCED OPTIONS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Detect Mimikatz (credential dumping)</span>
+<span class="token-keyword">alert</span> smb any any -> $HOME_NET any (
+    msg:"Mimikatz - Credential Dumping";
+    content:"|4d 69 6d 69 6b 61 74 7a|"; <span class="token-comment"># "Mimikatz" in hex</span>
+    classtype:trojan-activity;
+    sid:1000004; rev:1;)
+
+<span class="token-comment"># Detect encoded PowerShell</span>
+<span class="token-keyword">alert</span> tcp $HOME_NET any -> any any (
+    msg:"Encoded PowerShell Execution";
+    content:"powershell"; nocase;
+    content:"-enc"; nocase; distance:0; within:20;
+    classtype:trojan-activity;
+    sid:1000005; rev:1;)
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SURICATA-SPECIFIC (file extraction)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="token-comment"># Extract executable files from HTTP</span>
+<span class="token-keyword">alert</span> http any any -> any any (
+    msg:"EXE Download Detected";
+    fileext:"exe";
+    filestore;
+    sid:1000006; rev:1;)</code></pre>
+                </div>
+                
+                <h2>Key Rule Options</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Option</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>content</strong></td>
+                                <td>Pattern to match</td>
+                                <td>content:"admin";</td>
+                            </tr>
+                            <tr>
+                                <td><strong>pcre</strong></td>
+                                <td>Regex pattern</td>
+                                <td>pcre:"/user=\d+/";</td>
+                            </tr>
+                            <tr>
+                                <td><strong>nocase</strong></td>
+                                <td>Case insensitive</td>
+                                <td>content:"SELECT"; nocase;</td>
+                            </tr>
+                            <tr>
+                                <td><strong>distance</strong></td>
+                                <td>Offset from previous match</td>
+                                <td>distance:0;</td>
+                            </tr>
+                            <tr>
+                                <td><strong>within</strong></td>
+                                <td>Match within N bytes</td>
+                                <td>within:50;</td>
+                            </tr>
+                            <tr>
+                                <td><strong>threshold</strong></td>
+                                <td>Alert threshold</td>
+                                <td>threshold:type limit, count 1, seconds 60;</td>
+                            </tr>
+                            <tr>
+                                <td><strong>flow</strong></td>
+                                <td>Direction/state</td>
+                                <td>flow:to_server,established;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Rule Sources</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Source</th>
+                                <th>Description</th>
+                                <th>Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Snort Community</strong></td>
+                                <td>Basic community rules</td>
+                                <td>Free</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Snort Subscriber</strong></td>
+                                <td>30-day faster updates</td>
+                                <td>Paid</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Emerging Threats Open</strong></td>
+                                <td>Community Suricata rules</td>
+                                <td>Free</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Emerging Threats Pro</strong></td>
+                                <td>Premium threat intel</td>
+                                <td>Paid</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How do Snort rules work?"</p>
+                        <p><strong>Answer:</strong> "Snort rules have two parts: a header (action, protocol, IPs, ports, direction) and options (detection logic). The header specifies what traffic to inspect, like 'alert tcp any any -> $HOME_NET 80'. Options in parentheses define what to look for - content strings, regex (pcre), position modifiers (distance, within), and metadata (sid, msg). Suricata uses the same syntax with extensions for multi-threading and file extraction."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="5-1-ids-ips-fundamentals.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">IDS/IPS Fundamentals</span>
+                        </div>
+                    </a>
+                    <a href="6-1-vpn-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">VPN Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CASB - Complete guide to Cloud Access Security Brokers and SaaS security">
+    <title>CASB | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">☁️</span>Cloud Security</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="14-5-container-security.html" class="nav-link"><span class="nav-link-number">14.5</span> Containers</a>
+                        <a href="14-6-casb.html" class="nav-link active"><span class="nav-link-number">14.6</span> CASB</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">Cloud Security</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">CASB</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>Cloud Access Security Broker (CASB)</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>CASBs provide visibility and control over cloud application usage, bridging the gap between on-premises security and cloud services that traditional tools can't see.</p>
+                        <ul>
+                            <li>CASB pillars and capabilities</li>
+                            <li>Deployment modes</li>
+                            <li>Shadow IT discovery</li>
+                            <li>DLP and threat protection</li>
+                            <li>Major CASB solutions</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>CASB Four Pillars</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">CASB Core Capabilities</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    CASB FOUR PILLARS                                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 1. VISIBILITY                                                        │    │
+│  │                                                                      │    │
+│  │ • Shadow IT discovery - what cloud apps are being used?             │    │
+│  │ • User activity monitoring - who is doing what?                     │    │
+│  │ • Data discovery - where is sensitive data?                         │    │
+│  │ • Risk scoring - how risky is each app?                            │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 2. COMPLIANCE                                                        │    │
+│  │                                                                      │    │
+│  │ • Data residency - where is data stored?                           │    │
+│  │ • Regulatory compliance - GDPR, HIPAA, PCI                         │    │
+│  │ • Audit trails - who accessed what, when                           │    │
+│  │ • Policy enforcement - ensure cloud configs meet standards         │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 3. DATA SECURITY                                                     │    │
+│  │                                                                      │    │
+│  │ • DLP - prevent sensitive data in cloud apps                       │    │
+│  │ • Encryption - BYOK, tokenization                                  │    │
+│  │ • Access control - who can share externally                        │    │
+│  │ • Collaboration control - limit sharing capabilities               │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ 4. THREAT PROTECTION                                                 │    │
+│  │                                                                      │    │
+│  │ • Malware detection - scan uploads/downloads                       │    │
+│  │ • Anomaly detection - unusual user behavior                        │    │
+│  │ • Compromised account detection                                    │    │
+│  │ • OAuth app control - risky third-party apps                       │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>Deployment Modes</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mode</th>
+                                <th>How It Works</th>
+                                <th>Pros/Cons</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>API-Based</strong></td>
+                                <td>Connect to cloud apps via API (out-of-band)</td>
+                                <td>✓ Easy deploy, ✓ Full visibility<br>✗ No inline blocking, ✗ After-the-fact</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Forward Proxy</strong></td>
+                                <td>Traffic routed through CASB proxy</td>
+                                <td>✓ Inline control, ✓ Any device with agent<br>✗ Requires agent or PAC</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Reverse Proxy</strong></td>
+                                <td>Sits in front of cloud app</td>
+                                <td>✓ Agentless, ✓ BYOD support<br>✗ Only for sanctioned apps</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Log Analysis</strong></td>
+                                <td>Analyze firewall/proxy logs</td>
+                                <td>✓ Simple, ✓ Discovery only<br>✗ No control, ✗ Limited detail</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Shadow IT Discovery</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Shadow IT Risk Assessment</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SHADOW IT DISCOVERY PROCESS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+1. DATA COLLECTION
+   • Firewall logs (outbound connections)
+   • Proxy logs (HTTP/HTTPS traffic)
+   • DNS logs (domain queries)
+   • Endpoint agent (app usage)
+
+2. APP IDENTIFICATION
+   CASB identifies ~30,000+ cloud apps from traffic patterns
+   
+3. RISK SCORING (Example criteria)
+   ┌─────────────────────────────────────────────────┐
+   │ App: Dropbox Personal                           │
+   │ Risk Score: 7/10 (High)                        │
+   │                                                 │
+   │ ✗ No SOC 2 Type II                            │
+   │ ✗ Data stored in multiple countries           │
+   │ ✗ No enterprise admin controls                │
+   │ ✓ Encryption at rest                          │
+   │ ✓ Multi-factor authentication available       │
+   └─────────────────────────────────────────────────┘
+
+4. POLICY ACTION
+   • Block high-risk apps
+   • Allow with warnings
+   • Redirect to sanctioned alternative
+   • Monitor and report</code></pre>
+                </div>
+                
+                <h2>CASB Solutions</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Vendor</th>
+                                <th>Product</th>
+                                <th>Strengths</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Microsoft</strong></td>
+                                <td>Defender for Cloud Apps</td>
+                                <td>M365 integration, included in E5</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Netskope</strong></td>
+                                <td>Netskope CASB</td>
+                                <td>Strong inline protection, SASE leader</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Zscaler</strong></td>
+                                <td>Zscaler CASB</td>
+                                <td>Integrated with ZIA/ZPA, SASE</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Palo Alto</strong></td>
+                                <td>Prisma SaaS</td>
+                                <td>Part of Prisma SASE platform</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Symantec</strong></td>
+                                <td>CloudSOC</td>
+                                <td>Strong DLP integration</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Common Use Cases</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Use Case</th>
+                                <th>CASB Capability</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Block personal cloud storage</strong></td>
+                                <td>Block Dropbox Personal, allow Dropbox Business</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Prevent data exfiltration</strong></td>
+                                <td>DLP policies on uploads to any cloud app</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Detect compromised accounts</strong></td>
+                                <td>Anomaly detection - impossible travel, mass download</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Control external sharing</strong></td>
+                                <td>Prevent sharing outside organization in O365/GDrive</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Risky OAuth apps</strong></td>
+                                <td>Detect/revoke apps with excessive permissions</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BYOD access</strong></td>
+                                <td>Allow view-only, block download on unmanaged devices</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ CASB Implementation Tips</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Start with discovery:</strong> Understand what's being used before blocking</li>
+                            <li><strong>Risk-based approach:</strong> Don't block everything, prioritize high-risk</li>
+                            <li><strong>Provide alternatives:</strong> If blocking personal Dropbox, offer sanctioned option</li>
+                            <li><strong>Integrate with DLP:</strong> Extend data protection policies to cloud</li>
+                            <li><strong>Monitor OAuth apps:</strong> Third-party apps with API access are high risk</li>
+                            <li><strong>Consider SASE:</strong> CASB increasingly part of larger SASE platform</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "What is a CASB and when would you use one?"</p>
+                        <p><strong>Answer:</strong> "A CASB - Cloud Access Security Broker - provides visibility and control over cloud application usage. Traditional security tools can't see inside SaaS applications like Office 365, Salesforce, or Box. A CASB addresses four main areas: visibility into what cloud apps are being used (shadow IT discovery), compliance monitoring for regulatory requirements, data security including DLP for cloud, and threat protection like malware scanning and compromised account detection. I'd implement a CASB when the organization uses multiple SaaS applications and needs to prevent data leakage, control shadow IT, or meet compliance requirements that require visibility into cloud data handling. Most CASB solutions are now part of broader SASE platforms."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="14-5-container-security.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Container Security</span>
+                        </div>
+                    </a>
+                    <a href="15-2-interview-questions.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Interview Questions</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

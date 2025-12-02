@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="API Security - Complete guide to securing APIs, OWASP API Top 10, and API gateways">
+    <title>API Security | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🛡️</span>WAF & API</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="4-1-waf-fundamentals.html" class="nav-link"><span class="nav-link-number">4.1</span> WAF Fundamentals</a>
+                        <a href="4-6-api-security.html" class="nav-link active"><span class="nav-link-number">4.6</span> API Security</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">WAF & API</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">API Security</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>API Security</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>APIs are the backbone of modern applications but present unique security challenges. Understanding API security is essential as organizations increasingly rely on microservices and third-party integrations.</p>
+                        <ul>
+                            <li>OWASP API Security Top 10</li>
+                            <li>API authentication methods</li>
+                            <li>Rate limiting and throttling</li>
+                            <li>API gateways</li>
+                            <li>API security testing</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>OWASP API Security Top 10 (2023)</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Risk</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>API1: Broken Object Level Authorization</strong></td>
+                                <td>Access other users' data by changing IDs</td>
+                                <td>/api/users/123 → /api/users/456</td>
+                            </tr>
+                            <tr>
+                                <td><strong>API2: Broken Authentication</strong></td>
+                                <td>Weak authentication mechanisms</td>
+                                <td>No token expiry, weak JWT secrets</td>
+                            </tr>
+                            <tr>
+                                <td><strong>API3: Broken Object Property Level Authorization</strong></td>
+                                <td>Expose/modify restricted properties</td>
+                                <td>Mass assignment, excess data exposure</td>
+                            </tr>
+                            <tr>
+                                <td><strong>API4: Unrestricted Resource Consumption</strong></td>
+                                <td>No rate limiting, DoS potential</td>
+                                <td>Unlimited API calls, large payloads</td>
+                            </tr>
+                            <tr>
+                                <td><strong>API5: Broken Function Level Authorization</strong></td>
+                                <td>Access admin functions as regular user</td>
+                                <td>/api/admin/users accessible to users</td>
+                            </tr>
+                            <tr>
+                                <td><strong>API6: Unrestricted Access to Sensitive Business Flows</strong></td>
+                                <td>Abuse business logic at scale</td>
+                                <td>Automated ticket scalping, mass signups</td>
+                            </tr>
+                            <tr>
+                                <td><strong>API7: Server Side Request Forgery</strong></td>
+                                <td>API fetches attacker-controlled URLs</td>
+                                <td>Access internal services via API</td>
+                            </tr>
+                            <tr>
+                                <td><strong>API8: Security Misconfiguration</strong></td>
+                                <td>Insecure defaults, verbose errors</td>
+                                <td>Debug mode enabled, CORS misconfigured</td>
+                            </tr>
+                            <tr>
+                                <td><strong>API9: Improper Inventory Management</strong></td>
+                                <td>Unknown/deprecated API endpoints</td>
+                                <td>Old API versions still accessible</td>
+                            </tr>
+                            <tr>
+                                <td><strong>API10: Unsafe Consumption of APIs</strong></td>
+                                <td>Trust third-party APIs blindly</td>
+                                <td>No validation of external API responses</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>API Authentication Methods</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">API Authentication Comparison</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    API AUTHENTICATION METHODS                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  API KEY                                                                    │
+│  ────────                                                                   │
+│  Header: X-API-Key: abc123xyz789                                           │
+│  ✓ Simple to implement                                                     │
+│  ✗ No user context, shared secret, hard to rotate                          │
+│  Use: Server-to-server, low-sensitivity APIs                               │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════   │
+│                                                                              │
+│  OAUTH 2.0 + JWT                                                           │
+│  ──────────────────                                                         │
+│  Header: Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5...                 │
+│  ✓ Industry standard, user context, scopes/permissions                     │
+│  ✓ Token expiration, refresh tokens                                        │
+│  ✗ More complex to implement                                               │
+│  Use: User-facing APIs, mobile apps, SPAs                                  │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════   │
+│                                                                              │
+│  MUTUAL TLS (mTLS)                                                         │
+│  ─────────────────                                                          │
+│  Client presents certificate, server validates                              │
+│  ✓ Strong authentication, no secrets to steal                              │
+│  ✗ Certificate management complexity                                       │
+│  Use: Service mesh, high-security internal APIs                            │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════   │
+│                                                                              │
+│  HMAC SIGNATURES                                                           │
+│  ───────────────                                                            │
+│  Sign request with shared secret, include timestamp                        │
+│  ✓ Prevents replay attacks, validates integrity                            │
+│  ✗ Implementation complexity                                               │
+│  Use: Webhooks, payment APIs (Stripe, AWS SigV4)                           │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>JWT Security</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">JWT Best Practices</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># JWT STRUCTURE</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+Header.Payload.Signature
+
+Header:  {"alg": "RS256", "typ": "JWT"}
+Payload: {"sub": "user123", "exp": 1699999999, "scope": "read"}
+Signature: RSASHA256(base64(header) + "." + base64(payload), privateKey)
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># JWT SECURITY BEST PRACTICES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+✅ DO:
+• Use RS256 (asymmetric) over HS256 (symmetric)
+• Set short expiration (15 min for access tokens)
+• Validate ALL claims: exp, iat, iss, aud
+• Use refresh tokens for long sessions
+• Store secrets in vault, not code
+
+❌ DON'T:
+• Use "alg": "none" (algorithm confusion attack)
+• Store sensitive data in payload (it's base64, not encrypted)
+• Use weak secrets for HS256 (brute-forceable)
+• Accept tokens without signature validation
+• Store JWTs in localStorage (XSS vulnerable)
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># VALIDATION EXAMPLE (Pseudo-code)</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+def validate_jwt(token):
+    # 1. Verify signature with public key
+    # 2. Check expiration (exp > now)
+    # 3. Check not-before (nbf < now)
+    # 4. Verify issuer (iss == expected)
+    # 5. Verify audience (aud == this_api)
+    # 6. Check required scopes</code></pre>
+                </div>
+                
+                <h2>API Gateway Security</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Gateway</th>
+                                <th>Type</th>
+                                <th>Security Features</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Kong</strong></td>
+                                <td>Open Source/Enterprise</td>
+                                <td>Rate limiting, OAuth, mTLS, WAF plugins</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AWS API Gateway</strong></td>
+                                <td>Cloud Native</td>
+                                <td>IAM auth, Cognito, WAF integration, throttling</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Azure API Management</strong></td>
+                                <td>Cloud Native</td>
+                                <td>OAuth, rate limiting, IP filtering</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Apigee</strong></td>
+                                <td>Enterprise</td>
+                                <td>OAuth, threat protection, analytics</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NGINX Plus</strong></td>
+                                <td>Enterprise</td>
+                                <td>Rate limiting, JWT validation, WAF</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Rate Limiting</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Rate Limiting Strategies</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># RATE LIMITING RESPONSE HEADERS</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+HTTP/1.1 200 OK
+X-RateLimit-Limit: 1000          <span class="token-comment"># Max requests per window</span>
+X-RateLimit-Remaining: 998       <span class="token-comment"># Requests remaining</span>
+X-RateLimit-Reset: 1699999999    <span class="token-comment"># When limit resets (Unix time)</span>
+
+<span class="token-comment"># When exceeded:</span>
+HTTP/1.1 429 Too Many Requests
+Retry-After: 60                  <span class="token-comment"># Seconds until retry</span>
+
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># RATE LIMIT STRATEGIES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+1. PER-USER LIMITS
+   User tier: Free=100/hr, Pro=1000/hr, Enterprise=10000/hr
+
+2. PER-ENDPOINT LIMITS
+   /api/search: 10/min (expensive)
+   /api/users: 100/min (normal)
+   
+3. SLIDING WINDOW
+   Track requests over rolling time window
+   More accurate than fixed windows
+
+4. BURST ALLOWANCE
+   Allow short bursts above limit
+   100/min with burst of 20</code></pre>
+                </div>
+                
+                <div class="callout callout-bestpractice">
+                    <div class="callout-title">✅ API Security Checklist</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Authentication:</strong> Use OAuth 2.0/OIDC, not just API keys</li>
+                            <li><strong>Authorization:</strong> Check permissions on EVERY request</li>
+                            <li><strong>Input validation:</strong> Validate all inputs, use schemas</li>
+                            <li><strong>Rate limiting:</strong> Protect against abuse and DoS</li>
+                            <li><strong>TLS everywhere:</strong> No HTTP, only HTTPS</li>
+                            <li><strong>Logging:</strong> Log all API access for audit</li>
+                            <li><strong>Versioning:</strong> Deprecate old versions, maintain inventory</li>
+                            <li><strong>Error handling:</strong> Don't leak internal details</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "How would you secure a REST API?"</p>
+                        <p><strong>Answer:</strong> "I'd implement security at multiple layers: For authentication, OAuth 2.0 with JWTs using RS256 signing, short-lived access tokens, and refresh tokens. For authorization, validate permissions on every request - check that the user can access that specific resource, not just that they're authenticated. Implement rate limiting per user and per endpoint to prevent abuse. Use an API gateway for centralized security controls. Validate all inputs against a schema and sanitize outputs. Always use TLS, set security headers, and configure CORS properly. Log all API access to SIEM for monitoring. Maintain an API inventory and deprecate old versions. Finally, include APIs in regular security testing - both automated scanning and manual testing for business logic flaws."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="4-5-cloudflare-waf.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">Cloudflare WAF</span>
+                        </div>
+                    </a>
+                    <a href="5-1-ids-ips-fundamentals.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">IDS/IPS Fundamentals</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

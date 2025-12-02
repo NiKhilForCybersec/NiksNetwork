@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SD-WAN Security - Complete guide to securing software-defined WAN deployments">
+    <title>SD-WAN Security | Network Security Guide</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">🔒</div>
+                    <div class="sidebar-logo-text">Network Security<span>Ultimate Guide</span></div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section active">
+                    <div class="nav-section-header">
+                        <div class="nav-section-title"><span class="nav-section-icon">🔐</span>VPN & WAN</div>
+                    </div>
+                    <div class="nav-section-content">
+                        <a href="6-5-vpn-troubleshooting.html" class="nav-link"><span class="nav-link-number">6.5</span> VPN Troubleshooting</a>
+                        <a href="6-6-sdwan-security.html" class="nav-link active"><span class="nav-link-number">6.6</span> SD-WAN Security</a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item"><a href="index.html">Home</a></span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-item">VPN & WAN</span>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">SD-WAN Security</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-body">
+                <h1>SD-WAN Security</h1>
+                
+                <div class="overview-box">
+                    <div class="overview-title">📋 What You'll Learn</div>
+                    <div class="overview-content">
+                        <p>SD-WAN (Software-Defined Wide Area Network) transforms branch connectivity but introduces new security considerations. Modern SD-WAN integrates security directly into the fabric.</p>
+                        <ul>
+                            <li>SD-WAN architecture and components</li>
+                            <li>Security integration (SASE)</li>
+                            <li>Encryption and segmentation</li>
+                            <li>Zero Trust SD-WAN</li>
+                            <li>Major SD-WAN vendors</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h2>Traditional WAN vs SD-WAN</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">SD-WAN Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    TRADITIONAL WAN vs SD-WAN                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  TRADITIONAL WAN (Hub-and-Spoke)                                           │
+│  ────────────────────────────────                                           │
+│                                                                              │
+│     Branch ──── MPLS ──── HQ/DC ──── Internet                              │
+│     Branch ──── MPLS ────┘    └──── Cloud                                  │
+│     Branch ──── MPLS ────┘                                                  │
+│                                                                              │
+│     ✗ All traffic backhauled through HQ                                    │
+│     ✗ Expensive MPLS circuits                                              │
+│     ✗ Poor cloud/SaaS performance                                          │
+│                                                                              │
+│  ═══════════════════════════════════════════════════════════════════════   │
+│                                                                              │
+│  SD-WAN (Direct Internet Access + Overlay)                                 │
+│  ─────────────────────────────────────────                                  │
+│                                                                              │
+│     ┌─────────────────────────────────────────────────────────┐            │
+│     │              SD-WAN CONTROLLER (Cloud)                   │            │
+│     │         Centralized policy, orchestration               │            │
+│     └─────────────────────────────────────────────────────────┘            │
+│              │              │              │                                │
+│              ▼              ▼              ▼                                │
+│     ┌──────────────┐ ┌──────────────┐ ┌──────────────┐                     │
+│     │ Branch A     │ │ Branch B     │ │ Branch C     │                     │
+│     │ SD-WAN Edge  │ │ SD-WAN Edge  │ │ SD-WAN Edge  │                     │
+│     └──────┬───────┘ └──────┬───────┘ └──────┬───────┘                     │
+│            │                │                │                              │
+│       ┌────┴────┐      ┌────┴────┐      ┌────┴────┐                        │
+│       ▼         ▼      ▼         ▼      ▼         ▼                        │
+│    MPLS    Internet  MPLS    Internet  MPLS    Internet                    │
+│     │         │       │         │       │         │                        │
+│     └─────────┴───────┴─────────┴───────┴─────────┘                        │
+│                         │                                                   │
+│              ┌──────────┼──────────┐                                       │
+│              ▼          ▼          ▼                                       │
+│           HQ/DC      Cloud      SaaS                                       │
+│                                                                              │
+│     ✓ Direct internet access at branch                                     │
+│     ✓ Use cheap broadband + MPLS hybrid                                    │
+│     ✓ Intelligent path selection                                           │
+│     ✓ Encrypted overlay tunnels                                            │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>SD-WAN Security Features</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Description</th>
+                                <th>Security Benefit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Encrypted Overlay</strong></td>
+                                <td>IPSec/TLS tunnels between sites</td>
+                                <td>Data protection over untrusted links</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Segmentation</strong></td>
+                                <td>Separate VRFs/VPNs per application</td>
+                                <td>Isolate traffic, limit lateral movement</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NGFW Integration</strong></td>
+                                <td>Built-in firewall at branch</td>
+                                <td>Local security enforcement</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Zero Touch Provisioning</strong></td>
+                                <td>Secure device onboarding</td>
+                                <td>No manual config exposure</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Application Awareness</strong></td>
+                                <td>DPI for traffic classification</td>
+                                <td>Policy based on app, not just port</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Centralized Policy</strong></td>
+                                <td>Push policies from controller</td>
+                                <td>Consistent security across sites</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>SASE (Secure Access Service Edge)</h2>
+                
+                <div class="ascii-diagram">
+                    <div class="ascii-diagram-title">SASE Architecture</div>
+<pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SASE = SD-WAN + Security (Cloud-Delivered)               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│                    ┌─────────────────────────────────────┐                  │
+│                    │         SASE CLOUD                  │                  │
+│                    │                                     │                  │
+│                    │  ┌─────────┐  ┌─────────┐          │                  │
+│                    │  │ SD-WAN  │  │  ZTNA   │          │                  │
+│                    │  │         │  │         │          │                  │
+│                    │  └─────────┘  └─────────┘          │                  │
+│                    │                                     │                  │
+│                    │  ┌─────────┐  ┌─────────┐          │                  │
+│                    │  │  SWG    │  │  CASB   │          │                  │
+│                    │  │ (Proxy) │  │         │          │                  │
+│                    │  └─────────┘  └─────────┘          │                  │
+│                    │                                     │                  │
+│                    │  ┌─────────┐  ┌─────────┐          │                  │
+│                    │  │  FWaaS  │  │  DLP    │          │                  │
+│                    │  │         │  │         │          │                  │
+│                    │  └─────────┘  └─────────┘          │                  │
+│                    │                                     │                  │
+│                    └─────────────────────────────────────┘                  │
+│                           ▲         ▲         ▲                            │
+│                           │         │         │                            │
+│              ┌────────────┘         │         └────────────┐               │
+│              │                      │                      │               │
+│       ┌──────┴──────┐        ┌──────┴──────┐        ┌──────┴──────┐       │
+│       │   Branch    │        │   Remote    │        │   Mobile    │       │
+│       │   Office    │        │   User      │        │   User      │       │
+│       └─────────────┘        └─────────────┘        └─────────────┘       │
+│                                                                              │
+│  SASE VENDORS: Zscaler, Palo Alto Prisma, Cisco, Fortinet, Cato Networks  │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+</pre>
+                </div>
+                
+                <h2>SD-WAN Vendors</h2>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Vendor</th>
+                                <th>Product</th>
+                                <th>Security Strengths</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Cisco</strong></td>
+                                <td>Viptela / Meraki</td>
+                                <td>Umbrella integration, Talos threat intel</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Palo Alto</strong></td>
+                                <td>Prisma SD-WAN</td>
+                                <td>Full NGFW, Prisma Access SASE</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fortinet</strong></td>
+                                <td>FortiGate SD-WAN</td>
+                                <td>Integrated NGFW, FortiGuard</td>
+                            </tr>
+                            <tr>
+                                <td><strong>VMware</strong></td>
+                                <td>VeloCloud</td>
+                                <td>Cloud gateway security</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Zscaler</strong></td>
+                                <td>SD-WAN Partners</td>
+                                <td>ZIA/ZPA integration, SASE leader</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cato Networks</strong></td>
+                                <td>Cato SASE</td>
+                                <td>Cloud-native SASE, global backbone</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>SD-WAN Security Best Practices</h2>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">SD-WAN Security Checklist</span>
+                        <button class="code-copy-btn">📋 Copy</button>
+                    </div>
+                    <pre><code><span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="token-comment"># SD-WAN SECURITY BEST PRACTICES</span>
+<span class="token-comment"># ═══════════════════════════════════════════════════════════════</span>
+
+ENCRYPTION:
+☐ All overlay tunnels encrypted (IPSec AES-256)
+☐ Control plane communication encrypted
+☐ Certificates for device authentication
+☐ PFS (Perfect Forward Secrecy) enabled
+
+SEGMENTATION:
+☐ Separate VRFs for different traffic types
+☐ Guest traffic isolated from corporate
+☐ PCI/sensitive data in dedicated segment
+☐ IoT devices segmented
+
+ACCESS CONTROL:
+☐ RBAC for controller access
+☐ MFA for admin access
+☐ Audit logging enabled
+☐ API access secured
+
+DIRECT INTERNET ACCESS:
+☐ Local firewall/UTM at branch
+☐ DNS security (Umbrella, etc.)
+☐ Cloud proxy for web traffic
+☐ SaaS traffic policies defined
+
+MONITORING:
+☐ Centralized logging to SIEM
+☐ NetFlow/IPFIX collection
+☐ Anomaly detection enabled
+☐ Certificate expiration monitoring</code></pre>
+                </div>
+                
+                <div class="callout callout-warning">
+                    <div class="callout-title">⚠️ SD-WAN Security Risks</div>
+                    <div class="callout-content">
+                        <ul>
+                            <li><strong>Direct Internet Access:</strong> Branches now internet-exposed</li>
+                            <li><strong>Controller compromise:</strong> Single point of failure for policy</li>
+                            <li><strong>Underlay attacks:</strong> MITM on public internet links</li>
+                            <li><strong>Zero Touch:</strong> Ensure secure bootstrapping</li>
+                            <li><strong>Cloud dependency:</strong> What happens if controller is down?</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="callout callout-interview">
+                    <div class="callout-title">💡 Interview Tip</div>
+                    <div class="callout-content">
+                        <p><strong>Question:</strong> "What are the security considerations when deploying SD-WAN?"</p>
+                        <p><strong>Answer:</strong> "SD-WAN introduces direct internet access at branches, which means security can't just live at the data center anymore. Key considerations: First, all overlay traffic must be encrypted with strong IPSec - AES-256 with PFS. Second, segment traffic into different VRFs so a breach in one segment doesn't affect others. Third, since branches now have direct internet access, deploy local security - either integrated NGFW in the SD-WAN appliance or cloud security via SASE. Fourth, secure the controller - use MFA, RBAC, and ensure it's highly available since it controls all policy. Fifth, implement zero trust principles - authenticate and authorize every connection. Many organizations now combine SD-WAN with SASE to get cloud-delivered security for all users and branches consistently."</p>
+                    </div>
+                </div>
+                
+                <nav class="page-navigation">
+                    <a href="6-5-vpn-troubleshooting.html" class="page-nav-btn prev">
+                        <span class="page-nav-arrow">←</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Previous</span>
+                            <span class="page-nav-title">VPN Troubleshooting</span>
+                        </div>
+                    </a>
+                    <a href="7-1-network-segmentation.html" class="page-nav-btn next">
+                        <span class="page-nav-arrow">→</span>
+                        <div class="page-nav-text">
+                            <span class="page-nav-label">Next</span>
+                            <span class="page-nav-title">Network Segmentation</span>
+                        </div>
+                    </a>
+                </nav>
+            </div>
+        </main>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>
